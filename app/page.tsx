@@ -4,7 +4,7 @@ import { Header } from "@/components/Header";
 import { AiSuggestor } from "@/components/AiSuggestor";
 import { PlatformProvider } from "@/lib/PlatformContext";
 import { PlatformGrid } from "@/components/PlatformGrid";
-
+import { Intro } from "@/components/Intro";
 export default async function Home() {
   const { userId } = await auth();
 
@@ -16,7 +16,8 @@ export default async function Home() {
     <PlatformProvider>
       <div className="min-h-screen flex flex-col">
         <Header />
-        <main className="flex-1 p-4 mt-[57px] mx-auto w-full lg:w-[80%]">
+        <main className="flex-1 p-4 mt-[57px] mx-auto w-full lg:w-[90%]">
+          <Intro />
           <AiSuggestor />
           <PlatformGrid />
         </main>

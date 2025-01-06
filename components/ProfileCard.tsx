@@ -37,16 +37,16 @@ export function ProfileCard({
 
   return (
     <div 
-      className="relative bg-background w-full min-w-[280px] max-w-full h-[300px] shadow-[0_4px_8px_rgba(0,0,100,0.08)] 
+      className="relative bg-background w-full min-w-[280px] max-w-full h-[225px] shadow-[0_4px_8px_rgba(0,0,100,0.08)] 
                 transition-all duration-200 ease-in-out hover:shadow-[0_8px_12px_rgba(0,0,100,0.1)] 
-                hover:scale-[1.01] cursor-move flex p-4 rounded-lg"
+                hover:scale-[1.01] cursor-move flex flex-row p-4 rounded-lg"
       draggable
       onDragStart={handleDragStart}
       onDragOver={handleDragOver}
       onDrop={handleDrop}
     >
       <button 
-        className="absolute top-3 right-3 p-2 rounded-full hover:bg-red-50 group transition-colors"
+        className="absolute bottom-3 right-3 p-2 rounded-full hover:bg-red-50 group transition-colors"
         onClick={(e) => {
           e.stopPropagation();
           removePlatform(id);
@@ -55,22 +55,22 @@ export function ProfileCard({
         <Trash2 className="w-6 h-6 text-gray-300 group-hover:text-red-500 transition-colors" />
       </button>
 
-      <div className="w-[250px] bg-gray-50 h-full flex flex-col items-center rounded-lg transition-colors hover:bg-white">
+      <div className="w-[180px] bg-gray-50 h-full flex flex-col items-center rounded-lg transition-colors hover:bg-white">
         <div className="flex-1 flex items-center justify-center">
           <Image
             src={`/${platform}.svg`}
             alt={platform}
             width={120}
             height={120}
-            className="text-gray-200"
+            className="w-[100px] h-[100px]"
             draggable={false}
           />
         </div>
-        <p className="text-xl text-gray-800 uppercase tracking-wider font-bold mb-4">{platform}</p>
+        <p className="block text-sm text-gray-800 uppercase tracking-wider font-bold mb-2">{platform}</p>
       </div>
 
-      <div className="flex-1 p-6">
-        <h3 className="text-[32px] font-bold text-gray-900">{username}</h3>
+      <div className="flex-1 px-4 flex overflow-hidden">
+        <h3 className="text-xl font-bold text-gray-900 truncate w-full">{username}</h3>
       </div>
     </div>
   );

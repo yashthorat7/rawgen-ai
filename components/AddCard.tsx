@@ -10,7 +10,7 @@ export function AddCard() {
     <>
       <div
         onClick={() => setOpen(true)}
-        className="h-[300px] mb-4 border-2 border-dashed border-gray-300 cursor-pointer flex items-center justify-center hover:border-gray-400 transition-colors w-full min-w-[280px] max-w-full rounded-lg"
+        className="h-[225px] mb-4 border-2 border-dashed border-gray-300 cursor-pointer flex items-center justify-center hover:border-gray-400 transition-colors w-full min-w-[280px] max-w-full rounded-lg"
       >
         <svg
           className="w-8 h-8 text-gray-400"
