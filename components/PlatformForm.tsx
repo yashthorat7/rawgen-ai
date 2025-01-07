@@ -56,7 +56,7 @@ export function PlatformForm({
             }),
           }}
         />
-        <div className={`overflow-hidden transition-all duration-300 ease-in-out ${platformError ? 'h-4 mt-1' : 'h-0'}`}>
+        <div className="overflow-visible">
           {platformError && <p className="text-red-500 text-sm">{platformError}</p>}
         </div>
       </div>
@@ -69,19 +69,17 @@ export function PlatformForm({
           type="text"
           value={username}
           onChange={(e) => onUsernameChange(e.target.value)}
-          className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
           placeholder="eg. indiragandhi"
+          className={`w-full px-3 py-2 border rounded-md focus:outline-primary-500 focus:border-primary-500`}
         />
-        <div className={`overflow-hidden transition-all duration-300 ease-in-out ${usernameError ? 'h-4 mt-1' : 'h-0'}`}>
-          {usernameError && <p className="text-red-500 text-sm">{usernameError}</p>}
-        </div>
-        <div className={`overflow-hidden transition-all duration-300 ease-in-out ${validationMessage ? 'h-4 mt-1' : 'h-0'}`}>
-          {validationMessage && (
-            <p className={`text-sm ${isValidated ? 'text-green-600' : 'text-red-500'}`}>
-              {validationMessage}
-            </p>
-          )}
-        </div>
+        {usernameError && (
+          <p className="mt-1 text-xs text-red-500">{usernameError}</p>
+        )}
+        {validationMessage && (
+          <p className={`mt-1 text-xs ${isValidated ? 'text-green-600' : 'text-red-500'}`}>
+            {validationMessage}
+          </p>
+        )}
       </div>
 
       <div className="flex justify-end gap-3">
@@ -95,7 +93,7 @@ export function PlatformForm({
         <button
           type="submit"
           disabled={isValidating}
-          className="px-4 py-2 bg-blue-600 text-white rounded-md disabled:opacity-50"
+          className="px-4 py-2 bg-primary-600 text-white rounded-md disabled:opacity-50"
         >
           {isValidating ? 'Validating...' : isValidated ? 'Add' : 'Validate'}
         </button>

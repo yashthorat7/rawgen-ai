@@ -1,6 +1,16 @@
 "use client";
 
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
+import { extractLeetCodeData } from "./extractors/leetcodeExtractor";
+import { extractCodeChefData } from "./extractors/codechefExtractor";
+import { extractGeeksForGeeksData } from "./extractors/geeksforgeeksExtractor";
+import type { LeetCodeData, CodeChefData, GeeksForGeeksData } from './types';
+
+type PlatformData = {
+  leetcode: Record<string, LeetCodeData | null>;
+  codechef: Record<string, CodeChefData | null>;
+  geeksforgeeks: Record<string, GeeksForGeeksData | null>;
+};
 
 type Platform = {
   id: string;
@@ -10,6 +20,7 @@ type Platform = {
 
 type PlatformContextType = {
   platforms: Platform[];
+  platformData: PlatformData;
   addPlatform: (platform: string, username: string) => void;
   removePlatform: (id: string) => void;
   reorderPlatforms: (fromIndex: number, toIndex: number) => void;
@@ -19,6 +30,41 @@ const PlatformContext = createContext<PlatformContextType | undefined>(undefined
 
 export function PlatformProvider({ children }: { children: React.ReactNode }) {
   const [platforms, setPlatforms] = useState<Platform[]>([]);
+  const [platformData, setPlatformData] = useState<PlatformData>({
+    leetcode: {},
+    codechef: {},
+    geeksforgeeks: {}
+  });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const newPlatformData = { ...platformData };
+
+      for (const { platform, username } of platforms) {
+        switch (platform) {
+          case 'leetcode':
+            if (!platformData.leetcode[username]) {
+              newPlatformData.leetcode[username] = await extractLeetCodeData(username);
+            }
+            break;
+          case 'codechef':
+            if (!platformData.codechef[username]) {
+              newPlatformData.codechef[username] = await extractCodeChefData(username);
+            }
+            break;
+          case 'geeksforgeeks':
+            if (!platformData.geeksforgeeks[username]) {
+              newPlatformData.geeksforgeeks[username] = await extractGeeksForGeeksData(username);
+            }
+            break;
+        }
+      }
+
+      setPlatformData(newPlatformData);
+    };
+
+    fetchData();
+  }, [platforms]);
 
   const addPlatform = (platform: string, username: string) => {
     setPlatforms([...platforms, {
@@ -40,7 +86,7 @@ export function PlatformProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <PlatformContext.Provider value={{ platforms, addPlatform, removePlatform, reorderPlatforms }}>
+    <PlatformContext.Provider value={{ platforms, platformData, addPlatform, removePlatform, reorderPlatforms }}>
       {children}
     </PlatformContext.Provider>
   );

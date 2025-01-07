@@ -125,8 +125,8 @@ export function ImageSelector({ image, onImageChange }: ImageSelectorProps) {
       </div>
 
       {showCropModal && tempImage && createPortal(
-        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-start sm:items-center justify-center z-50 sm:pt-0 pt-[10vh]">
-          <div className="bg-white rounded-xl w-[90vw] h-[90vh] sm:w-[800px] sm:h-[600px] flex flex-col">
+        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-start sm:items-center justify-center z-50">
+          <div className="bg-white rounded-xl w-[90vw] h-[90vh] sm:w-[500px] sm:h-[600px] flex flex-col">
             <div className="p-4 border-b">
               <h3 className="text-lg font-semibold">Adjust Profile Picture</h3>
             </div>

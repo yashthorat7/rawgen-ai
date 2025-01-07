@@ -15,4 +15,4 @@ export const validateLeetCodeProfile = async (username: string): Promise<boolean
       console.error('LeetCode validation error:', error);
       return false;
     }
-  };
+};

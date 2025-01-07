@@ -5,6 +5,8 @@ import { AiSuggestor } from "@/components/AiSuggestor";
 import { PlatformProvider } from "@/lib/PlatformContext";
 import { PlatformGrid } from "@/components/PlatformGrid";
 import { Intro } from "@/components/Intro";
+import { TagStrip } from "@/components/TagStrip";
+
 export default async function Home() {
   const { userId } = await auth();
 
@@ -19,6 +21,7 @@ export default async function Home() {
         <main className="flex-1 p-4 mt-[57px] mx-auto w-full lg:w-[90%]">
           <Intro />
           <AiSuggestor />
+          <TagStrip />
           <PlatformGrid />
         </main>
       </div>

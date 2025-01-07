@@ -1,17 +1,108 @@
 "use client";
 
+import { useState, useEffect, useCallback } from "react";
+import { usePlatforms } from "@/lib/PlatformContext";
+import Groq from "groq-sdk";
+
+const groq = new Groq({
+  apiKey: process.env.NEXT_PUBLIC_GROQ_API_KEY!,
+  dangerouslyAllowBrowser: true,
+});
+
 export function AiSuggestor() {
+  const { platformData, platforms } = usePlatforms();
+  const [advice, setAdvice] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [hasFetchedAdvice, setHasFetchedAdvice] = useState(false);
+
+  // Reset hasFetchedAdvice when platforms change
+  useEffect(() => {
+    setHasFetchedAdvice(false);
+  }, [platforms.length]); // Watch platforms.length instead of entire platforms array
+
+  const generateAdvice = useCallback(async () => {
+    if (hasFetchedAdvice) return;
+    setIsLoading(true);
+    setAdvice("");
+
+    try {
+      // Prepare platform data for the AI
+      const leetcodeUsers = Object.values(platformData.leetcode);
+      const codechefUsers = Object.values(platformData.codechef);
+      const gfgUsers = Object.values(platformData.geeksforgeeks);
+
+      // Only proceed if we have data
+      if (leetcodeUsers.length === 0 && codechefUsers.length === 0 && gfgUsers.length === 0) {
+        setAdvice("Add some coding platforms to get personalized suggestions!");
+        return;
+      }
+
+      const response = await groq.chat.completions.create({
+        messages: [
+          {
+            role: "user",
+            content: `Based on the following coding profiles data:
+            ${leetcodeUsers.map(user => user ? `
+              LeetCode:
+              - Problems Solved: ${user.totalSolved}/${user.totalQuestions}
+              - Easy: ${user.easySolved}, Medium: ${user.mediumSolved}, Hard: ${user.hardSolved}
+              - Ranking: ${user.ranking}
+            ` : '').join('\n')}
+            
+            ${codechefUsers.map(user => user ? `
+              CodeChef:
+              - Rating: ${user.currentRating} (${user.stars})
+              - Global Rank: ${user.globalRank}
+              - Contests Participated: ${user.contests}
+            ` : '').join('\n')}
+            
+            ${gfgUsers.map(user => user ? `
+              GeeksForGeeks:
+              - Problems Solved: ${user.problemsSolved}
+              - Score: ${user.codingScore}
+              - Basic: ${user.basicCount}, Easy: ${user.easyCount}
+              - Medium: ${user.mediumCount}, Hard: ${user.hardCount}
+              - Current Streak: ${user.currentStreak}
+            ` : '').join('\n')}
+            
+            Act like this is your profile and provide a brief (80 words max) personalized coding summary Focus on areas of improvement, and maintain an encouraging tone. Speak directly to the recruiter and be specific. dont't add quotes on the ends. be concise and to the point. explain in detial yet be concise. dont't say here is the summary directly give me the summary or greetings. just give me the summary`,
+          },
+        ],
+        model: "llama3-8b-8192",
+      });
+
+      setAdvice(response.choices[0]?.message?.content || "No advice available at the moment.");
+      setHasFetchedAdvice(true);
+    } catch (error) {
+      console.error('AI Suggestion error:', error);
+      setAdvice("I couldn't generate advice at this moment. Please try again later.");
+    } finally {
+      setIsLoading(false);
+    }
+  }, [platformData, hasFetchedAdvice]);
+
+  useEffect(() => {
+    generateAdvice();
+  }, [generateAdvice]);
+
   return (
     <div className="mt-5 mb-5">
-      <label className="block w-full px-4 py-3 relative rounded-lg text-gray-500 cursor-text overflow-hidden z-0
-                       before:absolute before:inset-0 before:rounded-lg before:content-[''] before:z-[1]
-                       before:bg-[linear-gradient(var(--angle),#12c2e9,#c471ed,#f64f59)]
-                       before:animate-[rotate_4s_linear_infinite]
-                       after:absolute after:inset-[2px] after:rounded-lg after:bg-gray-50 after:z-[2]">
-        <span className="relative z-[3]">
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quos. Lorem ipsum dolor sit amet consectetur adipisicing elit. Perspiciatis, voluptate.
-        </span>
-      </label>
+      <div className="block w-full px-4 py-3 relative rounded-lg text-gray-500 overflow-hidden z-0
+                     before:absolute before:inset-0 before:rounded-lg before:content-[''] before:z-[1]
+                     before:bg-[linear-gradient(var(--angle),#12c2e9,#c471ed,#f64f59)]
+                     before:animate-[rotate_4s_linear_infinite]
+                     after:absolute after:inset-[2px] after:rounded-lg after:bg-gray-50 after:z-[2]">
+        {isLoading ? (
+          <div className="relative z-[3] w-full">
+            <div className="h-4 bg-gray-200 rounded animate-pulse mb-2"></div>
+            <div className="h-4 bg-gray-200 rounded animate-pulse w-3/4"></div>
+          </div>
+        ) : (
+          <span className="relative z-[3] block">
+            {advice || "Add some coding platforms to get personalized suggestions!"}
+          </span>
+        )}
+      </div>
     </div>
   );
 } 

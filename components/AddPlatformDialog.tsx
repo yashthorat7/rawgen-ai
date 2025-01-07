@@ -1,12 +1,14 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { Transition } from "@headlessui/react"
 import { usePlatforms } from "@/lib/PlatformContext"
 import { validateLeetCodeProfile } from "@/lib/validators/leetcodeValidator"
 import { validateGeeksForGeeksProfile } from "@/lib/validators/geeksforgeeksValidator"
 import { validateCodeChefProfile } from "@/lib/validators/codechefValidator"
 import { PlatformForm, platforms } from "./PlatformForm"
+
+type PlatformOption = { value: string; label: string; };
 
 export function AddPlatformDialog({
   open,
@@ -15,22 +17,35 @@ export function AddPlatformDialog({
   open: boolean
   onOpenChange: (open: boolean) => void
 }) {
-  const { addPlatform } = usePlatforms()
-  const [selectedPlatform, setSelectedPlatform] = useState<any>(null)
+  const { addPlatform, platforms } = usePlatforms()
+  const [selectedPlatform, setSelectedPlatform] = useState<PlatformOption | null>(null)
   const [username, setUsername] = useState("")
   const [platformError, setPlatformError] = useState("")
   const [usernameError, setUsernameError] = useState("")
   const [validationMessage, setValidationMessage] = useState("")
   const [isValidated, setIsValidated] = useState(false)
   const [isValidating, setIsValidating] = useState(false)
+  const abortControllerRef = useRef<AbortController | null>(null)
+
+  const checkIfUsernameExists = (platform: string, username: string) => {
+    return platforms.some(p => 
+      p.platform === platform && 
+      p.username.toLowerCase() === username.toLowerCase()
+    );
+  };
 
   const resetForm = () => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort()
+      abortControllerRef.current = null
+    }
     setSelectedPlatform(null)
     setUsername("")
     setPlatformError("")
     setUsernameError("")
     setValidationMessage("")
     setIsValidated(false)
+    setIsValidating(false)
   }
 
   const handleClose = () => {
@@ -41,6 +56,17 @@ export function AddPlatformDialog({
   const validateProfile = async () => {
     if (!selectedPlatform || !username.trim()) return;
     
+    // Check if username already exists for this platform
+    if (checkIfUsernameExists(selectedPlatform.value, username)) {
+      setValidationMessage(`${username} is already added for ${selectedPlatform.label}`);
+      setIsValidated(false);
+      return;
+    }
+    
+    // Create new AbortController for this validation
+    abortControllerRef.current = new AbortController()
+    const signal = abortControllerRef.current.signal
+    
     setIsValidating(true);
     let exists = false;
 
@@ -50,26 +76,32 @@ export function AddPlatformDialog({
           exists = await validateLeetCodeProfile(username);
           break;
         case 'codechef':
-          exists = await validateCodeChefProfile(username);
+          exists = await validateCodeChefProfile(username, signal);
           break;
         case 'geeksforgeeks':
-          exists = await validateGeeksForGeeksProfile(username);
+          exists = await validateGeeksForGeeksProfile(username, signal);
           break;
         default:
           exists = false;
       }
 
-      setValidationMessage(
-        exists 
-          ? `${username} exists on ${selectedPlatform.label}`
-          : `${username} not found on ${selectedPlatform.label}`
-      );
-      setIsValidated(exists);
+      if (!signal.aborted) {
+        setValidationMessage(
+          exists 
+            ? `${username} exists on ${selectedPlatform.label}`
+            : `${username} not found on ${selectedPlatform.label}`
+        );
+        setIsValidated(exists);
+      }
     } catch (error) {
-      setValidationMessage("Error validating profile");
-      setIsValidated(false);
+      if (!signal.aborted) {
+        setValidationMessage("Error validating profile");
+        setIsValidated(false);
+      }
     } finally {
-      setIsValidating(false);
+      if (!signal.aborted) {
+        setIsValidating(false);
+      }
     }
   }
 
@@ -111,7 +143,7 @@ export function AddPlatformDialog({
     }
   };
 
-  const handlePlatformChange = (option: typeof platforms[0] | null) => {
+  const handlePlatformChange = (option: PlatformOption | null) => {
     setSelectedPlatform(option);
     setPlatformError("");
     if (isValidated) {
