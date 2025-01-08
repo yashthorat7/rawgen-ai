@@ -1,12 +1,12 @@
 "use client";
 
-import { Transition } from "@headlessui/react";
 import Select from "react-select";
 
 export const platforms = [
   { value: 'leetcode', label: 'LeetCode' },
   { value: 'codechef', label: 'CodeChef' },
   { value: 'geeksforgeeks', label: 'GeeksForGeeks' },
+  { value: 'codeforces', label: 'Codeforces' }
 ];
 
 interface PlatformFormProps {

@@ -1,12 +1,15 @@
 import { CodeChefData } from "@/lib/types";
 import { Star } from "lucide-react";
 import { ProgressBar } from "./ProgressBar";
+import { LoadingSkeleton } from "./LoadingSkeleton";
 
 interface CodeChefStatsProps {
   data: CodeChefData | null;
+  isLoading?: boolean;
 }
 
-export function CodeChefStats({ data }: CodeChefStatsProps) {
+export function CodeChefStats({ data, isLoading }: CodeChefStatsProps) {
+  if (isLoading) return <LoadingSkeleton />;
   if (!data) return null;
 
   const getRecentActivity = () => {
@@ -58,7 +61,7 @@ export function CodeChefStats({ data }: CodeChefStatsProps) {
       </div>
 
       {/* Ranks at bottom */}
-      <div className="mt-auto">
+      <div className="mt-auto mb-1">
         <div className="text-[14px] text-gray-500">
           Global: <span className="font-mono font-medium">#{data.globalRank}</span>
           <span className="mx-2">•</span>

@@ -50,4 +50,16 @@ export interface GeeksForGeeksData {
   hardCount: number;
   monthlyCoding: number;
   weeklyCoding: number;
+}
+
+export interface CodeforcesData {
+  username: string;
+  rating: number;
+  maxRating: number;
+  rank: string;
+  maxRank: string;
+  problemsSolved: number;
+  contestsParticipated: number;
+  contribution: number;
+  friendOfCount: number;
 } 

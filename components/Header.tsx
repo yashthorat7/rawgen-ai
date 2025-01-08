@@ -2,7 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { UserButton } from "@clerk/nextjs";
 
 export async function Header() {
-  const { userId } = await auth();
+  await auth();
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white/60 backdrop-blur-sm border-b border-gray-200">

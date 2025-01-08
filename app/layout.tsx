@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Mulish } from "next/font/google";
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
+import { Footer } from '@/components/Footer';
 
 const mulish = Mulish({
   subsets: ["latin"],
@@ -21,7 +22,10 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en">
         <body className={mulish.className}>
-          {children}
+          <main className="flex-1">
+            {children}
+          </main>
+          <Footer />
         </body>
       </html>
     </ClerkProvider>

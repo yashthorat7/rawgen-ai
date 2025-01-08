@@ -125,30 +125,34 @@ export function ImageSelector({ image, onImageChange }: ImageSelectorProps) {
       </div>
 
       {showCropModal && tempImage && createPortal(
-        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-start sm:items-center justify-center z-50">
-          <div className="bg-white rounded-xl w-[90vw] h-[90vh] sm:w-[500px] sm:h-[600px] flex flex-col">
-            <div className="p-4 border-b">
+        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl w-full max-w-[500px] max-h-[90vh] flex flex-col overflow-hidden">
+            <div className="p-4 border-b flex-shrink-0">
               <h3 className="text-lg font-semibold">Adjust Profile Picture</h3>
             </div>
             
-            <div className="flex-1 p-8 flex items-center justify-center bg-gray-50">
-              <ReactCrop
-                crop={crop}
-                onChange={c => setCrop(c)}
-                aspect={1}
-                circularCrop
-                className="max-h-full"
-              >
-                <img
-                  ref={imageRef}
-                  src={tempImage}
-                  alt="Crop me"
-                  className="max-h-[70vh] sm:max-h-[400px] w-auto object-contain"
-                />
-              </ReactCrop>
+            <div className="flex-1 p-4 overflow-auto flex items-center justify-center bg-gray-50">
+              <div className="max-w-full max-h-full">
+                <ReactCrop
+                  crop={crop}
+                  onChange={c => setCrop(c)}
+                  aspect={1}
+                  circularCrop
+                >
+                  <Image
+                    ref={imageRef}
+                    src={tempImage}
+                    alt="Crop preview"
+                    width={500}
+                    height={500}
+                    className="max-w-full max-h-[60vh] object-contain"
+                    unoptimized
+                  />
+                </ReactCrop>
+              </div>
             </div>
 
-            <div className="p-4 border-t flex justify-end gap-2 bg-white">
+            <div className="p-4 border-t flex justify-end gap-2 bg-white flex-shrink-0">
               <button
                 onClick={() => setShowCropModal(false)}
                 className="px-6 py-2 border rounded-lg hover:bg-gray-50"

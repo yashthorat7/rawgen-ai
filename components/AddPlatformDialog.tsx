@@ -6,7 +6,8 @@ import { usePlatforms } from "@/lib/PlatformContext"
 import { validateLeetCodeProfile } from "@/lib/validators/leetcodeValidator"
 import { validateGeeksForGeeksProfile } from "@/lib/validators/geeksforgeeksValidator"
 import { validateCodeChefProfile } from "@/lib/validators/codechefValidator"
-import { PlatformForm, platforms } from "./PlatformForm"
+import { validateCodeforcesProfile } from "@/lib/validators/codeforcesValidator"
+import { PlatformForm } from "./PlatformForm"
 
 type PlatformOption = { value: string; label: string; };
 
@@ -17,7 +18,7 @@ export function AddPlatformDialog({
   open: boolean
   onOpenChange: (open: boolean) => void
 }) {
-  const { addPlatform, platforms } = usePlatforms()
+  const { platforms, addPlatform } = usePlatforms()
   const [selectedPlatform, setSelectedPlatform] = useState<PlatformOption | null>(null)
   const [username, setUsername] = useState("")
   const [platformError, setPlatformError] = useState("")
@@ -56,14 +57,12 @@ export function AddPlatformDialog({
   const validateProfile = async () => {
     if (!selectedPlatform || !username.trim()) return;
     
-    // Check if username already exists for this platform
     if (checkIfUsernameExists(selectedPlatform.value, username)) {
       setValidationMessage(`${username} is already added for ${selectedPlatform.label}`);
       setIsValidated(false);
       return;
     }
     
-    // Create new AbortController for this validation
     abortControllerRef.current = new AbortController()
     const signal = abortControllerRef.current.signal
     
@@ -81,6 +80,9 @@ export function AddPlatformDialog({
         case 'geeksforgeeks':
           exists = await validateGeeksForGeeksProfile(username, signal);
           break;
+        case 'codeforces':
+          exists = await validateCodeforcesProfile(username, signal);
+          break;
         default:
           exists = false;
       }
@@ -93,7 +95,7 @@ export function AddPlatformDialog({
         );
         setIsValidated(exists);
       }
-    } catch (error) {
+    } catch {
       if (!signal.aborted) {
         setValidationMessage("Error validating profile");
         setIsValidated(false);

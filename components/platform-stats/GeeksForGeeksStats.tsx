@@ -1,11 +1,14 @@
 import { GeeksForGeeksData } from "@/lib/types";
 import { ProgressBar } from "./ProgressBar";
+import { LoadingSkeleton } from "./LoadingSkeleton";
 
 interface GeeksForGeeksStatsProps {
   data: GeeksForGeeksData | null;
+  isLoading?: boolean;
 }
 
-export function GeeksForGeeksStats({ data }: GeeksForGeeksStatsProps) {
+export function GeeksForGeeksStats({ data, isLoading }: GeeksForGeeksStatsProps) {
+  if (isLoading) return <LoadingSkeleton />;
   if (!data) return null;
 
   return (

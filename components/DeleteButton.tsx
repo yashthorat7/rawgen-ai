@@ -13,21 +13,24 @@ export function DeleteButton({ onDelete }: DeleteButtonProps) {
   return (
     <div className="relative">
       <button 
-        className="p-0 rounded-full hover:bg-red-50 group transition-colors"
+        className="p-1.5 rounded-full hover:bg-red-50 group transition-colors"
         onClick={(e) => {
           e.stopPropagation();
           setShowConfirm(true);
         }}
       >
-        <Trash2 className="w-6 h-6 text-gray-300 group-hover:text-red-500 transition-colors" />
+        <Trash2 className="w-5 h-5 text-gray-300 group-hover:text-red-500 transition-colors" />
       </button>
 
       {showConfirm && (
-        <div className="absolute bottom-full right-0 mb-2 bg-white rounded-lg shadow-lg p-3 w-48 text-sm">
-          <p className="text-gray-600 mb-2">Delete this card?</p>
+        <div className="absolute bottom-full right-0 mb-3 bg-white rounded-lg 
+                      shadow-[0_4px_20px_rgba(0,0,0,0.15)] border border-gray-100 
+                      p-4 w-56 text-sm z-50 animate-in fade-in slide-in-from-top-2">
+          <p className="text-gray-700 font-medium mb-3">Are you sure you want to delete this card?</p>
           <div className="flex justify-end gap-2">
             <button
-              className="px-2 py-1 text-gray-500 hover:text-gray-700 transition-colors"
+              className="px-3 py-1.5 text-gray-600 hover:text-gray-800 
+                        hover:bg-gray-50 rounded-md transition-colors"
               onClick={(e) => {
                 e.stopPropagation();
                 setShowConfirm(false);
@@ -36,7 +39,8 @@ export function DeleteButton({ onDelete }: DeleteButtonProps) {
               Cancel
             </button>
             <button
-              className="px-2 py-1 text-red-500 hover:text-red-700 transition-colors"
+              className="px-3 py-1.5 bg-red-500 text-white rounded-md 
+                        hover:bg-red-600 transition-colors"
               onClick={(e) => {
                 e.stopPropagation();
                 onDelete();

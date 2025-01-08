@@ -1,11 +1,14 @@
 import { LeetCodeData } from "@/lib/types";
 import { ProgressBar } from "./ProgressBar";
+import { LoadingSkeleton } from "./LoadingSkeleton";
 
 interface LeetCodeStatsProps {
   data: LeetCodeData | null;
+  isLoading?: boolean;
 }
 
-export function LeetCodeStats({ data }: LeetCodeStatsProps) {
+export function LeetCodeStats({ data, isLoading }: LeetCodeStatsProps) {
+  if (isLoading) return <LoadingSkeleton />;
   if (!data) return null;
 
   return (

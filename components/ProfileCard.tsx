@@ -1,12 +1,12 @@
 "use client";
 
 import Image from "next/image";
-import { Trash2 } from "lucide-react";
 import { usePlatforms } from "@/lib/PlatformContext";
 import { LeetCodeStats } from "./platform-stats/LeetCodeStats";
 import { CodeChefStats } from "./platform-stats/CodeChefStats";
 import { GeeksForGeeksStats } from "./platform-stats/GeeksForGeeksStats";
 import { DeleteButton } from "./DeleteButton";
+import { CodeforcesStats } from "./platform-stats/CodeforcesStats";
 
 export function ProfileCard({ 
   id, 
@@ -19,7 +19,8 @@ export function ProfileCard({
   username: string;
   index: number;
 }) {
-  const { removePlatform, reorderPlatforms, platformData } = usePlatforms();
+  const { removePlatform, reorderPlatforms, platformData, isLoading } = usePlatforms();
+  const isLoadingData = isLoading[`${platform}-${username}`];
 
   const handleDragStart = (e: React.DragEvent) => {
     e.dataTransfer.setData('text/plain', index.toString());
@@ -42,11 +43,13 @@ export function ProfileCard({
   const renderStats = () => {
     switch (platform) {
       case 'leetcode':
-        return <LeetCodeStats data={platformData.leetcode[username]} />;
+        return <LeetCodeStats data={platformData.leetcode[username]} isLoading={isLoadingData} />;
       case 'codechef':
-        return <CodeChefStats data={platformData.codechef[username]} />;
+        return <CodeChefStats data={platformData.codechef[username]} isLoading={isLoadingData} />;
       case 'geeksforgeeks':
-        return <GeeksForGeeksStats data={platformData.geeksforgeeks[username]} />;
+        return <GeeksForGeeksStats data={platformData.geeksforgeeks[username]} isLoading={isLoadingData} />;
+      case 'codeforces':
+        return <CodeforcesStats data={platformData.codeforces[username]} isLoading={isLoadingData} />;
       default:
         return null;
     }
@@ -64,20 +67,36 @@ export function ProfileCard({
     >
       <div className="w-full bg-gray-50 h-full flex flex-col items-center rounded-lg transition-colors hover:bg-white">
         <div className="flex-1 flex items-center justify-center">
-          <Image
-            src={`/${platform}.png`}
-            alt={platform}
-            width={200}
-            height={200}
-            className="w-auto h-auto"
-            draggable={false}
-          />
+          {isLoadingData ? (
+            <div className="w-32 h-32 bg-gray-200 rounded-lg animate-pulse" />
+          ) : (
+            <Image
+              src={`/${platform}.png`}
+              alt={platform}
+              width={200}
+              height={200}
+              className="w-auto h-auto"
+              draggable={false}
+            />
+          )}
         </div>
-        <p className="block text-sm text-gray-800 uppercase tracking-wider font-bold mb-2">{platform}</p>
+        <div className="block text-sm text-gray-800 uppercase tracking-wider font-bold mb-2">
+          {isLoadingData ? (
+            <div className="w-20 h-4 bg-gray-200 rounded animate-pulse" />
+          ) : (
+            platform
+          )}
+        </div>
       </div>
 
       <div className="relative flex flex-col h-full rounded-lg">
-        <h3 className="text-xl font-bold text-gray-900 truncate w-full">{username}</h3>
+        <h3 className="text-xl font-bold text-gray-900 truncate w-full">
+          {isLoadingData ? (
+            <div className="w-32 h-6 bg-gray-200 rounded animate-pulse" />
+          ) : (
+            username
+          )}
+        </h3>
         <div className="pr-6 flex-1">
           {renderStats()}
         </div>

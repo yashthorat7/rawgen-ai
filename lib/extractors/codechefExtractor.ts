@@ -1,5 +1,14 @@
 import type { CodeChefData } from '../types';
 
+interface ContestData {
+  name: string;
+  rating: string;
+  rank: string;
+  getyear: string;
+  getmonth: string;
+  getday: string;
+}
+
 export async function extractCodeChefData(username: string): Promise<CodeChefData | null> {
   try {
     const response = await fetch(`${process.env.NEXT_PUBLIC_CODECHEF_API_URL}/handle/${username}`);
@@ -20,7 +29,7 @@ export async function extractCodeChefData(username: string): Promise<CodeChefDat
       stars: data.stars,
       contests: data.ratingData.length,
       heatMap: data.heatMap,
-      ratingHistory: data.ratingData.map((contest: any) => ({
+      ratingHistory: data.ratingData.map((contest: ContestData) => ({
         name: contest.name,
         rating: contest.rating,
         rank: contest.rank,
