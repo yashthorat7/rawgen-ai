@@ -1,6 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import Select from "react-select";
+import { usePlatforms } from "@/lib/PlatformContext";
 
 export const platforms = [
   { value: 'leetcode', label: 'LeetCode' },
@@ -22,6 +24,7 @@ interface PlatformFormProps {
   onUsernameChange: (username: string) => void;
   onClose: () => void;
   onSubmit: () => Promise<void>;
+  onAdd: () => Promise<void>;
 }
 
 export function PlatformForm({
@@ -37,10 +40,32 @@ export function PlatformForm({
   onUsernameChange,
   onClose,
   onSubmit,
+  onAdd,
 }: PlatformFormProps) {
-  const handleSubmit = (e: React.FormEvent) => {
+  const { platforms: existingPlatforms } = usePlatforms();
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit();
+    setError(null);
+    
+    if (!selectedPlatform || !username || !isValidated) return;
+
+    try {
+      // Only check for duplicate within the same platform
+      const existingInSamePlatform = existingPlatforms?.find(
+        p => p.platform === selectedPlatform.value && p.username === username
+      );
+
+      if (existingInSamePlatform) {
+        setError(`Username ${username} already exists for ${selectedPlatform.value}`);
+        return;
+      }
+
+      await onAdd();
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Failed to add platform');
+    }
   };
 
   return (
@@ -51,7 +76,10 @@ export function PlatformForm({
         </label>
         <Select
           value={selectedPlatform}
-          onChange={(option) => onPlatformChange(option)}
+          onChange={(option) => {
+            setError(null);
+            onPlatformChange(option);
+          }}
           options={platforms}
           placeholder="Select a platform"
           styles={{
@@ -75,9 +103,12 @@ export function PlatformForm({
         <input
           type="text"
           value={username}
-          onChange={(e) => onUsernameChange(e.target.value)}
+          onChange={(e) => {
+            setError(null);
+            onUsernameChange(e.target.value);
+          }}
           placeholder="eg. indiragandhi"
-          className={`w-full px-3 py-2 border rounded-md focus:outline-primary-500 focus:border-primary-500`}
+          className="w-full px-3 py-2 border rounded-md focus:outline-primary-500 focus:border-primary-500"
         />
         {usernameError && (
           <p className="mt-1 text-xs text-red-500">{usernameError}</p>
@@ -87,23 +118,37 @@ export function PlatformForm({
             {validationMessage}
           </p>
         )}
+        {error && (
+          <p className="mt-1 text-xs text-red-500">{error}</p>
+        )}
       </div>
 
       <div className="flex justify-end gap-3">
         <button
           type="button"
           onClick={onClose}
-          className="px-4 py-2 border rounded-md"
+          className="px-4 py-2 border rounded-md hover:bg-gray-50"
         >
           Close
         </button>
-        <button
-          type="submit"
-          disabled={isValidating || isLoading}
-          className="px-4 py-2 bg-primary-600 text-white rounded-md disabled:opacity-50"
-        >
-          {isLoading ? 'Adding...' : isValidating ? 'Validating...' : isValidated ? 'Add' : 'Validate'}
-        </button>
+        {!isValidated ? (
+          <button
+            type="button"
+            onClick={() => onSubmit()}
+            disabled={!selectedPlatform || !username || isValidating}
+            className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+          >
+            {isValidating ? 'Validating...' : 'Validate'}
+          </button>
+        ) : (
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+          >
+            {isLoading ? 'Adding...' : 'Add'}
+          </button>
+        )}
       </div>
     </form>
   );

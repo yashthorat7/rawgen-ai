@@ -10,13 +10,14 @@ import { DeleteButton } from "./DeleteButton";
 import { CodeforcesStats } from "./platform-stats/CodeforcesStats";
 import { LoadingSkeleton } from "./platform-stats/LoadingSkeleton";
 import { LeetCodeDashboard } from "./dashboard/LeetCodeDashboard";
-import type { LeetCodeData } from "@/lib/types";
+import { Dialog } from "./ui/dialog";
+import type { LeetCodeData, CodeChefData, GeeksForGeeksData, CodeforcesData } from "@/lib/types";
 
 export function ProfileCard({ 
   platform, 
   username,
   index,
-  isLoading = false
+  isLoading: initialLoading = false
 }: { 
   platform: string;
   username: string;
@@ -24,33 +25,40 @@ export function ProfileCard({
   isLoading?: boolean;
 }) {
   const [isOpen, setIsOpen] = useState(false);
-  const { removePlatform, reorderPlatforms, platformData } = usePlatforms();
+  const { platformData, removePlatform, reorderPlatforms } = usePlatforms();
 
   // More robust loading check
-  const isLoadingData = isLoading || !platformData[platform as keyof typeof platformData]?.[username];
+  const isLoadingData = initialLoading || !platformData[platform as keyof typeof platformData]?.[username];
 
   const renderStats = () => {
     if (isLoadingData) {
       return <LoadingSkeleton />;
     }
 
+    const data = platformData[platform as keyof typeof platformData]?.[username];
+    if (!data) return null;
+
     switch (platform) {
       case 'leetcode':
-        return platformData.leetcode[username] ? 
-          <LeetCodeStats data={platformData.leetcode[username]!} /> : 
-          null;
+        if ('totalSolved' in data) {
+          return <LeetCodeStats data={data as LeetCodeData} />;
+        }
+        break;
       case 'codechef':
-        return platformData.codechef[username] ?
-          <CodeChefStats data={platformData.codechef[username]!} /> :
-          null;
+        if ('currentRating' in data) {
+          return <CodeChefStats data={data as CodeChefData} />;
+        }
+        break;
       case 'geeksforgeeks':
-        return platformData.geeksforgeeks[username] ?
-          <GeeksForGeeksStats data={platformData.geeksforgeeks[username]!} /> :
-          null;
+        if ('codingScore' in data) {
+          return <GeeksForGeeksStats data={data as GeeksForGeeksData} />;
+        }
+        break;
       case 'codeforces':
-        return platformData.codeforces[username] ?
-          <CodeforcesStats data={platformData.codeforces[username]!} /> :
-          null;
+        if ('rating' in data) {
+          return <CodeforcesStats data={data as CodeforcesData} />;
+        }
+        break;
     }
     return null;
   };
@@ -144,7 +152,16 @@ export function ProfileCard({
         </div>
       </div>
 
-      {isOpen && renderDashboard()}
+      {isOpen && (
+        <Dialog 
+          open={isOpen} 
+          onClose={() => setIsOpen(false)}
+        >
+          <div className="relative w-full max-w-4xl mx-auto">
+            {renderDashboard()}
+          </div>
+        </Dialog>
+      )}
     </>
   );
 } 

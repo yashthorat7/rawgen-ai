@@ -30,6 +30,7 @@ export function AddPlatformDialog({
   const [platformError, setPlatformError] = useState("")
   const [usernameError, setUsernameError] = useState("")
   const [validationMessage, setValidationMessage] = useState("")
+  const [successMessage, setSuccessMessage] = useState("")
   const [isValidated, setIsValidated] = useState(false)
   const [isValidating, setIsValidating] = useState(false)
   const abortControllerRef = useRef<AbortController | null>(null)
@@ -51,6 +52,7 @@ export function AddPlatformDialog({
     setPlatformError("")
     setUsernameError("")
     setValidationMessage("")
+    setSuccessMessage("")
     setIsValidated(false)
     setIsValidating(false)
   }
@@ -73,6 +75,8 @@ export function AddPlatformDialog({
     const signal = abortControllerRef.current.signal
     
     setIsValidating(true);
+    setValidationMessage("");
+    setSuccessMessage("");
     let exists = false;
 
     try {
@@ -116,16 +120,33 @@ export function AddPlatformDialog({
   const handleSubmit = async () => {
     if (selectedPlatform && username) {
       if (!isValidated) {
-        await validateProfile();
+        setValidationMessage("Please validate the username first");
         return;
       }
-      await onSubmit(selectedPlatform.value, username);
+      try {
+        setSuccessMessage("");
+        await onSubmit(selectedPlatform.value, username);
+        setSuccessMessage(`Successfully added ${username} to ${selectedPlatform.label}`);
+        // Close dialog after 1.5 seconds
+        setTimeout(() => {
+          handleClose();
+        }, 1500);
+      } catch (error) {
+        setValidationMessage(error instanceof Error ? error.message : "Failed to add platform");
+      }
+    }
+  };
+
+  const handleValidate = async () => {
+    if (selectedPlatform && username) {
+      await validateProfile();
     }
   };
 
   const handleUsernameChange = (value: string) => {
     setUsername(value);
     setUsernameError("");
+    setSuccessMessage("");
     if (isValidated) {
       setIsValidated(false);
       setValidationMessage("");
@@ -135,6 +156,7 @@ export function AddPlatformDialog({
   const handlePlatformChange = (option: PlatformOption | null) => {
     setSelectedPlatform(option);
     setPlatformError("");
+    setSuccessMessage("");
     if (isValidated) {
       setIsValidated(false);
       setValidationMessage("");
@@ -162,14 +184,15 @@ export function AddPlatformDialog({
               username={username}
               platformError={platformError}
               usernameError={usernameError}
-              validationMessage={validationMessage}
+              validationMessage={successMessage || validationMessage}
               isValidated={isValidated}
               isValidating={isValidating}
               isLoading={isLoading}
               onPlatformChange={handlePlatformChange}
               onUsernameChange={handleUsernameChange}
               onClose={handleClose}
-              onSubmit={handleSubmit}
+              onSubmit={handleValidate}
+              onAdd={handleSubmit}
             />
           </div>
         </div>
