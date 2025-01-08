@@ -2,9 +2,27 @@
 
 import { useState } from "react";
 import { AddPlatformDialog } from "./AddPlatformDialog";
+import { usePlatforms } from "@/lib/PlatformContext";
 
 export function AddCard() {
   const [open, setOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const { addPlatform } = usePlatforms();
+
+  const handleSubmit = async (platform: string, username: string) => {
+    console.log('AddCard: Submitting platform:', platform, 'username:', username);
+    
+    setIsLoading(true);
+    try {
+      await addPlatform(platform, username);
+      console.log('AddCard: Platform added successfully');
+    } catch (error) {
+      console.error('AddCard: Error adding platform:', error);
+    } finally {
+      setIsLoading(false);
+      setOpen(false);
+    }
+  };
 
   return (
     <>
@@ -26,7 +44,7 @@ export function AddCard() {
           />
         </svg>
       </div>
-      <AddPlatformDialog open={open} onOpenChange={setOpen} />
+      <AddPlatformDialog open={open} onOpenChange={setOpen} onSubmit={handleSubmit} isLoading={isLoading} />
     </>
   );
 } 

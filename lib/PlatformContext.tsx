@@ -26,7 +26,6 @@ type Platform = {
 type PlatformContextType = {
   platforms: Platform[];
   platformData: PlatformData;
-  isLoading: Record<string, boolean>;
   isInitialLoading: boolean;
   profileCount: number;
   addPlatform: (platform: string, username: string) => void;
@@ -40,7 +39,6 @@ export function PlatformProvider({ children }: { children: React.ReactNode }) {
   const { user } = useUser();
   const userEmail = user?.primaryEmailAddress?.emailAddress;
   
-  // Convex mutations and queries
   const addPlatformMutation = useMutation(api.profiles.addPlatform);
   const deletePlatformMutation = useMutation(api.profiles.deletePlatform);
   const updateOrderMutation = useMutation(api.profiles.updateOrder);
@@ -54,57 +52,72 @@ export function PlatformProvider({ children }: { children: React.ReactNode }) {
     geeksforgeeks: {},
     codeforces: {}
   });
-  const [isLoading, setIsLoading] = useState<Record<string, boolean>>({});
   const [isInitialLoading, setIsInitialLoading] = useState(true);
+  const [hasInitialDataLoaded, setHasInitialDataLoaded] = useState(false);
 
-  // Fetch platform data whenever profiles change
   useEffect(() => {
-    if (!profiles) return;
+    if (!profiles || hasInitialDataLoaded) return;
 
     const fetchData = async () => {
       setIsInitialLoading(true);
-      const newPlatformData = { ...platformData };
-      const newLoadingState = { ...isLoading };
 
       try {
-        for (const profile of profiles) {
-          const key = `${profile.platform}-${profile.username}`;
-          newLoadingState[key] = true;
-          setIsLoading(newLoadingState);
-
+        await Promise.all(profiles.map(async (profile) => {
           try {
             switch (profile.platform) {
-              case 'leetcode':
-                newPlatformData.leetcode[profile.username] = 
-                  await extractLeetCodeData(profile.username);
+              case 'leetcode': {
+                const data = await extractLeetCodeData(profile.username);
+                if (data) {
+                  setPlatformData(prev => ({
+                    ...prev,
+                    leetcode: { ...prev.leetcode, [profile.username]: data }
+                  }));
+                }
                 break;
-              case 'codechef':
-                newPlatformData.codechef[profile.username] = 
-                  await extractCodeChefData(profile.username);
+              }
+              case 'codechef': {
+                const data = await extractCodeChefData(profile.username);
+                if (data) {
+                  setPlatformData(prev => ({
+                    ...prev,
+                    codechef: { ...prev.codechef, [profile.username]: data }
+                  }));
+                }
                 break;
-              case 'geeksforgeeks':
-                newPlatformData.geeksforgeeks[profile.username] = 
-                  await extractGeeksForGeeksData(profile.username);
+              }
+              case 'geeksforgeeks': {
+                const data = await extractGeeksForGeeksData(profile.username);
+                if (data) {
+                  setPlatformData(prev => ({
+                    ...prev,
+                    geeksforgeeks: { ...prev.geeksforgeeks, [profile.username]: data }
+                  }));
+                }
                 break;
-              case 'codeforces':
-                newPlatformData.codeforces[profile.username] = 
-                  await extractCodeforcesData(profile.username);
+              }
+              case 'codeforces': {
+                const data = await extractCodeforcesData(profile.username);
+                if (data) {
+                  setPlatformData(prev => ({
+                    ...prev,
+                    codeforces: { ...prev.codeforces, [profile.username]: data }
+                  }));
+                }
                 break;
+              }
             }
-          } finally {
-            newLoadingState[key] = false;
-            setIsLoading(newLoadingState);
+          } catch (error) {
+            console.error(`Error fetching data for ${profile.platform}:`, error);
           }
-        }
-
-        setPlatformData(newPlatformData);
+        }));
       } finally {
         setIsInitialLoading(false);
+        setHasInitialDataLoaded(true);
       }
     };
 
     fetchData();
-  }, [profiles]);
+  }, [profiles, hasInitialDataLoaded]);
 
   const addPlatform = async (platform: string, username: string) => {
     if (!userEmail) return;
@@ -113,16 +126,88 @@ export function PlatformProvider({ children }: { children: React.ReactNode }) {
       Math.max(...profiles.map(p => p.order), -1) : 
       -1;
 
-    await addPlatformMutation({
-      email: userEmail,
-      platform,
-      username,
-      order: maxOrder + 1
-    });
+    try {
+      await addPlatformMutation({
+        email: userEmail,
+        platform,
+        username,
+        order: maxOrder + 1
+      });
+
+      // Fetch and update platform data
+      try {
+        switch (platform) {
+          case 'leetcode': {
+            const data = await extractLeetCodeData(username);
+            if (data) {
+              setPlatformData(prev => ({
+                ...prev,
+                leetcode: { ...prev.leetcode, [username]: data }
+              }));
+            }
+            break;
+          }
+          case 'codechef': {
+            const data = await extractCodeChefData(username);
+            if (data) {
+              setPlatformData(prev => ({
+                ...prev,
+                codechef: { ...prev.codechef, [username]: data }
+              }));
+            }
+            break;
+          }
+          case 'geeksforgeeks': {
+            const data = await extractGeeksForGeeksData(username);
+            if (data) {
+              setPlatformData(prev => ({
+                ...prev,
+                geeksforgeeks: { ...prev.geeksforgeeks, [username]: data }
+              }));
+            }
+            break;
+          }
+          case 'codeforces': {
+            const data = await extractCodeforcesData(username);
+            if (data) {
+              setPlatformData(prev => ({
+                ...prev,
+                codeforces: { ...prev.codeforces, [username]: data }
+              }));
+            }
+            break;
+          }
+        }
+      } catch (error) {
+        console.error(`Error fetching data for ${platform}:`, error);
+      }
+    } catch (error) {
+      console.error('Error adding platform:', error);
+    }
   };
 
   const removePlatform = async (platform: string, username: string) => {
     if (!userEmail) return;
+
+    setPlatformData(prev => {
+      const newData = { ...prev };
+      switch (platform) {
+        case 'leetcode':
+          delete newData.leetcode[username];
+          break;
+        case 'codechef':
+          delete newData.codechef[username];
+          break;
+        case 'geeksforgeeks':
+          delete newData.geeksforgeeks[username];
+          break;
+        case 'codeforces':
+          delete newData.codeforces[username];
+          break;
+      }
+      return newData;
+    });
+
     await deletePlatformMutation({
       email: userEmail,
       platform,
@@ -147,7 +232,6 @@ export function PlatformProvider({ children }: { children: React.ReactNode }) {
     });
   };
 
-  // Sort profiles by order
   const sortedProfiles = profiles ? 
     [...profiles].sort((a, b) => a.order - b.order)
       .map(p => ({
@@ -158,15 +242,14 @@ export function PlatformProvider({ children }: { children: React.ReactNode }) {
     [];
 
   return (
-    <PlatformContext.Provider value={{ 
+    <PlatformContext.Provider value={{
       platforms: sortedProfiles,
-      platformData, 
-      isLoading,
+      platformData,
       isInitialLoading,
       profileCount: profiles?.length ?? 0,
-      addPlatform, 
-      removePlatform, 
-      reorderPlatforms 
+      addPlatform,
+      removePlatform,
+      reorderPlatforms
     }}>
       {children}
     </PlatformContext.Provider>

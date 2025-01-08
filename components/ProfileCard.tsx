@@ -10,6 +10,7 @@ import { DeleteButton } from "./DeleteButton";
 import { CodeforcesStats } from "./platform-stats/CodeforcesStats";
 import { LoadingSkeleton } from "./platform-stats/LoadingSkeleton";
 import { LeetCodeDashboard } from "./dashboard/LeetCodeDashboard";
+import type { LeetCodeData } from "@/lib/types";
 
 export function ProfileCard({ 
   platform, 
@@ -23,26 +24,10 @@ export function ProfileCard({
   isLoading?: boolean;
 }) {
   const [isOpen, setIsOpen] = useState(false);
-  const { removePlatform, reorderPlatforms, platformData, isLoading: isDataLoading } = usePlatforms();
-  const isLoadingData = isLoading || isDataLoading[`${platform}-${username}`];
+  const { removePlatform, reorderPlatforms, platformData } = usePlatforms();
 
-  const handleDragStart = (e: React.DragEvent) => {
-    e.dataTransfer.setData('text/plain', index.toString());
-  };
-
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-  };
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    const fromIndex = parseInt(e.dataTransfer.getData('text/plain'));
-    const toIndex = index;
-    
-    if (fromIndex !== toIndex) {
-      reorderPlatforms(fromIndex, toIndex);
-    }
-  };
+  // More robust loading check
+  const isLoadingData = isLoading || !platformData[platform as keyof typeof platformData]?.[username];
 
   const renderStats = () => {
     if (isLoadingData) {
@@ -51,36 +36,49 @@ export function ProfileCard({
 
     switch (platform) {
       case 'leetcode':
-        return <LeetCodeStats data={platformData.leetcode[username]} isLoading={false} />;
+        return platformData.leetcode[username] ? 
+          <LeetCodeStats data={platformData.leetcode[username]!} /> : 
+          null;
       case 'codechef':
-        return <CodeChefStats data={platformData.codechef[username]} isLoading={false} />;
+        return platformData.codechef[username] ?
+          <CodeChefStats data={platformData.codechef[username]!} /> :
+          null;
       case 'geeksforgeeks':
-        return <GeeksForGeeksStats data={platformData.geeksforgeeks[username]} isLoading={false} />;
+        return platformData.geeksforgeeks[username] ?
+          <GeeksForGeeksStats data={platformData.geeksforgeeks[username]!} /> :
+          null;
       case 'codeforces':
-        return <CodeforcesStats data={platformData.codeforces[username]} isLoading={false} />;
-      default:
-        return <LoadingSkeleton />;
+        return platformData.codeforces[username] ?
+          <CodeforcesStats data={platformData.codeforces[username]!} /> :
+          null;
     }
+    return null;
   };
 
   const renderDashboard = () => {
+    if (isLoadingData) return null;
+
+    const data = platformData[platform as keyof typeof platformData]?.[username];
+    if (!data) return null;
+
     switch (platform) {
       case 'leetcode':
-        const leetcodeData = platformData.leetcode[username];
-        return leetcodeData ? (
-          <LeetCodeDashboard 
-            username={username}
-            data={leetcodeData}
-            platform={platform}
-            onDelete={() => {
-              removePlatform(platform, username);
-              setIsOpen(false);
-            }}
-          />
-        ) : null;
-      default:
-        return null;
+        if ('totalSolved' in data) {
+          return (
+            <LeetCodeDashboard
+              username={username}
+              data={data as LeetCodeData}
+              platform={platform}
+              onDelete={() => {
+                removePlatform(platform, username);
+                setIsOpen(false);
+              }}
+            />
+          );
+        }
+        break;
     }
+    return null;
   };
 
   return (
@@ -93,9 +91,17 @@ export function ProfileCard({
                   ${isLoadingData ? 'min-w-[320px]' : 'min-w-[280px]'}`}
         onClick={() => !isLoadingData && setIsOpen(true)}
         draggable
-        onDragStart={handleDragStart}
-        onDragOver={handleDragOver}
-        onDrop={handleDrop}
+        onDragStart={(e) => {
+          e.dataTransfer.setData('text/plain', index.toString());
+        }}
+        onDragOver={(e) => {
+          e.preventDefault();
+        }}
+        onDrop={(e) => {
+          e.preventDefault();
+          const fromIndex = parseInt(e.dataTransfer.getData('text/plain'));
+          reorderPlatforms(fromIndex, index);
+        }}
       >
         <div className="w-full bg-gray-50 h-full flex flex-col items-center rounded-lg transition-colors hover:bg-white">
           <div className="flex-1 flex items-center justify-center">
@@ -138,19 +144,7 @@ export function ProfileCard({
         </div>
       </div>
 
-      {isOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg w-[90vw] max-w-4xl max-h-[90vh] overflow-auto relative">
-            <button 
-              onClick={() => setIsOpen(false)}
-              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
-            >
-              ✕
-            </button>
-            {renderDashboard()}
-          </div>
-        </div>
-      )}
+      {isOpen && renderDashboard()}
     </>
   );
 } 

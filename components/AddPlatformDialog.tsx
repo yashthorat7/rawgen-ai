@@ -11,14 +11,20 @@ import { PlatformForm } from "./PlatformForm"
 
 type PlatformOption = { value: string; label: string; };
 
+interface AddPlatformDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSubmit: (platform: string, username: string) => Promise<void>;
+  isLoading: boolean;
+}
+
 export function AddPlatformDialog({
   open,
   onOpenChange,
-}: {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-}) {
-  const { platforms, addPlatform } = usePlatforms()
+  onSubmit,
+  isLoading
+}: AddPlatformDialogProps) {
+  const { platforms } = usePlatforms()
   const [selectedPlatform, setSelectedPlatform] = useState<PlatformOption | null>(null)
   const [username, setUsername] = useState("")
   const [platformError, setPlatformError] = useState("")
@@ -107,34 +113,15 @@ export function AddPlatformDialog({
     }
   }
 
-  const onSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    
-    setPlatformError("")
-    setUsernameError("")
-    
-    let hasError = false
-    
-    if (!selectedPlatform) {
-      setPlatformError("Platform needed")
-      hasError = true
+  const handleSubmit = async () => {
+    if (selectedPlatform && username) {
+      if (!isValidated) {
+        await validateProfile();
+        return;
+      }
+      await onSubmit(selectedPlatform.value, username);
     }
-    
-    if (!username.trim()) {
-      setUsernameError("Username needed")
-      hasError = true
-    }
-    
-    if (hasError) return
-
-    if (!isValidated) {
-      await validateProfile()
-      return
-    }
-    
-    addPlatform(selectedPlatform!.value, username)
-    handleClose()
-  }
+  };
 
   const handleUsernameChange = (value: string) => {
     setUsername(value);
@@ -178,10 +165,11 @@ export function AddPlatformDialog({
               validationMessage={validationMessage}
               isValidated={isValidated}
               isValidating={isValidating}
+              isLoading={isLoading}
               onPlatformChange={handlePlatformChange}
               onUsernameChange={handleUsernameChange}
               onClose={handleClose}
-              onSubmit={onSubmit}
+              onSubmit={handleSubmit}
             />
           </div>
         </div>

@@ -17,10 +17,11 @@ interface PlatformFormProps {
   validationMessage: string;
   isValidated: boolean;
   isValidating: boolean;
+  isLoading: boolean;
   onPlatformChange: (option: typeof platforms[0] | null) => void;
   onUsernameChange: (username: string) => void;
   onClose: () => void;
-  onSubmit: (e: React.FormEvent) => void;
+  onSubmit: () => Promise<void>;
 }
 
 export function PlatformForm({
@@ -31,13 +32,19 @@ export function PlatformForm({
   validationMessage,
   isValidated,
   isValidating,
+  isLoading,
   onPlatformChange,
   onUsernameChange,
   onClose,
   onSubmit,
 }: PlatformFormProps) {
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSubmit();
+  };
+
   return (
-    <form onSubmit={onSubmit} className="space-y-3">
+    <form onSubmit={handleSubmit} className="space-y-3">
       <div>
         <label className="block text-sm font-medium mb-1">
           Platform
@@ -92,10 +99,10 @@ export function PlatformForm({
         </button>
         <button
           type="submit"
-          disabled={isValidating}
+          disabled={isValidating || isLoading}
           className="px-4 py-2 bg-primary-600 text-white rounded-md disabled:opacity-50"
         >
-          {isValidating ? 'Validating...' : isValidated ? 'Add' : 'Validate'}
+          {isLoading ? 'Adding...' : isValidating ? 'Validating...' : isValidated ? 'Add' : 'Validate'}
         </button>
       </div>
     </form>
