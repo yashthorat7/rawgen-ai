@@ -1,6 +1,9 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect } from "react";
+import { useMutation, useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { useUser } from "@clerk/nextjs";
 import { extractLeetCodeData } from "./extractors/leetcodeExtractor";
 import { extractCodeChefData } from "./extractors/codechefExtractor";
 import { extractGeeksForGeeksData } from "./extractors/geeksforgeeksExtractor";
@@ -15,7 +18,6 @@ type PlatformData = {
 };
 
 type Platform = {
-  id: string;
   platform: string;
   username: string;
   order: number;
@@ -25,15 +27,27 @@ type PlatformContextType = {
   platforms: Platform[];
   platformData: PlatformData;
   isLoading: Record<string, boolean>;
+  isInitialLoading: boolean;
+  profileCount: number;
   addPlatform: (platform: string, username: string) => void;
-  removePlatform: (id: string) => void;
+  removePlatform: (platform: string, username: string) => void;
   reorderPlatforms: (fromIndex: number, toIndex: number) => void;
 };
 
 const PlatformContext = createContext<PlatformContextType | undefined>(undefined);
 
 export function PlatformProvider({ children }: { children: React.ReactNode }) {
-  const [platforms, setPlatforms] = useState<Platform[]>([]);
+  const { user } = useUser();
+  const userEmail = user?.primaryEmailAddress?.emailAddress;
+  
+  // Convex mutations and queries
+  const addPlatformMutation = useMutation(api.profiles.addPlatform);
+  const deletePlatformMutation = useMutation(api.profiles.deletePlatform);
+  const updateOrderMutation = useMutation(api.profiles.updateOrder);
+  const profiles = useQuery(api.profiles.getProfiles, 
+    userEmail ? { email: userEmail } : "skip"
+  );
+
   const [platformData, setPlatformData] = useState<PlatformData>({
     leetcode: {},
     codechef: {},
@@ -41,114 +55,115 @@ export function PlatformProvider({ children }: { children: React.ReactNode }) {
     codeforces: {}
   });
   const [isLoading, setIsLoading] = useState<Record<string, boolean>>({});
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
 
-  // Load platforms from localStorage on mount
+  // Fetch platform data whenever profiles change
   useEffect(() => {
-    const savedPlatforms = localStorage.getItem('platforms');
-    if (savedPlatforms) {
-      setPlatforms(JSON.parse(savedPlatforms));
-    }
-  }, []);
+    if (!profiles) return;
 
-  // Save platforms to localStorage when they change
-  useEffect(() => {
-    localStorage.setItem('platforms', JSON.stringify(platforms));
-  }, [platforms]);
-
-  useEffect(() => {
     const fetchData = async () => {
+      setIsInitialLoading(true);
       const newPlatformData = { ...platformData };
       const newLoadingState = { ...isLoading };
 
-      // Set all loading states first
-      for (const { platform, username } of platforms) {
-        const key = `${platform}-${username}`;
-        newLoadingState[key] = true;
-      }
-      setIsLoading(newLoadingState);
-
-      // Then fetch data
-      for (const { platform, username } of platforms) {
-        const key = `${platform}-${username}`;
-        try {
-          switch (platform) {
-            case 'leetcode':
-              if (!platformData.leetcode[username]) {
-                newPlatformData.leetcode[username] = await extractLeetCodeData(username);
-              }
-              break;
-            case 'codechef':
-              if (!platformData.codechef[username]) {
-                newPlatformData.codechef[username] = await extractCodeChefData(username);
-              }
-              break;
-            case 'geeksforgeeks':
-              if (!platformData.geeksforgeeks[username]) {
-                newPlatformData.geeksforgeeks[username] = await extractGeeksForGeeksData(username);
-              }
-              break;
-            case 'codeforces':
-              if (!platformData.codeforces[username]) {
-                newPlatformData.codeforces[username] = await extractCodeforcesData(username);
-              }
-              break;
-          }
-        } finally {
-          newLoadingState[key] = false;
+      try {
+        for (const profile of profiles) {
+          const key = `${profile.platform}-${profile.username}`;
+          newLoadingState[key] = true;
           setIsLoading(newLoadingState);
-        }
-      }
 
-      setPlatformData(newPlatformData);
+          try {
+            switch (profile.platform) {
+              case 'leetcode':
+                newPlatformData.leetcode[profile.username] = 
+                  await extractLeetCodeData(profile.username);
+                break;
+              case 'codechef':
+                newPlatformData.codechef[profile.username] = 
+                  await extractCodeChefData(profile.username);
+                break;
+              case 'geeksforgeeks':
+                newPlatformData.geeksforgeeks[profile.username] = 
+                  await extractGeeksForGeeksData(profile.username);
+                break;
+              case 'codeforces':
+                newPlatformData.codeforces[profile.username] = 
+                  await extractCodeforcesData(profile.username);
+                break;
+            }
+          } finally {
+            newLoadingState[key] = false;
+            setIsLoading(newLoadingState);
+          }
+        }
+
+        setPlatformData(newPlatformData);
+      } finally {
+        setIsInitialLoading(false);
+      }
     };
 
     fetchData();
-  }, [platforms]);
+  }, [profiles]);
 
-  const addPlatform = (platform: string, username: string) => {
-    setPlatforms(currentPlatforms => {
-      const maxOrder = Math.max(...currentPlatforms.map(p => p.order), -1);
-      return [...currentPlatforms, {
-        id: Math.random().toString(36).slice(2),
-        platform,
-        username,
-        order: maxOrder + 1
-      }];
+  const addPlatform = async (platform: string, username: string) => {
+    if (!userEmail) return;
+
+    const maxOrder = profiles ? 
+      Math.max(...profiles.map(p => p.order), -1) : 
+      -1;
+
+    await addPlatformMutation({
+      email: userEmail,
+      platform,
+      username,
+      order: maxOrder + 1
     });
   };
 
-  const removePlatform = (id: string) => {
-    setPlatforms(currentPlatforms => {
-      const filteredPlatforms = currentPlatforms.filter(p => p.id !== id);
-      return filteredPlatforms.map((platform, index) => ({
-        ...platform,
+  const removePlatform = async (platform: string, username: string) => {
+    if (!userEmail) return;
+    await deletePlatformMutation({
+      email: userEmail,
+      platform,
+      username
+    });
+  };
+
+  const reorderPlatforms = async (fromIndex: number, toIndex: number) => {
+    if (!userEmail || !profiles) return;
+
+    const reorderedProfiles = [...profiles];
+    const [movedProfile] = reorderedProfiles.splice(fromIndex, 1);
+    reorderedProfiles.splice(toIndex, 0, movedProfile);
+
+    await updateOrderMutation({
+      email: userEmail,
+      updates: reorderedProfiles.map((p, index) => ({
+        platform: p.platform,
+        username: p.username,
         order: index
-      }));
+      }))
     });
   };
 
-  const reorderPlatforms = (fromIndex: number, toIndex: number) => {
-    setPlatforms(currentPlatforms => {
-      const newPlatforms = [...currentPlatforms];
-      const [movedPlatform] = newPlatforms.splice(fromIndex, 1);
-      newPlatforms.splice(toIndex, 0, movedPlatform);
-      
-      // Update order for all platforms
-      return newPlatforms.map((platform, index) => ({
-        ...platform,
-        order: index
-      }));
-    });
-  };
-
-  // Sort platforms by order when rendering
-  const sortedPlatforms = [...platforms].sort((a, b) => a.order - b.order);
+  // Sort profiles by order
+  const sortedProfiles = profiles ? 
+    [...profiles].sort((a, b) => a.order - b.order)
+      .map(p => ({
+        platform: p.platform,
+        username: p.username,
+        order: p.order
+      })) : 
+    [];
 
   return (
     <PlatformContext.Provider value={{ 
-      platforms: sortedPlatforms, // Use sorted platforms
+      platforms: sortedProfiles,
       platformData, 
       isLoading,
+      isInitialLoading,
+      profileCount: profiles?.length ?? 0,
       addPlatform, 
       removePlatform, 
       reorderPlatforms 

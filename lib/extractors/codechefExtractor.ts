@@ -11,7 +11,7 @@ interface ContestData {
 
 export async function extractCodeChefData(username: string): Promise<CodeChefData | null> {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_CODECHEF_API_URL}/handle/${username}`);
+    const response = await fetch(`${process.env.NEXT_PUBLIC_CODECHEF_API_URL}/${username}`);
     const data = await response.json();
 
     if (!data.success) {

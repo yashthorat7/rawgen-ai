@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Mulish } from "next/font/google";
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
+import { ConvexClientProvider } from "../components/ConvexClientProvider";
 import { Footer } from '@/components/Footer';
 
 const mulish = Mulish({
@@ -22,9 +23,11 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en">
         <body className={mulish.className}>
-          <main className="flex-1">
-            {children}
-          </main>
+          <ConvexClientProvider>
+            <main className="flex-1">
+              {children}
+            </main>
+          </ConvexClientProvider>
           <Footer />
         </body>
       </html>

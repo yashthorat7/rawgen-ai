@@ -10,15 +10,14 @@ const groq = new Groq({
 });
 
 export function AiSuggestor() {
-  const { platformData, platforms } = usePlatforms();
+  const { platformData, platforms, isInitialLoading } = usePlatforms();
   const [advice, setAdvice] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [hasFetchedAdvice, setHasFetchedAdvice] = useState(false);
 
-  // Reset hasFetchedAdvice when platforms change
   useEffect(() => {
     setHasFetchedAdvice(false);
-  }, [platforms.length]); // Watch platforms.length instead of entire platforms array
+  }, [platforms.length]);
 
   const generateAdvice = useCallback(async () => {
     if (hasFetchedAdvice) return;
@@ -92,7 +91,7 @@ export function AiSuggestor() {
                      before:bg-[linear-gradient(var(--angle),#12c2e9,#c471ed,#f64f59)]
                      before:animate-[rotate_4s_linear_infinite]
                      after:absolute after:inset-[2px] after:rounded-lg after:bg-gray-50 after:z-[2]">
-        {isLoading ? (
+        {isInitialLoading || isLoading ? (
           <div className="relative z-[3] w-full">
             <div className="h-4 bg-gray-200 rounded animate-pulse mb-2"></div>
             <div className="h-4 bg-gray-200 rounded animate-pulse w-3/4"></div>
