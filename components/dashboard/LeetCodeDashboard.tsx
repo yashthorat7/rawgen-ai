@@ -1,6 +1,6 @@
 "use client";
 
-import { Trophy, Target, Brain, Zap, Trash2, ExternalLink, X } from 'lucide-react';
+import { Trophy, Target, Brain, Zap, ExternalLink, X } from 'lucide-react';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -15,6 +15,7 @@ import {
 import { Doughnut } from 'react-chartjs-2';
 import type { LeetCodeData } from "@/lib/types";
 import Image from "next/image";
+import { DashboardDelete } from "./DashboardDelete";
 
 ChartJS.register(
   CategoryScale, LinearScale, PointElement, LineElement,
@@ -85,12 +86,7 @@ export function LeetCodeDashboard({ username, data, platform, onDelete, onClose 
         </div>
 
         <div className="flex items-center gap-2 flex-shrink-0">
-          <button 
-            onClick={onDelete}
-            className="p-1.5 sm:p-2 text-red-500 hover:text-red-600 transition-colors"
-          >
-            <Trash2 className="w-4 h-4 sm:w-5 sm:h-5" />
-          </button>
+          <DashboardDelete onDelete={onDelete} />
           <button 
             onClick={onClose}
             className="p-1.5 sm:p-2 text-gray-400 hover:text-gray-600 transition-colors"
