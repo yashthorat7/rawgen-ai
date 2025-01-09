@@ -2,7 +2,7 @@ import type { CodeforcesData } from '../types';
 
 export async function extractCodeforcesData(username: string): Promise<CodeforcesData | null> {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_CODEFORCES_API_URL}user.info?handles=${username}`);
+    const response = await fetch(`${process.env.NEXT_PUBLIC_CODEFORCES_API_URL}/user.info?handles=${username}`);
     const data = await response.json();
 
     if (data.status !== "OK") {

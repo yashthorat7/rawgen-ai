@@ -11,39 +11,48 @@ export function GeeksForGeeksStats({ data, isLoading }: GeeksForGeeksStatsProps)
   if (isLoading) return <LoadingSkeleton />;
   if (!data) return null;
 
+  const EASY_TOTAL = 832;
+  const MEDIUM_TOTAL = 1361;
+  const HARD_TOTAL = 543;
+
   return (
     <div className="h-full flex flex-col">
-      <div className="flex-1">
-        {/* Institution */}
-        <div className="text-xs text-gray-600 text-center mb-3 mt-4">
-          {data.institution}
+      {/* Progress bars */}
+      <div className="space-y-2.5 mt-4">
+        <div>
+          <div className="flex justify-between items-center text-xs text-gray-600 mb-1">
+            <span className="font-medium">Easy</span>
+            <span className="font-medium text-green-600">{data.easyCount}/{EASY_TOTAL}</span>
+          </div>
+          <ProgressBar 
+            solved={data.easyCount} 
+            total={EASY_TOTAL} 
+            color="green"
+          />
         </div>
 
-        {/* Progress bars */}
-        <div className="space-y-2.5">
-          <div>
-            <div className="flex justify-between items-center text-xs text-gray-600 mb-1">
-              <span className="font-medium">Easy</span>
-              <span className="font-medium text-green-600">{data.easyCount}</span>
-            </div>
-            <ProgressBar solved={data.easyCount} color="green" />
+        <div>
+          <div className="flex justify-between items-center text-xs text-gray-600 mb-1">
+            <span className="font-medium">Medium</span>
+            <span className="font-medium text-yellow-600">{data.mediumCount}/{MEDIUM_TOTAL}</span>
           </div>
+          <ProgressBar 
+            solved={data.mediumCount} 
+            total={MEDIUM_TOTAL} 
+            color="yellow"
+          />
+        </div>
 
-          <div>
-            <div className="flex justify-between items-center text-xs text-gray-600 mb-1">
-              <span className="font-medium">Medium</span>
-              <span className="font-medium text-yellow-600">{data.mediumCount}</span>
-            </div>
-            <ProgressBar solved={data.mediumCount} color="yellow" />
+        <div>
+          <div className="flex justify-between items-center text-xs text-gray-600 mb-1">
+            <span className="font-medium">Hard</span>
+            <span className="font-medium text-red-600">{data.hardCount}/{HARD_TOTAL}</span>
           </div>
-
-          <div>
-            <div className="flex justify-between items-center text-xs text-gray-600 mb-1">
-              <span className="font-medium">Hard</span>
-              <span className="font-medium text-red-600">{data.hardCount}</span>
-            </div>
-            <ProgressBar solved={data.hardCount} color="red" />
-          </div>
+          <ProgressBar 
+            solved={data.hardCount} 
+            total={HARD_TOTAL} 
+            color="red"
+          />
         </div>
       </div>
 

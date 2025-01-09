@@ -48,8 +48,14 @@ export type GeeksForGeeksData = {
   easyCount: number;
   mediumCount: number;
   hardCount: number;
-  monthlyCoding: number;
-  weeklyCoding: number;
+  monthlyCoding?: number;
+  weeklyCoding?: number;
+  profilePhoto?: string;
+  languageUsed?: string;
+  totalStreak?: number;
+  contestRating?: number;
+  institutionRank?: number;
+  school?: number;
 };
 
 export type CodeforcesData = {

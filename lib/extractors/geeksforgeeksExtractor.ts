@@ -4,50 +4,79 @@ import * as cheerio from 'cheerio';
 export async function extractGeeksForGeeksData(username: string): Promise<GeeksForGeeksData | null> {
   try {
     const corsProxy = 'https://api.allorigins.win/get?url=';
-    const targetUrl = `${process.env.NEXT_PUBLIC_GEEKSFORGEEKS}/${username}`;
+    const targetUrl = `https://www.geeksforgeeks.org/user/${username}`;
     const proxyUrl = corsProxy + encodeURIComponent(targetUrl);
 
     const response = await fetch(proxyUrl);
     const data = await response.json();
 
-    if (data.status?.http_code !== 200) {
+    if (!data || !data.contents) {
+      console.error('Failed to fetch GeeksForGeeks data');
       return null;
     }
 
-    // Load HTML content into cheerio
     const $ = cheerio.load(data.contents);
 
-    // Extract data using CSS selectors
-    const codingScore = parseInt($('.coding-score').text().trim()) || 0;
-    const problemsSolved = parseInt($('.problems-solved').text().trim()) || 0;
-    const currentStreak = parseInt($('.current-streak').text().trim()) || 0;
-    const institution = $('.institution-name').text().trim();
+    // Extract data using updated selectors
+    const profilePhoto = $('profilePicSection_head_img__1GLm0 span img').attr('src') || '';
+    const languageUsed = $('.educationDetails_head_right--text__lLOHI').text().trim() || '';
 
-    // Extract problem counts by difficulty
-    const basicCount = parseInt($('.BASIC').text().trim()) || 0;
-    const easyCount = parseInt($('.EASY').text().trim()) || 0;
-    const mediumCount = parseInt($('.MEDIUM').text().trim()) || 0;
-    const hardCount = parseInt($('.HARD').text().trim()) || 0;
+    const navElements = $('.problemNavbar_head__cKSRi .problemNavbar_head_nav__a4K6P');
+    const school = parseInt(
+      $(navElements[0]).find('.problemNavbar_head_nav--text__UaGCx').text().match(/\d+/)?.[0] || '0'
+    );
+    const basic = parseInt(
+      $(navElements[1]).find('.problemNavbar_head_nav--text__UaGCx').text().match(/\d+/)?.[0] || '0'
+    );
+    const easy = parseInt(
+      $(navElements[2]).find('.problemNavbar_head_nav--text__UaGCx').text().match(/\d+/)?.[0] || '0'
+    );
+    const medium = parseInt(
+      $(navElements[3]).find('.problemNavbar_head_nav--text__UaGCx').text().match(/\d+/)?.[0] || '0'
+    );
+    const hard = parseInt(
+      $(navElements[4]).find('.problemNavbar_head_nav--text__UaGCx').text().match(/\d+/)?.[0] || '0'
+    );
 
-    // Extract monthly/weekly coding scores
-    const monthlyCoding = parseInt($('.monthly-score').text().trim()) || 0;
-    const weeklyCoding = parseInt($('.weekly-score').text().trim()) || 0;
+    const currentStreak = parseInt(
+      $('.circularProgressBar_head_mid_streakCnt__MFOF1').text().trim() || '0'
+    );
+    const totalStreak = parseInt(
+      $('.circularProgressBar_head_mid_streakCnt--glbLongStreak__viuBP').text().split('/')[1]?.trim() || '0'
+    );
+
+    const codingScore = parseInt($('.scoreCard_head_left--score__oSi_x').eq(0).text().trim() || '0');
+    const problemsSolved = parseInt($('.scoreCard_head_left--score__oSi_x').eq(1).text().trim() || '0');
+    const contestRating = parseInt($('.scoreCard_head_left--score__oSi_x').eq(2).text().trim() || '0');
+
+    const institution = $('.educationDetails_head_left--text__tgi9I').text().trim() || 'N/A';
+    const institutionRank = parseInt(
+      $('.educationDetails_head_left_userRankContainer--text__wt81s b')
+        .first()
+        .text()
+        .split('\n')[0]
+        .trim() || '0'
+    );
 
     return {
       username,
-      institution,
-      codingScore,
+      profilePhoto,
+      languageUsed,
+      school,
+      basicCount: basic,
+      easyCount: easy,
+      mediumCount: medium,
+      hardCount: hard,
       currentStreak,
+      totalStreak,
+      codingScore,
       problemsSolved,
-      basicCount,
-      easyCount,
-      mediumCount,
-      hardCount,
-      monthlyCoding,
-      weeklyCoding
+      contestRating,
+      institution,
+      institutionRank
     };
   } catch (error) {
     console.error('GeeksForGeeks data extraction error:', error);
     return null;
   }
-} 
+}
