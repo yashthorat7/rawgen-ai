@@ -10,13 +10,10 @@ export function AddCard() {
   const { addPlatform } = usePlatforms();
 
   const handleSubmit = async (platform: string, username: string) => {
-    console.log('AddCard: Starting to add platform to database:', { platform, username });
     
     setIsLoading(true);
     try {
-      console.log('AddCard: Calling addPlatform mutation...');
       await addPlatform(platform, username);
-      console.log('AddCard: Platform added successfully to database:', { platform, username });
     } catch (error) {
       console.error('AddCard: Database error while adding platform:', error);
       throw error; // Re-throw to handle in the dialog

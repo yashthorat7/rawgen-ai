@@ -29,36 +29,63 @@ export function usePlatformState(userEmail: string | undefined) {
 
     const fetchPlatformData = async () => {
       try {
-        const newPlatformData: PlatformData = {
+        // Initialize with empty platform data
+        setPlatformData({
           leetcode: {},
           codechef: {},
           geeksforgeeks: {},
           codeforces: {}
-        };
+        });
         
         // Process each profile independently
-        await Promise.all(profiles.map(async (profile) => {
+        profiles.forEach(async (profile) => {
           try {
             switch (profile.platform) {
-              case 'leetcode':
-                newPlatformData.leetcode[profile.username] = await extractLeetCodeData(profile.username);
+              case 'leetcode': {
+                const result = await extractLeetCodeData(profile.username);
+                if (result) {
+                  setPlatformData(prev => ({
+                    ...prev,
+                    leetcode: { ...prev.leetcode, [profile.username]: result }
+                  }));
+                }
                 break;
-              case 'codechef':
-                newPlatformData.codechef[profile.username] = await extractCodeChefData(profile.username);
+              }
+              case 'codechef': {
+                const result = await extractCodeChefData(profile.username);
+                if (result) {
+                  setPlatformData(prev => ({
+                    ...prev,
+                    codechef: { ...prev.codechef, [profile.username]: result }
+                  }));
+                }
                 break;
-              case 'geeksforgeeks':
-                newPlatformData.geeksforgeeks[profile.username] = await extractGeeksForGeeksData(profile.username);
+              }
+              case 'geeksforgeeks': {
+                const result = await extractGeeksForGeeksData(profile.username);
+                if (result) {
+                  setPlatformData(prev => ({
+                    ...prev,
+                    geeksforgeeks: { ...prev.geeksforgeeks, [profile.username]: result }
+                  }));
+                }
                 break;
-              case 'codeforces':
-                newPlatformData.codeforces[profile.username] = await extractCodeforcesData(profile.username);
+              }
+              case 'codeforces': {
+                const result = await extractCodeforcesData(profile.username);
+                if (result) {
+                  setPlatformData(prev => ({
+                    ...prev,
+                    codeforces: { ...prev.codeforces, [profile.username]: result }
+                  }));
+                }
                 break;
+              }
             }
           } catch (error) {
             console.error(`Failed to load data for ${profile.platform}/${profile.username}:`, error);
           }
-        }));
-
-        setPlatformData(newPlatformData);
+        });
       } catch (error) {
         console.error('Error fetching platform data:', error);
       } finally {
@@ -72,7 +99,6 @@ export function usePlatformState(userEmail: string | undefined) {
   const addPlatform = async (platform: string, username: string) => {
     if (!userEmail) return;
 
-    console.log("PlatformState: Starting addPlatform", { platform, username });
 
     try {
       // Check for duplicate only for the same platform+username combination
@@ -81,12 +107,10 @@ export function usePlatformState(userEmail: string | undefined) {
       );
 
       if (existingProfile) {
-        console.log("PlatformState: Found duplicate profile locally");
         throw new Error(`Username ${username} already exists for platform ${platform}`);
       }
 
       const order = (profiles?.length ?? 0) + 1;
-      console.log("PlatformState: Calling mutation with order:", order);
 
       const result = await addPlatformMutation({ 
         email: userEmail, 
@@ -117,7 +141,6 @@ export function usePlatformState(userEmail: string | undefined) {
         console.error("Failed to load data for new profile:", error);
       }
 
-      console.log("PlatformState: Platform added successfully", result);
       return result;
     } catch (error) {
       console.error("PlatformState: Error adding platform:", error);

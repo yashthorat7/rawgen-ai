@@ -26,7 +26,6 @@ export const saveProfileImage = mutation({
     storageId: v.id("_storage")
   },
   handler: async (ctx, { email, storageId }) => {
-    console.log("saveProfileImage called with:", { email, storageId });
 
     // Update user settings with the new profile image
     const existingSettings = await ctx.db
@@ -34,7 +33,6 @@ export const saveProfileImage = mutation({
       .withIndex("by_email", q => q.eq("email", email))
       .first();
 
-    console.log("Existing settings:", existingSettings);
 
     if (existingSettings) {
       // If old image exists, delete it
@@ -42,13 +40,11 @@ export const saveProfileImage = mutation({
         await ctx.storage.delete(existingSettings.profileImage);
       }
       await ctx.db.patch(existingSettings._id, { profileImage: storageId });
-      console.log("Updated existing settings");
     } else {
       await ctx.db.insert("userSettings", {
         email,
         profileImage: storageId
       });
-      console.log("Created new settings");
     }
 
     return storageId;
@@ -64,7 +60,6 @@ export const addPlatform = mutation({
     order: v.number(),
   },
   handler: async (ctx, args) => {
-    console.log("Mutation: Starting addPlatform with args:", args);
 
     try {
       // Check if this exact platform+username combination exists for this email
@@ -76,8 +71,6 @@ export const addPlatform = mutation({
         )
         .filter((q) => q.eq(q.field("username"), args.username))
         .first();
-
-      console.log("Mutation: Duplicate check result:", existing ? "Found duplicate" : "No duplicate");
 
       if (existing) {
         throw new Error(`Username ${args.username} already exists for platform ${args.platform}`);
@@ -91,7 +84,6 @@ export const addPlatform = mutation({
         .first();
 
       const order = latestProfile ? latestProfile.order + 1 : 1;
-      console.log("Mutation: Calculated order:", order);
 
       // Insert the new profile
       const result = await ctx.db.insert("profiles", {
@@ -101,7 +93,6 @@ export const addPlatform = mutation({
         order,
       });
 
-      console.log("Mutation: Successfully inserted profile with ID:", result);
       return result;
     } catch (error) {
       console.error("Mutation: Error in addPlatform:", error);

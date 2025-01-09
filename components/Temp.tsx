@@ -16,7 +16,6 @@ export function Temp() {
       try {
         const result = await extractCodeChefData(username);
         setData(result);
-        console.log('Temp: CodeChef data result:', JSON.stringify(result, null, 2));
       } catch (error) {
         console.error('Temp: Error fetching CodeChef data:', error);
         setData(null);

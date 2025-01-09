@@ -11,9 +11,9 @@ export function GeeksForGeeksStats({ data, isLoading }: GeeksForGeeksStatsProps)
   if (isLoading) return <LoadingSkeleton />;
   if (!data) return null;
 
-  const EASY_TOTAL = 832;
-  const MEDIUM_TOTAL = 1361;
-  const HARD_TOTAL = 543;
+  const EASY_TOTAL = 1702;
+  const MEDIUM_TOTAL = 2161;
+  const HARD_TOTAL = 943;
 
   return (
     <div className="h-full flex flex-col">

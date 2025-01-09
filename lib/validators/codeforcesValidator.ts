@@ -4,7 +4,6 @@ export const validateCodeforcesProfile = async (
 ): Promise<boolean> => {
   try {
     const url = `${process.env.NEXT_PUBLIC_CODEFORCES_API_URL}/user.info?handles=${username}`;
-    console.log('Codeforces API Request:', url);
 
     const response = await fetch(url, { signal });
     

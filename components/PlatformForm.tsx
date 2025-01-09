@@ -70,6 +70,13 @@ export function PlatformForm({
     }
   };
 
+  const handleUsernameKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && selectedPlatform && username && !isValidating && !isValidated) {
+      e.preventDefault();
+      onSubmit();
+    }
+  };
+
   return (
     <>
       {isOpen && (
@@ -116,6 +123,7 @@ export function PlatformForm({
                       setError(null);
                       onUsernameChange(e.target.value);
                     }}
+                    onKeyDown={handleUsernameKeyPress}
                     placeholder="eg. indiragandhi"
                     className="w-full px-3 py-2 border rounded-md focus:outline-primary-500 focus:border-primary-500"
                   />

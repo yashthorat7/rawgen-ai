@@ -76,7 +76,6 @@ export function ImageSelector({ image: initialImage, onImageChange }: ImageSelec
 
     try {
       setIsUploading(true);
-      console.log("Starting upload for email:", userEmail);
       
       // Convert base64 to blob
       const response = await fetch(base64Image);
@@ -84,7 +83,6 @@ export function ImageSelector({ image: initialImage, onImageChange }: ImageSelec
 
       // Get upload URL from Convex
       const uploadUrl = await generateUploadUrl();
-      console.log("Got upload URL from Convex");
 
       // Upload the file
       const result = await fetch(uploadUrl, {
@@ -99,14 +97,12 @@ export function ImageSelector({ image: initialImage, onImageChange }: ImageSelec
 
       // Get the storage ID from the upload response
       const { storageId } = await result.json();
-      console.log("File uploaded, got storageId:", storageId);
 
       // Save the profile image reference
       await saveProfileImage({
         email: userEmail,
         storageId: storageId
       });
-      console.log("Profile image saved successfully");
 
       // Update the UI
       setCurrentImage(base64Image);
