@@ -1,12 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { extractGeeksForGeeksData } from "@/lib/extractors/geeksforgeeksExtractor";
-import type { GeeksForGeeksData } from "@/lib/types";
+import { extractCodeChefData } from "@/lib/extractors/codechefExtractor";
+import type { CodeChefData } from "@/lib/types";
 
 export function Temp() {
   const [username, setUsername] = useState("");
-  const [data, setData] = useState<GeeksForGeeksData | null>(null);
+  const [data, setData] = useState<CodeChefData | null>(null);
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -14,10 +14,11 @@ export function Temp() {
     if (username.trim()) {
       setLoading(true);
       try {
-        const result = await extractGeeksForGeeksData(username);
+        const result = await extractCodeChefData(username);
         setData(result);
+        console.log('Temp: CodeChef data result:', JSON.stringify(result, null, 2));
       } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error('Temp: Error fetching CodeChef data:', error);
         setData(null);
       } finally {
         setLoading(false);
@@ -33,7 +34,7 @@ export function Temp() {
             type="text"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            placeholder="Enter GeeksForGeeks username"
+            placeholder="Enter CodeChef username"
             className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>

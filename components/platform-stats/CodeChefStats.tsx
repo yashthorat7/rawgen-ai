@@ -63,9 +63,9 @@ export function CodeChefStats({ data, isLoading }: CodeChefStatsProps) {
       {/* Ranks at bottom */}
       <div className="mt-auto mb-1">
         <div className="text-[14px] text-gray-500">
-          Global: <span className="font-mono font-medium">#{data.globalRank}</span>
+          Global: <span className="font-mono font-medium">{data.globalRank}#</span>
           <span className="mx-2">•</span>
-          {data.countryName}: <span className="font-mono font-medium">#{data.countryRank}</span>
+          {data.countryName}: <span className="font-mono font-medium">{data.countryRank}#</span>
         </div>
       </div>
     </div>
