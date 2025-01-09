@@ -6,7 +6,6 @@ import { PlatformProvider } from "@/lib/PlatformContext";
 import { PlatformGrid } from "@/components/PlatformGrid";
 import { Intro } from "@/components/Intro";
 import { TagStrip } from "@/components/TagStrip";
-import { Temp } from "@/components/Temp";
 
 export default async function Home() {
   const { userId } = await auth();
@@ -24,7 +23,6 @@ export default async function Home() {
           <AiSuggestor />
           <TagStrip />
           <PlatformGrid />
-          <Temp />
         </main>
       </div>
     </PlatformProvider>
