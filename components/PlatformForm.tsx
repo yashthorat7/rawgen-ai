@@ -71,9 +71,11 @@ export function PlatformForm({
   };
 
   const handleUsernameKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && selectedPlatform && username && !isValidating && !isValidated) {
+    if (e.key === 'Enter') {
       e.preventDefault();
-      onSubmit();
+      if (selectedPlatform && username && !isValidating && !isValidated) {
+        onSubmit();
+      }
     }
   };
 
