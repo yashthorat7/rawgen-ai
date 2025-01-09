@@ -1,4 +1,4 @@
-export interface LeetCodeData {
+export type LeetCodeData = {
   username: string;
   totalSolved: number;
   totalQuestions: number;
@@ -17,9 +17,9 @@ export interface LeetCodeData {
     submissions: number;
   }>;
   submissionCalendar: Record<string, number>;
-}
+};
 
-export interface CodeChefData {
+export type CodeChefData = {
   username: string;
   name: string;
   currentRating: number;
@@ -36,9 +36,9 @@ export interface CodeChefData {
     rank: string;
     date: string;
   }>;
-}
+};
 
-export interface GeeksForGeeksData {
+export type GeeksForGeeksData = {
   username: string;
   institution: string;
   codingScore: number;
@@ -50,9 +50,9 @@ export interface GeeksForGeeksData {
   hardCount: number;
   monthlyCoding: number;
   weeklyCoding: number;
-}
+};
 
-export interface CodeforcesData {
+export type CodeforcesData = {
   username: string;
   rating: number;
   maxRating: number;
@@ -62,4 +62,27 @@ export interface CodeforcesData {
   contestsParticipated: number;
   contribution: number;
   friendOfCount: number;
-} 
+};
+
+export type PlatformData = {
+  leetcode: Record<string, LeetCodeData | null>;
+  codechef: Record<string, CodeChefData | null>;
+  geeksforgeeks: Record<string, GeeksForGeeksData | null>;
+  codeforces: Record<string, CodeforcesData | null>;
+};
+
+export type Platform = {
+  platform: string;
+  username: string;
+  order: number;
+};
+
+export type PlatformContextType = {
+  platforms: Platform[];
+  platformData: PlatformData;
+  isInitialLoading: boolean;
+  profileCount: number;
+  addPlatform: (platform: string, username: string) => void;
+  removePlatform: (platform: string, username: string) => void;
+  reorderPlatforms: (fromIndex: number, toIndex: number) => void;
+}; 

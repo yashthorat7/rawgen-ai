@@ -1,20 +1,46 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import ReactCrop, { Crop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
 import { PencilIcon } from "lucide-react";
 import { createPortal } from 'react-dom';
+import { useMutation, useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { useUser } from "@clerk/nextjs";
 
 interface ImageSelectorProps {
   image: string | null;
   onImageChange: (image: string) => void;
 }
 
-export function ImageSelector({ image, onImageChange }: ImageSelectorProps) {
+export function ImageSelector({ image: initialImage, onImageChange }: ImageSelectorProps) {
+  const { user } = useUser();
+  const userEmail = user?.emailAddresses?.[0]?.emailAddress;
+  
   const [showCropModal, setShowCropModal] = useState(false);
   const [tempImage, setTempImage] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [currentImage, setCurrentImage] = useState<string | null>(initialImage);
+
+  const generateUploadUrl = useMutation(api.profiles.generateUploadUrl);
+  const saveProfileImage = useMutation(api.profiles.saveProfileImage);
+  
+  // Fetch profile image
+  const profileImage = useQuery(
+    api.profiles.getUserProfileImage, 
+    userEmail ? { email: userEmail } : "skip"
+  );
+
+  // Update image when profile image is loaded
+  useEffect(() => {
+    if (profileImage) {
+      setCurrentImage(profileImage);
+      onImageChange(profileImage);
+    }
+  }, [profileImage, onImageChange]);
+
   const [crop, setCrop] = useState<Crop>({
     unit: '%',
     width: 100,
@@ -42,7 +68,60 @@ export function ImageSelector({ image, onImageChange }: ImageSelectorProps) {
     }
   };
 
-  const getCroppedImg = () => {
+  const uploadImage = async (base64Image: string) => {
+    if (!userEmail) {
+      console.error("Email is required but not provided");
+      return;
+    }
+
+    try {
+      setIsUploading(true);
+      console.log("Starting upload for email:", userEmail);
+      
+      // Convert base64 to blob
+      const response = await fetch(base64Image);
+      const blob = await response.blob();
+
+      // Get upload URL from Convex
+      const uploadUrl = await generateUploadUrl();
+      console.log("Got upload URL from Convex");
+
+      // Upload the file
+      const result = await fetch(uploadUrl, {
+        method: "POST",
+        headers: { "Content-Type": "image/jpeg" },
+        body: blob,
+      });
+
+      if (!result.ok) {
+        throw new Error(`Upload failed: ${result.statusText}`);
+      }
+
+      // Get the storage ID from the upload response
+      const { storageId } = await result.json();
+      console.log("File uploaded, got storageId:", storageId);
+
+      // Save the profile image reference
+      await saveProfileImage({
+        email: userEmail,
+        storageId: storageId
+      });
+      console.log("Profile image saved successfully");
+
+      // Update the UI
+      setCurrentImage(base64Image);
+      onImageChange(base64Image);
+    } catch (error) {
+      console.error("Failed to upload image:", error);
+      if (error instanceof Error) {
+        console.error("Error details:", error.message);
+      }
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const getCroppedImg = async () => {
     if (!imageRef.current) return;
 
     const canvas = document.createElement('canvas');
@@ -67,7 +146,7 @@ export function ImageSelector({ image, onImageChange }: ImageSelectorProps) {
     );
 
     const base64Image = canvas.toDataURL('image/jpeg');
-    onImageChange(base64Image);
+    await uploadImage(base64Image);
     setShowCropModal(false);
     setTempImage(null);
   };
@@ -79,10 +158,10 @@ export function ImageSelector({ image, onImageChange }: ImageSelectorProps) {
         onClick={handleImageClick}
       >
         <div className="w-40 h-40 sm:w-48 sm:h-48 rounded-full overflow-hidden bg-gray-100 border-2 border-gray-200 transition-all duration-200 group-hover:border-blue-500">
-          {image ? (
+          {currentImage ? (
             <div className="relative w-full h-full">
               <Image
-                src={image}
+                src={currentImage}
                 alt="Profile"
                 fill
                 className="object-cover rounded-full"
@@ -107,7 +186,7 @@ export function ImageSelector({ image, onImageChange }: ImageSelectorProps) {
           )}
           
           <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 rounded-full transition-all duration-200 flex items-center justify-center">
-            {image && (
+            {currentImage && (
               <span className="text-white opacity-0 group-hover:opacity-100 text-m flex flex-row">
                 <PencilIcon className="w-6 h-6" />Edit
               </span>
@@ -156,14 +235,16 @@ export function ImageSelector({ image, onImageChange }: ImageSelectorProps) {
               <button
                 onClick={() => setShowCropModal(false)}
                 className="px-6 py-2 border rounded-lg hover:bg-gray-50"
+                disabled={isUploading}
               >
                 Cancel
               </button>
               <button
                 onClick={getCroppedImg}
-                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                disabled={isUploading}
               >
-                Save
+                {isUploading ? 'Saving...' : 'Save'}
               </button>
             </div>
           </div>

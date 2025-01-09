@@ -11,7 +11,7 @@ export function PlatformCounter() {
   }, {} as Record<string, number>);
 
   return (
-    <div className="flex flex-wrap gap-2 mt-6">
+    <div className="flex flex-wrap gap-2 mt-6 sm:mt-2">
       {Object.entries(platformCounts).map(([platform, count]) => (
         <div
           key={platform}

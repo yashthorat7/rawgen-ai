@@ -9,33 +9,104 @@ export const getProfiles = query({
   handler: async (ctx, args) => {
     return await ctx.db
       .query("profiles")
-      .withIndex("by_email", (q) => q.eq("email", args.email))
+      .filter((q) => q.eq(q.field("email"), args.email))
       .collect();
   },
+});
+
+// Generate upload URL for profile image
+export const generateUploadUrl = mutation(async (ctx) => {
+  return await ctx.storage.generateUploadUrl();
+});
+
+// Save profile image
+export const saveProfileImage = mutation({
+  args: {
+    email: v.string(),
+    storageId: v.id("_storage")
+  },
+  handler: async (ctx, { email, storageId }) => {
+    console.log("saveProfileImage called with:", { email, storageId });
+
+    // Update user settings with the new profile image
+    const existingSettings = await ctx.db
+      .query("userSettings")
+      .withIndex("by_email", q => q.eq("email", email))
+      .first();
+
+    console.log("Existing settings:", existingSettings);
+
+    if (existingSettings) {
+      // If old image exists, delete it
+      if (existingSettings.profileImage) {
+        await ctx.storage.delete(existingSettings.profileImage);
+      }
+      await ctx.db.patch(existingSettings._id, { profileImage: storageId });
+      console.log("Updated existing settings");
+    } else {
+      await ctx.db.insert("userSettings", {
+        email,
+        profileImage: storageId
+      });
+      console.log("Created new settings");
+    }
+
+    return storageId;
+  }
 });
 
 // Add a platform
 export const addPlatform = mutation({
   args: {
     email: v.string(),
-    username: v.string(),
     platform: v.string(),
+    username: v.string(),
     order: v.number(),
   },
   handler: async (ctx, args) => {
-    // Check if platform already exists for this email
-    const existing = await ctx.db
-      .query("profiles")
-      .withIndex("by_email", q => q.eq("email", args.email))
-      .filter(q => 
-        q.eq(q.field("platform"), args.platform) && 
-        q.eq(q.field("username"), args.username)
-      )
-      .first();
+    console.log("Mutation: Starting addPlatform with args:", args);
 
-    if (existing) return null;
+    try {
+      // Check if this exact platform+username combination exists for this email
+      const existing = await ctx.db
+        .query("profiles")
+        .withIndex("by_email_platform", (q) => 
+          q.eq("email", args.email)
+           .eq("platform", args.platform)
+        )
+        .filter((q) => q.eq(q.field("username"), args.username))
+        .first();
 
-    return await ctx.db.insert("profiles", args);
+      console.log("Mutation: Duplicate check result:", existing ? "Found duplicate" : "No duplicate");
+
+      if (existing) {
+        throw new Error(`Username ${args.username} already exists for platform ${args.platform}`);
+      }
+
+      // Get the latest order number for this email
+      const latestProfile = await ctx.db
+        .query("profiles")
+        .withIndex("by_email", (q) => q.eq("email", args.email))
+        .order("desc")
+        .first();
+
+      const order = latestProfile ? latestProfile.order + 1 : 1;
+      console.log("Mutation: Calculated order:", order);
+
+      // Insert the new profile
+      const result = await ctx.db.insert("profiles", {
+        email: args.email,
+        platform: args.platform,
+        username: args.username,
+        order,
+      });
+
+      console.log("Mutation: Successfully inserted profile with ID:", result);
+      return result;
+    } catch (error) {
+      console.error("Mutation: Error in addPlatform:", error);
+      throw error;
+    }
   },
 });
 
@@ -49,10 +120,12 @@ export const deletePlatform = mutation({
   handler: async (ctx, args) => {
     const profile = await ctx.db
       .query("profiles")
-      .withIndex("by_email", q => q.eq("email", args.email))
-      .filter(q => 
-        q.eq(q.field("platform"), args.platform) && 
-        q.eq(q.field("username"), args.username)
+      .filter((q) => 
+        q.and(
+          q.eq(q.field("email"), args.email),
+          q.eq(q.field("platform"), args.platform),
+          q.eq(q.field("username"), args.username)
+        )
       )
       .first();
 
@@ -66,26 +139,45 @@ export const deletePlatform = mutation({
 export const updateOrder = mutation({
   args: {
     email: v.string(),
-    updates: v.array(v.object({
-      platform: v.string(),
-      username: v.string(),
-      order: v.number(),
-    })),
+    updates: v.array(
+      v.object({
+        platform: v.string(),
+        username: v.string(),
+        order: v.number(),
+      })
+    ),
   },
   handler: async (ctx, args) => {
     const profiles = await ctx.db
       .query("profiles")
-      .withIndex("by_email", q => q.eq("email", args.email))
+      .filter((q) => q.eq(q.field("email"), args.email))
       .collect();
 
     for (const update of args.updates) {
-      const profile = profiles.find(p => 
-        p.platform === update.platform && 
-        p.username === update.username
+      const profile = profiles.find(
+        (p) => p.platform === update.platform && p.username === update.username
       );
       if (profile) {
         await ctx.db.patch(profile._id, { order: update.order });
       }
     }
   },
+});
+
+// Get user profile image
+export const getUserProfileImage = query({
+  args: { email: v.string() },
+  handler: async (ctx, { email }) => {
+    const userSettings = await ctx.db
+      .query("userSettings")
+      .withIndex("by_email", q => q.eq("email", email))
+      .first();
+
+    if (userSettings?.profileImage) {
+      // Get the URL for the image
+      const url = await ctx.storage.getUrl(userSettings.profileImage);
+      return url;
+    }
+    return null;
+  }
 });

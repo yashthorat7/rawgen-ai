@@ -2,17 +2,18 @@ import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
 export default defineSchema({
-    // Table for platform profiles
     profiles: defineTable({
         email: v.string(),
+        platform: v.string(),
         username: v.string(),
-        platform: v.string(),  // Made required since each profile needs a platform
-        order: v.number(),     // Made required for consistent ordering
-    }).index("by_email", ["email"]),
+        order: v.number(),
+    })
+    .index("by_email", ["email"])
+    .index("by_email_platform", ["email", "platform"])
+    .index("by_platform_username", ["platform", "username"]),
 
-    // Table for user settings/preferences
     userSettings: defineTable({
         email: v.string(),
-        profileImage: v.optional(v.string()),
+        profileImage: v.optional(v.id("_storage")),
     }).index("by_email", ["email"]),
 });

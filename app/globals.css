@@ -85,3 +85,11 @@ body {
     --angle: 360deg;
   }
 }
+
+.dialog-backdrop {
+  @apply fixed inset-0 bg-black/30 backdrop-blur-sm z-[10];
+}
+
+.dialog-content {
+  @apply fixed inset-0 flex items-center justify-center z-[10];
+}

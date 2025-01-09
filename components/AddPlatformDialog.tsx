@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useRef } from "react"
-import { Transition } from "@headlessui/react"
 import { usePlatforms } from "@/lib/PlatformContext"
 import { validateLeetCodeProfile } from "@/lib/validators/leetcodeValidator"
 import { validateGeeksForGeeksProfile } from "@/lib/validators/geeksforgeeksValidator"
@@ -163,40 +162,22 @@ export function AddPlatformDialog({
     }
   };
 
-  if (!open) return null
-
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <Transition
-        show={open}
-        enter="transition duration-300 ease-out"
-        enterFrom="transform scale-95 opacity-0"
-        enterTo="transform scale-100 opacity-100"
-        leave="transition duration-200 ease-in"
-        leaveFrom="transform scale-100 opacity-100"
-        leaveTo="transform scale-95 opacity-0"
-      >
-        <div className="bg-white rounded-lg w-[400px] max-w-[90vw] shadow-lg border border-gray-200 transition-all duration-300 ease-in-out">
-          <div className="p-6">
-            <h2 className="text-2xl font-bold text-primary-600 mb-2">Add Platform</h2>
-            <PlatformForm
-              selectedPlatform={selectedPlatform}
-              username={username}
-              platformError={platformError}
-              usernameError={usernameError}
-              validationMessage={successMessage || validationMessage}
-              isValidated={isValidated}
-              isValidating={isValidating}
-              isLoading={isLoading}
-              onPlatformChange={handlePlatformChange}
-              onUsernameChange={handleUsernameChange}
-              onClose={handleClose}
-              onSubmit={handleValidate}
-              onAdd={handleSubmit}
-            />
-          </div>
-        </div>
-      </Transition>
-    </div>
-  )
+    <PlatformForm
+      isOpen={open}
+      selectedPlatform={selectedPlatform}
+      username={username}
+      platformError={platformError}
+      usernameError={usernameError}
+      validationMessage={successMessage || validationMessage}
+      isValidated={isValidated}
+      isValidating={isValidating}
+      isLoading={isLoading}
+      onPlatformChange={handlePlatformChange}
+      onUsernameChange={handleUsernameChange}
+      onClose={handleClose}
+      onSubmit={handleValidate}
+      onAdd={handleSubmit}
+    />
+  );
 }

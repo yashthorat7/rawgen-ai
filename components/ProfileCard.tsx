@@ -10,7 +10,6 @@ import { DeleteButton } from "./DeleteButton";
 import { CodeforcesStats } from "./platform-stats/CodeforcesStats";
 import { LoadingSkeleton } from "./platform-stats/LoadingSkeleton";
 import { LeetCodeDashboard } from "./dashboard/LeetCodeDashboard";
-import { Dialog } from "./ui/dialog";
 import type { LeetCodeData, CodeChefData, GeeksForGeeksData, CodeforcesData } from "@/lib/types";
 
 export function ProfileCard({ 
@@ -73,15 +72,18 @@ export function ProfileCard({
       case 'leetcode':
         if ('totalSolved' in data) {
           return (
-            <LeetCodeDashboard
-              username={username}
-              data={data as LeetCodeData}
-              platform={platform}
-              onDelete={() => {
-                removePlatform(platform, username);
-                setIsOpen(false);
-              }}
-            />
+            <div>
+              <LeetCodeDashboard
+                username={username}
+                data={data as LeetCodeData}
+                platform={platform}
+                onDelete={() => {
+                  removePlatform(platform, username);
+                  setIsOpen(false);
+                }}
+                onClose={() => setIsOpen(false)}
+              />
+            </div>
           );
         }
         break;
@@ -153,14 +155,14 @@ export function ProfileCard({
       </div>
 
       {isOpen && (
-        <Dialog 
-          open={isOpen} 
-          onClose={() => setIsOpen(false)}
-        >
-          <div className="relative w-full max-w-4xl mx-auto">
-            {renderDashboard()}
+        <>
+          <div className="dialog-backdrop" onClick={() => setIsOpen(false)} />
+          <div className="dialog-content">
+            <div className="relative w-full max-w-4xl mx-auto">
+              {renderDashboard()}
+            </div>
           </div>
-        </Dialog>
+        </>
       )}
     </>
   );
