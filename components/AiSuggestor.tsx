@@ -29,9 +29,11 @@ export function AiSuggestor() {
       const leetcodeUsers = Object.values(platformData.leetcode);
       const codechefUsers = Object.values(platformData.codechef);
       const gfgUsers = Object.values(platformData.geeksforgeeks);
+      const codeforcesUsers = Object.values(platformData.codeforces);
 
       // Only proceed if we have data
-      if (leetcodeUsers.length === 0 && codechefUsers.length === 0 && gfgUsers.length === 0) {
+      if (leetcodeUsers.length === 0 && codechefUsers.length === 0 &&
+        gfgUsers.length === 0 && codeforcesUsers.length === 0) {
         setAdvice("Add some coding platforms to get personalized suggestions!");
         return;
       }
@@ -63,8 +65,17 @@ export function AiSuggestor() {
               - Medium: ${user.mediumCount}, Hard: ${user.hardCount}
               - Current Streak: ${user.currentStreak}
             ` : '').join('\n')}
+
+            ${codeforcesUsers.map(user => user ? `
+              Codeforces:
+              - Current Rating: ${user.rating} (Max: ${user.maxRating})
+              - Current Rank: ${user.rank} (Max: ${user.maxRank})
+              - Problems Solved: ${user.problemsSolved}
+              - Contests Participated: ${user.contestsParticipated}
+              - Platform Contribution: ${user.contribution}
+            ` : '').join('\n')}
             
-            Act like this is your profile and provide a brief (80 words max) personalized coding summary Focus on areas of improvement, and maintain an encouraging tone. Speak directly to the recruiter and be specific. dont't add quotes on the ends. be concise and to the point. explain in detial yet be concise. dont't say here is the summary directly give me the summary or greetings. just give me the summary`,
+            Act like this is your profile and provide a brief (80 words max) personalized coding summary. Focus on areas of improvement, and maintain an encouraging tone. Speak directly to the recruiter and be specific. dont't add quotes on the ends. be concise and to the point. explain in detail yet be concise. dont't say here is the summary directly give me the summary or greetings. just give me the summary. If Codeforces data is present, emphasize competitive programming achievements and contest performance.`,
           },
         ],
         model: "llama3-8b-8192",

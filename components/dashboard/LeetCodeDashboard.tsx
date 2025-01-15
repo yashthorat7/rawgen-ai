@@ -53,7 +53,7 @@ export function LeetCodeDashboard({ username, data, platform, onDelete, onClose 
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-lg z-50 max-h-[90vh] overflow-y-auto sm:max-h-[85vh] w-full max-w-[95vw] sm:max-w-4xl mx-auto mt-[6vh] sm:mt-0">
+    <div className="bg-white rounded-lg shadow-lg z-50 max-h-[90vh] overflow-y-auto sm:max-h-[85vh] w-full max-w-[95vw] sm:max-w-[90%] mx-auto mt-[6vh] sm:mt-0">
       <div className="flex justify-between items-center p-4 sm:p-6 border-b sticky top-0 bg-white z-[1]">
         <div className="flex items-center gap-4">
           <div className="relative flex-shrink-0">
@@ -72,7 +72,7 @@ export function LeetCodeDashboard({ username, data, platform, onDelete, onClose 
           <div>
             <div className="flex items-center gap-2">
               <h2 className="text-xl sm:text-2xl font-bold text-gray-900">{username}</h2>
-              <a 
+              <a
                 href={`https://leetcode.com/${username}`}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -87,7 +87,7 @@ export function LeetCodeDashboard({ username, data, platform, onDelete, onClose 
 
         <div className="flex items-center gap-2 flex-shrink-0">
           <DashboardDelete onDelete={onDelete} />
-          <button 
+          <button
             onClick={onClose}
             className="p-1.5 sm:p-2 text-gray-400 hover:text-gray-600 transition-colors"
           >
@@ -95,7 +95,7 @@ export function LeetCodeDashboard({ username, data, platform, onDelete, onClose 
           </button>
         </div>
       </div>
-      
+
       <div className="p-4 sm:p-6 overflow-y-auto">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
           {Object.entries(difficultyData).map(([key, { solved, total, color, icon }]) => (
@@ -111,13 +111,13 @@ export function LeetCodeDashboard({ username, data, platform, onDelete, onClose 
                   <span className="text-gray-400">{total} total</span>
                 </div>
                 <div className="h-1.5 sm:h-2 bg-gray-200 rounded-full overflow-hidden">
-                  <div 
+                  <div
                     className="h-full rounded-full transition-all duration-500"
-                    style={{ 
-                      width: `${(solved/total) * 100}%`,
+                    style={{
+                      width: `${(solved / total) * 100}%`,
                       backgroundColor: color,
                       boxShadow: `0 0 10px ${color}40`
-                    }} 
+                    }}
                   />
                 </div>
               </div>
@@ -129,7 +129,7 @@ export function LeetCodeDashboard({ username, data, platform, onDelete, onClose 
           <div className="bg-gray-50 p-3 sm:p-6 rounded-xl">
             <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">Difficulty Distribution</h3>
             <div className="h-[200px] sm:h-[300px] flex items-center justify-center">
-              <Doughnut 
+              <Doughnut
                 data={{
                   labels: ['Easy', 'Medium', 'Hard'],
                   datasets: [{
@@ -172,9 +172,9 @@ export function LeetCodeDashboard({ username, data, platform, onDelete, onClose 
               {[
                 { label: 'Total Questions', value: data.totalQuestions },
                 { label: 'Total Solved', value: data.totalSolved },
-                { 
-                  label: 'Acceptance Rate', 
-                  value: `${((data.totalSolved / data.totalQuestions) * 100).toFixed(1)}%` 
+                {
+                  label: 'Acceptance Rate',
+                  value: `${((data.totalSolved / data.totalQuestions) * 100).toFixed(1)}%`
                 }
               ].map(({ label, value }) => (
                 <div key={label} className="flex justify-between items-center p-2 sm:p-3 bg-white rounded-lg hover:shadow-md transition-shadow">

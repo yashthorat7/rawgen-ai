@@ -25,13 +25,15 @@ export function TagStrip() {
 
   const generateTags = useCallback(async () => {
     if (hasFetchedTags) return;
-    
+
     try {
       const leetcodeUsers = Object.values(platformData.leetcode);
       const codechefUsers = Object.values(platformData.codechef);
       const gfgUsers = Object.values(platformData.geeksforgeeks);
+      const codeforcesUsers = Object.values(platformData.codeforces);
 
-      if (leetcodeUsers.length === 0 && codechefUsers.length === 0 && gfgUsers.length === 0) {
+      if (leetcodeUsers.length === 0 && codechefUsers.length === 0 &&
+        gfgUsers.length === 0 && codeforcesUsers.length === 0) {
         return;
       }
 
@@ -60,6 +62,15 @@ export function TagStrip() {
               - Basic: ${user.basicCount}, Easy: ${user.easyCount}
               - Medium: ${user.mediumCount}, Hard: ${user.hardCount}
               - Score: ${user.codingScore}
+            ` : '').join('\n')}
+
+            ${codeforcesUsers.map(user => user ? `
+              Codeforces:
+              - Rating: ${user.rating} (Max: ${user.maxRating})
+              - Rank: ${user.rank}
+              - Problems Solved: ${user.problemsSolved}
+              - Contests: ${user.contestsParticipated}
+              - Contribution: ${user.contribution}
             ` : '').join('\n')}
             
             Generate a list of 15 to 40 concise and meaningful tags summarizing the user's solution. Each tag should be one to three words and highlight key aspects such as platform, difficulty, number of questions solved, achievements, coding patterns, and data structures. Include a wide variety of coding patterns (e.g., dynamic programming, backtracking, greedy, divide and conquer) and data structures (e.g., stack, array, linked list, graph). Avoid showcasing tags with values of 0 or none. Focus on providing diverse, relevant, and compact tags. Return the result as an array of tags, separated by commas and spaces in words, without any introductory text or explanation in the response. please make the words have spaces between them and no introductry text or explanation in the response."`,
@@ -101,8 +112,15 @@ export function TagStrip() {
   return (
     <div className="w-full overflow-hidden mb-12 bg-gray-50 relative">
       <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-gray-50 to-transparent z-10" />
-      
-      <div className={`flex whitespace-nowrap ${isPaused ? 'animate-none' : 'animate-scroll'}`}>
+
+      <div className={`flex whitespace-nowrap transition-all duration-3000 ${isPaused
+        ? 'animate-none transform translate-x-0'
+        : 'animate-scroll'
+        }`}
+        style={{
+          animationPlayState: isPaused ? 'paused' : 'running'
+        }}
+      >
         {[...tags, ...tags].map((tag, index) => (
           <div
             key={index}

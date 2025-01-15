@@ -1,28 +1,39 @@
-import { Loader2 } from "lucide-react";
+import { Loader2, X } from "lucide-react";
 import { SignIn, ClerkLoaded, ClerkLoading } from "@clerk/nextjs";
-import Image from "next/image";
+import { Hero } from "@/components/Hero";
+import Link from "next/link";
 
 export default function Page() {
   return (
-    <div className="min-h-screen  grid grid-cols-1 lg:grid-cols-2">
-      <div className="h-full lg:flex flex-col items-center justify-center px-4">
-        <div className="text-center space-y-4 pt-16">
-          <h1 className="font-bold text-3xl text-[#2E2A47]">Welcome Back!</h1>
-          <p className="text-base text-[#7E8CA0]">
-            Your Coding Summarizer
-          </p>
-        </div>
-        <div className="flex items-center justify-center mt-8">
+    <div className="relative min-h-screen">
+      {/* Background Hero */}
+      <div className="absolute inset-0 blur-[2px] brightness-[0.98]">
+        <Hero />
+      </div>
+
+      {/* White Overlay */}
+      <div className="absolute inset-0 bg-white/60" />
+
+      {/* Close Button */}
+      <Link
+        href="/"
+        className="fixed top-6 right-6 lg:top-[20%] lg:right-[38%] z-50 p-2 rounded-full bg-white hover:bg-white/80 shadow-xl transition-all hover:scale-110"
+      >
+        <X className="w-6 h-6 text-gray-600" />
+      </Link>
+
+      {/* Sign In Content */}
+      <div className="relative flex min-h-screen items-center justify-center">
+        <div className="w-full max-w-md px-4">
           <ClerkLoaded>
             <SignIn />
           </ClerkLoaded>
           <ClerkLoading>
-            <Loader2 className="animate-spin text-muted-foreground" />
+            <div className="flex justify-center p-8">
+              <Loader2 className="w-8 h-8 animate-spin text-primary-600" />
+            </div>
           </ClerkLoading>
         </div>
-      </div>
-      <div className="h-full bg-primary-600 hidden lg:flex items-center justify-center">
-        <Image src="logo.svg" alt="Logo" width={200} height={200} />
       </div>
     </div>
   );

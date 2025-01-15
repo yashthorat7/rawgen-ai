@@ -2,35 +2,34 @@ import type { Metadata } from "next";
 import { Mulish } from "next/font/google";
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
-import { ConvexClientProvider } from "../components/ConvexClientProvider";
+import { ConvexClientProvider } from "@/components/ConvexClientProvider";
 import { Footer } from '@/components/Footer';
 
 const mulish = Mulish({
   subsets: ["latin"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "CodeX",
-  description: "Your Coding Summarizer",
+  title: "RAW-GEN",
+  description: "Your Competitive Programming Portfolio Generator",
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
-    <ClerkProvider>
-      <html lang="en">
-        <body className={mulish.className}>
+    <html lang="en" suppressHydrationWarning>
+      <body className={mulish.className}>
+        <ClerkProvider>
           <ConvexClientProvider>
-            <main className="flex-1">
-              {children}
-            </main>
+            {children}
+            <Footer />
           </ConvexClientProvider>
-          <Footer />
-        </body>
-      </html>
-    </ClerkProvider>
+        </ClerkProvider>
+      </body>
+    </html>
   );
 }

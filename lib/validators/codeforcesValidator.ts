@@ -6,12 +6,12 @@ export const validateCodeforcesProfile = async (
     const url = `${process.env.NEXT_PUBLIC_CODEFORCES_API_URL}/user.info?handles=${username}`;
 
     const response = await fetch(url, { signal });
-    
+
     const contentType = response.headers.get("content-type");
     if (!contentType || !contentType.includes("application/json")) {
       return false;
     }
-    
+
     const data = await response.json();
     return data.status === "OK";
   } catch (error: unknown) {

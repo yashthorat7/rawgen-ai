@@ -65,9 +65,9 @@ export const addPlatform = mutation({
       // Check if this exact platform+username combination exists for this email
       const existing = await ctx.db
         .query("profiles")
-        .withIndex("by_email_platform", (q) => 
+        .withIndex("by_email_platform", (q) =>
           q.eq("email", args.email)
-           .eq("platform", args.platform)
+            .eq("platform", args.platform)
         )
         .filter((q) => q.eq(q.field("username"), args.username))
         .first();
@@ -111,7 +111,7 @@ export const deletePlatform = mutation({
   handler: async (ctx, args) => {
     const profile = await ctx.db
       .query("profiles")
-      .filter((q) => 
+      .filter((q) =>
         q.and(
           q.eq(q.field("email"), args.email),
           q.eq(q.field("platform"), args.platform),
@@ -171,4 +171,25 @@ export const getUserProfileImage = query({
     }
     return null;
   }
+});
+
+// Check if a profile exists for any user
+export const checkProfileExists = query({
+  args: {
+    platform: v.string(),
+    username: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const profile = await ctx.db
+      .query("profiles")
+      .filter((q) =>
+        q.and(
+          q.eq(q.field("platform"), args.platform),
+          q.eq(q.field("username"), args.username)
+        )
+      )
+      .first();
+
+    return profile ? { exists: true, email: profile.email } : { exists: false, email: null };
+  },
 });

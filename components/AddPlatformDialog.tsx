@@ -7,6 +7,8 @@ import { validateGeeksForGeeksProfile } from "@/lib/validators/geeksforgeeksVali
 import { validateCodeChefProfile } from "@/lib/validators/codechefValidator"
 import { validateCodeforcesProfile } from "@/lib/validators/codeforcesValidator"
 import { PlatformForm } from "./PlatformForm"
+import { useQuery } from "convex/react"
+import { api } from "@/convex/_generated/api"
 
 type PlatformOption = { value: string; label: string; };
 
@@ -34,9 +36,20 @@ export function AddPlatformDialog({
   const [isValidating, setIsValidating] = useState(false)
   const abortControllerRef = useRef<AbortController | null>(null)
 
+  // Query for existing profile
+  const existingProfile = useQuery(
+    api.profiles.checkProfileExists,
+    selectedPlatform && username.trim()
+      ? {
+        platform: selectedPlatform.value,
+        username: username.trim()
+      }
+      : "skip"
+  )
+
   const checkIfUsernameExists = (platform: string, username: string) => {
-    return platforms.some(p => 
-      p.platform === platform && 
+    return platforms.some(p =>
+      p.platform === platform &&
       p.username.toLowerCase() === username.toLowerCase()
     );
   };
@@ -63,22 +76,30 @@ export function AddPlatformDialog({
 
   const validateProfile = async () => {
     if (!selectedPlatform || !username.trim()) return;
-    
+
     if (checkIfUsernameExists(selectedPlatform.value, username)) {
       setValidationMessage(`${username} is already added for ${selectedPlatform.label}`);
       setIsValidated(false);
       return;
     }
-    
+
+    // Check if profile exists in database
+    if (existingProfile?.exists) {
+      setValidationMessage(`${username} on ${selectedPlatform.label} is being used by ${existingProfile.email}`);
+      setIsValidated(false);
+      return;
+    }
+
     abortControllerRef.current = new AbortController()
     const signal = abortControllerRef.current.signal
-    
+
     setIsValidating(true);
     setValidationMessage("");
     setSuccessMessage("");
     let exists = false;
 
     try {
+      // Validate against platform API
       switch (selectedPlatform.value) {
         case 'leetcode':
           exists = await validateLeetCodeProfile(username);
@@ -98,7 +119,7 @@ export function AddPlatformDialog({
 
       if (!signal.aborted) {
         setValidationMessage(
-          exists 
+          exists
             ? `${username} exists on ${selectedPlatform.label}`
             : `${username} not found on ${selectedPlatform.label}`
         );
