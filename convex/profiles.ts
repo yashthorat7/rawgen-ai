@@ -226,3 +226,84 @@ export const updateProfileData = mutation({
     }
   },
 });
+
+// Get user settings
+export const getUserSettings = query({
+  args: { email: v.string() },
+  handler: async (ctx, { email }) => {
+    const userSettings = await ctx.db
+      .query("userSettings")
+      .withIndex("by_email", q => q.eq("email", email))
+      .first();
+
+    return userSettings;
+  }
+});
+
+// Check if username is available
+export const checkUsernameAvailable = query({
+  args: { username: v.string() },
+  handler: async (ctx, { username }) => {
+    const existingUser = await ctx.db
+      .query("userSettings")
+      .withIndex("by_username", q => q.eq("username", username))
+      .first();
+
+    // If no one has this username, it's available
+    if (!existingUser) return true;
+
+    // Otherwise, return false as it's taken
+    return false;
+  },
+});
+
+// Update user settings
+export const updateUserSettings = mutation({
+  args: {
+    email: v.string(),
+    username: v.optional(v.string()),
+    firstName: v.optional(v.string()),
+    lastName: v.optional(v.string()),
+    cgpa: v.optional(v.number()),
+    skills: v.optional(v.array(v.string())),
+    hobbies: v.optional(v.array(v.string())),
+    description: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const existingSettings = await ctx.db
+      .query("userSettings")
+      .withIndex("by_email", q => q.eq("email", args.email))
+      .first();
+
+    // If username is being updated, check if it's available
+    if (args.username) {
+      const existingUsername = await ctx.db
+        .query("userSettings")
+        .withIndex("by_username", q => q.eq("username", args.username))
+        .first();
+
+      if (existingUsername && existingUsername._id !== existingSettings?._id) {
+        throw new Error("Username is already taken");
+      }
+    }
+
+    const updates = {
+      ...(args.username !== undefined && { username: args.username }),
+      ...(args.firstName !== undefined && { firstName: args.firstName }),
+      ...(args.lastName !== undefined && { lastName: args.lastName }),
+      ...(args.cgpa !== undefined && { cgpa: args.cgpa }),
+      ...(args.skills !== undefined && { skills: args.skills }),
+      ...(args.hobbies !== undefined && { hobbies: args.hobbies }),
+      ...(args.description !== undefined && { description: args.description }),
+    };
+
+    if (existingSettings) {
+      await ctx.db.patch(existingSettings._id, updates);
+    } else {
+      await ctx.db.insert("userSettings", {
+        email: args.email,
+        ...updates
+      });
+    }
+  },
+});

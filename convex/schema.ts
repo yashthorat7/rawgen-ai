@@ -16,7 +16,16 @@ export default defineSchema({
     userSettings: defineTable({
         email: v.string(),
         profileImage: v.optional(v.id("_storage")),
-    }).index("by_email", ["email"]),
+        username: v.optional(v.string()),
+        firstName: v.optional(v.string()),
+        lastName: v.optional(v.string()),
+        cgpa: v.optional(v.number()),
+        skills: v.optional(v.array(v.string())),
+        hobbies: v.optional(v.array(v.string())),
+        description: v.optional(v.string()),
+    })
+        .index("by_email", ["email"])
+        .index("by_username", ["username"]),
 
     documents: defineTable({
         title: v.string(),

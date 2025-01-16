@@ -2,19 +2,48 @@
 
 import { useUser } from "@clerk/nextjs";
 import { useState } from "react";
-import { ImageSelector } from "./ImageSelector";
 import { PlatformCounter } from "./PlatformCounter";
+import { UserSettingsDialog } from "./UserSettingsDialog";
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import Image from "next/image";
 
 export function Intro() {
   const { user } = useUser();
-  const fullName = user?.fullName || "there";
-  const [image, setImage] = useState<string | null>(null);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
+  const profileImage = useQuery(
+    api.profiles.getUserProfileImage,
+    user?.primaryEmailAddress?.emailAddress
+      ? { email: user.primaryEmailAddress.emailAddress }
+      : "skip"
+  );
+
+  const userSettings = useQuery(
+    api.profiles.getUserSettings,
+    user?.primaryEmailAddress?.emailAddress
+      ? { email: user.primaryEmailAddress.emailAddress }
+      : "skip"
+  );
+
+  // Get default name from Clerk user data
+  const defaultName = {
+    firstName: user?.firstName || "",
+    lastName: user?.lastName || ""
+  };
+
+  // Only show name after database is fetched
+  const displayName = userSettings === undefined
+    ? "" // Loading state
+    : userSettings
+      ? `${userSettings.firstName || defaultName.firstName} ${userSettings.lastName || defaultName.lastName}`.trim()
+      : `${defaultName.firstName} ${defaultName.lastName}`.trim();
 
   return (
     <div className="flex flex-col-reverse sm:flex-row justify-between items-center gap-2 sm:gap-4 mb-2 sm:mb-4 -mt-4 sm:mt-1 px-8">
       <div className="text-center sm:text-left -mt-8 sm:mt-0">
         <h1 className="text-2xl sm:text-4xl font-bold -mb-4 sm:mb-0">
-          Hi {fullName} 👋
+          Hi {displayName} 👋
         </h1>
         <p className="hidden sm:block text-gray-600">
           This is a summary of your coding journey...
@@ -22,12 +51,52 @@ export function Intro() {
         <PlatformCounter />
       </div>
 
-      <div className="scale-75 sm:scale-100">
-        <ImageSelector 
-          image={image}
-          onImageChange={setImage}
-        />
+      <div
+        className="scale-75 sm:scale-100 cursor-pointer group"
+        onClick={() => setIsSettingsOpen(true)}
+      >
+        <div className="w-40 h-40 sm:w-48 sm:h-48 rounded-full overflow-hidden bg-gray-100 border-2 border-gray-200 transition-all duration-200 group-hover:border-blue-500">
+          {profileImage ? (
+            <div className="relative w-full h-full">
+              <Image
+                src={profileImage}
+                alt="Profile"
+                fill
+                className="object-cover rounded-full"
+              />
+            </div>
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-gray-400 group-hover:text-blue-500">
+              <svg
+                className="w-12 h-12"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                />
+              </svg>
+            </div>
+          )}
+
+          <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 rounded-full transition-all duration-200 flex items-center justify-center">
+            <span className="text-white opacity-0 group-hover:opacity-100 text-m flex flex-row">
+              Edit Profile
+            </span>
+          </div>
+        </div>
       </div>
+
+      <UserSettingsDialog
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        defaultFirstName={defaultName.firstName}
+        defaultLastName={defaultName.lastName}
+      />
     </div>
   );
 } 

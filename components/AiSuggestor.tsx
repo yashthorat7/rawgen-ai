@@ -75,7 +75,7 @@ export function AiSuggestor() {
               - Platform Contribution: ${user.contribution}
             ` : '').join('\n')}
             
-            Act like this is your profile and provide a brief (80 words max) personalized coding summary. Focus on areas of improvement, and maintain an encouraging tone. Speak directly to the recruiter and be specific. dont't add quotes on the ends. be concise and to the point. explain in detail yet be concise. dont't say here is the summary directly give me the summary or greetings. just give me the summary. If Codeforces data is present, emphasize competitive programming achievements and contest performance.`,
+            Act like this is your profile and provide a brief (60 words max) personalized coding summary. Focus on areas of improvement, and maintain an encouraging tone. Speak directly to the recruiter and be specific. dont't add quotes on the ends. be concise and to the point. explain in detail yet be concise. dont't say here is the summary or greetingsdirectly give me the summary. just give me the summary. If Codeforces data is present, emphasize competitive programming achievements and contest performance. don't add fluff. stick to the facts`,
           },
         ],
         model: "llama3-8b-8192",
