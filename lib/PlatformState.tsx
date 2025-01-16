@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useUser } from "@clerk/nextjs";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
@@ -32,7 +32,7 @@ export function usePlatformState() {
   } : "skip");
 
   // Function to fetch platform data and update cache
-  const fetchPlatformData = async (platform: string, username: string) => {
+  const fetchPlatformData = useCallback(async (platform: string, username: string) => {
     try {
       let data = null;
       switch (platform) {
@@ -85,7 +85,7 @@ export function usePlatformState() {
       console.error(`Error fetching ${platform} data:`, error);
     }
     return null;
-  };
+  }, [user?.primaryEmailAddress?.emailAddress, updateProfileData]);
 
   // Process profiles and update state
   useEffect(() => {
@@ -151,7 +151,7 @@ export function usePlatformState() {
     };
 
     processProfiles();
-  }, [profiles, user?.primaryEmailAddress?.emailAddress]);
+  }, [profiles, user?.primaryEmailAddress?.emailAddress, fetchPlatformData]);
 
   const handleAddPlatform = async (platform: string, username: string) => {
     if (!user?.primaryEmailAddress?.emailAddress) return;

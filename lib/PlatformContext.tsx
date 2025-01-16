@@ -9,9 +9,7 @@ const PlatformContext = createContext<PlatformContextType | undefined>(undefined
 
 export function PlatformProvider({ children }: { children: React.ReactNode }) {
   const { user } = useUser();
-  const userEmail = user?.primaryEmailAddress?.emailAddress;
-  
-  const platformState = usePlatformState(userEmail);
+  const platformState = usePlatformState();
 
   return (
     <PlatformContext.Provider value={platformState}>
