@@ -6,16 +6,16 @@ export function PlatformCounter() {
   const stars = 45;    // Example value
 
   return (
-    <div className="flex flex-wrap gap-2 mt-4 sm:mt-2">
-      <div className="px-3 py-1 bg-primary-500 rounded-md text-sm font-medium text-white flex items-center gap-1">
+    <div className="flex flex-wrap gap-3 mt-4 sm:mt-2">
+      <div className="px-1 pl-2 py-1 bg-primary-500 rounded-md text-[15px] font-medium text-white flex items-center gap-2">
         Profile Visits
-        <span className="bg-white text-primary-500 px-1.5 rounded-md text-xs">
+        <span className="bg-white text-primary-700 px-2 py-0.2 rounded-sm font-semibold">
           {visits}
         </span>
       </div>
-      <div className="px-3 py-1 bg-primary-500 rounded-md text-sm font-medium text-white flex items-center gap-1">
+      <div className="px-1 pl-2 py-1 bg-primary-500 rounded-md text-[15px] font-medium text-white flex items-center gap-2">
         Stars ⭐
-        <span className="bg-white text-primary-500 px-1.5 rounded-md text-xs">
+        <span className="bg-white text-primary-700 px-2 py-0.2 rounded-sm font-semibold">
           {stars}
         </span>
       </div>

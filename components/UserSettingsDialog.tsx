@@ -29,8 +29,11 @@ export function UserSettingsDialog({ isOpen, onClose, defaultFirstName = "", def
     const [isValidatingUsername, setIsValidatingUsername] = useState(false);
     const [isUsernameValid, setIsUsernameValid] = useState<boolean | null>(null);
     const [image, setImage] = useState<string | null>(null);
+    const [isUploadingMarksheet, setIsUploadingMarksheet] = useState(false);
 
     const updateSettings = useMutation(api.profiles.updateUserSettings);
+    const generateMarksheetUrl = useMutation(api.profiles.generateMarksheetUploadUrl);
+    const saveMarksheet = useMutation(api.profiles.saveMarksheetImage);
     const userSettings = useQuery(
         api.profiles.getUserSettings,
         user?.primaryEmailAddress?.emailAddress
@@ -42,6 +45,13 @@ export function UserSettingsDialog({ isOpen, onClose, defaultFirstName = "", def
         api.profiles.checkUsernameAvailable,
         username && username !== userSettings?.username
             ? { username }
+            : "skip"
+    );
+
+    const marksheetImage = useQuery(
+        api.profiles.getMarksheetImage,
+        user?.primaryEmailAddress?.emailAddress
+            ? { email: user.primaryEmailAddress.emailAddress }
             : "skip"
     );
 
@@ -102,6 +112,43 @@ export function UserSettingsDialog({ isOpen, onClose, defaultFirstName = "", def
 
     const handleRemoveHobby = (hobby: string) => {
         setHobbies(hobbies.filter(h => h !== hobby));
+    };
+
+    const handleMarksheetUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (!file || !user?.primaryEmailAddress?.emailAddress) return;
+
+        try {
+            setIsUploadingMarksheet(true);
+
+            // Get upload URL
+            const uploadUrl = await generateMarksheetUrl();
+
+            // Upload the file
+            const result = await fetch(uploadUrl, {
+                method: "POST",
+                headers: { "Content-Type": file.type },
+                body: file,
+            });
+
+            if (!result.ok) {
+                throw new Error(`Upload failed: ${result.statusText}`);
+            }
+
+            // Get the storage ID from the upload response
+            const { storageId } = await result.json();
+
+            // Save the marksheet reference
+            await saveMarksheet({
+                email: user.primaryEmailAddress.emailAddress,
+                storageId
+            });
+
+        } catch (error) {
+            console.error("Failed to upload marksheet:", error);
+        } finally {
+            setIsUploadingMarksheet(false);
+        }
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -211,28 +258,66 @@ export function UserSettingsDialog({ isOpen, onClose, defaultFirstName = "", def
                                 <textarea
                                     value={description}
                                     onChange={(e) => setDescription(e.target.value)}
-                                    maxLength={500}
-                                    rows={4}
+                                    maxLength={120}
+                                    rows={2}
                                     className="w-full px-3 py-2 border rounded-md focus:outline-primary-500 resize-none"
                                     placeholder="Tell us about yourself..."
                                 />
                                 <p className="text-sm text-gray-500 mt-1">
-                                    {description.length}/500 characters
+                                    {description.length}/120 characters
                                 </p>
                             </div>
 
                             <div>
                                 <label className="block text-sm font-medium mb-1">CGPA</label>
-                                <input
-                                    type="number"
-                                    value={cgpa}
-                                    onChange={(e) => setCgpa(e.target.value)}
-                                    className="w-full px-3 py-2 border rounded-md focus:outline-primary-500"
-                                    placeholder="3.5"
-                                    step="0.01"
-                                    min="0"
-                                    max="10"
-                                />
+                                <div className="flex gap-2">
+                                    <input
+                                        type="number"
+                                        value={cgpa}
+                                        onChange={(e) => setCgpa(e.target.value)}
+                                        className="flex-1 px-3 py-2 border rounded-md focus:outline-primary-500"
+                                        placeholder="3.5"
+                                        step="0.01"
+                                        min="0"
+                                        max="10"
+                                    />
+                                    <div className="relative">
+                                        <input
+                                            type="file"
+                                            onChange={handleMarksheetUpload}
+                                            className="hidden"
+                                            id="marksheet-upload"
+                                            accept="image/*,.pdf"
+                                        />
+                                        <label
+                                            htmlFor="marksheet-upload"
+                                            className={`px-4 py-2 rounded-md cursor-pointer inline-flex items-center ${userSettings?.marksheetImage
+                                                ? 'bg-gray-500 hover:bg-gray-600'
+                                                : 'bg-primary-600 hover:bg-primary-700'
+                                                } text-white`}
+                                        >
+                                            {isUploadingMarksheet ? (
+                                                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                                            ) : userSettings?.marksheetImage ? (
+                                                'Uploaded'
+                                            ) : (
+                                                'Verify'
+                                            )}
+                                        </label>
+                                    </div>
+                                </div>
+                                {userSettings?.marksheetImage && (
+                                    <div className="mt-2">
+                                        <a
+                                            href={marksheetImage || "#"}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-sm text-primary-600 hover:text-primary-700"
+                                        >
+                                            View uploaded marksheet
+                                        </a>
+                                    </div>
+                                )}
                             </div>
 
                             <div>

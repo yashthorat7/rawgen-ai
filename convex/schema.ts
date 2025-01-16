@@ -16,6 +16,8 @@ export default defineSchema({
     userSettings: defineTable({
         email: v.string(),
         profileImage: v.optional(v.id("_storage")),
+        marksheetImage: v.optional(v.id("_storage")),
+        verified: v.optional(v.boolean()),
         username: v.optional(v.string()),
         firstName: v.optional(v.string()),
         lastName: v.optional(v.string()),

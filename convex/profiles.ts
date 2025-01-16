@@ -257,6 +257,61 @@ export const checkUsernameAvailable = query({
   },
 });
 
+// Generate upload URL for marksheet
+export const generateMarksheetUploadUrl = mutation({
+  handler: async (ctx) => {
+    return await ctx.storage.generateUploadUrl();
+  },
+});
+
+// Save marksheet image
+export const saveMarksheetImage = mutation({
+  args: {
+    email: v.string(),
+    storageId: v.id("_storage"),
+  },
+  handler: async (ctx, args) => {
+    const userSettings = await ctx.db
+      .query("userSettings")
+      .withIndex("by_email", q => q.eq("email", args.email))
+      .first();
+
+    if (userSettings) {
+      // If there's an existing marksheet, delete it
+      if (userSettings.marksheetImage) {
+        await ctx.storage.delete(userSettings.marksheetImage);
+      }
+      await ctx.db.patch(userSettings._id, {
+        marksheetImage: args.storageId,
+        verified: false // Reset verification when new marksheet is uploaded
+      });
+    } else {
+      await ctx.db.insert("userSettings", {
+        email: args.email,
+        marksheetImage: args.storageId,
+        verified: false
+      });
+    }
+  },
+});
+
+// Get marksheet image URL
+export const getMarksheetImage = query({
+  args: { email: v.string() },
+  handler: async (ctx, { email }) => {
+    const userSettings = await ctx.db
+      .query("userSettings")
+      .withIndex("by_email", q => q.eq("email", email))
+      .first();
+
+    if (userSettings?.marksheetImage) {
+      const url = await ctx.storage.getUrl(userSettings.marksheetImage);
+      return url;
+    }
+    return null;
+  }
+});
+
 // Update user settings
 export const updateUserSettings = mutation({
   args: {
@@ -285,6 +340,18 @@ export const updateUserSettings = mutation({
       if (existingUsername && existingUsername._id !== existingSettings?._id) {
         throw new Error("Username is already taken");
       }
+    }
+
+    // If CGPA is being updated and it's different from existing CGPA,
+    // remove the marksheet and verification
+    if (args.cgpa !== undefined && existingSettings &&
+      args.cgpa !== existingSettings.cgpa &&
+      existingSettings.marksheetImage) {
+      await ctx.storage.delete(existingSettings.marksheetImage);
+      await ctx.db.patch(existingSettings._id, {
+        marksheetImage: undefined,
+        verified: false
+      });
     }
 
     const updates = {
