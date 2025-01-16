@@ -11,8 +11,8 @@ const mulish = Mulish({
 });
 
 export const metadata: Metadata = {
-  title: "RAW-GEN",
-  description: "Your Competitive Programming Portfolio Generator",
+  title: "CodeX",
+  description: "Your Competitive Programming Portfolio Summarizer",
 };
 
 export default function RootLayout({

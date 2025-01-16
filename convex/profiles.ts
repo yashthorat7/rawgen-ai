@@ -58,9 +58,9 @@ export const addPlatform = mutation({
     platform: v.string(),
     username: v.string(),
     order: v.number(),
+    data: v.string(),
   },
   handler: async (ctx, args) => {
-
     try {
       // Check if this exact platform+username combination exists for this email
       const existing = await ctx.db
@@ -85,12 +85,13 @@ export const addPlatform = mutation({
 
       const order = latestProfile ? latestProfile.order + 1 : 1;
 
-      // Insert the new profile
+      // Insert the new profile with data
       const result = await ctx.db.insert("profiles", {
         email: args.email,
         platform: args.platform,
         username: args.username,
         order,
+        data: args.data,
       });
 
       return result;
@@ -190,6 +191,38 @@ export const checkProfileExists = query({
       )
       .first();
 
-    return profile ? { exists: true, email: profile.email } : { exists: false, email: null };
+    if (!profile) {
+      return { exists: false, email: null };
+    }
+
+    // Ensure email is a string and not undefined
+    const email = typeof profile.email === 'string' ? profile.email : '';
+    return { exists: true, email };
+  },
+});
+
+// Update profile data
+export const updateProfileData = mutation({
+  args: {
+    email: v.string(),
+    platform: v.string(),
+    username: v.string(),
+    data: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const profile = await ctx.db
+      .query("profiles")
+      .filter((q) =>
+        q.and(
+          q.eq(q.field("email"), args.email),
+          q.eq(q.field("platform"), args.platform),
+          q.eq(q.field("username"), args.username)
+        )
+      )
+      .first();
+
+    if (profile) {
+      await ctx.db.patch(profile._id, { data: args.data });
+    }
   },
 });

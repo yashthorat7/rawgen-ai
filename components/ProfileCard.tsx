@@ -12,22 +12,63 @@ import { LoadingSkeleton } from "./platform-stats/LoadingSkeleton";
 import { LeetCodeDashboard } from "./dashboard/LeetCodeDashboard";
 import type { LeetCodeData, CodeChefData, GeeksForGeeksData, CodeforcesData } from "@/lib/types";
 
-export function ProfileCard({ 
-  platform, 
+export function ProfileCard({
+  platform,
   username,
   index,
   isLoading: initialLoading = false
-}: { 
+}: {
   platform: string;
   username: string;
   index: number;
   isLoading?: boolean;
 }) {
   const [isOpen, setIsOpen] = useState(false);
-  const { platformData, removePlatform, reorderPlatforms } = usePlatforms();
+  const [isDragging, setIsDragging] = useState(false);
+  const { platformData, platforms, removePlatform, reorderPlatforms } = usePlatforms();
 
   // More robust loading check
   const isLoadingData = initialLoading || !platformData[platform as keyof typeof platformData]?.[username];
+
+  const handleDragStart = (e: React.DragEvent) => {
+    setIsDragging(true);
+    e.dataTransfer.setData('text/plain', index.toString());
+  };
+
+  const handleDragEnd = () => {
+    setIsDragging(false);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.currentTarget.classList.add('border-2', 'border-primary-500', 'border-dashed');
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.currentTarget.classList.remove('border-2', 'border-primary-500', 'border-dashed');
+  };
+
+  const handleDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    e.currentTarget.classList.remove('border-2', 'border-primary-500', 'border-dashed');
+
+    const fromIndex = parseInt(e.dataTransfer.getData('text/plain'));
+    if (fromIndex === index) return;
+
+    // Create updates array with new order
+    const newPlatforms = [...platforms];
+    const [movedItem] = newPlatforms.splice(fromIndex, 1);
+    newPlatforms.splice(index, 0, movedItem);
+
+    // Update order in database
+    const updates = newPlatforms.map((p, i) => ({
+      platform: p.platform,
+      username: p.username,
+      order: i
+    }));
+
+    await reorderPlatforms(fromIndex, index);
+  };
 
   const renderStats = () => {
     if (isLoadingData) {
@@ -93,25 +134,20 @@ export function ProfileCard({
 
   return (
     <>
-      <div 
+      <div
         className={`grid grid-cols-[160px_1fr] gap-4 relative bg-background 
                   w-full min-w-[280px] max-w-full h-[225px] overflow-hidden
                   shadow-[0_4px_8px_rgba(0,0,100,0.08)] transition-all duration-200 ease-in-out 
                   hover:shadow-[0_8px_12px_rgba(0,0,100,0.1)] hover:scale-[1.01] cursor-pointer p-4 rounded-lg
-                  ${isLoadingData ? 'min-w-[320px]' : 'min-w-[280px]'}`}
+                  ${isLoadingData ? 'min-w-[320px]' : 'min-w-[280px]'}
+                  ${isDragging ? 'opacity-50' : ''}`}
         onClick={() => !isLoadingData && setIsOpen(true)}
-        draggable
-        onDragStart={(e) => {
-          e.dataTransfer.setData('text/plain', index.toString());
-        }}
-        onDragOver={(e) => {
-          e.preventDefault();
-        }}
-        onDrop={(e) => {
-          e.preventDefault();
-          const fromIndex = parseInt(e.dataTransfer.getData('text/plain'));
-          reorderPlatforms(fromIndex, index);
-        }}
+        draggable={!isLoadingData}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
       >
         <div className="w-full bg-gray-50 h-full flex flex-col items-center rounded-lg transition-colors hover:bg-white">
           <div className="flex-1 flex items-center justify-center">

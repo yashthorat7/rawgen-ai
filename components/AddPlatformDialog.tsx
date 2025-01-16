@@ -85,7 +85,8 @@ export function AddPlatformDialog({
 
     // Check if profile exists in database
     if (existingProfile?.exists) {
-      setValidationMessage(`${username} on ${selectedPlatform.label} is being used by ${existingProfile.email}`);
+      const userEmail = existingProfile.email || 'another user';
+      setValidationMessage(`${username} on ${selectedPlatform.label} is being used by ${userEmail}`);
       setIsValidated(false);
       return;
     }
