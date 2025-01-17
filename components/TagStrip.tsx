@@ -1,7 +1,8 @@
 "use client";
 
 import { usePlatforms } from "@/lib/PlatformContext";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
+import { motion, useAnimationControls } from "framer-motion";
 import Groq from "groq-sdk";
 
 const groq = new Groq({
@@ -18,6 +19,8 @@ export function TagStrip() {
   const [tags, setTags] = useState<Tag[]>([]);
   const [isPaused, setIsPaused] = useState(false);
   const [hasFetchedTags, setHasFetchedTags] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const controls = useAnimationControls();
 
   useEffect(() => {
     setHasFetchedTags(false);
@@ -109,32 +112,55 @@ export function TagStrip() {
     generateTags();
   }, [generateTags]);
 
+  useEffect(() => {
+    if (!containerRef.current || tags.length === 0) return;
+
+    const animate = async () => {
+      const width = containerRef.current?.scrollWidth || 1000;
+      await controls.start({
+        x: [-20, -(width / 2)],
+        transition: {
+          duration: 600,
+          repeat: Infinity,
+          ease: "linear",
+          repeatType: "loop",
+        }
+      });
+    };
+
+    if (!isPaused) {
+      animate();
+    } else {
+      controls.stop();
+    }
+  }, [controls, isPaused, tags]);
+
   return (
     <div className="w-full overflow-hidden mb-12 bg-gray-50 relative">
       <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-gray-50 to-transparent z-10" />
 
-      <div className={`flex whitespace-nowrap transition-all duration-3000 ${isPaused
-        ? 'animate-none transform translate-x-0'
-        : 'animate-scroll'
-        }`}
-        style={{
-          animationPlayState: isPaused ? 'paused' : 'running'
-        }}
+      <motion.div
+        ref={containerRef}
+        className="flex whitespace-nowrap"
+        animate={controls}
+        initial={{ x: 0 }}
+        onHoverStart={() => setIsPaused(true)}
+        onHoverEnd={() => setIsPaused(false)}
       >
-        {[...tags, ...tags].map((tag, index) => (
-          <div
+        {[...tags, ...tags, ...tags].map((tag, index) => (
+          <motion.div
             key={index}
             className="bg-gray-100 text-gray-800 px-3 py-1 rounded-md mx-2 
-                     shadow-sm font-medium text-sm inline-block
-                     transition-colors duration-200
-                     hover:bg-white cursor-default"
-            onMouseEnter={() => setIsPaused(true)}
-            onMouseLeave={() => setIsPaused(false)}
+                     shadow-sm font-medium text-sm inline-block"
+            whileHover={{ 
+              backgroundColor: "#fff",
+              transition: { duration: 0.2 }
+            }}
           >
             {tag.text}
-          </div>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
 
       <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-gray-50 to-transparent z-10" />
     </div>

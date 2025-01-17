@@ -374,3 +374,51 @@ export const updateUserSettings = mutation({
     }
   },
 });
+
+// Add a skill
+export const addSkill = mutation({
+  args: {
+    email: v.string(),
+    skill: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const userSettings = await ctx.db
+      .query("userSettings")
+      .withIndex("by_email", q => q.eq("email", args.email))
+      .first();
+
+    if (userSettings) {
+      const currentSkills = userSettings.skills || [];
+      if (!currentSkills.includes(args.skill)) {
+        await ctx.db.patch(userSettings._id, {
+          skills: [...currentSkills, args.skill]
+        });
+      }
+    } else {
+      await ctx.db.insert("userSettings", {
+        email: args.email,
+        skills: [args.skill]
+      });
+    }
+  },
+});
+
+// Remove a skill
+export const removeSkill = mutation({
+  args: {
+    email: v.string(),
+    skill: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const userSettings = await ctx.db
+      .query("userSettings")
+      .withIndex("by_email", q => q.eq("email", args.email))
+      .first();
+
+    if (userSettings?.skills) {
+      await ctx.db.patch(userSettings._id, {
+        skills: userSettings.skills.filter(s => s !== args.skill)
+      });
+    }
+  },
+});

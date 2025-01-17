@@ -10,8 +10,8 @@ export function Header() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-white/60 backdrop-blur-sm border-b border-gray-200">
-      <div className="flex items-center justify-between px-6 py-2 mx-auto w-full lg:w-[90%]">
+    <header className="fixed top-0 left-0 right-0 z-[100] bg-white/60 backdrop-blur-sm border-b border-gray-200 isolate">
+      <div className="flex items-center justify-between px-6 py-2 mx-auto w-full lg:w-[90%] relative">
         <div className="flex items-center gap-2">
           <div className="relative w-8 h-8">
             <Image
@@ -25,12 +25,13 @@ export function Header() {
           </span>
         </div>
         <div className="flex items-center gap-4">
-          <div onClick={() => setIsSettingsOpen(true)} className="cursor-pointer">
+          <div className="cursor-pointer relative z-[101]">
             <UserButton
               afterSignOutUrl="/"
               appearance={{
                 elements: {
-                  avatarBox: "w-10 h-10 rounded-full"
+                  avatarBox: "w-10 h-10 rounded-full",
+                  userButtonPopoverCard: "z-[102]"
                 }
               }}
             />

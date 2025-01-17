@@ -8,6 +8,21 @@ import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import Image from "next/image";
 import { CheckCircle } from "lucide-react";
+import { motion, Variants } from "framer-motion";
+
+const shineAnimation: Variants = {
+  initial: { x: "-100%" },
+  animate: { 
+    x: "200%",
+    transition: {
+      repeat: Infinity,
+      repeatType: "loop" as const,
+      duration: 1.5,
+      ease: "easeInOut",
+      repeatDelay: 2
+    }
+  }
+};
 
 export function Intro() {
   const { user } = useUser();
@@ -93,8 +108,14 @@ export function Intro() {
 
         {/* Verification Badge */}
         {userSettings?.verified && (
-          <div className="absolute bottom-0 border-[#f8fafc] border-4 right-0 bg-green-500 rounded-full p-2">
-            <CheckCircle className="w-7 h-7 text-white stroke-[2.5]" />
+          <div className="absolute -bottom-1 border-[#f8fafc] border-4 -right-1 bg-green-600 rounded-full p-2 overflow-hidden">
+            <motion.div
+              className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent skew-x-12"
+              initial="initial"
+              animate="animate"
+              variants={shineAnimation}
+            />
+            <CheckCircle className="w-7 h-7 text-white stroke-[2.5] relative z-10" />
           </div>
         )}
       </div>

@@ -6,7 +6,7 @@ import { PlatformProvider } from "@/lib/PlatformContext";
 import { PlatformGrid } from "@/components/PlatformGrid";
 import { Intro } from "@/components/Intro";
 import { TagStrip } from "@/components/TagStrip";
-// import { SkillGrid } from "@/components/SkillGrid";
+// import { SkillGrid } from "@/_bin/SkillGrid";
 
 export default async function DashboardPage() {
   const { userId } = await auth();

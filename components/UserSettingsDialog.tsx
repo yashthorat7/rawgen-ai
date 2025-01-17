@@ -174,7 +174,7 @@ export function UserSettingsDialog({ isOpen, onClose, defaultFirstName = "", def
                                         type="text"
                                         value={username}
                                         onChange={handleUsernameChange}
-                                        className={`flex-1 px-3 py-2 border rounded-md focus:outline-primary-500 ${isUsernameValid === false ? 'border-red-500' :
+                                        className={`flex-1 px-3 py-2 border-2 rounded-md focus:outline-primary-500 ${isUsernameValid === false ? 'border-red-500' :
                                             isUsernameValid === true ? 'border-green-500' : ''
                                             }`}
                                         placeholder="Choose a username"

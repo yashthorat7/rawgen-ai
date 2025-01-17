@@ -7,23 +7,23 @@ export default function Page() {
   return (
     <div className="relative min-h-screen">
       {/* Background Hero */}
-      <div className="absolute inset-0 blur-[2px] brightness-[0.98]">
+      <div className="absolute inset-0 blur-[2px] brightness-[0.98] z-0">
         <Hero />
       </div>
 
       {/* White Overlay */}
-      <div className="absolute inset-0 bg-white/60" />
+      <div className="absolute inset-0 bg-white/60 z-[1]" />
 
       {/* Close Button */}
       <Link
         href="/"
-        className="fixed top-6 right-6 lg:top-[20%] lg:right-[38%] z-50 p-2 rounded-full bg-white hover:bg-white/80 shadow-xl transition-all hover:scale-110"
+        className="fixed top-6 right-6 lg:top-[20%] lg:right-[38%] z-[2] p-2 rounded-full bg-white hover:bg-white/80 shadow-xl transition-all hover:scale-110"
       >
         <X className="w-6 h-6 text-gray-600" />
       </Link>
 
       {/* Sign In Content */}
-      <div className="relative flex min-h-screen items-center justify-center">
+      <div className="relative flex min-h-screen items-center justify-center z-[2]">
         <div className="w-full max-w-md px-4">
           <ClerkLoaded>
             <SignIn />
