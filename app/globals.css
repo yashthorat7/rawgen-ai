@@ -2,14 +2,28 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  font-family: Arial, Helvetica, sans-serif;
+@layer base {
+  @font-face {
+    font-family: 'Quicksand';
+    src: url('/fonts/Quicksand-VariableFont_wght.ttf') format('truetype-variations');
+    font-weight: 100 900;
+    font-display: swap;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: 'Raleway';
+    src: url('/fonts/Raleway-VariableFont_wght.ttf') format('truetype');
+    font-weight: 100 900 1200;
+    font-display: swap;
+    font-style: normal;
+  }
 }
 
 .dotted-background {
-  background-image: radial-gradient(circle at 2px 2px, rgb(210, 215, 223) 1px, transparent 0);
+  background-image: radial-gradient(circle at 2px 2px, rgb(225, 228, 233) 1px, transparent 0);
   background-size: 24px 24px;
-  background-color: rgb(248 250 252);
+  background-color: #f8fafc;
 }
 
 @layer base {
@@ -74,8 +88,18 @@ body {
     @apply border-border;
   }
 
+  html,
   body {
     @apply bg-slate-50 text-foreground;
+    font-family: 'Quicksand', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  h1,
+  h2,
+  h3,
+  .logo,
+  .title {
+    font-family: 'Raleway', system-ui, sans-serif;
   }
 
   h1 {

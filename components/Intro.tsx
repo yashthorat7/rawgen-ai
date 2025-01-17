@@ -93,7 +93,7 @@ export function Intro() {
 
         {/* Verification Badge */}
         {userSettings?.verified && (
-          <div className="absolute bottom-0 right-0 bg-green-500 rounded-full p-2">
+          <div className="absolute bottom-0 border-[#f8fafc] border-4 right-0 bg-green-500 rounded-full p-2">
             <CheckCircle className="w-7 h-7 text-white stroke-[2.5]" />
           </div>
         )}

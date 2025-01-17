@@ -97,7 +97,7 @@ export function AiSuggestor() {
 
   return (
     <div className="mt-5 mb-5">
-      <div className="block w-full px-4 py-3 relative rounded-lg text-gray-500 overflow-hidden z-0
+      <div className="block w-full px-4 py-3 relative rounded-lg text-[15px] sm:text-base text-gray-500 font-medium overflow-hidden z-0
                      before:absolute before:inset-0 before:rounded-lg before:content-[''] before:z-[1]
                      before:bg-[linear-gradient(var(--angle),#12c2e9,#c471ed,#f64f59)]
                      before:animate-[rotate_4s_linear_infinite]

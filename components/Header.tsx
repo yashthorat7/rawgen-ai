@@ -20,14 +20,14 @@ export function Header() {
               fill
             />
           </div>
-          <span className="text-2xl font-extrabold text-gray-900">
+          <span className="text-2xl font-Raleway font-black text-gray-900">
             CodeX
           </span>
         </div>
         <div className="flex items-center gap-4">
           <div onClick={() => setIsSettingsOpen(true)} className="cursor-pointer">
             <UserButton
-              afterSignOutUrl="/sign-in"
+              afterSignOutUrl="/"
               appearance={{
                 elements: {
                   avatarBox: "w-10 h-10 rounded-full"

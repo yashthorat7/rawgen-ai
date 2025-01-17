@@ -1,13 +1,15 @@
+/* eslint-disable */
 import type { Metadata } from "next";
-import { Mulish } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import { ConvexClientProvider } from "@/components/ConvexClientProvider";
 import { Footer } from '@/components/Footer';
 
-const mulish = Mulish({
-  subsets: ["latin"],
-  display: "swap",
+const quicksand = localFont({
+  src: '../public/fonts/Quicksand-VariableFont_wght.ttf',
+  display: 'swap',
+  variable: '--font-quicksand',
 });
 
 export const metadata: Metadata = {
@@ -22,7 +24,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={mulish.className}>
+      <body className={quicksand.className}>
         <ClerkProvider>
           <ConvexClientProvider>
             {children}

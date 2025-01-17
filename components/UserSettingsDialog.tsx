@@ -71,14 +71,12 @@ export function UserSettingsDialog({ isOpen, onClose, defaultFirstName = "", def
     }, [userSettings, defaultFirstName, defaultLastName]);
 
     useEffect(() => {
-        // If the username is the same as the current user's username, it's valid
         if (username === userSettings?.username) {
             setIsUsernameValid(true);
             setIsValidatingUsername(false);
             return;
         }
 
-        // If there's a username and we have a check result
         if (username && checkUsername !== undefined) {
             setIsUsernameValid(checkUsername);
             setIsValidatingUsername(false);
@@ -92,39 +90,13 @@ export function UserSettingsDialog({ isOpen, onClose, defaultFirstName = "", def
         setUsername(value);
     };
 
-    const handleAddSkill = () => {
-        if (skillInput.trim() && !skills.includes(skillInput.trim())) {
-            setSkills([...skills, skillInput.trim()]);
-            setSkillInput("");
-        }
-    };
-
-    const handleRemoveSkill = (skill: string) => {
-        setSkills(skills.filter(s => s !== skill));
-    };
-
-    const handleAddHobby = () => {
-        if (hobbyInput.trim() && !hobbies.includes(hobbyInput.trim())) {
-            setHobbies([...hobbies, hobbyInput.trim()]);
-            setHobbyInput("");
-        }
-    };
-
-    const handleRemoveHobby = (hobby: string) => {
-        setHobbies(hobbies.filter(h => h !== hobby));
-    };
-
     const handleMarksheetUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (!file || !user?.primaryEmailAddress?.emailAddress) return;
 
         try {
             setIsUploadingMarksheet(true);
-
-            // Get upload URL
             const uploadUrl = await generateMarksheetUrl();
-
-            // Upload the file
             const result = await fetch(uploadUrl, {
                 method: "POST",
                 headers: { "Content-Type": file.type },
@@ -135,15 +107,11 @@ export function UserSettingsDialog({ isOpen, onClose, defaultFirstName = "", def
                 throw new Error(`Upload failed: ${result.statusText}`);
             }
 
-            // Get the storage ID from the upload response
             const { storageId } = await result.json();
-
-            // Save the marksheet reference
             await saveMarksheet({
                 email: user.primaryEmailAddress.emailAddress,
                 storageId
             });
-
         } catch (error) {
             console.error("Failed to upload marksheet:", error);
         } finally {
@@ -254,21 +222,6 @@ export function UserSettingsDialog({ isOpen, onClose, defaultFirstName = "", def
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium mb-1">Description</label>
-                                <textarea
-                                    value={description}
-                                    onChange={(e) => setDescription(e.target.value)}
-                                    maxLength={120}
-                                    rows={2}
-                                    className="w-full px-3 py-2 border rounded-md focus:outline-primary-500 resize-none"
-                                    placeholder="Tell us about yourself..."
-                                />
-                                <p className="text-sm text-gray-500 mt-1">
-                                    {description.length}/120 characters
-                                </p>
-                            </div>
-
-                            <div>
                                 <label className="block text-sm font-medium mb-1">CGPA</label>
                                 <div className="flex gap-2">
                                     <input
@@ -318,82 +271,6 @@ export function UserSettingsDialog({ isOpen, onClose, defaultFirstName = "", def
                                         </a>
                                     </div>
                                 )}
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium mb-1">Skills</label>
-                                <div className="flex gap-2 mb-2">
-                                    <input
-                                        type="text"
-                                        value={skillInput}
-                                        onChange={(e) => setSkillInput(e.target.value)}
-                                        className="flex-1 px-3 py-2 border rounded-md focus:outline-primary-500"
-                                        placeholder="Add a skill"
-                                        onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddSkill())}
-                                    />
-                                    <button
-                                        type="button"
-                                        onClick={handleAddSkill}
-                                        className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700"
-                                    >
-                                        Add
-                                    </button>
-                                </div>
-                                <div className="flex flex-wrap gap-2">
-                                    {skills.map((skill) => (
-                                        <span
-                                            key={skill}
-                                            className="px-2 py-1 bg-primary-100 text-primary-700 rounded-full text-sm flex items-center gap-1"
-                                        >
-                                            {skill}
-                                            <button
-                                                type="button"
-                                                onClick={() => handleRemoveSkill(skill)}
-                                                className="hover:text-primary-900"
-                                            >
-                                                ×
-                                            </button>
-                                        </span>
-                                    ))}
-                                </div>
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium mb-1">Hobbies</label>
-                                <div className="flex gap-2 mb-2">
-                                    <input
-                                        type="text"
-                                        value={hobbyInput}
-                                        onChange={(e) => setHobbyInput(e.target.value)}
-                                        className="flex-1 px-3 py-2 border rounded-md focus:outline-primary-500"
-                                        placeholder="Add a hobby"
-                                        onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddHobby())}
-                                    />
-                                    <button
-                                        type="button"
-                                        onClick={handleAddHobby}
-                                        className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700"
-                                    >
-                                        Add
-                                    </button>
-                                </div>
-                                <div className="flex flex-wrap gap-2">
-                                    {hobbies.map((hobby) => (
-                                        <span
-                                            key={hobby}
-                                            className="px-2 py-1 bg-primary-100 text-primary-700 rounded-full text-sm flex items-center gap-1"
-                                        >
-                                            {hobby}
-                                            <button
-                                                type="button"
-                                                onClick={() => handleRemoveHobby(hobby)}
-                                                className="hover:text-primary-900"
-                                            >
-                                                ×
-                                            </button>
-                                        </span>
-                                    ))}
-                                </div>
                             </div>
                         </form>
                     </div>
