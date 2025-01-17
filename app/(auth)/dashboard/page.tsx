@@ -6,7 +6,8 @@ import { PlatformProvider } from "@/lib/PlatformContext";
 import { PlatformGrid } from "@/components/PlatformGrid";
 import { Intro } from "@/components/Intro";
 import { TagStrip } from "@/components/TagStrip";
-// import { SkillGrid } from "@/_bin/SkillGrid";
+import { SkillGrid } from "@/components/SkillGrid";
+import { AddSkill } from "@/components/AddSkill";
 
 export default async function DashboardPage() {
   const { userId } = await auth();
@@ -25,7 +26,8 @@ export default async function DashboardPage() {
             <AiSuggestor />
             <TagStrip />
             <PlatformGrid />
-            {/* <SkillGrid /> */}
+            <AddSkill />
+            <SkillGrid />
           </div>
         </main>
       </div>
