@@ -130,3 +130,18 @@
 .dialog-content {
   @apply fixed inset-0 flex items-center justify-center z-[10];
 }
+
+@keyframes gradient {
+  0% {
+    --gradient-angle: 0deg;
+  }
+  100% {
+    --gradient-angle: 360deg;
+  }
+}
+
+@property --gradient-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}

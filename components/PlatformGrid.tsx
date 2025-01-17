@@ -9,7 +9,7 @@ export function PlatformGrid() {
 
   if (isInitialLoading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         {[...Array(profileCount || 1)].map((_, i) => (
           <ProfileCard
             key={i}
@@ -24,7 +24,7 @@ export function PlatformGrid() {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
       {platforms.map((platform, index) => (
         <ProfileCard
           key={platform.platform + platform.username}

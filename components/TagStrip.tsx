@@ -136,7 +136,7 @@ export function TagStrip() {
   }, [controls, isPaused, tags]);
 
   return (
-    <div className="w-full overflow-hidden mb-12 bg-gray-50 relative">
+    <div className="w-full overflow-hidden mb-8 bg-gray-50 relative">
       <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-gray-50 to-transparent z-10" />
 
       <motion.div

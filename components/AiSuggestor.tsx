@@ -75,7 +75,7 @@ export function AiSuggestor() {
               - Platform Contribution: ${user.contribution}
             ` : '').join('\n')}
             
-            Act like this is your profile and provide a brief (45 words max) personalized coding summary. Focus on areas of improvement, and maintain an encouraging tone. Speak directly to the recruiter and be specific. dont't add quotes on the ends. be concise and to the point. explain in detail yet be concise. dont't say here is the summary or greetingsdirectly give me the summary. just give me the summary. If Codeforces data is present, emphasize competitive programming achievements and contest performance. don't add fluff. stick to the facts`,
+            Act like this is your profile and provide a brief (35 to 45 words stay in that range) personalized coding summary. Focus on areas of improvement, and maintain an encouraging tone. Speak directly to the recruiter and be specific. dont't add quotes on the ends. be concise and to the point. explain in detail yet be concise. dont't say here is the summary or greetingsdirectly give me the summary. just give me the summary. If Codeforces data is present, emphasize competitive programming achievements and contest performance. don't add fluff. stick to the facts`,
           },
         ],
         model: "llama3-8b-8192",
@@ -99,9 +99,10 @@ export function AiSuggestor() {
     <div className="mt-5 mb-5">
       <div className="block w-full px-4 py-3 relative rounded-lg text-[15px] sm:text-base text-gray-500 font-medium overflow-hidden z-0
                      before:absolute before:inset-0 before:rounded-lg before:content-[''] before:z-[1]
-                     before:bg-[linear-gradient(var(--angle),#12c2e9,#c471ed,#f64f59)]
-                     before:animate-[rotate_4s_linear_infinite]
-                     after:absolute after:inset-[2px] after:rounded-lg after:bg-gray-50 after:z-[2]">
+                     before:bg-[linear-gradient(var(--gradient-angle,0deg),#12c2e9,#c471ed,#f64f59)]
+                     before:animate-[gradient_4s_linear_infinite]
+                     after:absolute after:inset-[2px] after:rounded-lg after:bg-gray-50 after:z-[2]"
+           style={{ "--gradient-angle": "0deg" } as React.CSSProperties}>
         {isInitialLoading || isLoading ? (
           <div className="relative z-[3] w-full">
             <div className="h-4 bg-gray-200 rounded animate-pulse mb-2"></div>
