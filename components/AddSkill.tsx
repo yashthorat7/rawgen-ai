@@ -34,18 +34,7 @@ export function AddSkill() {
               </div>
 
               <div className="p-6 overflow-y-auto">
-                <AddSkillDialog />
-              </div>
-
-              <div className="p-6 border-t">
-                <div className="flex justify-end gap-2">
-                  <button
-                    onClick={() => setIsOpen(false)}
-                    className="px-4 py-2 border rounded-md hover:bg-gray-50"
-                  >
-                    Close
-                  </button>
-                </div>
+                <AddSkillDialog onClose={() => setIsOpen(false)} />
               </div>
             </div>
           </div>

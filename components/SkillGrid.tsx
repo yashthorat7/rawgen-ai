@@ -9,7 +9,7 @@ export function SkillGrid() {
           key={index}
           className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200"
         >
-          <div className="h-[420px] flex items-center justify-center text-gray-400">
+          <div className="h-[270px] flex items-center justify-center text-gray-400">
             Skill Card {index + 1}
           </div>
         </div>

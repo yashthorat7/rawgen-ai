@@ -94,18 +94,28 @@ export function UserSettingsDialog({ isOpen, onClose, defaultFirstName = "", def
             return;
         }
 
+        // If the username hasn't changed from what's in the database, it's valid
+        if (userInfo && username === userInfo.username) {
+            setIsUsernameValid(true);
+            setIsValidatingUsername(false);
+            return;
+        }
+
         if (username && checkUsername !== undefined) {
             setIsUsernameValid(checkUsername);
             setIsValidatingUsername(false);
         } else {
             setIsUsernameValid(null);
         }
-    }, [username, checkUsername, userEmail]);
+    }, [username, checkUsername, userEmail, userInfo]);
 
     const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
         setUsername(value);
-        setIsValidatingUsername(true);
+        // Only validate if the username is different from both email and current username
+        if (value !== userEmail && (!userInfo || value !== userInfo.username)) {
+            setIsValidatingUsername(true);
+        }
     };
 
     const handleMarksheetUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -139,7 +149,7 @@ export function UserSettingsDialog({ isOpen, onClose, defaultFirstName = "", def
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!userEmail || !isUsernameValid) return;
+        if (!userEmail || !isFormValid) return;
 
         setIsLoading(true);
         try {
@@ -171,8 +181,15 @@ export function UserSettingsDialog({ isOpen, onClose, defaultFirstName = "", def
     // Handle click events for closing
     const handleClose = (e?: React.MouseEvent) => {
         if (e) e.preventDefault();
-        onClose();
+        if (isFormValid) {
+            handleSubmit(e as React.FormEvent);
+        } else {
+            onClose();
+        }
     };
+
+    const isFormValid = isUsernameValid && username.trim() !== "" && 
+        firstName.trim() !== "" && lastName.trim() !== "";
 
     if (!isOpen) return null;
 
@@ -322,7 +339,7 @@ export function UserSettingsDialog({ isOpen, onClose, defaultFirstName = "", def
                     </div>
 
                     <div className="p-6 border-t">
-                        <div className="flex justify-end gap-3">
+                        <div className="flex justify-end gap-2">
                             <button
                                 onClick={handleClose}
                                 className="px-4 py-2 border rounded-md hover:bg-gray-50"
@@ -332,9 +349,12 @@ export function UserSettingsDialog({ isOpen, onClose, defaultFirstName = "", def
                             <button
                                 form="settings-form"
                                 type="submit"
-                                disabled={isLoading || !isUsernameValid}
-                                className={`px-4 py-2 rounded-md bg-primary-600 text-white ${isLoading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-primary-700'
-                                    }`}
+                                disabled={isLoading || !isFormValid}
+                                className={`px-4 py-2 rounded-md text-white ${
+                                    isLoading || !isFormValid
+                                        ? 'bg-primary-400 cursor-not-allowed'
+                                        : 'bg-primary-600 hover:bg-primary-700'
+                                }`}
                             >
                                 {isLoading ? 'Saving...' : 'Save Changes'}
                             </button>

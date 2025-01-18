@@ -79,6 +79,24 @@ export function PlatformForm({
     }
   };
 
+  const selectStyles = {
+    control: (base: any, state: { isFocused: boolean }) => ({
+      ...base,
+      backgroundColor: 'white',
+      borderColor: state.isFocused ? '#6366f1' : '#d1d5db',
+      borderWidth: '2px',
+      borderRadius: '0.375rem',
+      boxShadow: 'none',
+      '&:hover': {
+        borderColor: state.isFocused ? '#6366f1' : '#d1d5db'
+      }
+    }),
+    menuPortal: (base: any) => ({
+      ...base,
+      zIndex: 9999
+    })
+  }
+
   return (
     <>
       {isOpen && (
@@ -102,18 +120,7 @@ export function PlatformForm({
                       options={platforms}
                       placeholder="Select a platform"
                       menuPortalTarget={document.body}
-                      styles={{
-                        control: (base) => ({
-                          ...base,
-                          backgroundColor: 'white',
-                          borderColor: '#d1d5db',
-                          borderRadius: '0.375rem',
-                        }),
-                        menuPortal: (base) => ({
-                          ...base,
-                          zIndex: 9999
-                        })
-                      }}
+                      styles={selectStyles}
                     />
                   </div>
                   <div className="overflow-visible">
