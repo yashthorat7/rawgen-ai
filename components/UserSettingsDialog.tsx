@@ -9,7 +9,7 @@ import { CheckCircle2, XCircle } from "lucide-react";
 
 interface UserSettingsDialogProps {
     isOpen: boolean;
-    onClose: () => void;
+    onClose: (shouldOpen?: boolean) => void;
     defaultFirstName?: string;
     defaultLastName?: string;
 }
@@ -19,59 +19,76 @@ export function UserSettingsDialog({ isOpen, onClose, defaultFirstName = "", def
     const [firstName, setFirstName] = useState(defaultFirstName);
     const [lastName, setLastName] = useState(defaultLastName);
     const [username, setUsername] = useState("");
-    const [description, setDescription] = useState("");
     const [cgpa, setCgpa] = useState("");
-    const [skillInput, setSkillInput] = useState("");
-    const [skills, setSkills] = useState<string[]>([]);
-    const [hobbyInput, setHobbyInput] = useState("");
-    const [hobbies, setHobbies] = useState<string[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [isValidatingUsername, setIsValidatingUsername] = useState(false);
     const [isUsernameValid, setIsUsernameValid] = useState<boolean | null>(null);
     const [image, setImage] = useState<string | null>(null);
     const [isUploadingMarksheet, setIsUploadingMarksheet] = useState(false);
+    const [shouldAutoOpen, setShouldAutoOpen] = useState(false);
 
-    const updateSettings = useMutation(api.profiles.updateUserSettings);
-    const generateMarksheetUrl = useMutation(api.profiles.generateMarksheetUploadUrl);
-    const saveMarksheet = useMutation(api.profiles.saveMarksheetImage);
-    const userSettings = useQuery(
-        api.profiles.getUserSettings,
-        user?.primaryEmailAddress?.emailAddress
-            ? { email: user.primaryEmailAddress.emailAddress }
-            : "skip"
+    const updateSettings = useMutation(api.users.updateUser);
+    const generateMarksheetUrl = useMutation(api.users.generateMarksheetUploadUrl);
+    const saveMarksheet = useMutation(api.users.saveMarksheetImage);
+
+    // Get user data from database
+    const userEmail = user?.primaryEmailAddress?.emailAddress;
+    const userInfo = useQuery(
+        api.users.getUser,
+        userEmail ? { email: userEmail } : "skip"
     );
 
+    // Check if we need to auto-open the dialog
+    useEffect(() => {
+        if (userInfo === undefined) return; // Still loading
+        if (userEmail && !userInfo) {
+            // No user data found, auto-open dialog
+            setShouldAutoOpen(true);
+            handleClose(); // Reset the dialog state
+        }
+    }, [userInfo, userEmail]);
+
+    // Auto-open the dialog if needed
+    useEffect(() => {
+        if (shouldAutoOpen) {
+            handleClose(); // Reset any existing state
+            setTimeout(() => {
+                setShouldAutoOpen(false);
+                onClose(true); // Force open the dialog
+            }, 100);
+        }
+    }, [shouldAutoOpen]);
+
+    // Initialize data from database when component loads
+    useEffect(() => {
+        if (userInfo) {
+            setFirstName(userInfo.firstName || defaultFirstName);
+            setLastName(userInfo.lastName || defaultLastName);
+            setUsername(userInfo.username || "");
+            setCgpa(userInfo.cgpa?.toString() || "");
+            // Set username as valid if it matches the current user's username
+            setIsUsernameValid(!!userInfo.username);
+        } else if (userEmail) {
+            // If no user info exists yet, set defaults
+            setUsername(userEmail);
+            setFirstName(defaultFirstName);
+            setLastName(defaultLastName);
+            setIsUsernameValid(true); // Email is always a valid default username
+        }
+    }, [userInfo, userEmail, defaultFirstName, defaultLastName]);
+
     const checkUsername = useQuery(
-        api.profiles.checkUsernameAvailable,
-        username && username !== userSettings?.username
-            ? { username }
-            : "skip"
+        api.users.checkUsernameAvailable,
+        username && username !== userEmail ? { username } : "skip"
     );
 
     const marksheetImage = useQuery(
-        api.profiles.getMarksheetImage,
-        user?.primaryEmailAddress?.emailAddress
-            ? { email: user.primaryEmailAddress.emailAddress }
-            : "skip"
+        api.users.getMarksheetImage,
+        userEmail ? { email: userEmail } : "skip"
     );
 
     useEffect(() => {
-        if (userSettings) {
-            setFirstName(userSettings.firstName || defaultFirstName);
-            setLastName(userSettings.lastName || defaultLastName);
-            setUsername(userSettings.username || "");
-            setDescription(userSettings.description || "");
-            setCgpa(userSettings.cgpa?.toString() || "");
-            setSkills(userSettings.skills || []);
-            setHobbies(userSettings.hobbies || []);
-        } else {
-            setFirstName(defaultFirstName);
-            setLastName(defaultLastName);
-        }
-    }, [userSettings, defaultFirstName, defaultLastName]);
-
-    useEffect(() => {
-        if (username === userSettings?.username) {
+        if (username === userEmail) {
             setIsUsernameValid(true);
             setIsValidatingUsername(false);
             return;
@@ -83,16 +100,17 @@ export function UserSettingsDialog({ isOpen, onClose, defaultFirstName = "", def
         } else {
             setIsUsernameValid(null);
         }
-    }, [username, checkUsername, userSettings]);
+    }, [username, checkUsername, userEmail]);
 
     const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
         setUsername(value);
+        setIsValidatingUsername(true);
     };
 
     const handleMarksheetUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
-        if (!file || !user?.primaryEmailAddress?.emailAddress) return;
+        if (!file || !userEmail) return;
 
         try {
             setIsUploadingMarksheet(true);
@@ -109,7 +127,7 @@ export function UserSettingsDialog({ isOpen, onClose, defaultFirstName = "", def
 
             const { storageId } = await result.json();
             await saveMarksheet({
-                email: user.primaryEmailAddress.emailAddress,
+                email: userEmail,
                 storageId
             });
         } catch (error) {
@@ -121,21 +139,27 @@ export function UserSettingsDialog({ isOpen, onClose, defaultFirstName = "", def
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!user?.primaryEmailAddress?.emailAddress) return;
-        if (username && !isUsernameValid) return;
+        if (!userEmail || !isUsernameValid) return;
 
         setIsLoading(true);
         try {
+            console.log("Updating user settings:", {
+                email: userEmail,
+                username,
+                firstName,
+                lastName,
+                cgpa: cgpa ? parseFloat(cgpa) : undefined,
+            });
+
             await updateSettings({
-                email: user.primaryEmailAddress.emailAddress,
-                username: username || undefined,
+                email: userEmail,
+                username,
                 firstName: firstName || undefined,
                 lastName: lastName || undefined,
                 cgpa: cgpa ? parseFloat(cgpa) : undefined,
-                skills: skills.length > 0 ? skills : undefined,
-                hobbies: hobbies.length > 0 ? hobbies : undefined,
-                description: description || undefined,
             });
+
+            console.log("Settings updated successfully");
             onClose();
         } catch (error) {
             console.error("Error updating settings:", error);
@@ -144,13 +168,19 @@ export function UserSettingsDialog({ isOpen, onClose, defaultFirstName = "", def
         }
     };
 
+    // Handle click events for closing
+    const handleClose = (e?: React.MouseEvent) => {
+        if (e) e.preventDefault();
+        onClose();
+    };
+
     if (!isOpen) return null;
 
     return (
         <>
             <div
                 className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
-                onClick={onClose}
+                onClick={handleClose}
             />
             <div className="fixed inset-0 flex items-center justify-center z-50 p-4 overflow-auto">
                 <div className="bg-white rounded-lg shadow-xl w-full max-w-[500px] max-h-[90vh] flex flex-col">
@@ -159,7 +189,7 @@ export function UserSettingsDialog({ isOpen, onClose, defaultFirstName = "", def
                     </div>
 
                     <div className="p-6 overflow-y-auto">
-                        <form id="settings-form" onSubmit={handleSubmit} className="space-y-6">
+                        <form id="settings-form" onSubmit={handleSubmit} className="space-y-3">
                             <div className="flex justify-center">
                                 <ImageSelector
                                     image={image}
@@ -169,7 +199,7 @@ export function UserSettingsDialog({ isOpen, onClose, defaultFirstName = "", def
 
                             <div>
                                 <label className="block text-sm font-medium mb-1">Username</label>
-                                <div className="flex gap-2">
+                                <div className="flex gap-1">
                                     <input
                                         type="text"
                                         value={username}
@@ -198,7 +228,7 @@ export function UserSettingsDialog({ isOpen, onClose, defaultFirstName = "", def
                                 )}
                             </div>
 
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 <div>
                                     <label className="block text-sm font-medium mb-1">First Name</label>
                                     <input
@@ -234,40 +264,56 @@ export function UserSettingsDialog({ isOpen, onClose, defaultFirstName = "", def
                                         min="0"
                                         max="10"
                                     />
-                                    <div className="relative">
-                                        <input
-                                            type="file"
-                                            onChange={handleMarksheetUpload}
-                                            className="hidden"
-                                            id="marksheet-upload"
-                                            accept="image/*,.pdf"
-                                        />
-                                        <label
-                                            htmlFor="marksheet-upload"
-                                            className={`px-4 py-2 rounded-md cursor-pointer inline-flex items-center ${userSettings?.marksheetImage
-                                                ? 'bg-gray-500 hover:bg-gray-600'
-                                                : 'bg-primary-600 hover:bg-primary-700'
-                                                } text-white`}
-                                        >
-                                            {isUploadingMarksheet ? (
-                                                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                                            ) : userSettings?.marksheetImage ? (
-                                                'Uploaded'
-                                            ) : (
-                                                'Verify'
-                                            )}
-                                        </label>
-                                    </div>
                                 </div>
-                                {userSettings?.marksheetImage && (
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium mb-1">Marksheet</label>
+                                <div className="relative">
+                                    <input
+                                        type="file"
+                                        onChange={handleMarksheetUpload}
+                                        className="hidden"
+                                        id="marksheet-upload"
+                                        accept="image/*,.pdf"
+                                    />
+                                    <label
+                                        htmlFor="marksheet-upload"
+                                        className={`px-4 py-2 rounded-md cursor-pointer inline-flex items-center gap-2 ${
+                                            userInfo?.marksheetImage
+                                                ? userInfo.isverified
+                                                    ? 'bg-green-600 hover:bg-green-700'
+                                                    : 'bg-gray-500 hover:bg-gray-600'
+                                                : 'bg-primary-600 hover:bg-primary-700'
+                                        } text-white`}
+                                    >
+                                        {isUploadingMarksheet ? (
+                                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                                        ) : userInfo?.marksheetImage ? (
+                                            <>
+                                                {userInfo.isverified ? (
+                                                    <>
+                                                        <CheckCircle2 className="w-5 h-5" />
+                                                        Verified
+                                                    </>
+                                                ) : (
+                                                    'Uploaded'
+                                                )}
+                                            </>
+                                        ) : (
+                                            'Upload Marksheet'
+                                        )}
+                                    </label>
+                                </div>
+                                {userInfo?.marksheetImage && marksheetImage && (
                                     <div className="mt-2">
                                         <a
-                                            href={marksheetImage || "#"}
+                                            href={marksheetImage}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="text-sm text-primary-600 hover:text-primary-700"
+                                            className="text-primary-600 hover:text-primary-700"
                                         >
-                                            View uploaded marksheet
+                                            View Marksheet
                                         </a>
                                     </div>
                                 )}
@@ -275,22 +321,22 @@ export function UserSettingsDialog({ isOpen, onClose, defaultFirstName = "", def
                         </form>
                     </div>
 
-                    <div className="p-6 border-t mt-auto">
+                    <div className="p-6 border-t">
                         <div className="flex justify-end gap-3">
                             <button
-                                type="button"
-                                onClick={onClose}
+                                onClick={handleClose}
                                 className="px-4 py-2 border rounded-md hover:bg-gray-50"
                             >
-                                Cancel
+                                Close
                             </button>
                             <button
+                                form="settings-form"
                                 type="submit"
-                                onClick={handleSubmit}
-                                disabled={isLoading || (!!username && !isUsernameValid)}
-                                className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 disabled:opacity-50"
+                                disabled={isLoading || !isUsernameValid}
+                                className={`px-4 py-2 rounded-md bg-primary-600 text-white ${isLoading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-primary-700'
+                                    }`}
                             >
-                                {isLoading ? "Saving..." : "Save"}
+                                {isLoading ? 'Saving...' : 'Save Changes'}
                             </button>
                         </div>
                     </div>

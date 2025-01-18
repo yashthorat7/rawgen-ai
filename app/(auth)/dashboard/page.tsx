@@ -1,7 +1,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { Header } from "@/components/Header";
-import { AiSuggestor } from "@/components/AiSuggestor";
+import { AiSuggestor } from "@/components/AiIntro";
 import { PlatformProvider } from "@/lib/PlatformContext";
 import { PlatformGrid } from "@/components/PlatformGrid";
 import { Intro } from "@/components/Intro";

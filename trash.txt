@@ -1,0 +1,23 @@
+reset the database and make it work like this
+
+table-1 users
+    email
+    username
+    profileImage
+    firstName
+    lastName
+    marksheetImage
+    isverified
+    profileViews
+    Stars
+
+table-2 profiles
+    username - derived from users table
+    platformName - platform name
+    platformUsername - comes under platformName
+    platformCacheData - json file of the platform data
+
+table-3 skills
+    username - derived from users table
+    category - category of the skill(unique)
+    skills - array of skills

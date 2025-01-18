@@ -29,14 +29,14 @@ export function Intro() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const profileImage = useQuery(
-    api.profiles.getUserProfileImage,
+    api.users.getUserProfileImage,
     user?.primaryEmailAddress?.emailAddress
       ? { email: user.primaryEmailAddress.emailAddress }
       : "skip"
   );
 
   const userSettings = useQuery(
-    api.profiles.getUserSettings,
+    api.users.getUser,
     user?.primaryEmailAddress?.emailAddress
       ? { email: user.primaryEmailAddress.emailAddress }
       : "skip"
@@ -105,7 +105,7 @@ export function Intro() {
         </div>
 
         {/* Verification Badge */}
-        {userSettings?.verified && (
+        {userSettings?.isverified && (
           <div className="absolute -bottom-1 border-[#f8fafc] border-4 -right-1 bg-green-600 rounded-full p-2 overflow-hidden">
             <motion.div
               className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent skew-x-12"

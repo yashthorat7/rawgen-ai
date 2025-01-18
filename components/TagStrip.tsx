@@ -120,7 +120,7 @@ export function TagStrip() {
       await controls.start({
         x: [-20, -(width / 2)],
         transition: {
-          duration: 600,
+          duration: 100,
           repeat: Infinity,
           ease: "linear",
           repeatType: "loop",
@@ -128,12 +128,8 @@ export function TagStrip() {
       });
     };
 
-    if (!isPaused) {
-      animate();
-    } else {
-      controls.stop();
-    }
-  }, [controls, isPaused, tags]);
+    animate();
+  }, [controls, tags]);
 
   return (
     <div className="w-full overflow-hidden mb-8 bg-gray-50 relative">
@@ -144,21 +140,15 @@ export function TagStrip() {
         className="flex whitespace-nowrap"
         animate={controls}
         initial={{ x: 0 }}
-        onHoverStart={() => setIsPaused(true)}
-        onHoverEnd={() => setIsPaused(false)}
       >
         {[...tags, ...tags, ...tags].map((tag, index) => (
-          <motion.div
+          <div
             key={index}
             className="bg-gray-100 text-gray-800 px-3 py-1 rounded-md mx-2 
-                     shadow-sm font-medium text-sm inline-block"
-            whileHover={{ 
-              backgroundColor: "#fff",
-              transition: { duration: 0.2 }
-            }}
+                     shadow-sm font-medium text-sm inline-block select-none"
           >
             {tag.text}
-          </motion.div>
+          </div>
         ))}
       </motion.div>
 

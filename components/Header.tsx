@@ -39,7 +39,7 @@ export function Header() {
   const scrollDirection = useScrollDirection();
 
   return (
-    <header className={`fixed top-0 left-0 right-0 z-[100] bg-white/60 backdrop-blur-sm border-b border-gray-200 isolate transition-transform duration-300 ${
+    <header className={`fixed top-0 left-0 right-0 z-[5] bg-white/60 backdrop-blur-sm border-b border-gray-200 isolate transition-transform duration-300 ${
       scrollDirection === "down" ? "-translate-y-full" : "translate-y-0"
     }`}>
       <div className="flex items-center justify-between px-6 py-2 mx-auto w-full lg:w-[90%] relative">

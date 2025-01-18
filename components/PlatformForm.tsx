@@ -83,8 +83,8 @@ export function PlatformForm({
     <>
       {isOpen && (
         <>
-          <div className="dialog-backdrop" onClick={onClose} />
-          <div className="dialog-content">
+          <div className="dialog-backdrop z-40" onClick={onClose} />
+          <div className="dialog-content z-50">
             <div className="bg-white rounded-lg p-6 shadow-xl w-[400px] max-w-[90vw]">
               <h2 className="text-2xl font-bold text-primary-600 mb-4">Add Platform</h2>
               <form onSubmit={handleSubmit} className="space-y-3">
@@ -92,23 +92,30 @@ export function PlatformForm({
                   <label className="block text-sm font-medium mb-1">
                     Platform
                   </label>
-                  <Select
-                    value={selectedPlatform}
-                    onChange={(option) => {
-                      setError(null);
-                      onPlatformChange(option);
-                    }}
-                    options={platforms}
-                    placeholder="Select a platform"
-                    styles={{
-                      control: (base) => ({
-                        ...base,
-                        backgroundColor: 'white',
-                        borderColor: '#d1d5db',
-                        borderRadius: '0.375rem',
-                      }),
-                    }}
-                  />
+                  <div className="relative">
+                    <Select
+                      value={selectedPlatform}
+                      onChange={(option) => {
+                        setError(null);
+                        onPlatformChange(option);
+                      }}
+                      options={platforms}
+                      placeholder="Select a platform"
+                      menuPortalTarget={document.body}
+                      styles={{
+                        control: (base) => ({
+                          ...base,
+                          backgroundColor: 'white',
+                          borderColor: '#d1d5db',
+                          borderRadius: '0.375rem',
+                        }),
+                        menuPortal: (base) => ({
+                          ...base,
+                          zIndex: 9999
+                        })
+                      }}
+                    />
+                  </div>
                   <div className="overflow-visible">
                     {platformError && <p className="text-red-500 text-sm">{platformError}</p>}
                   </div>
@@ -142,7 +149,7 @@ export function PlatformForm({
                   )}
                 </div>
 
-                <div className="flex justify-end gap-3">
+                <div className="flex justify-end gap-3 z-50">
                   <button
                     type="button"
                     onClick={onClose}
@@ -161,7 +168,8 @@ export function PlatformForm({
                     </button>
                   ) : (
                     <button
-                      type="submit"
+                      type="button"
+                      onClick={() => onAdd()}
                       disabled={isLoading}
                       className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
                     >

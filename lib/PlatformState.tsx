@@ -21,59 +21,66 @@ export function usePlatformState() {
   });
   const [isInitialLoading, setIsInitialLoading] = useState(true);
 
-  const addPlatform = useMutation(api.profiles.addPlatform);
-  const deletePlatform = useMutation(api.profiles.deletePlatform);
-  const updateOrder = useMutation(api.profiles.updateOrder);
-  const updateProfileData = useMutation(api.profiles.updateProfileData);
+  const addPlatform = useMutation(api.users.addPlatform);
+  const deletePlatform = useMutation(api.users.deletePlatform);
+  const updateProfileData = useMutation(api.users.updateProfileData);
+  const updateOrder = useMutation(api.users.updateOrder);
 
   // Get profiles from database
-  const profiles = useQuery(api.profiles.getProfiles, user?.primaryEmailAddress?.emailAddress ? {
-    email: user.primaryEmailAddress.emailAddress
+  const profiles = useQuery(api.users.getProfiles, user?.primaryEmailAddress?.emailAddress ? {
+    username: user.primaryEmailAddress.emailAddress
   } : "skip");
 
   // Function to fetch platform data and update cache
-  const fetchPlatformData = useCallback(async (platform: string, username: string) => {
+  const fetchPlatformData = useCallback(async (platformName: string, platformUsername: string) => {
     try {
       let data = null;
-      switch (platform) {
+      switch (platformName) {
         case 'leetcode':
-          data = await extractLeetCodeData(username) as LeetCodeData;
+          data = await extractLeetCodeData(platformUsername) as LeetCodeData;
           break;
         case 'codechef':
-          data = await extractCodeChefData(username) as CodeChefData;
+          data = await extractCodeChefData(platformUsername) as CodeChefData;
           break;
         case 'geeksforgeeks':
-          data = await extractGeeksForGeeksData(username) as GeeksForGeeksData;
+          data = await extractGeeksForGeeksData(platformUsername) as GeeksForGeeksData;
           break;
         case 'codeforces':
-          data = await extractCodeforcesData(username) as CodeforcesData;
+          data = await extractCodeforcesData(platformUsername) as CodeforcesData;
           break;
       }
 
       if (data && user?.primaryEmailAddress?.emailAddress) {
+        // Find existing profile to get current order
+        const existingProfile = profiles?.find(p => 
+          p.platformName === platformName && 
+          p.platformUsername === platformUsername
+        );
+
         // Update database with new data
         await updateProfileData({
-          email: user.primaryEmailAddress.emailAddress,
-          platform,
-          username,
-          data: JSON.stringify(data)
+          username: user.primaryEmailAddress.emailAddress,
+          platformName,
+          platformUsername,
+          platformCacheData: JSON.stringify(data),
+          order: existingProfile?.order
         });
 
         // Update local state
         setPlatformData(prev => {
           const newData = { ...prev };
-          switch (platform) {
+          switch (platformName) {
             case 'leetcode':
-              newData.leetcode[username] = data as LeetCodeData;
+              newData.leetcode[platformUsername] = data as LeetCodeData;
               break;
             case 'codechef':
-              newData.codechef[username] = data as CodeChefData;
+              newData.codechef[platformUsername] = data as CodeChefData;
               break;
             case 'geeksforgeeks':
-              newData.geeksforgeeks[username] = data as GeeksForGeeksData;
+              newData.geeksforgeeks[platformUsername] = data as GeeksForGeeksData;
               break;
             case 'codeforces':
-              newData.codeforces[username] = data as CodeforcesData;
+              newData.codeforces[platformUsername] = data as CodeforcesData;
               break;
           }
           return newData;
@@ -82,7 +89,7 @@ export function usePlatformState() {
         return data;
       }
     } catch (error) {
-      console.error(`Error fetching ${platform} data:`, error);
+      console.error(`Error fetching ${platformName} data:`, error);
     }
     return null;
   }, [user?.primaryEmailAddress?.emailAddress, updateProfileData]);
@@ -106,8 +113,8 @@ export function usePlatformState() {
       // Sort profiles by order
       const sortedProfiles = [...profiles].sort((a, b) => a.order - b.order);
       setPlatforms(sortedProfiles.map(p => ({
-        platform: p.platform,
-        username: p.username,
+        platform: p.platformName,
+        username: p.platformUsername,
         order: p.order
       })));
 
@@ -115,29 +122,29 @@ export function usePlatformState() {
       for (const profile of sortedProfiles) {
         try {
           let data;
-          if (profile.data) {
+          if (profile.platformCacheData) {
             // Use cached data
-            data = JSON.parse(profile.data);
+            data = JSON.parse(profile.platformCacheData);
             // Update cache in background
-            fetchPlatformData(profile.platform, profile.username);
+            fetchPlatformData(profile.platformName, profile.platformUsername);
           } else {
             // Fetch fresh data
-            data = await fetchPlatformData(profile.platform, profile.username);
+            data = await fetchPlatformData(profile.platformName, profile.platformUsername);
           }
 
           if (data) {
-            switch (profile.platform) {
+            switch (profile.platformName) {
               case 'leetcode':
-                newPlatformData.leetcode[profile.username] = data as LeetCodeData;
+                newPlatformData.leetcode[profile.platformUsername] = data as LeetCodeData;
                 break;
               case 'codechef':
-                newPlatformData.codechef[profile.username] = data as CodeChefData;
+                newPlatformData.codechef[profile.platformUsername] = data as CodeChefData;
                 break;
               case 'geeksforgeeks':
-                newPlatformData.geeksforgeeks[profile.username] = data as GeeksForGeeksData;
+                newPlatformData.geeksforgeeks[profile.platformUsername] = data as GeeksForGeeksData;
                 break;
               case 'codeforces':
-                newPlatformData.codeforces[profile.username] = data as CodeforcesData;
+                newPlatformData.codeforces[profile.platformUsername] = data as CodeforcesData;
                 break;
             }
           }
@@ -153,48 +160,46 @@ export function usePlatformState() {
     processProfiles();
   }, [profiles, user?.primaryEmailAddress?.emailAddress, fetchPlatformData]);
 
-  const handleAddPlatform = async (platform: string, username: string) => {
+  const handleAddPlatform = async (platformName: string, platformUsername: string) => {
     if (!user?.primaryEmailAddress?.emailAddress) return;
 
-    const data = await fetchPlatformData(platform, username);
+    const data = await fetchPlatformData(platformName, platformUsername);
     if (!data) {
       throw new Error("Failed to fetch platform data");
     }
 
-    const order = platforms.length;
     await addPlatform({
-      email: user.primaryEmailAddress.emailAddress,
-      platform,
-      username,
-      order,
-      data: JSON.stringify(data)
+      username: user.primaryEmailAddress.emailAddress,
+      platformName,
+      platformUsername,
+      platformCacheData: JSON.stringify(data)
     });
   };
 
-  const handleDeletePlatform = async (platform: string, username: string) => {
+  const handleDeletePlatform = async (platformName: string, platformUsername: string) => {
     if (!user?.primaryEmailAddress?.emailAddress) return;
 
     await deletePlatform({
-      email: user.primaryEmailAddress.emailAddress,
-      platform,
-      username
+      username: user.primaryEmailAddress.emailAddress,
+      platformName,
+      platformUsername
     });
 
     // Update local state
     setPlatformData(prev => {
       const newData = { ...prev };
-      switch (platform) {
+      switch (platformName) {
         case 'leetcode':
-          delete newData.leetcode[username];
+          delete newData.leetcode[platformUsername];
           break;
         case 'codechef':
-          delete newData.codechef[username];
+          delete newData.codechef[platformUsername];
           break;
         case 'geeksforgeeks':
-          delete newData.geeksforgeeks[username];
+          delete newData.geeksforgeeks[platformUsername];
           break;
         case 'codeforces':
-          delete newData.codeforces[username];
+          delete newData.codeforces[platformUsername];
           break;
       }
       return newData;
@@ -211,17 +216,17 @@ export function usePlatformState() {
 
     // Create updates array for database
     const updates = newPlatforms.map((p, i) => ({
-      platform: p.platform,
-      username: p.username,
+      platformName: p.platform,
+      platformUsername: p.username,
       order: i
     }));
 
     // Update platforms state optimistically
-    setPlatforms(newPlatforms);
+    setPlatforms(newPlatforms.map((p, i) => ({ ...p, order: i })));
 
     // Update order in database
     await updateOrder({
-      email: user.primaryEmailAddress.emailAddress,
+      username: user.primaryEmailAddress.emailAddress,
       updates
     });
   };

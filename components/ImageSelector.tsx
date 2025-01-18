@@ -24,12 +24,12 @@ export function ImageSelector({ image: initialImage, onImageChange }: ImageSelec
   const [isUploading, setIsUploading] = useState(false);
   const [currentImage, setCurrentImage] = useState<string | null>(initialImage);
 
-  const generateUploadUrl = useMutation(api.profiles.generateUploadUrl);
-  const saveProfileImage = useMutation(api.profiles.saveProfileImage);
+  const generateUploadUrl = useMutation(api.users.generateUploadUrl);
+  const saveProfileImage = useMutation(api.users.saveProfileImage);
   
   // Fetch profile image
   const profileImage = useQuery(
-    api.profiles.getUserProfileImage, 
+    api.users.getUserProfileImage, 
     userEmail ? { email: userEmail } : "skip"
   );
 

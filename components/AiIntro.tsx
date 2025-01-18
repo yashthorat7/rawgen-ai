@@ -34,7 +34,7 @@ export function AiSuggestor() {
       // Only proceed if we have data
       if (leetcodeUsers.length === 0 && codechefUsers.length === 0 &&
         gfgUsers.length === 0 && codeforcesUsers.length === 0) {
-        setAdvice("Add some coding platforms to get personalized suggestions!");
+        setAdvice("Add some coding platforms to get personalized summary!");
         return;
       }
 
@@ -84,8 +84,8 @@ export function AiSuggestor() {
       setAdvice(response.choices[0]?.message?.content || "No advice available at the moment.");
       setHasFetchedAdvice(true);
     } catch (error) {
-      console.error('AI Suggestion error:', error);
-      setAdvice("I couldn't generate advice at this moment. Please try again later.");
+      console.error('AI summary error:', error);
+      setAdvice("I couldn't generate summary at this moment. Please try again later.");
     } finally {
       setIsLoading(false);
     }
@@ -110,7 +110,7 @@ export function AiSuggestor() {
           </div>
         ) : (
           <span className="relative z-[3] block">
-            {advice || "Add some coding platforms to get personalized suggestions!"}
+            {advice || "Add some coding platforms to get personalized summary!"}
           </span>
         )}
       </div>

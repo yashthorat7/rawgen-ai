@@ -2,35 +2,36 @@ import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
 export default defineSchema({
-    profiles: defineTable({
+    users: defineTable({
         email: v.string(),
-        platform: v.string(),
         username: v.string(),
-        order: v.number(),
-        data: v.optional(v.string()),
-    })
-        .index("by_email", ["email"])
-        .index("by_email_platform", ["email", "platform"])
-        .index("by_platform_username", ["platform", "username"]),
-
-    userSettings: defineTable({
-        email: v.string(),
-        profileImage: v.optional(v.id("_storage")),
-        marksheetImage: v.optional(v.id("_storage")),
-        verified: v.optional(v.boolean()),
-        username: v.optional(v.string()),
         firstName: v.optional(v.string()),
         lastName: v.optional(v.string()),
-        cgpa: v.optional(v.number()),
-        skills: v.optional(v.array(v.string())),
-        hobbies: v.optional(v.array(v.string())),
-        description: v.optional(v.string()),
+        profileViews: v.optional(v.number()),
+        stars: v.optional(v.number()),
+        isverified: v.optional(v.boolean()),
+        cgpa: v.optional(v.float64()),
+        profileImage: v.optional(v.id("_storage")),
+        marksheetImage: v.optional(v.id("_storage")),
     })
         .index("by_email", ["email"])
         .index("by_username", ["username"]),
 
-    documents: defineTable({
-        title: v.string(),
-        url: v.string(),
-    }),
+    profiles: defineTable({
+        username: v.string(),
+        platformName: v.string(),
+        platformUsername: v.string(),
+        platformCacheData: v.optional(v.string()), // JSON data stored as string
+        order: v.number(),
+    })
+        .index("by_username", ["username"])
+        .index("by_platform", ["platformName", "platformUsername"]),
+
+    skills: defineTable({
+        username: v.string(),
+        category: v.string(),
+        skills: v.array(v.string()),
+    })
+        .index("by_username", ["username"])
+        .index("by_category", ["category"]),
 });

@@ -6,11 +6,16 @@ import { validateLeetCodeProfile } from "@/lib/validators/leetcodeValidator"
 import { validateGeeksForGeeksProfile } from "@/lib/validators/geeksforgeeksValidator"
 import { validateCodeChefProfile } from "@/lib/validators/codechefValidator"
 import { validateCodeforcesProfile } from "@/lib/validators/codeforcesValidator"
-import { PlatformForm } from "./PlatformForm"
-import { useQuery } from "convex/react"
-import { api } from "@/convex/_generated/api"
+import Select from "react-select";
 
-type PlatformOption = { value: string; label: string; };
+export const platforms = [
+  { value: 'leetcode', label: 'LeetCode' },
+  { value: 'codechef', label: 'CodeChef' },
+  { value: 'geeksforgeeks', label: 'GeeksForGeeks' },
+  { value: 'codeforces', label: 'Codeforces' }
+];
+
+type PlatformOption = typeof platforms[0];
 
 interface AddPlatformDialogProps {
   open: boolean;
@@ -25,7 +30,7 @@ export function AddPlatformDialog({
   onSubmit,
   isLoading
 }: AddPlatformDialogProps) {
-  const { platforms } = usePlatforms()
+  const { platforms: existingPlatforms } = usePlatforms()
   const [selectedPlatform, setSelectedPlatform] = useState<PlatformOption | null>(null)
   const [username, setUsername] = useState("")
   const [platformError, setPlatformError] = useState("")
@@ -34,21 +39,11 @@ export function AddPlatformDialog({
   const [successMessage, setSuccessMessage] = useState("")
   const [isValidated, setIsValidated] = useState(false)
   const [isValidating, setIsValidating] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const abortControllerRef = useRef<AbortController | null>(null)
 
-  // Query for existing profile
-  const existingProfile = useQuery(
-    api.profiles.checkProfileExists,
-    selectedPlatform && username.trim()
-      ? {
-        platform: selectedPlatform.value,
-        username: username.trim()
-      }
-      : "skip"
-  )
-
   const checkIfUsernameExists = (platform: string, username: string) => {
-    return platforms.some(p =>
+    return existingPlatforms.some(p =>
       p.platform === platform &&
       p.username.toLowerCase() === username.toLowerCase()
     );
@@ -67,6 +62,7 @@ export function AddPlatformDialog({
     setSuccessMessage("")
     setIsValidated(false)
     setIsValidating(false)
+    setError(null)
   }
 
   const handleClose = () => {
@@ -79,14 +75,6 @@ export function AddPlatformDialog({
 
     if (checkIfUsernameExists(selectedPlatform.value, username)) {
       setValidationMessage(`${username} is already added for ${selectedPlatform.label}`);
-      setIsValidated(false);
-      return;
-    }
-
-    // Check if profile exists in database
-    if (existingProfile?.exists) {
-      const userEmail = existingProfile.email || 'another user';
-      setValidationMessage(`${username} on ${selectedPlatform.label} is being used by ${userEmail}`);
       setIsValidated(false);
       return;
     }
@@ -138,68 +126,157 @@ export function AddPlatformDialog({
     }
   }
 
-  const handleSubmit = async () => {
-    if (selectedPlatform && username) {
-      if (!isValidated) {
-        setValidationMessage("Please validate the username first");
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    
+    if (!selectedPlatform || !username || !isValidated) return;
+
+    try {
+      // Only check for duplicate within the same platform
+      const existingInSamePlatform = existingPlatforms?.find(
+        p => p.platform === selectedPlatform.value && p.username === username
+      );
+
+      if (existingInSamePlatform) {
+        setError(`Username ${username} already exists for ${selectedPlatform.value}`);
         return;
       }
-      try {
-        setSuccessMessage("");
-        await onSubmit(selectedPlatform.value, username);
-        setSuccessMessage(`Successfully added ${username} to ${selectedPlatform.label}`);
-        // Close dialog after 1.5 seconds
-        setTimeout(() => {
-          handleClose();
-        }, 1500);
-      } catch (error) {
-        setValidationMessage(error instanceof Error ? error.message : "Failed to add platform");
+
+      await onSubmit(selectedPlatform.value, username);
+      setSuccessMessage(`Successfully added ${username} to ${selectedPlatform.label}`);
+      // Close dialog after 1.5 seconds
+      setTimeout(() => {
+        handleClose();
+      }, 1500);
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "Failed to add platform");
+    }
+  };
+
+  const handleUsernameKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (selectedPlatform && username && !isValidating && !isValidated) {
+        validateProfile();
       }
     }
   };
 
-  const handleValidate = async () => {
-    if (selectedPlatform && username) {
-      await validateProfile();
-    }
-  };
-
-  const handleUsernameChange = (value: string) => {
-    setUsername(value);
-    setUsernameError("");
-    setSuccessMessage("");
-    if (isValidated) {
-      setIsValidated(false);
-      setValidationMessage("");
-    }
-  };
-
-  const handlePlatformChange = (option: PlatformOption | null) => {
-    setSelectedPlatform(option);
-    setPlatformError("");
-    setSuccessMessage("");
-    if (isValidated) {
-      setIsValidated(false);
-      setValidationMessage("");
-    }
-  };
+  if (!open) return null;
 
   return (
-    <PlatformForm
-      isOpen={open}
-      selectedPlatform={selectedPlatform}
-      username={username}
-      platformError={platformError}
-      usernameError={usernameError}
-      validationMessage={successMessage || validationMessage}
-      isValidated={isValidated}
-      isValidating={isValidating}
-      isLoading={isLoading}
-      onPlatformChange={handlePlatformChange}
-      onUsernameChange={handleUsernameChange}
-      onClose={handleClose}
-      onSubmit={handleValidate}
-      onAdd={handleSubmit}
-    />
+    <>
+      <div
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
+        onClick={handleClose}
+      />
+      <div className="fixed inset-0 flex items-center justify-center z-50 p-4 overflow-auto">
+        <div className="bg-white rounded-lg shadow-xl w-full max-w-[400px] max-h-[90vh] flex flex-col">
+          <div className="p-6 border-b">
+            <h2 className="text-2xl font-bold text-primary-600">Add Platform</h2>
+          </div>
+
+          <div className="p-6 overflow-y-auto">
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="relative">
+                <label className="block text-sm font-medium mb-1">
+                  Platform
+                </label>
+                <div className="relative">
+                  <Select
+                    value={selectedPlatform}
+                    onChange={(option) => {
+                      setError(null);
+                      setSelectedPlatform(option);
+                    }}
+                    options={platforms}
+                    placeholder="Select a platform"
+                    menuPortalTarget={document.body}
+                    styles={{
+                      control: (base) => ({
+                        ...base,
+                        backgroundColor: 'white',
+                        borderColor: '#d1d5db',
+                        borderRadius: '0.375rem',
+                      }),
+                      menuPortal: (base) => ({
+                        ...base,
+                        zIndex: 9999
+                      })
+                    }}
+                  />
+                </div>
+                <div className="overflow-visible">
+                  {platformError && <p className="text-red-500 text-sm">{platformError}</p>}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Username
+                </label>
+                <input
+                  type="text"
+                  value={username}
+                  onChange={(e) => {
+                    setError(null);
+                    setUsername(e.target.value);
+                  }}
+                  onKeyDown={handleUsernameKeyPress}
+                  placeholder="eg. indiragandhi"
+                  className="w-full px-3 py-2 border rounded-md focus:outline-primary-500 focus:border-primary-500"
+                />
+                {usernameError && (
+                  <p className="mt-1 text-xs text-red-500">{usernameError}</p>
+                )}
+                {validationMessage && (
+                  <p className={`mt-1 text-xs ${isValidated ? 'text-green-600' : 'text-red-500'}`}>
+                    {validationMessage}
+                  </p>
+                )}
+                {error && (
+                  <p className="mt-1 text-xs text-red-500">{error}</p>
+                )}
+                {successMessage && (
+                  <p className="mt-1 text-xs text-green-600">{successMessage}</p>
+                )}
+              </div>
+            </form>
+          </div>
+
+          <div className="p-6 border-t z-50">
+            <div className="flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={handleClose}
+                className="px-4 py-2 border rounded-md hover:bg-gray-50"
+              >
+                Close
+              </button>
+              {!isValidated ? (
+                <button
+                  type="button"
+                  onClick={validateProfile}
+                  disabled={!selectedPlatform || !username || isValidating}
+                  className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                >
+                  {isValidating ? 'Validating...' : 'Validate'}
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handleSubmit}
+                  disabled={isLoading}
+                  className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                >
+                  {isLoading ? 'Adding...' : 'Add'}
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
   );
 }
