@@ -1,59 +1,10 @@
 "use client"
 
-import { useState } from "react"
+import { useState, KeyboardEvent } from "react"
 import { useUser } from "@clerk/nextjs"
-import { useMutation, useQuery } from "convex/react"
+import { useMutation } from "convex/react"
 import { api } from "@/convex/_generated/api"
-import Select, { MultiValue, SingleValue } from "react-select"
-import CreatableSelect from 'react-select/creatable'
-
-type OptionType = { value: string; label: string };
-
-const skillCategories = [
-  { value: 'programming', label: 'Programming Languages' },
-  { value: 'frameworks', label: 'Frameworks & Libraries' },
-  { value: 'databases', label: 'Databases' },
-  { value: 'tools', label: 'Developer Tools' },
-  { value: 'soft_skills', label: 'Soft Skills' },
-]
-
-const skillOptions = {
-  programming: [
-    { value: 'javascript', label: 'JavaScript' },
-    { value: 'python', label: 'Python' },
-    { value: 'java', label: 'Java' },
-    { value: 'cpp', label: 'C++' },
-    { value: 'typescript', label: 'TypeScript' },
-  ],
-  frameworks: [
-    { value: 'react', label: 'React' },
-    { value: 'nextjs', label: 'Next.js' },
-    { value: 'angular', label: 'Angular' },
-    { value: 'vue', label: 'Vue.js' },
-    { value: 'django', label: 'Django' },
-  ],
-  databases: [
-    { value: 'mysql', label: 'MySQL' },
-    { value: 'mongodb', label: 'MongoDB' },
-    { value: 'postgresql', label: 'PostgreSQL' },
-    { value: 'redis', label: 'Redis' },
-    { value: 'firebase', label: 'Firebase' },
-  ],
-  tools: [
-    { value: 'git', label: 'Git' },
-    { value: 'docker', label: 'Docker' },
-    { value: 'kubernetes', label: 'Kubernetes' },
-    { value: 'aws', label: 'AWS' },
-    { value: 'linux', label: 'Linux' },
-  ],
-  soft_skills: [
-    { value: 'teamwork', label: 'Teamwork' },
-    { value: 'communication', label: 'Communication' },
-    { value: 'leadership', label: 'Leadership' },
-    { value: 'problem_solving', label: 'Problem Solving' },
-    { value: 'time_management', label: 'Time Management' },
-  ],
-}
+import { X, Plus } from "lucide-react"
 
 interface AddSkillDialogProps {
   onClose: () => void;
@@ -61,27 +12,23 @@ interface AddSkillDialogProps {
 
 export function AddSkillDialog({ onClose }: AddSkillDialogProps) {
   const { user } = useUser()
-  const [selectedCategory, setSelectedCategory] = useState<OptionType | null>(null)
-  const [selectedSkills, setSelectedSkills] = useState<OptionType[]>([])
+  const [category, setCategory] = useState("")
+  const [skillInput, setSkillInput] = useState("")
+  const [selectedSkills, setSelectedSkills] = useState<string[]>([])
   const [isLoading, setIsLoading] = useState(false)
 
   const userEmail = user?.primaryEmailAddress?.emailAddress
-  const userInfo = useQuery(
-    api.users.getUser,
-    userEmail ? { email: userEmail } : "skip"
-  )
-
   const addSkills = useMutation(api.skills.addSkills)
 
   const handleSubmit = async () => {
-    if (!userInfo?.username || !selectedCategory || selectedSkills.length === 0) return
+    if (!userEmail || !category.trim() || selectedSkills.length === 0) return;
 
     setIsLoading(true)
     try {
       await addSkills({
-        username: userInfo.username,
-        category: selectedCategory.value,
-        skills: selectedSkills.map(skill => skill.value)
+        email: userEmail,
+        category: category.trim().toLowerCase().replace(/\s+/g, '_'),
+        skills: selectedSkills
       })
       onClose()
     } catch (error) {
@@ -91,67 +38,95 @@ export function AddSkillDialog({ onClose }: AddSkillDialogProps) {
     }
   }
 
-  const handleCreateCategory = (inputValue: string) => {
-    const newCategory = {
-      value: inputValue.toLowerCase().replace(/\s+/g, '_'),
-      label: inputValue
+  const handleAddSkill = () => {
+    if (!skillInput.trim()) return;
+    
+    // Remove whitespace and convert to lowercase
+    const formattedSkill = skillInput.trim().toLowerCase();
+    
+    if (!selectedSkills.includes(formattedSkill)) {
+      setSelectedSkills([...selectedSkills, formattedSkill]);
     }
-    setSelectedCategory(newCategory)
-    // Add the new category to skillOptions
-    skillOptions[newCategory.value as keyof typeof skillOptions] = []
-  }
+    setSkillInput('');
+  };
 
-  const selectStyles = {
-    control: (base: any, state: { isFocused: boolean }) => ({
-      ...base,
-      backgroundColor: 'white',
-      borderColor: state.isFocused ? '#6366f1' : '#d1d5db',
-      borderWidth: '2px',
-      borderRadius: '0.375rem',
-      boxShadow: 'none',
-      '&:hover': {
-        borderColor: state.isFocused ? '#6366f1' : '#d1d5db'
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' || e.key === ',') {
+      e.preventDefault();
+      if (!skillInput.trim()) return;
+      
+      // Remove whitespace and convert to lowercase
+      const formattedSkill = skillInput.trim().toLowerCase();
+      
+      if (!selectedSkills.includes(formattedSkill)) {
+        setSelectedSkills([...selectedSkills, formattedSkill]);
       }
-    }),
-    menuPortal: (base: any) => ({
-      ...base,
-      zIndex: 9999
-    })
+      setSkillInput('');
+    }
+  };
+
+  const handleRemoveSkill = (skillToRemove: string) => {
+    setSelectedSkills(prev => prev.filter(skill => skill !== skillToRemove));
   }
 
   return (
     <div className="space-y-4">
       <div>
         <label className="block text-sm font-medium mb-1">Category</label>
-        <CreatableSelect<OptionType>
-          value={selectedCategory}
-          onChange={(option) => {
-            setSelectedCategory(option)
-            setSelectedSkills([])
-          }}
-          onCreateOption={handleCreateCategory}
-          options={skillCategories}
-          placeholder="Select or create a category"
-          className="w-full"
-          formatCreateLabel={(inputValue) => `Create category "${inputValue}"`}
-          styles={selectStyles}
+        <input
+          type="text"
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          className="w-full px-3 py-2 border-2 rounded-md focus:outline-none focus:border-primary-700"
+          placeholder="Enter a category name"
         />
       </div>
 
-      {selectedCategory && (
-        <div>
-          <label className="block text-sm font-medium mb-1">Skills</label>
-          <Select<OptionType, true>
-            value={selectedSkills}
-            onChange={(newValue) => setSelectedSkills(newValue as OptionType[])}
-            options={skillOptions[selectedCategory.value as keyof typeof skillOptions] || []}
-            placeholder="Select skills"
-            isMulti
-            className="w-full"
-            styles={selectStyles}
-          />
+      <div>
+        <label className="block text-sm font-medium mb-1">Skills</label>
+        <div className="space-y-2">
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={skillInput}
+              onChange={(e) => setSkillInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              className="flex-1 px-3 py-2 border-2 rounded-md focus:outline-none focus:border-primary-700"
+              placeholder="Type a skill and press Enter or comma to add"
+            />
+            <button
+              onClick={handleAddSkill}
+              disabled={!skillInput.trim()}
+              className={`px-2 py-2 rounded-md text-white ${
+                !skillInput.trim()
+                  ? 'bg-primary-400 cursor-not-allowed'
+                  : 'bg-primary-600 hover:bg-primary-700'
+              }`}
+            >
+              <Plus className="w-5 h-5" />
+            </button>
+          </div>
+          
+          {selectedSkills.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {selectedSkills.map((skill, index) => (
+                <div
+                  key={index}
+                  className="flex items-center gap-1 px-2 py-1 bg-primary-100 text-primary-700 rounded-md"
+                >
+                  <span>{skill}</span>
+                  <button
+                    onClick={() => handleRemoveSkill(skill)}
+                    className="p-0.5 hover:bg-primary-200 rounded-full"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
-      )}
+      </div>
 
       <div className="flex justify-end gap-2">
         <button
@@ -162,9 +137,9 @@ export function AddSkillDialog({ onClose }: AddSkillDialogProps) {
         </button>
         <button
           onClick={handleSubmit}
-          disabled={isLoading || !selectedCategory || selectedSkills.length === 0}
+          disabled={isLoading || !category.trim() || selectedSkills.length === 0}
           className={`px-4 py-2 rounded-md text-white ${
-            isLoading || !selectedCategory || selectedSkills.length === 0
+            isLoading || !category.trim() || selectedSkills.length === 0
               ? 'bg-primary-400 cursor-not-allowed'
               : 'bg-primary-600 hover:bg-primary-700'
           }`}

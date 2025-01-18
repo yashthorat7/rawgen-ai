@@ -18,20 +18,20 @@ export default defineSchema({
         .index("by_username", ["username"]),
 
     profiles: defineTable({
-        username: v.string(),
+        userId: v.id("users"),  // Reference to users table by ID
         platformName: v.string(),
         platformUsername: v.string(),
         platformCacheData: v.optional(v.string()), // JSON data stored as string
         order: v.number(),
     })
-        .index("by_username", ["username"])
+        .index("by_user", ["userId"])
         .index("by_platform", ["platformName", "platformUsername"]),
 
     skills: defineTable({
-        username: v.string(),
+        userId: v.id("users"),
         category: v.string(),
         skills: v.array(v.string()),
     })
-        .index("by_username", ["username"])
-        .index("by_category", ["category"]),
+        .index("by_user", ["userId"])
+        .index("by_user_category", ["userId", "category"]),
 });

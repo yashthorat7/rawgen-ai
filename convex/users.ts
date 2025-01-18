@@ -4,12 +4,22 @@ import { v } from "convex/values";
 // Get profiles for a specific user
 export const getProfiles = query({
   args: {
-    username: v.string()
+    email: v.string()
   },
   handler: async (ctx, args) => {
+    // Get user by email
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_email", (q) => q.eq("email", args.email))
+      .first();
+
+    if (!user) {
+      return []; // Return empty array if user not found
+    }
+
     return await ctx.db
       .query("profiles")
-      .withIndex("by_username", (q) => q.eq("username", args.username))
+      .withIndex("by_user", (q) => q.eq("userId", user._id))
       .collect();
   },
 });
@@ -46,13 +56,23 @@ export const saveProfileImage = mutation({
 // Add a platform
 export const addPlatform = mutation({
   args: {
-    username: v.string(),
+    email: v.string(),
     platformName: v.string(),
     platformUsername: v.string(),
     platformCacheData: v.string(),
   },
   handler: async (ctx, args) => {
     try {
+      // Get user by email
+      const user = await ctx.db
+        .query("users")
+        .withIndex("by_email", (q) => q.eq("email", args.email))
+        .first();
+
+      if (!user) {
+        throw new Error(`User ${args.email} not found`);
+      }
+
       // Check if this exact platform+username combination exists
       const existing = await ctx.db
         .query("profiles")
@@ -69,14 +89,17 @@ export const addPlatform = mutation({
       // Get the current highest order for this user
       const userProfiles = await ctx.db
         .query("profiles")
-        .withIndex("by_username", (q) => q.eq("username", args.username))
+        .withIndex("by_user", (q) => q.eq("userId", user._id))
         .collect();
       
       const order = userProfiles.length;
 
       // Insert the new profile with data
       const result = await ctx.db.insert("profiles", {
-        ...args,
+        userId: user._id,
+        platformName: args.platformName,
+        platformUsername: args.platformUsername,
+        platformCacheData: args.platformCacheData,
         order,
       });
 
@@ -91,16 +114,26 @@ export const addPlatform = mutation({
 // Delete a platform
 export const deletePlatform = mutation({
   args: {
-    username: v.string(),
+    email: v.string(),
     platformName: v.string(),
     platformUsername: v.string(),
   },
   handler: async (ctx, args) => {
+    // Get user by email
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_email", (q) => q.eq("email", args.email))
+      .first();
+
+    if (!user) {
+      throw new Error(`User ${args.email} not found`);
+    }
+
     const profile = await ctx.db
       .query("profiles")
       .filter((q) =>
         q.and(
-          q.eq(q.field("username"), args.username),
+          q.eq(q.field("userId"), user._id),
           q.eq(q.field("platformName"), args.platformName),
           q.eq(q.field("platformUsername"), args.platformUsername)
         )
@@ -150,25 +183,41 @@ export const checkProfileExists = query({
       return { exists: false, username: null };
     }
 
-    return { exists: true, username: profile.username };
+    // Get the username from the user record
+    const user = await ctx.db.get(profile.userId);
+    if (!user) {
+      return { exists: false, username: null };
+    }
+
+    return { exists: true, username: user.username };
   },
 });
 
 // Update profile data
 export const updateProfileData = mutation({
   args: {
-    username: v.string(),
+    email: v.string(),
     platformName: v.string(),
     platformUsername: v.string(),
     platformCacheData: v.string(),
     order: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
+    // Get user by email instead of username
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_email", (q) => q.eq("email", args.email))
+      .first();
+
+    if (!user) {
+      throw new Error(`User ${args.email} not found`);
+    }
+
     const profile = await ctx.db
       .query("profiles")
       .filter((q) =>
         q.and(
-          q.eq(q.field("username"), args.username),
+          q.eq(q.field("userId"), user._id),
           q.eq(q.field("platformName"), args.platformName),
           q.eq(q.field("platformUsername"), args.platformUsername)
         )
@@ -299,7 +348,7 @@ export const updateUser = mutation({
 // Update platform order
 export const updateOrder = mutation({
   args: {
-    username: v.string(),
+    email: v.string(),
     updates: v.array(v.object({
       platformName: v.string(),
       platformUsername: v.string(),
@@ -307,12 +356,22 @@ export const updateOrder = mutation({
     })),
   },
   handler: async (ctx, args) => {
+    // Get user by email
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_email", (q) => q.eq("email", args.email))
+      .first();
+
+    if (!user) {
+      throw new Error(`User ${args.email} not found`);
+    }
+
     for (const update of args.updates) {
       const profile = await ctx.db
         .query("profiles")
         .filter((q) =>
           q.and(
-            q.eq(q.field("username"), args.username),
+            q.eq(q.field("userId"), user._id),
             q.eq(q.field("platformName"), update.platformName),
             q.eq(q.field("platformUsername"), update.platformUsername)
           )

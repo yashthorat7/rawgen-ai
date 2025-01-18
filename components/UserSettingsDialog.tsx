@@ -38,6 +38,24 @@ export function UserSettingsDialog({ isOpen, onClose, defaultFirstName = "", def
         userEmail ? { email: userEmail } : "skip"
     );
 
+    // Initialize data from database when dialog opens
+    useEffect(() => {
+        if (!isOpen) return;
+
+        if (userInfo) {
+            setFirstName(userInfo.firstName || defaultFirstName);
+            setLastName(userInfo.lastName || defaultLastName);
+            setUsername(userInfo.username || "");
+            setCgpa(userInfo.cgpa?.toString() || "");
+            setIsUsernameValid(!!userInfo.username);
+        } else if (userEmail) {
+            setUsername(userEmail);
+            setFirstName(defaultFirstName);
+            setLastName(defaultLastName);
+            setIsUsernameValid(true);
+        }
+    }, [userInfo, userEmail, defaultFirstName, defaultLastName, isOpen]);
+
     // Check if we need to auto-open the dialog
     useEffect(() => {
         if (userInfo === undefined) return; // Still loading
@@ -58,24 +76,6 @@ export function UserSettingsDialog({ isOpen, onClose, defaultFirstName = "", def
             }, 100);
         }
     }, [shouldAutoOpen]);
-
-    // Initialize data from database when component loads
-    useEffect(() => {
-        if (userInfo) {
-            setFirstName(userInfo.firstName || defaultFirstName);
-            setLastName(userInfo.lastName || defaultLastName);
-            setUsername(userInfo.username || "");
-            setCgpa(userInfo.cgpa?.toString() || "");
-            // Set username as valid if it matches the current user's username
-            setIsUsernameValid(!!userInfo.username);
-        } else if (userEmail) {
-            // If no user info exists yet, set defaults
-            setUsername(userEmail);
-            setFirstName(defaultFirstName);
-            setLastName(defaultLastName);
-            setIsUsernameValid(true); // Email is always a valid default username
-        }
-    }, [userInfo, userEmail, defaultFirstName, defaultLastName]);
 
     const checkUsername = useQuery(
         api.users.checkUsernameAvailable,
@@ -181,11 +181,7 @@ export function UserSettingsDialog({ isOpen, onClose, defaultFirstName = "", def
     // Handle click events for closing
     const handleClose = (e?: React.MouseEvent) => {
         if (e) e.preventDefault();
-        if (isFormValid) {
-            handleSubmit(e as React.FormEvent);
-        } else {
-            onClose();
-        }
+        onClose();
     };
 
     const isFormValid = isUsernameValid && username.trim() !== "" && 
@@ -356,7 +352,7 @@ export function UserSettingsDialog({ isOpen, onClose, defaultFirstName = "", def
                                         : 'bg-primary-600 hover:bg-primary-700'
                                 }`}
                             >
-                                {isLoading ? 'Saving...' : 'Save Changes'}
+                                {isLoading ? 'Saving...' : 'Save'}
                             </button>
                         </div>
                     </div>

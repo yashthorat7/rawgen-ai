@@ -4,34 +4,42 @@ import { v } from "convex/values";
 // Add skills to a category
 export const addSkills = mutation({
   args: {
-    username: v.string(),
+    email: v.string(),
     category: v.string(),
     skills: v.array(v.string()),
   },
   handler: async (ctx, args) => {
-    const { username, category, skills } = args;
+    // Get user by email
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_email", (q) => q.eq("email", args.email))
+      .first();
 
-    // Check if category already exists for this user
+    if (!user) {
+      throw new Error(`User ${args.email} not found`);
+    }
+
+    // Check if category exists for this user
     const existingCategory = await ctx.db
       .query("skills")
-      .withIndex("by_username", (q) => q.eq("username", username))
-      .filter((q) => q.eq(q.field("category"), category))
+      .withIndex("by_user_category", (q) => 
+        q.eq("userId", user._id)
+         .eq("category", args.category)
+      )
       .first();
 
     if (existingCategory) {
-      // Update existing category
+      // Update existing category with new skills
       await ctx.db.patch(existingCategory._id, {
-        skills: skills,
+        skills: [...new Set([...existingCategory.skills, ...args.skills])]
       });
-      return existingCategory._id;
     } else {
-      // Create new category
-      const id = await ctx.db.insert("skills", {
-        username,
-        category,
-        skills,
+      // Create new category with skills
+      await ctx.db.insert("skills", {
+        userId: user._id,
+        category: args.category,
+        skills: args.skills
       });
-      return id;
     }
   },
 });
@@ -42,9 +50,19 @@ export const getUserSkills = query({
     username: v.string(),
   },
   handler: async (ctx, args) => {
+    // First, get the user's ID from their username
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_username", (q) => q.eq("username", args.username))
+      .first();
+
+    if (!user) {
+      return []; // Return empty array if user not found
+    }
+
     return await ctx.db
       .query("skills")
-      .withIndex("by_username", (q) => q.eq("username", args.username))
+      .withIndex("by_user", (q) => q.eq("userId", user._id))
       .collect();
   },
 });
@@ -56,9 +74,19 @@ export const deleteSkillCategory = mutation({
     category: v.string(),
   },
   handler: async (ctx, args) => {
+    // First, get the user's ID from their username
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_username", (q) => q.eq("username", args.username))
+      .first();
+
+    if (!user) {
+      throw new Error(`User ${args.username} not found`);
+    }
+
     const existingCategory = await ctx.db
       .query("skills")
-      .withIndex("by_username", (q) => q.eq("username", args.username))
+      .withIndex("by_user", (q) => q.eq("userId", user._id))
       .filter((q) => q.eq(q.field("category"), args.category))
       .first();
 

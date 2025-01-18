@@ -28,13 +28,15 @@ export function usePlatformState() {
 
   // Get profiles from database
   const profiles = useQuery(api.users.getProfiles, user?.primaryEmailAddress?.emailAddress ? {
-    username: user.primaryEmailAddress.emailAddress
+    email: user.primaryEmailAddress.emailAddress
   } : "skip");
 
-  // Function to fetch platform data and update cache
+  // Fetch platform data and update cache
   const fetchPlatformData = useCallback(async (platformName: string, platformUsername: string) => {
+    if (!user?.primaryEmailAddress?.emailAddress) return null;
+
     try {
-      let data = null;
+      let data: LeetCodeData | CodeChefData | GeeksForGeeksData | CodeforcesData | null = null;
       switch (platformName) {
         case 'leetcode':
           data = await extractLeetCodeData(platformUsername) as LeetCodeData;
@@ -50,20 +52,13 @@ export function usePlatformState() {
           break;
       }
 
-      if (data && user?.primaryEmailAddress?.emailAddress) {
-        // Find existing profile to get current order
-        const existingProfile = profiles?.find(p => 
-          p.platformName === platformName && 
-          p.platformUsername === platformUsername
-        );
-
-        // Update database with new data
+      if (data) {
+        // Update cache in database
         await updateProfileData({
-          username: user.primaryEmailAddress.emailAddress,
+          email: user.primaryEmailAddress.emailAddress,
           platformName,
           platformUsername,
-          platformCacheData: JSON.stringify(data),
-          order: existingProfile?.order
+          platformCacheData: JSON.stringify(data)
         });
 
         // Update local state
@@ -85,13 +80,12 @@ export function usePlatformState() {
           }
           return newData;
         });
-
-        return data;
       }
+      return data;
     } catch (error) {
-      console.error(`Error fetching ${platformName} data:`, error);
+      console.error("Error fetching platform data:", error);
+      return null;
     }
-    return null;
   }, [user?.primaryEmailAddress?.emailAddress, updateProfileData]);
 
   // Process profiles and update state
@@ -169,7 +163,7 @@ export function usePlatformState() {
     }
 
     await addPlatform({
-      username: user.primaryEmailAddress.emailAddress,
+      email: user.primaryEmailAddress.emailAddress,
       platformName,
       platformUsername,
       platformCacheData: JSON.stringify(data)
@@ -180,7 +174,7 @@ export function usePlatformState() {
     if (!user?.primaryEmailAddress?.emailAddress) return;
 
     await deletePlatform({
-      username: user.primaryEmailAddress.emailAddress,
+      email: user.primaryEmailAddress.emailAddress,
       platformName,
       platformUsername
     });
@@ -226,7 +220,7 @@ export function usePlatformState() {
 
     // Update order in database
     await updateOrder({
-      username: user.primaryEmailAddress.emailAddress,
+      email: user.primaryEmailAddress.emailAddress,
       updates
     });
   };
