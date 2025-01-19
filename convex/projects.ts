@@ -1,42 +1,160 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 
-export const get = query({
+export const generateUploadUrl = mutation({
   handler: async (ctx) => {
-    return [
-      { 
-        id: "1", 
-        title: "Demo Project", 
-        description: "This is a demo project",
-        projectLink: "https://github.com",
-        deployLink: "https://demo.com",
-        techStack: ["React", "Node.js"],
-      }
-    ];
+    return await ctx.storage.generateUploadUrl();
+  },
+});
+
+export const saveImage = mutation({
+  args: {
+    storageId: v.id("_storage"),
+  },
+  handler: async (ctx, args) => {
+    return { storageId: args.storageId };
+  },
+});
+
+export const get = query({
+  args: {
+    username: v.string(),
+  },
+  handler: async (ctx, args) => {
+    console.log('Getting projects for username:', args.username);
+
+    // Get user by username
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_username", (q) => q.eq("username", args.username))
+      .first();
+
+    if (!user) {
+      console.log('User not found');
+      return [];
+    }
+
+    console.log('Found user:', user._id);
+
+    // Get all projects for the user
+    const projects = await ctx.db
+      .query("projects")
+      .withIndex("by_user", (q) => q.eq("userId", user._id))
+      .collect();
+
+    console.log('Found projects:', projects);
+
+    // Get storage URLs for all projects with images
+    const projectsWithUrls = await Promise.all(
+      projects.map(async (project) => {
+        let imageUrl;
+        console.log('Project image data:', project.projectImage);
+        if (project.projectImage) {
+          imageUrl = await ctx.storage.getUrl(project.projectImage);
+          console.log('Generated image URL:', imageUrl);
+        }
+
+        return {
+          id: project._id,
+          title: project.projectName,
+          description: project.projectDescription,
+          projectLink: project.projectLink,
+          deployLink: project.deployLink,
+          techStack: JSON.parse(project.techStack),
+          image: imageUrl,
+          order: project.order,
+        };
+      })
+    );
+
+    console.log('Projects with URLs:', projectsWithUrls);
+    return projectsWithUrls;
   },
 });
 
 export const add = mutation({
   args: {
+    email: v.string(),
     title: v.string(),
     description: v.string(),
-    techStack: v.array(v.string()),
-    projectLink: v.optional(v.string()),
+    projectLink: v.string(),
     deployLink: v.optional(v.string()),
+    techStack: v.array(v.string()),
+    projectImage: v.optional(v.id("_storage")),
   },
   handler: async (ctx, args) => {
+    console.log('Adding project:', args);
+
+    // Get user by email
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_email", (q) => q.eq("email", args.email))
+      .first();
+
+    if (!user) {
+      console.log('User not found:', args.email);
+      throw new Error("User not found");
+    }
+
+    console.log('Found user:', user._id);
+
+    // Get current highest order
+    const projects = await ctx.db
+      .query("projects")
+      .withIndex("by_user", (q) => q.eq("userId", user._id))
+      .collect();
+    
+    const order = projects.length;
+
+    // Insert new project
+    const projectId = await ctx.db.insert("projects", {
+      userId: user._id,
+      order,
+      projectName: args.title,
+      projectDescription: args.description,
+      projectLink: args.projectLink,
+      deployLink: args.deployLink,
+      techStack: JSON.stringify(args.techStack),
+      projectImage: args.projectImage,
+    });
+
+    console.log('Project added:', projectId);
+
+    // Get the URL for the image if it exists
+    let imageUrl;
+    if (args.projectImage) {
+      imageUrl = await ctx.storage.getUrl(args.projectImage);
+    }
+
     return {
-      id: Date.now().toString(),
-      ...args
+      id: projectId,
+      title: args.title,
+      description: args.description,
+      projectLink: args.projectLink,
+      deployLink: args.deployLink,
+      techStack: args.techStack,
+      image: imageUrl,
+      order,
     };
   },
 });
 
 export const remove = mutation({
   args: {
-    id: v.string(),
+    projectId: v.id("projects"),
   },
   handler: async (ctx, args) => {
+    console.log('Removing project:', args.projectId);
+
+    const project = await ctx.db.get(args.projectId);
+    if (!project) {
+      console.log('Project not found');
+      throw new Error("Project not found");
+    }
+
+    await ctx.db.delete(args.projectId);
+    console.log('Project deleted');
+    
     return { success: true };
   },
 }); 

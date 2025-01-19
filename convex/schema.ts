@@ -34,4 +34,17 @@ export default defineSchema({
     })
         .index("by_user", ["userId"])
         .index("by_user_category", ["userId", "category"]),
+
+    projects: defineTable({
+        userId: v.id("users"),
+        order: v.number(),
+        projectName: v.string(),
+        projectDescription: v.string(),
+        projectLink: v.string(),
+        deployLink: v.optional(v.string()),
+        techStack: v.string(), // JSON stringified array
+        projectImage: v.optional(v.id("_storage")),
+    })
+        .index("by_user", ["userId"])
+        .index("by_order", ["order"]),
 });

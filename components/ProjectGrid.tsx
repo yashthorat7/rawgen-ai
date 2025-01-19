@@ -1,28 +1,85 @@
 "use client";
 
 import { api } from "@/convex/_generated/api";
-import { useQuery } from "convex/react";
+import { useQuery, useMutation } from "convex/react";
+import { useUser } from "@clerk/nextjs";
 import { AddProjectCard } from "./AddProjectCard";
+import { ProjectCard } from "./ProjectCard";
+import { Id } from "@/convex/_generated/dataModel";
 
-type Project = {
-  id: string;
+interface Project {
+  id: Id<"projects">;
   title: string;
   description: string;
-  projectLink?: string;
+  projectLink: string;
   deployLink?: string;
   techStack: string[];
-};
+  image: string | null | undefined;
+  order: number;
+}
 
 export function ProjectGrid() {
-  const projects = useQuery(api.projects.get);
+  const { user, isLoaded } = useUser();
+  const email = user?.primaryEmailAddress?.emailAddress;
+  const removeProject = useMutation(api.projects.remove);
 
-  if (!projects) {
+  // First get user data from email
+  const userData = useQuery(
+    api.users.getUser,
+    email ? { email } : "skip"
+  );
+
+  // Then use the username to get projects
+  const projects = useQuery(
+    api.projects.get,
+    userData?.username ? { username: userData.username } : "skip"
+  );
+
+  console.log("Email:", email);
+  console.log("UserData:", userData);
+  console.log("Projects:", projects);
+
+  const handleDelete = async (projectId: Id<"projects">) => {
+    try {
+      await removeProject({ projectId });
+    } catch (error) {
+      console.error("Failed to delete project:", error);
+    }
+  };
+
+  // Show loading state while user data is loading
+  if (!isLoaded || !userData || projects === undefined) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mt-12">
-        <div className="p-4 border rounded-lg animate-pulse">
-          <div className="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
-          <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 mt-12">
+        {[...Array(1)].map((_, i) => (
+          <ProjectCard
+            key={i}
+            title=""
+            description=""
+            projectLink=""
+            techStack={[]}
+            image={undefined}
+            isLoading={true}
+          />
+        ))}
+      </div>
+    );
+  }
+
+  // Show message if no user is logged in
+  if (!email) {
+    return (
+      <div className="mt-12 text-center text-gray-500">
+        Please log in to view projects
+      </div>
+    );
+  }
+
+  // Show message if no projects found
+  if (projects.length === 0) {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 mt-12">
+        <AddProjectCard />
       </div>
     );
   }
@@ -30,31 +87,17 @@ export function ProjectGrid() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 mt-12">
       {projects.map((project: Project) => (
-        <div key={project.id} className="p-4 border rounded-lg">
-          <h3 className="font-semibold">{project.title}</h3>
-          <p className="text-gray-600 mt-2">{project.description}</p>
-          {project.techStack && project.techStack.length > 0 && (
-            <div className="mt-4 flex gap-2 flex-wrap">
-              {project.techStack.map((tech, i) => (
-                <span key={i} className="px-2 py-1 bg-blue-100 text-blue-600 rounded text-sm">
-                  {tech}
-                </span>
-              ))}
-            </div>
-          )}
-          <div className="mt-4 flex justify-end gap-4">
-            {project.projectLink && (
-              <a href={project.projectLink} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-600">
-                View Code →
-              </a>
-            )}
-            {project.deployLink && (
-              <a href={project.deployLink} target="_blank" rel="noopener noreferrer" className="text-green-500 hover:text-green-600">
-                Live Demo →
-              </a>
-            )}
-          </div>
-        </div>
+        <ProjectCard
+          key={project.id}
+          id={project.id}
+          title={project.title}
+          description={project.description}
+          projectLink={project.projectLink}
+          deployLink={project.deployLink}
+          techStack={project.techStack}
+          image={project.image}
+          onDelete={handleDelete}
+        />
       ))}
       <AddProjectCard />
     </div>

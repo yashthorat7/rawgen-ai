@@ -25,6 +25,8 @@ export function AddProjectDialog({ isOpen, onClose }: AddProjectDialogProps) {
   const [isDragging, setIsDragging] = useState(false);
 
   const addProject = useMutation(api.projects.add);
+  const generateUploadUrl = useMutation(api.projects.generateUploadUrl);
+  const saveImage = useMutation(api.projects.saveImage);
 
   const resetForm = () => {
     setTitle("");
@@ -97,17 +99,48 @@ export function AddProjectDialog({ isOpen, onClose }: AddProjectDialogProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user?.emailAddresses[0]?.emailAddress) return;
+    const email = user?.emailAddresses[0]?.emailAddress;
+    if (!email) return;
 
     setIsLoading(true);
     try {
+      let imageId = undefined;
+
+      if (image) {
+        // Get upload URL
+        const uploadUrl = await generateUploadUrl();
+        
+        // Upload the image
+        const result = await fetch(uploadUrl, {
+          method: "POST",
+          headers: { "Content-Type": image.type },
+          body: image,
+        });
+        
+        if (!result.ok) {
+          throw new Error(`Upload failed: ${result.statusText}`);
+        }
+
+        const { storageId } = await result.json();
+        imageId = storageId;
+
+        // Save the image reference
+        await saveImage({
+          storageId: imageId
+        });
+      }
+
+      // Create the project
       await addProject({
+        email,
         title,
         description,
         projectLink,
-        deployLink,
+        deployLink: deployLink || undefined,
         techStack: Array.from(techStack),
+        projectImage: imageId,
       });
+
       handleClose();
     } catch (error) {
       console.error("Failed to add project:", error);
