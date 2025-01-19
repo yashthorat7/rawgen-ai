@@ -30,7 +30,7 @@ export default defineSchema({
     skills: defineTable({
         userId: v.id("users"),
         category: v.string(),
-        skills: v.array(v.string()),
+        skillsData: v.string(), // JSON string containing skills data
     })
         .index("by_user", ["userId"])
         .index("by_user_category", ["userId", "category"]),

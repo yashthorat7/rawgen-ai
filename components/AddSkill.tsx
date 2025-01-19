@@ -12,9 +12,9 @@ export function AddSkill() {
       <div className="flex justify-center">
         <button 
           onClick={() => setIsOpen(true)}
-          className="flex w-full h-[120px] sm:h-full items-center justify-center gap-2 border-2 border-dashed border-gray-300 rounded-lg hover:border-gray-400 transition-colors bg-transparent group"
+          className="flex w-full h-[120px] sm:h-[225px] items-center justify-center gap-2 border-2 border-dashed border-gray-300 rounded-lg hover:border-gray-400 transition-colors bg-transparent group"
         >
-          <Plus className="w-8 h-8 text-gray-300 group-hover:text-gray-500" />
+          <Plus className="w-8 h-8 text-gray-300" />
         </button>
       </div>
 

@@ -136,7 +136,7 @@ export function ProfileCard({
     <>
       <div className="w-full">
         <div
-          className={`grid grid-cols-[160px_1fr] gap-4 relative bg-background 
+          className={`group grid grid-cols-[160px_1fr] gap-4 relative bg-background 
                     w-full min-w-[280px] max-w-full h-[225px] overflow-hidden
                     shadow-[0_4px_8px_rgba(0,0,100,0.08)] transition-all duration-200 ease-in-out 
                     hover:shadow-[0_8px_12px_rgba(0,0,100,0.1)] hover:scale-[1.01] cursor-pointer p-4 rounded-lg
@@ -185,7 +185,7 @@ export function ProfileCard({
             <div className="pr-6 flex-1">
               {renderStats()}
             </div>
-            <div className="absolute bottom-0 right-0">
+            <div className="absolute bottom-0 right-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
               <DeleteButton onDelete={() => removePlatform(platform, username)} />
             </div>
           </div>

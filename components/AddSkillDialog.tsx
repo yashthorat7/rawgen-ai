@@ -15,62 +15,78 @@ export function AddSkillDialog({ isOpen, onClose }: AddSkillDialogProps) {
   const { user } = useUser()
   const [category, setCategory] = useState("")
   const [skillInput, setSkillInput] = useState("")
-  const [selectedSkills, setSelectedSkills] = useState<string[]>([])
+  const [selectedSkills, setSelectedSkills] = useState<Set<string>>(new Set())
   const [isLoading, setIsLoading] = useState(false)
 
   const userEmail = user?.primaryEmailAddress?.emailAddress
   const addSkills = useMutation(api.skills.addSkills)
 
-  const handleSubmit = async () => {
-    if (!userEmail || !category.trim() || selectedSkills.length === 0) return;
-
-    setIsLoading(true)
-    try {
-      await addSkills({
-        email: userEmail,
-        category: category.trim().toLowerCase().replace(/\s+/g, '_'),
-        skills: selectedSkills
-      })
-      onClose()
-    } catch (error) {
-      console.error("Failed to add skills:", error)
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
   const handleAddSkill = () => {
-    if (!skillInput.trim()) return;
+    if (!skillInput.trim() || selectedSkills.size >= 16) return;
     
     // Remove whitespace and convert to lowercase
     const formattedSkill = skillInput.trim().toLowerCase();
     
-    if (!selectedSkills.includes(formattedSkill)) {
-      setSelectedSkills([...selectedSkills, formattedSkill]);
-    }
+    // Add to Set (automatically handles duplicates)
+    setSelectedSkills(prev => new Set([...prev, formattedSkill]));
     setSkillInput('');
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (selectedSkills.size >= 16) {
+      if (e.key === 'Enter' || e.key === ',') e.preventDefault();
+      return;
+    }
+
     if (e.key === 'Enter' || e.key === ',') {
       e.preventDefault();
-      if (!skillInput.trim()) return;
-      
-      // Remove whitespace and convert to lowercase
-      const formattedSkill = skillInput.trim().toLowerCase();
-      
-      if (!selectedSkills.includes(formattedSkill)) {
-        setSelectedSkills([...selectedSkills, formattedSkill]);
-      }
-      setSkillInput('');
+      handleAddSkill();
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (!userEmail || !category.trim() || selectedSkills.size === 0 || selectedSkills.size > 16) return;
+
+    setIsLoading(true);
+    try {
+      // Convert Set to Array for API call
+      const skillsArray = Array.from(selectedSkills).sort();
+      console.log('Adding new category with skills:', {
+        category: category.trim().toLowerCase(),
+        skills: skillsArray
+      });
+
+      await addSkills({
+        email: userEmail,
+        category: category.trim().toLowerCase().replace(/\s+/g, '_'),
+        skills: skillsArray
+      });
+      resetForm();
+      onClose();
+    } catch (error) {
+      console.error("Failed to add skills:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleRemoveSkill = (skillToRemove: string) => {
-    setSelectedSkills(prev => prev.filter(skill => skill !== skillToRemove));
-  }
+    const newSkills = new Set(selectedSkills);
+    newSkills.delete(skillToRemove);
+    console.log('Skills after removal:', Array.from(newSkills));
+    setSelectedSkills(newSkills);
+  };
+
+  const resetForm = () => {
+    setCategory("");
+    setSkillInput("");
+    setSelectedSkills(new Set());
+    setIsLoading(false);
+  };
 
   if (!isOpen) return null;
+
+  const skillsArray = Array.from(selectedSkills);
 
   return (
     <>
@@ -79,26 +95,29 @@ export function AddSkillDialog({ isOpen, onClose }: AddSkillDialogProps) {
         onClick={onClose}
       />
       <div className="fixed inset-0 flex items-center justify-center z-50 p-4 overflow-auto">
-        <div className="bg-white rounded-lg shadow-xl w-full max-w-[500px] max-h-[90vh] flex flex-col">
+        <div className="bg-white rounded-lg shadow-xl w-full max-w-[500px] max-h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
           <div className="p-6 border-b">
             <h2 className="text-2xl font-bold text-primary-600">Add Skills</h2>
           </div>
 
           <div className="p-6 pt-4 overflow-y-auto">
-            <div className="space-y-2">
+            <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium mb-1">Category</label>
                 <input
                   type="text"
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
-                  className="w-full px-3 py-2 border-2 rounded-md focus:outline-none focus:border-primary-600"
+                  disabled={isLoading}
+                  className="w-full px-3 py-2 border-2 rounded-md focus:outline-none focus:border-primary-600 disabled:bg-gray-100 disabled:cursor-not-allowed"
                   placeholder="Enter a category name"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">Skills</label>
+                <label className="block text-sm font-medium mb-1">
+                  Skills <span className="text-gray-500">({selectedSkills.size}/16)</span>
+                </label>
                 <div className="space-y-2">
                   <div className="flex gap-2">
                     <input
@@ -106,14 +125,15 @@ export function AddSkillDialog({ isOpen, onClose }: AddSkillDialogProps) {
                       value={skillInput}
                       onChange={(e) => setSkillInput(e.target.value)}
                       onKeyDown={handleKeyDown}
-                      className="flex-1 px-3 py-2 border-2 rounded-md focus:outline-none focus:border-primary-600"
-                      placeholder="Press comma to add"
+                      disabled={selectedSkills.size >= 16 || isLoading}
+                      className="flex-1 px-3 py-2 border-2 rounded-md focus:outline-none focus:border-primary-600 disabled:bg-gray-100 disabled:cursor-not-allowed"
+                      placeholder={selectedSkills.size >= 16 ? "Max skills reached" : "Press enter or comma to add"}
                     />
                     <button
                       onClick={handleAddSkill}
-                      disabled={!skillInput.trim()}
+                      disabled={!skillInput.trim() || selectedSkills.size >= 16 || isLoading}
                       className={`px-4 py-2 rounded-md text-white ${
-                        !skillInput.trim()
+                        !skillInput.trim() || selectedSkills.size >= 16 || isLoading
                           ? 'bg-primary-400 cursor-not-allowed'
                           : 'bg-primary-600 hover:bg-primary-700'
                       }`}
@@ -122,9 +142,9 @@ export function AddSkillDialog({ isOpen, onClose }: AddSkillDialogProps) {
                     </button>
                   </div>
                   
-                  {selectedSkills.length > 0 && (
+                  {skillsArray.length > 0 && (
                     <div className="flex flex-wrap gap-2">
-                      {selectedSkills.map((skill, index) => (
+                      {skillsArray.map((skill, index) => (
                         <div
                           key={index}
                           className="flex items-center gap-1 px-2 py-1 bg-primary-100 text-primary-700 rounded-md"
@@ -132,7 +152,8 @@ export function AddSkillDialog({ isOpen, onClose }: AddSkillDialogProps) {
                           <span>{skill}</span>
                           <button
                             onClick={() => handleRemoveSkill(skill)}
-                            className="p-0.5 hover:bg-primary-200 rounded-full"
+                            disabled={isLoading}
+                            className="p-0.5 hover:bg-primary-200 rounded-full disabled:opacity-50 disabled:cursor-not-allowed"
                           >
                             <X className="w-3 h-3" />
                           </button>
@@ -146,15 +167,16 @@ export function AddSkillDialog({ isOpen, onClose }: AddSkillDialogProps) {
               <div className="flex justify-end gap-2 pt-4">
                 <button
                   onClick={onClose}
-                  className="px-4 py-2 border rounded-md hover:bg-gray-50"
+                  disabled={isLoading}
+                  className="px-4 py-2 border rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Close
+                  Cancel
                 </button>
                 <button
                   onClick={handleSubmit}
-                  disabled={isLoading || !category.trim() || selectedSkills.length === 0}
+                  disabled={isLoading || !category.trim() || selectedSkills.size === 0 || selectedSkills.size > 16}
                   className={`px-4 py-2 rounded-md text-white ${
-                    isLoading || !category.trim() || selectedSkills.length === 0
+                    isLoading || !category.trim() || selectedSkills.size === 0 || selectedSkills.size > 16
                       ? 'bg-primary-400 cursor-not-allowed'
                       : 'bg-primary-600 hover:bg-primary-700'
                   }`}
@@ -167,5 +189,5 @@ export function AddSkillDialog({ isOpen, onClose }: AddSkillDialogProps) {
         </div>
       </div>
     </>
-  )
+  );
 }

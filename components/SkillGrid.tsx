@@ -1,19 +1,62 @@
 "use client";
+import { useQuery, useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
 import { AddSkill } from "./AddSkill";
+import SkillCard from "./SkillCard";
+import { useUser } from "@clerk/nextjs";
+
+interface CategorySkills {
+  _id: string;
+  userId: string;
+  category: string;
+  skills: string[];
+}
 
 export function SkillGrid() {
+  const { user, isLoaded } = useUser();
+  const email = user?.primaryEmailAddress?.emailAddress;
+
+  // First get user data from email
+  const userData = useQuery(
+    api.users.getUser,
+    email ? { email } : "skip"
+  );
+
+  // Then use the username from user data to get skills
+  const skillsData = useQuery(
+    api.skills.getUserSkills,
+    userData?.username ? { username: userData.username } : "skip"
+  );
+
+  const skills = skillsData ?? [];
+
+  const deleteSkillCategory = useMutation(api.skills.deleteSkillCategory);
+
+  const handleDelete = async (category: string) => {
+    if (!userData?.username) return;
+    try {
+      await deleteSkillCategory({
+        username: userData.username,
+        category
+      });
+    } catch (error) {
+      console.error("Failed to delete category:", error);
+    }
+  };
+
   return (
-    <div className="mt-8 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-      {/* Placeholder for future skill cards */}
-      {[...Array(2)].map((_, index) => (
-        <div 
-          key={index}
-          className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200"
-        >
-          <div className="h-[200px] flex items-center justify-center text-gray-400">
-            Skill Card {index + 1}
-          </div>
-        </div>
+    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 mt-8 gap-5">
+      {skills.map((categorySkills: CategorySkills) => (
+        <SkillCard
+          key={categorySkills._id}
+          category={categorySkills.category}
+          skills={categorySkills.skills}
+          onDelete={() => handleDelete(categorySkills.category)}
+          onUpdate={() => {
+            // The query will automatically refetch when the data changes
+            // No need to manually refetch
+          }}
+        />
       ))}
       <AddSkill />
     </div>
