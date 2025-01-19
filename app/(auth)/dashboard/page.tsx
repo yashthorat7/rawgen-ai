@@ -3,10 +3,11 @@ import { redirect } from "next/navigation";
 import { Header } from "@/components/Header";
 import { AiSuggestor } from "@/components/AiIntro";
 import { PlatformProvider } from "@/lib/PlatformContext";
-import { PlatformGrid } from "@/components/PlatformGrid";
+import { ProfileGrid } from "@/components/ProfileGrid";
 import { Intro } from "@/components/Intro";
 import { TagStrip } from "@/components/TagStrip";
 import { SkillGrid } from "@/components/SkillGrid";
+import { ProjectGrid } from "@/components/ProjectGrid";
 
 export default async function DashboardPage() {
   const { userId } = await auth();
@@ -24,8 +25,9 @@ export default async function DashboardPage() {
             <Intro />
             <AiSuggestor />
             <TagStrip />
-            <PlatformGrid />
+            <ProfileGrid />
             <SkillGrid />
+            <ProjectGrid />
           </div>
         </main>
       </div>

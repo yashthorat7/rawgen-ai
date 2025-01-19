@@ -1,10 +1,10 @@
 "use client";
 
-import { AddCard } from "./AddCard";
+import { AddCard } from "./AddProfileCard";
 import { ProfileCard } from "./ProfileCard";
 import { usePlatforms } from "@/lib/PlatformContext";
 
-export function PlatformGrid() {
+export function ProfileGrid() {
   const { platforms, isInitialLoading, profileCount } = usePlatforms();
 
   if (isInitialLoading) {

@@ -2,7 +2,7 @@
 
 import { useUser } from "@clerk/nextjs";
 import { useState } from "react";
-import { PlatformCounter } from "./PlatformCounter";
+import { PlatformCounter } from "./ProfileCounter";
 import { UserSettingsDialog } from "./UserSettingsDialog";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";

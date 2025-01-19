@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { AddPlatformDialog } from "./AddPlatformDialog";
+import { AddPlatformDialog } from "./AddProfileDialog";
 import { usePlatforms } from "@/lib/PlatformContext";
 import { Plus } from "lucide-react";
 export function AddCard() {

@@ -1,7 +1,7 @@
 "use client";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { AddSkill } from "./AddSkill";
+import { AddSkillCard } from "./AddSkillCard";
 import SkillCard from "./SkillCard";
 import { useUser } from "@clerk/nextjs";
 
@@ -58,7 +58,7 @@ export function SkillGrid() {
           }}
         />
       ))}
-      <AddSkill />
+      <AddSkillCard />
     </div>
   );
 } 

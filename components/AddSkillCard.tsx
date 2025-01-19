@@ -4,7 +4,7 @@ import { Plus } from "lucide-react";
 import { useState } from "react";
 import { AddSkillDialog } from "./AddSkillDialog";
 
-export function AddSkill() {
+export function AddSkillCard() {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
