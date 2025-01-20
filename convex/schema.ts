@@ -47,4 +47,15 @@ export default defineSchema({
     })
         .index("by_user", ["userId"])
         .index("by_order", ["order"]),
+
+    certificates: defineTable({
+        userId: v.id("users"),
+        order: v.number(),
+        certificateTitle: v.string(),
+        category: v.string(),
+        description: v.string(),
+        certificateImage: v.optional(v.id("_storage")),
+    })
+        .index("by_user", ["userId"])
+        .index("by_order", ["order"]),
 });

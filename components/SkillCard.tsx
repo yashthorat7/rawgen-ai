@@ -119,9 +119,9 @@ const SkillCard = ({ category, skills = [], onEdit, onDelete, onUpdate }: SkillC
 
   return (
     <>
-      <div className="w-full h-[225px] relative border-2 border-transparent rounded-lg">
+      <div className="w-full h-auto sm:h-[225px] flex flex-col border-2 border-transparent rounded-lg">
         {/* Skills Area */}
-        <div className="absolute top-0 left-0 right-0 h-[180px] p-4">
+        <div className="flex-1 p-4">
           <div className="w-full h-full flex flex-col items-center justify-center gap-2">
             {distribution.map((rowCount, rowIndex) => {
               const rowSkills = shuffledSkills.slice(currentIndex, currentIndex + rowCount);
@@ -184,15 +184,15 @@ const SkillCard = ({ category, skills = [], onEdit, onDelete, onUpdate }: SkillC
 
         {/* Category Name */}
         <div 
-          className="absolute bottom-0 left-1/2 -translate-x-1/2 mb-0"
+          className="flex justify-center items-center relative mb-0 w-full"
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
         >
           <motion.div 
-            className="px-3 py-1 text-black text-xl title font-bold flex items-center"
+            className="px-3 py-1 text-black text-xl title font-bold flex items-center justify-center relative"
             initial={false}
             animate={{
-              width: isHovered ? 'auto' : '100%',
+              width: isHovered ? 'auto' : 'auto',
               paddingRight: isHovered ? '4.5rem' : '0.75rem'
             }}
             transition={{
@@ -202,11 +202,11 @@ const SkillCard = ({ category, skills = [], onEdit, onDelete, onUpdate }: SkillC
           >
             {category}
             <motion.div 
-              className="flex gap-1 absolute right-2"
-              initial={{ opacity: 0, x: -10 }}
+              className="flex gap-1 absolute -right-0"
+              initial={{ opacity: 0, x: -5 }}
               animate={{ 
                 opacity: isHovered ? 1 : 0,
-                x: isHovered ? 0 : -10
+                x: isHovered ? 0 : -5
               }}
               transition={{ duration: 0.2 }}
             >

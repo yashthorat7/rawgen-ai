@@ -79,11 +79,11 @@ export function ProjectCard({
       </p>
       
       {techStack.length > 0 && (
-        <div className="mt-2 flex gap-2 flex-wrap">
+        <div className="mt-4 flex gap-2 flex-wrap">
           {techStack.map((tech, i) => (
             <span 
               key={i} 
-              className="px-2 py-1 bg-blue-100 text-blue-600 rounded text-xs font-medium"
+              className="px-2 py-1 bg-primary-100 text-primary-600 rounded text-xs font-medium"
             >
               {tech}
             </span>

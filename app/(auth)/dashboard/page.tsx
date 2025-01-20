@@ -8,6 +8,7 @@ import { Intro } from "@/components/Intro";
 import { TagStrip } from "@/components/TagStrip";
 import { SkillGrid } from "@/components/SkillGrid";
 import { ProjectGrid } from "@/components/ProjectGrid";
+import { CertificateGrid } from "@/components/CertificateGrid";
 import { Footer } from "@/components/Footer";
 
 export default async function DashboardPage() {
@@ -29,6 +30,7 @@ export default async function DashboardPage() {
             <ProfileGrid />
             <SkillGrid />
             <ProjectGrid />
+            <CertificateGrid />
           </div>
         </main>
         <Footer />
