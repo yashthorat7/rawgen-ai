@@ -19,13 +19,17 @@ export function PlatformCounter() {
   );
 
   useEffect(() => {
-    setShouldAnimate(true);
-  }, []);
+    if (userSettings !== undefined) {
+      setShouldAnimate(true);
+    }
+  }, [userSettings]);
 
   const countUpProps = {
-    duration: 3,
+    duration: 2,
     separator: ",",
   };
+
+  if (userSettings === undefined) return null;
 
   return (
     <div className="flex flex-wrap gap-2 sm:gap-3 mt-3 sm:mt-2">
@@ -47,7 +51,7 @@ export function PlatformCounter() {
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.2 }}
+        transition={{ duration: 0.5 }}
         className="px-0.5 sm:px-1 pl-1.5 sm:pl-2 py-0.5 sm:py-1 bg-pink-500 rounded text-[13px] sm:text-[15px] font-medium text-white flex items-center gap-1.5 sm:gap-2"
       >
         Stars ⭐
@@ -63,7 +67,7 @@ export function PlatformCounter() {
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.4 }}
+          transition={{ duration: 0.5 }}
           className="px-0.5 sm:px-1 pl-1.5 sm:pl-2 py-0.5 sm:py-1 bg-orange-600 rounded text-[13px] sm:text-[15px] font-medium text-white flex items-center gap-1.5 sm:gap-2"
         >
           CGPA
@@ -72,11 +76,11 @@ export function PlatformCounter() {
               <CountUp 
                 start={0} 
                 end={userSettings.cgpa} 
-                decimals={2}
+                decimals={1}
                 duration={2}
               />
             ) : (
-              userSettings.cgpa.toFixed(2)
+              userSettings.cgpa.toFixed(1)
             )}
           </span>
         </motion.div>

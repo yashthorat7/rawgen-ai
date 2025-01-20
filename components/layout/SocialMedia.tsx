@@ -76,7 +76,7 @@ export function SocialMedia({
         >
           <Icon 
             className="hidden sm:block" 
-            size={30} 
+            size={25} 
             strokeWidth={1.5} 
           />
           <Icon 
