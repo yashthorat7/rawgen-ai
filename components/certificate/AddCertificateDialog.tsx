@@ -5,19 +5,25 @@ import { useUser } from "@clerk/nextjs";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { X, Upload } from "lucide-react";
+import Select from "react-select";
+
+const CATEGORIES = [
+  { value: "Internships", label: "Internships" },
+  { value: "Competitions", label: "Competitions" },
+  { value: "Courses", label: "Courses" }
+] as const;
+
+type CategoryOption = typeof CATEGORIES[number];
 
 interface AddCertificateDialogProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-const CATEGORIES = ["Internships", "Competitions", "Courses"] as const;
-type Category = typeof CATEGORIES[number];
-
 export function AddCertificateDialog({ isOpen, onClose }: AddCertificateDialogProps) {
   const { user } = useUser();
   const [title, setTitle] = useState("");
-  const [category, setCategory] = useState<Category>("Courses");
+  const [selectedCategory, setSelectedCategory] = useState<CategoryOption | null>(null);
   const [description, setDescription] = useState("");
   const [image, setImage] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -31,7 +37,7 @@ export function AddCertificateDialog({ isOpen, onClose }: AddCertificateDialogPr
 
   const resetForm = () => {
     setTitle("");
-    setCategory("Courses");
+    setSelectedCategory(null);
     setDescription("");
     setImage(null);
     setPreviewUrl(null);
@@ -104,8 +110,7 @@ export function AddCertificateDialog({ isOpen, onClose }: AddCertificateDialogPr
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const email = user?.emailAddresses[0]?.emailAddress;
-    if (!email) return;
+    if (!isFormValid || !user?.emailAddresses[0]?.emailAddress) return;
 
     setIsLoading(true);
     try {
@@ -137,28 +142,44 @@ export function AddCertificateDialog({ isOpen, onClose }: AddCertificateDialogPr
 
       // Create the certificate
       await addCertificate({
-        email,
-        title,
-        category,
-        description,
+        email: user.emailAddresses[0].emailAddress,
+        title: title.trim(),
+        category: selectedCategory.value,
+        description: description.trim(),
         certificateImage: imageId,
       });
 
       handleClose();
     } catch (error) {
       console.error("Failed to add certificate:", error);
+    } finally {
       setIsLoading(false);
     }
   };
 
   if (!isOpen) return null;
 
-  const isFormValid = 
-    title.trim() !== "" && 
-    category && 
-    description.trim() !== "" && 
-    image !== null && 
-    !imageError;
+  const isFormValid = title.trim() !== "" && 
+                     selectedCategory !== null && 
+                     description.trim() !== "";
+
+  const selectStyles = {
+    control: (base: any, state: { isFocused: boolean }) => ({
+      ...base,
+      backgroundColor: 'white',
+      borderColor: state.isFocused ? '#6366f1' : '#d1d5db',
+      borderWidth: '1px',
+      borderRadius: '0.375rem',
+      boxShadow: 'none',
+      '&:hover': {
+        borderColor: state.isFocused ? '#6366f1' : '#d1d5db'
+      }
+    }),
+    menuPortal: (base: any) => ({
+      ...base,
+      zIndex: 9999
+    })
+  };
 
   return (
     <>
@@ -177,7 +198,7 @@ export function AddCertificateDialog({ isOpen, onClose }: AddCertificateDialogPr
               {/* Image Upload */}
               <div>
                 <div
-                  className={`relative border-2 border-dashed rounded-lg p-4 transition-colors
+                  className={`relative border-2 border-dashed rounded-lg transition-colors
                             ${isDragging ? 'border-primary-500 bg-primary-50' : 'border-gray-300 hover:border-gray-400'}
                             ${image ? 'aspect-video' : 'h-[200px]'}`}
                   onDragOver={handleDragOver}
@@ -238,20 +259,17 @@ export function AddCertificateDialog({ isOpen, onClose }: AddCertificateDialogPr
 
               {/* Category */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium mb-1">
                   Category
                 </label>
-                <select
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value as Category)}
-                  className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white"
-                >
-                  {CATEGORIES.map((cat) => (
-                    <option key={cat} value={cat}>
-                      {cat}
-                    </option>
-                  ))}
-                </select>
+                <Select
+                  value={selectedCategory}
+                  onChange={(option) => setSelectedCategory(option as CategoryOption)}
+                  options={CATEGORIES}
+                  placeholder="Select a category"
+                  menuPortalTarget={document.body}
+                  styles={selectStyles}
+                />
               </div>
 
               {/* Description */}
@@ -264,24 +282,24 @@ export function AddCertificateDialog({ isOpen, onClose }: AddCertificateDialogPr
                     value={description}
                     onChange={handleDescriptionChange}
                     rows={3}
-                    maxLength={100}
+                    maxLength={500}
                     className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                     placeholder="Enter certificate description"
                   />
                   <div className="absolute bottom-2 right-2 text-xs text-gray-400">
-                    {description.length}/100
+                    {description.length}/500
                   </div>
                 </div>
               </div>
             </div>
           </form>
 
-          <div className="p-6 border-t bg-gray-50 rounded-b-lg">
-            <div className="flex justify-end gap-3">
+          <div className="p-6 border-t">
+            <div className="flex justify-end gap-2">
               <button
                 type="button"
                 onClick={handleClose}
-                className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-800"
+                className="px-4 py-2 border rounded-md hover:bg-gray-50"
               >
                 Cancel
               </button>
@@ -289,11 +307,13 @@ export function AddCertificateDialog({ isOpen, onClose }: AddCertificateDialogPr
                 type="button"
                 onClick={handleSubmit}
                 disabled={!isFormValid || isLoading}
-                className="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg
-                         hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500
-                         disabled:opacity-50 disabled:cursor-not-allowed"
+                className={`px-4 py-2 rounded-md text-white ${
+                  isLoading || !isFormValid
+                    ? 'bg-primary-400 cursor-not-allowed'
+                    : 'bg-primary-600 hover:bg-primary-700'
+                }`}
               >
-                {isLoading ? "Adding..." : "Add Certificate"}
+                {isLoading ? 'Adding...' : 'Add'}
               </button>
             </div>
           </div>

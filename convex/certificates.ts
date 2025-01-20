@@ -122,12 +122,29 @@ export const remove = mutation({
     certificateId: v.id("certificates"),
   },
   handler: async (ctx, args) => {
-    const certificate = await ctx.db.get(args.certificateId);
-    if (!certificate) {
-      throw new Error("Certificate not found");
-    }
+    try {
+      const certificate = await ctx.db.get(args.certificateId);
+      
+      if (!certificate) {
+        // Return a more graceful error response instead of throwing
+        return {
+          success: false,
+          error: "Certificate not found"
+        };
+      }
 
-    await ctx.db.delete(args.certificateId);
-    return { success: true };
+      await ctx.db.delete(args.certificateId);
+      
+      return { 
+        success: true,
+        deleted: true 
+      };
+    } catch (error) {
+      console.error('Error removing certificate:', error);
+      return {
+        success: false,
+        error: "Failed to remove certificate"
+      };
+    }
   },
 }); 

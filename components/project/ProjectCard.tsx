@@ -28,11 +28,10 @@ export function ProjectCard({
 }: ProjectCardProps) {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
-  // Function to truncate description to first 10 words
+  // Function to truncate description to first sentence
   const truncateDescription = (text: string) => {
-    const words = text.split(' ');
-    if (words.length <= 10) return text;
-    return words.slice(0, 10).join(' ') + '...';
+    const sentence = text.split(/[.!?]/)[0];
+    return sentence + (text.length > sentence.length ? '...' : '');
   };
 
   return (
@@ -58,11 +57,11 @@ export function ProjectCard({
             </h3>
           </div>
 
-          <p className="text-gray-600 text-sm mb-4">
+          <p className="text-gray-600 text-sm mb-2 truncate whitespace-nowrap overflow-hidden">
             {truncateDescription(description)}
           </p>
 
-          <div className="flex flex-wrap gap-2 mb-4">
+          <div className="flex flex-wrap gap-2">
             {techStack.map((tech, index) => (
               <span 
                 key={index}
@@ -72,17 +71,6 @@ export function ProjectCard({
               </span>
             ))}
           </div>
-
-          {deployLink && (
-            <a 
-              href={deployLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm text-primary-600 hover:text-primary-700 font-medium"
-            >
-              Live Demo →
-            </a>
-          )}
 
           <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex gap-2">
             <button

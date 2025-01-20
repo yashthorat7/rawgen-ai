@@ -7,7 +7,6 @@ import { useUser } from "@clerk/nextjs";
 
 interface CategorySkills {
   _id: string;
-  userId: string;
   category: string;
   skills: string[];
 }
@@ -30,6 +29,15 @@ export function SkillGrid() {
 
   const skills = skillsData ?? [];
 
+  // Add debugging to check for duplicate IDs
+  const seenIds = new Set();
+  skills.forEach((skill) => {
+    if (seenIds.has(skill._id)) {
+      console.warn('Duplicate _id found:', skill._id);
+    }
+    seenIds.add(skill._id);
+  });
+
   const deleteSkillCategory = useMutation(api.skills.deleteSkillCategory);
 
   const handleDelete = async (category: string) => {
@@ -45,10 +53,10 @@ export function SkillGrid() {
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 mt-8 gap-5">
-      {skills.map((categorySkills: CategorySkills) => (
+    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 mt-8 gap-5">
+      {skills.map((categorySkills: CategorySkills, index) => (
         <SkillCard
-          key={categorySkills._id}
+          key={categorySkills._id || `skill-${categorySkills.category}-${index}`}
           category={categorySkills.category}
           skills={categorySkills.skills}
           onDelete={() => handleDelete(categorySkills.category)}

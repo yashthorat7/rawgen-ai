@@ -19,6 +19,7 @@ export function EditSkillDialog({ isOpen, onClose, category, initialSkills, onUp
   const [skillInput, setSkillInput] = useState("")
   const [selectedSkills, setSelectedSkills] = useState<Set<string>>(new Set(initialSkills))
   const [isLoading, setIsLoading] = useState(false)
+  const [categoryName, setCategoryName] = useState(category)
 
   const userEmail = user?.primaryEmailAddress?.emailAddress
   // Get username from email using Convex query
@@ -31,10 +32,11 @@ export function EditSkillDialog({ isOpen, onClose, category, initialSkills, onUp
       setSelectedSkills(new Set(initialSkills.map(s => s.toLowerCase().trim())));
       setSkillInput("");
       setIsLoading(false);
+      setCategoryName(category);
     }
-  }, [isOpen, initialSkills]);
+  }, [isOpen, initialSkills, category]);
 
-  const updateSkills = useMutation(api.skills.addSkills)
+  const updateSkills = useMutation(api.skills.update)
   const deleteCategory = useMutation(api.skills.deleteSkillCategory)
 
   const handleAddSkill = () => {
@@ -90,7 +92,7 @@ export function EditSkillDialog({ isOpen, onClose, category, initialSkills, onUp
       // Convert Set to Array for API call
       const skillsArray = Array.from(selectedSkills).sort();
       console.log('Current skills state:', {
-        category,
+        category: categoryName,
         skillsArray,
         initialSkills,
         email: userEmail,
@@ -98,19 +100,20 @@ export function EditSkillDialog({ isOpen, onClose, category, initialSkills, onUp
       });
       
       if (skillsArray.length === 0) {
-        console.log('Deleting category due to empty skills:', category);
+        console.log('Deleting category due to empty skills:', categoryName);
         await deleteCategory({
           username,
-          category
+          category: categoryName
         });
       } else {
         console.log('Updating skills:', {
-          category,
+          category: categoryName,
           skills: skillsArray
         });
         const result = await updateSkills({
           email: userEmail,
-          category: category,
+          oldCategory: category,
+          newCategory: categoryName.trim(),
           skills: skillsArray
         });
         console.log('Update result:', result);
@@ -152,7 +155,7 @@ export function EditSkillDialog({ isOpen, onClose, category, initialSkills, onUp
     try {
       await deleteCategory({
         username,
-        category
+        category: categoryName
       });
       onUpdate?.();
       onClose();
@@ -161,6 +164,18 @@ export function EditSkillDialog({ isOpen, onClose, category, initialSkills, onUp
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const resetForm = () => {
+    setCategoryName(category);
+    setSelectedSkills(new Set(initialSkills));
+    setSkillInput("");
+    setIsLoading(false);
+  };
+
+  const handleClose = () => {
+    resetForm();
+    onClose();
   };
 
   if (!isOpen) return null;
@@ -174,12 +189,12 @@ export function EditSkillDialog({ isOpen, onClose, category, initialSkills, onUp
     <>
       <div
         className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
-        onClick={onClose}
+        onClick={handleClose}
       />
       <div className="fixed inset-0 flex items-center justify-center z-50 p-4 overflow-auto">
         <div className="bg-white rounded-lg shadow-xl w-full max-w-[500px] max-h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
           <div className="p-6 border-b flex justify-between items-center">
-            <h2 className="text-2xl font-bold text-primary-600">Edit Skills - {category}</h2>
+            <h2 className="text-2xl font-bold text-primary-600">Edit Skills - {categoryName}</h2>
             <button
               onClick={handleDelete}
               className="p-2 hover:bg-red-50 rounded-full transition-colors"
@@ -191,6 +206,17 @@ export function EditSkillDialog({ isOpen, onClose, category, initialSkills, onUp
 
           <div className="p-6 pt-4 overflow-y-auto">
             <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Category Name</label>
+                <input
+                  type="text"
+                  value={categoryName}
+                  onChange={(e) => setCategoryName(e.target.value)}
+                  className="w-full px-3 py-2 border rounded-md focus:outline-primary-500"
+                  placeholder="e.g., Programming Languages"
+                />
+              </div>
+
               <div>
                 <label className="block text-sm font-medium mb-1">
                   Skills <span className="text-gray-500">({selectedSkills.size}/16)</span>
@@ -243,7 +269,7 @@ export function EditSkillDialog({ isOpen, onClose, category, initialSkills, onUp
 
               <div className="flex justify-end gap-2 pt-4">
                 <button
-                  onClick={onClose}
+                  onClick={handleClose}
                   disabled={isDisabled}
                   className="px-4 py-2 border rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
@@ -251,14 +277,14 @@ export function EditSkillDialog({ isOpen, onClose, category, initialSkills, onUp
                 </button>
                 <button
                   onClick={handleSubmit}
-                  disabled={isDisabled || selectedSkills.size === 0 || selectedSkills.size > 16}
+                  disabled={isDisabled || !categoryName.trim() || selectedSkills.size === 0 || selectedSkills.size > 16}
                   className={`px-4 py-2 rounded-md text-white ${
-                    isDisabled || selectedSkills.size === 0 || selectedSkills.size > 16
+                    isDisabled || !categoryName.trim() || selectedSkills.size === 0 || selectedSkills.size > 16
                       ? 'bg-primary-400 cursor-not-allowed'
                       : 'bg-primary-600 hover:bg-primary-700'
                   }`}
                 >
-                  {isLoading ? 'Saving...' : !isUserLoaded || !userData ? 'Loading...' : 'Save Changes'}
+                  {isLoading ? 'Updating...' : 'Update'}
                 </button>
               </div>
             </div>

@@ -120,7 +120,7 @@ export function TagStrip() {
       await controls.start({
         x: [-20, -(width / 2)],
         transition: {
-          duration: 100,
+          duration: 200,
           repeat: Infinity,
           ease: "linear",
           repeatType: "loop",

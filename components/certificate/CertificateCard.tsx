@@ -40,6 +40,12 @@ export function CertificateCard({
     }
   };
 
+  // Function to truncate description to first sentence
+  const truncateDescription = (text: string) => {
+    const sentence = text.split(/[.!?]/)[0];
+    return sentence + (text.length > sentence.length ? '...' : '');
+  };
+
   return (
     <div className="group relative bg-white 
                     w-full overflow-hidden
@@ -66,17 +72,17 @@ export function CertificateCard({
           </span>
         </div>
 
-        <p className="text-gray-600 text-sm mb-4">
-          {description}
+        <p className="text-gray-600 text-sm truncate whitespace-nowrap overflow-hidden">
+          {truncateDescription(description)}
         </p>
 
-        {onDelete && id && (
+        {onDelete && (
           <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
             <button
               onClick={handleDelete}
               className="p-2 hover:bg-red-50 rounded-full transition-colors"
             >
-              <Trash2 className="w-5 h-5 text-red-500" />
+              <Trash2 className="w-4 h-4 text-red-500" />
             </button>
           </div>
         )}
