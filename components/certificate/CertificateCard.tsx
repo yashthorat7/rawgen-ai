@@ -51,7 +51,7 @@ export function CertificateCard({
           <img 
             src={image} 
             alt={title}
-            className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
+            className="w-full h-full object-cover rounded-lg border border-gray-100"
           />
         </div>
       )}

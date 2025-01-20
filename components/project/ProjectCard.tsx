@@ -40,14 +40,13 @@ export function ProjectCard({
       <div className="group relative bg-white 
                     w-full overflow-hidden
                     shadow-[0_4px_8px_rgba(0,0,100,0.08)] transition-all duration-200 ease-in-out 
-                    hover:shadow-[0_8px_12px_rgba(0,0,100,0.1)] hover:scale-[1.01] rounded-lg
-                    border border-gray-100">
+                    hover:shadow-[0_8px_12px_rgba(0,0,100,0.1)] hover:scale-[1.01] rounded-lg">
         {image && (
           <div className="aspect-video overflow-hidden p-4">
             <img 
               src={image} 
               alt={title}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover rounded-lg border border-gray-100"
             />
           </div>
         )}
