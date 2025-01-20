@@ -121,7 +121,7 @@ const SkillCard = ({ category, skills = [], onEdit, onDelete, onUpdate }: SkillC
     <>
       <div className="w-full h-auto sm:h-[225px] flex flex-col border-2 border-transparent rounded-lg">
         {/* Skills Area */}
-        <div className="flex-1 p-4">
+        <div className="flex-1 p-2 sm:p-2">
           <div className="w-full h-full flex flex-col items-center justify-center gap-2">
             {distribution.map((rowCount, rowIndex) => {
               const rowSkills = shuffledSkills.slice(currentIndex, currentIndex + rowCount);
@@ -193,7 +193,7 @@ const SkillCard = ({ category, skills = [], onEdit, onDelete, onUpdate }: SkillC
             initial={false}
             animate={{
               width: isHovered ? 'auto' : 'auto',
-              paddingRight: isHovered ? '4.5rem' : '0.75rem'
+              paddingRight: isHovered ? '3.5rem' : '0.75rem'
             }}
             transition={{
               duration: 0.2,

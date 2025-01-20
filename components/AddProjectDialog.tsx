@@ -1,41 +1,73 @@
 "use client";
 
-import { useState, KeyboardEvent } from "react";
+import { useState, KeyboardEvent, useEffect } from "react";
 import { useUser } from "@clerk/nextjs";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { X, Plus, Upload } from "lucide-react";
+import { Id } from "@/convex/_generated/dataModel";
 
 interface AddProjectDialogProps {
   isOpen: boolean;
   onClose: () => void;
+  initialData?: {
+    id?: Id<"projects">;
+    title: string;
+    description: string;
+    projectLink: string;
+    deployLink?: string;
+    techStack: string[];
+    image?: string;
+  };
 }
 
-export function AddProjectDialog({ isOpen, onClose }: AddProjectDialogProps) {
+export function AddProjectDialog({ isOpen, onClose, initialData }: AddProjectDialogProps) {
   const { user } = useUser();
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [projectLink, setProjectLink] = useState("");
-  const [deployLink, setDeployLink] = useState("");
+  const [title, setTitle] = useState(initialData?.title || "");
+  const [description, setDescription] = useState(initialData?.description || "");
+  const [projectLink, setProjectLink] = useState(initialData?.projectLink || "");
+  const [deployLink, setDeployLink] = useState(initialData?.deployLink || "");
   const [image, setImage] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [techStack, setTechStack] = useState<Set<string>>(new Set());
+  const [previewUrl, setPreviewUrl] = useState<string | null>(initialData?.image || null);
+  const [techStack, setTechStack] = useState<Set<string>>(new Set(initialData?.techStack || []));
   const [techInput, setTechInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
 
   const addProject = useMutation(api.projects.add);
+  const updateProject = useMutation(api.projects.update);
   const generateUploadUrl = useMutation(api.projects.generateUploadUrl);
   const saveImage = useMutation(api.projects.saveImage);
 
+  useEffect(() => {
+    if (initialData) {
+      setTitle(initialData.title);
+      setDescription(initialData.description);
+      setProjectLink(initialData.projectLink);
+      setDeployLink(initialData.deployLink || "");
+      setPreviewUrl(initialData.image || null);
+      setTechStack(new Set(initialData.techStack));
+    }
+  }, [initialData]);
+
   const resetForm = () => {
-    setTitle("");
-    setDescription("");
-    setProjectLink("");
-    setDeployLink("");
-    setImage(null);
-    setPreviewUrl(null);
-    setTechStack(new Set());
+    if (initialData) {
+      setTitle(initialData.title);
+      setDescription(initialData.description);
+      setProjectLink(initialData.projectLink);
+      setDeployLink(initialData.deployLink || "");
+      setImage(null);
+      setPreviewUrl(initialData.image || null);
+      setTechStack(new Set(initialData.techStack));
+    } else {
+      setTitle("");
+      setDescription("");
+      setProjectLink("");
+      setDeployLink("");
+      setImage(null);
+      setPreviewUrl(null);
+      setTechStack(new Set());
+    }
     setTechInput("");
     setIsLoading(false);
     setIsDragging(false);
@@ -130,20 +162,33 @@ export function AddProjectDialog({ isOpen, onClose }: AddProjectDialogProps) {
         });
       }
 
-      // Create the project
-      await addProject({
-        email,
-        title,
-        description,
-        projectLink,
-        deployLink: deployLink || undefined,
-        techStack: Array.from(techStack),
-        projectImage: imageId,
-      });
+      const techStackArray = Array.from(techStack);
+
+      if (initialData?.id) {
+        await updateProject({
+          projectId: initialData.id,
+          title,
+          description,
+          projectLink,
+          deployLink: deployLink || undefined,
+          techStack: JSON.stringify(techStackArray),
+          projectImage: imageId || undefined, // Keep existing image if no new one uploaded
+        });
+      } else {
+        await addProject({
+          email,
+          title,
+          description,
+          projectLink,
+          deployLink: deployLink || undefined,
+          techStack: techStackArray,
+          projectImage: imageId,
+        });
+      }
 
       handleClose();
     } catch (error) {
-      console.error("Failed to add project:", error);
+      console.error("Failed to save project:", error);
       setIsLoading(false);
     }
   };
@@ -155,7 +200,7 @@ export function AddProjectDialog({ isOpen, onClose }: AddProjectDialogProps) {
     title.trim() !== "" && 
     description.trim() !== "" && 
     projectLink.trim() !== "" && 
-    image !== null && 
+    (image !== null || (initialData && previewUrl)) && // Allow existing image in edit mode
     techStack.size >= 1 && 
     techStack.size <= 12;
 
@@ -168,7 +213,9 @@ export function AddProjectDialog({ isOpen, onClose }: AddProjectDialogProps) {
       <div className="fixed inset-0 flex items-center justify-center z-50 p-4 overflow-auto">
         <div className="bg-white rounded-lg shadow-xl w-full max-w-[500px] max-h-[90vh] flex flex-col">
           <div className="p-6 border-b">
-            <h2 className="text-2xl font-bold text-primary-600">Add New Project</h2>
+            <h2 className="text-2xl font-bold text-primary-600">
+              {initialData ? 'Edit Project' : 'Add New Project'}
+            </h2>
           </div>
 
           <div className="p-6 overflow-y-auto">
@@ -324,7 +371,7 @@ export function AddProjectDialog({ isOpen, onClose }: AddProjectDialogProps) {
                     : 'bg-primary-600 hover:bg-primary-700'
                 }`}
               >
-                {isLoading ? 'Adding...' : 'Add Project'}
+                {isLoading ? (initialData ? 'Updating...' : 'Adding...') : (initialData ? 'Update Project' : 'Add Project')}
               </button>
             </div>
           </div>
