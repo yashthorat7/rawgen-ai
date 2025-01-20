@@ -76,7 +76,7 @@ export function CertificateCard({
               onClick={handleDelete}
               className="p-2 hover:bg-red-50 rounded-full transition-colors"
             >
-              <Trash2 className="w-4 h-4 text-red-500" />
+              <Trash2 className="w-5 h-5 text-red-500" />
             </button>
           </div>
         )}
