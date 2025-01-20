@@ -1,6 +1,6 @@
 import { Loader2, X } from "lucide-react";
 import { SignIn, ClerkLoaded, ClerkLoading } from "@clerk/nextjs";
-import { Hero } from "@/components/layout/Hero";
+import { Hero } from "@/components/layout/web_layout/Hero";
 import Link from "next/link";
 
 export default function Page() {

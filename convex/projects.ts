@@ -19,6 +19,7 @@ export const saveImage = mutation({
 export const update = mutation({
   args: {
     projectId: v.id("projects"),
+    email: v.string(),
     title: v.string(),
     description: v.string(),
     projectLink: v.string(),
@@ -27,12 +28,27 @@ export const update = mutation({
     projectImage: v.optional(v.union(v.id("_storage"), v.null())),
   },
   handler: async (ctx, args) => {
+    // Get user by email
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_email", (q) => q.eq("email", args.email))
+      .first();
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    // Get the existing project and verify ownership
     const project = await ctx.db.get(args.projectId);
     if (!project) {
       throw new Error("Project not found");
     }
 
-    // Update the project
+    if (project.userId !== user._id) {
+      throw new Error("Unauthorized to update this project");
+    }
+
+    // Prepare update data
     const updateData: any = {
       projectName: args.title,
       projectDescription: args.description,
@@ -41,27 +57,34 @@ export const update = mutation({
       techStack: args.techStack,
     };
 
-    // Only update image if a new one is provided
+    // Only update image if a new one is provided or explicitly set to null
     if (args.projectImage !== undefined) {
       updateData.projectImage = args.projectImage;
     }
 
+    // Update the project with new data
     await ctx.db.patch(args.projectId, updateData);
 
-    // Get the updated project with image URL
+    // Get the updated project
     const updatedProject = await ctx.db.get(args.projectId);
+    if (!updatedProject) {
+      throw new Error("Failed to get updated project");
+    }
+
+    // Get the image URL if it exists
     let imageUrl;
-    if (updatedProject?.projectImage) {
+    if (updatedProject.projectImage) {
       imageUrl = await ctx.storage.getUrl(updatedProject.projectImage);
     }
 
+    // Return the updated project data
     return {
-      id: updatedProject?._id,
-      title: updatedProject?.projectName,
-      description: updatedProject?.projectDescription,
-      projectLink: updatedProject?.projectLink,
-      deployLink: updatedProject?.deployLink,
-      techStack: JSON.parse(updatedProject?.techStack || "[]"),
+      id: updatedProject._id,
+      title: updatedProject.projectName,
+      description: updatedProject.projectDescription,
+      projectLink: updatedProject.projectLink,
+      deployLink: updatedProject.deployLink,
+      techStack: JSON.parse(updatedProject.techStack || "[]"),
       image: imageUrl,
     };
   },
@@ -195,17 +218,16 @@ export const remove = mutation({
     projectId: v.id("projects"),
   },
   handler: async (ctx, args) => {
-    console.log('Removing project:', args.projectId);
-
+    // Get the project
     const project = await ctx.db.get(args.projectId);
     if (!project) {
-      console.log('Project not found');
       throw new Error("Project not found");
     }
 
+    // Delete the project
     await ctx.db.delete(args.projectId);
-    console.log('Project deleted');
-    
+
+    // Return success without any circular references
     return { success: true };
   },
 }); 

@@ -3,7 +3,7 @@
 import { SignOutButton, useUser } from "@clerk/nextjs";
 import Image from "next/image";
 import { useState, useEffect } from "react";
-import { UserSettingsDialog } from "./UserSettingsDialog";
+import { UserSettingsDialog } from "../UserSettingsDialog";
 import { LogOut } from "lucide-react";
 
 function useScrollDirection() {

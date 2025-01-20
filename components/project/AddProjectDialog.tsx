@@ -19,9 +19,10 @@ interface AddProjectDialogProps {
     techStack: string[];
     image?: string;
   };
+  mode?: 'add' | 'edit';
 }
 
-export function AddProjectDialog({ isOpen, onClose, initialData }: AddProjectDialogProps) {
+export function AddProjectDialog({ isOpen, onClose, initialData, mode = 'add' }: AddProjectDialogProps) {
   const { user } = useUser();
   const [title, setTitle] = useState(initialData?.title || "");
   const [description, setDescription] = useState(initialData?.description || "");
@@ -162,33 +163,34 @@ export function AddProjectDialog({ isOpen, onClose, initialData }: AddProjectDia
         });
       }
 
-      const techStackArray = Array.from(techStack);
-
-      if (initialData?.id) {
+      if (mode === 'edit' && initialData?.id) {
+        // Update existing project
         await updateProject({
           projectId: initialData.id,
+          email,
           title,
           description,
           projectLink,
           deployLink: deployLink || undefined,
-          techStack: JSON.stringify(techStackArray),
-          projectImage: imageId || undefined, // Keep existing image if no new one uploaded
+          techStack: JSON.stringify(Array.from(techStack)),
+          projectImage: image ? imageId : undefined, // Only send imageId if new image uploaded
         });
       } else {
+        // Create new project
         await addProject({
           email,
           title,
           description,
           projectLink,
           deployLink: deployLink || undefined,
-          techStack: techStackArray,
+          techStack: Array.from(techStack),
           projectImage: imageId,
         });
       }
 
       handleClose();
     } catch (error) {
-      console.error("Failed to save project:", error);
+      console.error(`Failed to ${mode} project:`, error);
       setIsLoading(false);
     }
   };
@@ -214,7 +216,7 @@ export function AddProjectDialog({ isOpen, onClose, initialData }: AddProjectDia
         <div className="bg-white rounded-lg shadow-xl w-full max-w-[500px] max-h-[90vh] flex flex-col">
           <div className="p-6 border-b">
             <h2 className="text-2xl font-bold text-primary-600">
-              {initialData ? 'Edit Project' : 'Add New Project'}
+              {mode === 'edit' ? 'Edit Project' : 'Add New Project'}
             </h2>
           </div>
 
@@ -371,7 +373,9 @@ export function AddProjectDialog({ isOpen, onClose, initialData }: AddProjectDia
                     : 'bg-primary-600 hover:bg-primary-700'
                 }`}
               >
-                {isLoading ? (initialData ? 'Updating...' : 'Adding...') : (initialData ? 'Update Project' : 'Add Project')}
+                {isLoading 
+                  ? (mode === 'edit' ? 'Updating...' : 'Adding...') 
+                  : (mode === 'edit' ? 'Update Project' : 'Add Project')}
               </button>
             </div>
           </div>

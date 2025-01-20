@@ -6,15 +6,14 @@ import { useState } from "react";
 import { AddProjectDialog } from "./AddProjectDialog";
 
 interface ProjectCardProps {
-  id?: Id<"projects">;
+  id: Id<"projects">;
   title: string;
   description: string;
-  projectLink: string;
+  projectLink?: string;
   deployLink?: string;
   techStack: string[];
-  image?: string | null;
-  isLoading?: boolean;
-  onDelete?: (id: Id<"projects">) => void;
+  image?: string;
+  onDelete?: () => void;
 }
 
 export function ProjectCard({ 
@@ -22,23 +21,12 @@ export function ProjectCard({
   title, 
   description, 
   projectLink, 
-  deployLink, 
-  techStack, 
+  deployLink,
+  techStack,
   image,
-  isLoading,
   onDelete 
 }: ProjectCardProps) {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-
-  if (isLoading) {
-    return (
-      <div className="p-4 border rounded-lg animate-pulse bg-white">
-        <div className="aspect-video bg-gray-200 rounded-lg mb-4"></div>
-        <div className="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
-        <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-      </div>
-    );
-  }
 
   // Function to truncate description to first 10 words
   const truncateDescription = (text: string) => {
@@ -47,20 +35,13 @@ export function ProjectCard({
     return words.slice(0, 10).join(' ') + '...';
   };
 
-  const handleDelete = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (id && onDelete) {
-      onDelete(id);
-    }
-  };
-
   return (
     <>
       <div className="group relative bg-white 
-                      w-full min-w-[280px] max-w-full overflow-hidden
-                      shadow-[0_4px_8px_rgba(0,0,100,0.08)] transition-all duration-200 ease-in-out 
-                      hover:shadow-[0_8px_12px_rgba(0,0,100,0.1)] hover:scale-[1.01] p-4 rounded-lg
-                      border border-gray-100">
+                    w-full overflow-hidden
+                    shadow-[0_4px_8px_rgba(0,0,100,0.08)] transition-all duration-200 ease-in-out 
+                    hover:shadow-[0_8px_12px_rgba(0,0,100,0.1)] hover:scale-[1.01] rounded-lg
+                    border border-gray-100">
         {image && (
           <div className="aspect-video overflow-hidden">
             <img 
@@ -106,17 +87,18 @@ export function ProjectCard({
 
           <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex gap-2">
             <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsEditDialogOpen(true);
-              }}
+              onClick={() => setIsEditDialogOpen(true)}
               className="p-2 hover:bg-gray-100 rounded-full transition-colors"
             >
               <PencilIcon className="w-4 h-4 text-gray-600" />
             </button>
-            {onDelete && id && (
+            {onDelete && (
               <button
-                onClick={handleDelete}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onDelete();
+                }}
                 className="p-2 hover:bg-red-50 rounded-full transition-colors"
               >
                 <Trash2 className="w-4 h-4 text-red-500" />
@@ -130,13 +112,15 @@ export function ProjectCard({
         isOpen={isEditDialogOpen}
         onClose={() => setIsEditDialogOpen(false)}
         initialData={{
+          id,
           title,
           description,
           projectLink: projectLink || "",
           deployLink,
           techStack,
-          image: image || undefined
+          image
         }}
+        mode="edit"
       />
     </>
   );
