@@ -2,7 +2,7 @@
 
 import { Plus } from "lucide-react";
 import { useState } from "react";
-import { AddProjectDialog } from "@/components/AddProjectDialog";
+import { AddProjectDialog } from "./AddProjectDialog";
 
 export function AddProjectCard() {
   const [isOpen, setIsOpen] = useState(false);

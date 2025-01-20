@@ -1,15 +1,15 @@
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import { Header } from "@/components/Header";
-import { AiSuggestor } from "@/components/AiIntro";
+import { Header } from "@/components/layout/Header";
+import { AiSuggestor } from "@/components/layout/AiIntro";
 import { PlatformProvider } from "@/lib/PlatformContext";
-import { ProfileGrid } from "@/components/ProfileGrid";
-import { Intro } from "@/components/Intro";
-import { TagStrip } from "@/components/TagStrip";
-import { SkillGrid } from "@/components/SkillGrid";
-import { ProjectGrid } from "@/components/ProjectGrid";
-import { CertificateGrid } from "@/components/CertificateGrid";
-import { Footer } from "@/components/Footer";
+import { ProfileGrid } from "@/components/profile/ProfileGrid";
+import { Intro } from "@/components/layout/Intro";
+import { TagStrip } from "@/components/layout/TagStrip";
+import { SkillGrid } from "@/components/skill/SkillGrid";
+import { ProjectGrid } from "@/components/project/ProjectGrid";
+import { CertificateGrid } from "@/components/certificate/CertificateGrid";
+import { Footer } from "@/components/layout/Footer";
 
 export default async function DashboardPage() {
   const { userId } = await auth();

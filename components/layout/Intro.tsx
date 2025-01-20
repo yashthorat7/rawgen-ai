@@ -12,7 +12,7 @@ import { motion, Variants } from "framer-motion";
 
 const shineAnimation: Variants = {
   initial: { x: "-100%" },
-  animate: { 
+  animate: {
     x: "200%",
     transition: {
       repeat: Infinity,
@@ -69,7 +69,7 @@ export function Intro() {
         className="scale-75 sm:scale-100 cursor-pointer group relative"
         onClick={() => setIsSettingsOpen(true)}
       >
-        <div className="w-40 h-40 sm:w-48 sm:h-48 rounded-full overflow-hidden bg-gray-100 border-2 border-gray-200 transition-all duration-200 group-hover:border-blue-500">
+        <div className="w-40 h-40 sm:w-36 sm:h-36 rounded-full overflow-hidden bg-gray-100 border-2 border-gray-200 transition-all duration-200 group-hover:border-blue-500">
           {profileImage ? (
             <div className="relative w-full h-full">
               <Image

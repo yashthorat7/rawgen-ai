@@ -1,6 +1,6 @@
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import { Hero } from "@/components/Hero";
+import { Hero } from "@/components/layout/Hero";
 
 export default async function Home() {
   const { userId } = await auth();
