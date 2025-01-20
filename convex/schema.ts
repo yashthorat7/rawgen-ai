@@ -13,6 +13,10 @@ export default defineSchema({
         cgpa: v.optional(v.float64()),
         profileImage: v.optional(v.id("_storage")),
         marksheetImage: v.optional(v.id("_storage")),
+        github: v.optional(v.string()),
+        linkedin: v.optional(v.string()),
+        twitter: v.optional(v.string()),
+        website: v.optional(v.string()),
     })
         .index("by_email", ["email"])
         .index("by_username", ["username"]),

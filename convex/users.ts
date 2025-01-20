@@ -314,13 +314,17 @@ export const getMarksheetImage = query({
 export const updateUser = mutation({
   args: {
     email: v.string(),
-    username: v.optional(v.string()),
+    username: v.string(),
     firstName: v.optional(v.string()),
     lastName: v.optional(v.string()),
     profileViews: v.optional(v.number()),
     stars: v.optional(v.number()),
     isverified: v.optional(v.boolean()),
     cgpa: v.optional(v.float64()),
+    github: v.optional(v.string()),
+    linkedin: v.optional(v.string()),
+    twitter: v.optional(v.string()),
+    website: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const { email, username, ...updates } = args;
@@ -331,14 +335,13 @@ export const updateUser = mutation({
 
     if (existingUser) {
       await ctx.db.patch(existingUser._id, {
-        username: username || existingUser.username,
+        username,
         ...updates
       });
     } else {
-      // Create new user if doesn't exist, using email as default username
       await ctx.db.insert("users", {
         email,
-        username: username || email, // Set email as default username if none provided
+        username,
         ...updates
       });
     }
@@ -382,5 +385,13 @@ export const updateOrder = mutation({
         await ctx.db.patch(profile._id, { order: update.order });
       }
     }
+  },
+});
+
+// Add this query for getting marksheet image URL
+export const getMarksheetImageUrl = query({
+  args: { storageId: v.id("_storage") },
+  handler: async (ctx, args) => {
+    return await ctx.storage.getUrl(args.storageId);
   },
 });

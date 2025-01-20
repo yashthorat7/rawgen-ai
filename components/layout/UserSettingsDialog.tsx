@@ -5,7 +5,7 @@ import { useUser } from "@clerk/nextjs";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { ImageSelector } from "./ImageSelector";
-import { CheckCircle2, XCircle } from "lucide-react";
+import { CheckCircle2, XCircle, Github, Linkedin, Twitter, Globe } from "lucide-react";
 
 interface UserSettingsDialogProps {
     isOpen: boolean;
@@ -26,6 +26,10 @@ export function UserSettingsDialog({ isOpen, onClose, defaultFirstName = "", def
     const [image, setImage] = useState<string | null>(null);
     const [isUploadingMarksheet, setIsUploadingMarksheet] = useState(false);
     const [shouldAutoOpen, setShouldAutoOpen] = useState(false);
+    const [github, setGithub] = useState("");
+    const [linkedin, setLinkedin] = useState("");
+    const [twitter, setTwitter] = useState("");
+    const [website, setWebsite] = useState("");
 
     const updateSettings = useMutation(api.users.updateUser);
     const generateMarksheetUrl = useMutation(api.users.generateMarksheetUploadUrl);
@@ -38,6 +42,12 @@ export function UserSettingsDialog({ isOpen, onClose, defaultFirstName = "", def
         userEmail ? { email: userEmail } : "skip"
     );
 
+    // Get marksheet image URL if it exists
+    const marksheetImageUrl = useQuery(
+        api.users.getMarksheetImageUrl,
+        userInfo?.marksheetImage ? { storageId: userInfo.marksheetImage } : "skip"
+    );
+
     // Initialize data from database when dialog opens
     useEffect(() => {
         if (!isOpen) return;
@@ -48,6 +58,10 @@ export function UserSettingsDialog({ isOpen, onClose, defaultFirstName = "", def
             setUsername(userInfo.username || "");
             setCgpa(userInfo.cgpa?.toString() || "");
             setIsUsernameValid(!!userInfo.username);
+            setGithub(userInfo.github ?? "");
+            setLinkedin(userInfo.linkedin ?? "");
+            setTwitter(userInfo.twitter ?? "");
+            setWebsite(userInfo.website ?? "");
         } else if (userEmail) {
             setUsername(userEmail);
             setFirstName(defaultFirstName);
@@ -80,11 +94,6 @@ export function UserSettingsDialog({ isOpen, onClose, defaultFirstName = "", def
     const checkUsername = useQuery(
         api.users.checkUsernameAvailable,
         username && username !== userEmail ? { username } : "skip"
-    );
-
-    const marksheetImage = useQuery(
-        api.users.getMarksheetImage,
-        userEmail ? { email: userEmail } : "skip"
     );
 
     useEffect(() => {
@@ -153,23 +162,27 @@ export function UserSettingsDialog({ isOpen, onClose, defaultFirstName = "", def
 
         setIsLoading(true);
         try {
-            console.log("Updating user settings:", {
-                email: userEmail,
-                username,
-                firstName,
-                lastName,
-                cgpa: cgpa ? parseFloat(cgpa) : undefined,
-            });
+            const newCgpaValue = cgpa ? parseFloat(cgpa) : undefined;
+            const isVerificationReset = userInfo?.cgpa !== newCgpaValue;
+
+            const processField = (value: string) => {
+                const trimmed = value.trim();
+                return trimmed === "" ? undefined : trimmed;
+            };
 
             await updateSettings({
                 email: userEmail,
-                username,
+                username: username.trim(),
                 firstName: firstName || undefined,
                 lastName: lastName || undefined,
-                cgpa: cgpa ? parseFloat(cgpa) : undefined,
+                cgpa: newCgpaValue,
+                isverified: isVerificationReset ? false : userInfo?.isverified,
+                github: processField(github),
+                linkedin: processField(linkedin),
+                twitter: processField(twitter),
+                website: processField(website),
             });
 
-            console.log("Settings updated successfully");
             onClose();
         } catch (error) {
             console.error("Error updating settings:", error);
@@ -318,10 +331,10 @@ export function UserSettingsDialog({ isOpen, onClose, defaultFirstName = "", def
                                         )}
                                     </label>
                                 </div>
-                                {userInfo?.marksheetImage && marksheetImage && (
+                                {userInfo?.marksheetImage && marksheetImageUrl && (
                                     <div className="mt-2">
                                         <a
-                                            href={marksheetImage}
+                                            href={marksheetImageUrl}
                                             target="_blank"
                                             rel="noopener noreferrer"
                                             className="text-primary-600 hover:text-primary-700"
@@ -330,6 +343,53 @@ export function UserSettingsDialog({ isOpen, onClose, defaultFirstName = "", def
                                         </a>
                                     </div>
                                 )}
+                            </div>
+
+                            {/* Social Media Section */}
+                            <div className="mt-6">
+                                <h3 className="text-lg font-medium text-gray-900 mb-4">Social Media</h3>
+                                <div className="space-y-4">
+                                    <div className="flex items-center gap-3">
+                                        <Github className="w-5 h-5 text-gray-500" />
+                                        <input
+                                            type="text"
+                                            value={github}
+                                            onChange={(e) => setGithub(e.target.value)}
+                                            placeholder="GitHub username"
+                                            className="flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                        />
+                                    </div>
+                                    <div className="flex items-center gap-3">
+                                        <Linkedin className="w-5 h-5 text-gray-500" />
+                                        <input
+                                            type="text"
+                                            value={linkedin}
+                                            onChange={(e) => setLinkedin(e.target.value)}
+                                            placeholder="LinkedIn username"
+                                            className="flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                        />
+                                    </div>
+                                    <div className="flex items-center gap-3">
+                                        <Twitter className="w-5 h-5 text-gray-500" />
+                                        <input
+                                            type="text"
+                                            value={twitter}
+                                            onChange={(e) => setTwitter(e.target.value)}
+                                            placeholder="Twitter username"
+                                            className="flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                        />
+                                    </div>
+                                    <div className="flex items-center gap-3">
+                                        <Globe className="w-5 h-5 text-gray-500" />
+                                        <input
+                                            type="url"
+                                            value={website}
+                                            onChange={(e) => setWebsite(e.target.value)}
+                                            placeholder="Personal website URL"
+                                            className="flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                        />
+                                    </div>
+                                </div>
                             </div>
                         </form>
                     </div>

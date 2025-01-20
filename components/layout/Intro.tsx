@@ -7,8 +7,9 @@ import { UserSettingsDialog } from "./UserSettingsDialog";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import Image from "next/image";
-import { CheckCircle } from "lucide-react";
+import { CheckCircle, Github, Linkedin, Twitter, Globe } from "lucide-react";
 import { motion, Variants } from "framer-motion";
+import { SocialMedia } from "./SocialMedia";
 
 const shineAnimation: Variants = {
   initial: { x: "-100%" },
@@ -50,7 +51,7 @@ export function Intro() {
 
   // Only show name after database is fetched
   const displayName = userSettings === undefined
-    ? "" // Loading state
+    ? null  // Loading state
     : userSettings
       ? `${userSettings.firstName || defaultName.firstName} ${userSettings.lastName || defaultName.lastName}`.trim()
       : `${defaultName.firstName} ${defaultName.lastName}`.trim();
@@ -59,10 +60,26 @@ export function Intro() {
     <div className="flex flex-col-reverse sm:flex-row justify-between items-center gap-2 sm:gap-4 mb-2 sm:mb-4 -mt-4 sm:mt-1 px-8">
       <div className="text-center sm:text-left -mt-8 sm:mt-0">
         <h1 className="text-2xl sm:text-4xl font-bold -mb-4 sm:-mb-1">
-          {displayName && <span className="text-xl sm:text-3xl text-gray-400">I'm </span>}
-          <span>{displayName}</span>
+          {displayName === null ? (
+            <span className="text-2xl sm:text-3xl text-gray-900">Hi, there 👋</span>
+          ) : (
+            <>
+              {displayName && <span className="text-xl sm:text-3xl text-gray-400">I'm </span>}
+              <span>{displayName}</span>
+            </>
+          )}
         </h1>
         <PlatformCounter />
+        {userSettings && (
+          <SocialMedia
+            github={userSettings.github}
+            linkedin={userSettings.linkedin}
+            twitter={userSettings.twitter}
+            website={userSettings.website}
+            className="justify-center sm:justify-start mt-2"
+            iconSize={18}
+          />
+        )}
       </div>
 
       <div
