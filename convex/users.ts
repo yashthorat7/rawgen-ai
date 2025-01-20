@@ -334,15 +334,33 @@ export const updateUser = mutation({
       .first();
 
     if (existingUser) {
-      await ctx.db.patch(existingUser._id, {
-        username,
-        ...updates
-      });
+      const completeUpdate = {
+        firstName: undefined,
+        lastName: undefined,
+        profileViews: undefined,
+        stars: undefined,
+        isverified: undefined,
+        cgpa: undefined,
+        github: undefined,
+        linkedin: undefined,
+        twitter: undefined,
+        website: undefined,
+        ...Object.fromEntries(
+          Object.entries(updates).filter(([_, value]) => value !== undefined)
+        ),
+        username
+      };
+
+      await ctx.db.patch(existingUser._id, completeUpdate);
     } else {
+      const validFields = Object.fromEntries(
+        Object.entries(updates).filter(([_, value]) => value !== undefined)
+      );
+
       await ctx.db.insert("users", {
         email,
         username,
-        ...updates
+        ...validFields
       });
     }
   },

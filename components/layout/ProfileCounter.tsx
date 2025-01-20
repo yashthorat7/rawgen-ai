@@ -9,11 +9,8 @@ import { useUser } from "@clerk/nextjs";
 
 export function PlatformCounter() {
   const { user } = useUser();
-  const visits = 128;  // Example value
-  const stars = 45;    // Example value
   const [shouldAnimate, setShouldAnimate] = useState(false);
 
-  // Get CGPA from database
   const userSettings = useQuery(
     api.users.getUser,
     user?.primaryEmailAddress?.emailAddress
@@ -41,9 +38,9 @@ export function PlatformCounter() {
         Profile Visits
         <span className="bg-white text-primary-700 px-1.5 sm:px-2 py-0.2 rounded-sm font-semibold min-w-[2rem] sm:min-w-[2.5rem] text-center">
           {shouldAnimate ? (
-            <CountUp start={0} end={visits} {...countUpProps} />
+            <CountUp start={0} end={userSettings?.profileViews || 0} {...countUpProps} />
           ) : (
-            visits
+            userSettings?.profileViews || 0
           )}
         </span>
       </motion.div>
@@ -56,9 +53,9 @@ export function PlatformCounter() {
         Stars ⭐
         <span className="bg-white text-pink-700 px-1.5 sm:px-2 py-0.2 rounded-sm font-semibold min-w-[2rem] sm:min-w-[2.5rem] text-center">
           {shouldAnimate ? (
-            <CountUp start={0} end={stars} {...countUpProps} />
+            <CountUp start={0} end={userSettings?.stars || 0} {...countUpProps} />
           ) : (
-            stars
+            userSettings?.stars || 0
           )}
         </span>
       </motion.div>
