@@ -43,11 +43,11 @@ export function ProjectCard({
                     hover:shadow-[0_8px_12px_rgba(0,0,100,0.1)] hover:scale-[1.01] rounded-lg
                     border border-gray-100">
         {image && (
-          <div className="aspect-video overflow-hidden">
+          <div className="aspect-video overflow-hidden p-4">
             <img 
               src={image} 
               alt={title}
-              className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
+              className="w-full h-full object-cover"
             />
           </div>
         )}
