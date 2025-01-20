@@ -35,10 +35,6 @@ export function ProjectGrid() {
     userData?.username ? { username: userData.username } : "skip"
   );
 
-  console.log("Email:", email);
-  console.log("UserData:", userData);
-  console.log("Projects:", projects);
-
   const handleDelete = async (projectId: Id<"projects">) => {
     try {
       await removeProject({ projectId });

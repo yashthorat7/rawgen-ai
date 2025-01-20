@@ -26,7 +26,6 @@ export function ProjectCard({
   isLoading,
   onDelete 
 }: ProjectCardProps) {
-  console.log("ProjectCard props:", { title, description, projectLink, deployLink, techStack, image });
 
   if (isLoading) {
     return (

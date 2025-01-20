@@ -8,6 +8,7 @@ import { Intro } from "@/components/Intro";
 import { TagStrip } from "@/components/TagStrip";
 import { SkillGrid } from "@/components/SkillGrid";
 import { ProjectGrid } from "@/components/ProjectGrid";
+import { Footer } from "@/components/Footer";
 
 export default async function DashboardPage() {
   const { userId } = await auth();
@@ -30,6 +31,7 @@ export default async function DashboardPage() {
             <ProjectGrid />
           </div>
         </main>
+        <Footer />
       </div>
     </PlatformProvider>
   );

@@ -4,7 +4,6 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import { ConvexClientProvider } from "@/components/ConvexClientProvider";
-import { Footer } from '@/components/Footer';
 
 const quicksand = localFont({
   src: '../public/fonts/Quicksand-VariableFont_wght.ttf',
@@ -28,7 +27,6 @@ export default function RootLayout({
         <ClerkProvider>
           <ConvexClientProvider>
             {children}
-            <Footer />
           </ConvexClientProvider>
         </ClerkProvider>
       </body>
