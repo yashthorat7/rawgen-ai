@@ -42,7 +42,7 @@ export function ProjectCard({
                     shadow-[0_4px_8px_rgba(0,0,100,0.08)] transition-all duration-200 ease-in-out 
                     hover:shadow-[0_8px_12px_rgba(0,0,100,0.1)] hover:scale-[1.01] rounded-lg">
         {image && (
-          <div className="aspect-video overflow-hidden p-4">
+          <div className="aspect-video overflow-hidden p-4 pb-1">
             <img 
               src={image} 
               alt={title}
@@ -51,7 +51,7 @@ export function ProjectCard({
           </div>
         )}
         
-        <div className="p-4">
+        <div className="p-4 pt-0">
           <div className="mb-2">
             <h3 className="font-bold text-xl text-gray-900">
               {title}

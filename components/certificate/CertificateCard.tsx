@@ -57,7 +57,7 @@ export function CertificateCard({
       )}
       
       <div className="p-4 pt-0">
-        <div className="mb-2">
+        <div className="mb-2 mt-1">
           <h3 className="font-bold text-xl text-gray-900">
             {title}
           </h3>
