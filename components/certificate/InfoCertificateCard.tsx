@@ -60,13 +60,6 @@ export function InfoCertificateCard({
               {description}
             </p>
           </div>
-
-          {/* Footer - Optional: Could add actions like download certificate, verify, etc. */}
-          <div className="p-6 border-t">
-            <div className="text-sm text-gray-500 italic">
-              Click outside to close
-            </div>
-          </div>
         </div>
       </div>
     </>

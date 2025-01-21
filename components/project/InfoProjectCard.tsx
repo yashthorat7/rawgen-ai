@@ -43,7 +43,7 @@ export function InfoProjectCard({
           {/* Content */}
           <div className="p-6 overflow-y-auto">
             {image && (
-              <div className="aspect-video mb-6 overflow-hidden rounded-lg border border-gray-200">
+              <div className="aspect-video mb-6 overflow-hidden -px-4 rounded-lg border border-gray-200">
                 <img
                   src={image}
                   alt={title}

@@ -10,6 +10,9 @@ import { DeleteButton } from "../ui/DeleteButton";
 import { CodeforcesStats } from "../platform-stats/CodeforcesStats";
 import { LoadingSkeleton } from "../platform-stats/LoadingSkeleton";
 import { LeetCodeDashboard } from "../dashboard/LeetCodeDashboard";
+import { CodeChefDashboard } from "../dashboard/CodeChefDashboard";
+import { GeeksForGeeksDashboard } from "../dashboard/GeeksForGeeksDashboard";
+import { CodeForcesDashboard } from "../dashboard/CodeForcesDashboard";
 import type { LeetCodeData, CodeChefData, GeeksForGeeksData, CodeforcesData } from "@/lib/types";
 import { UpdateCardIcon } from "../ui/UpdateCardIcon";
 
@@ -114,18 +117,48 @@ export function ProfileCard({
       case 'leetcode':
         if ('totalSolved' in data) {
           return (
-            <div>
-              <LeetCodeDashboard
-                username={username}
-                data={data as LeetCodeData}
-                platform={platform}
-                onDelete={() => {
-                  removePlatform(platform, username);
-                  setIsOpen(false);
-                }}
-                onClose={() => setIsOpen(false)}
-              />
-            </div>
+            <LeetCodeDashboard
+              username={username}
+              data={data as LeetCodeData}
+              platform={platform}
+              onClose={() => setIsOpen(false)}
+            />
+          );
+        }
+        break;
+      case 'codechef':
+        if ('currentRating' in data) {
+          return (
+            <CodeChefDashboard
+              username={username}
+              data={data as CodeChefData}
+              platform={platform}
+              onClose={() => setIsOpen(false)}
+            />
+          );
+        }
+        break;
+      case 'geeksforgeeks':
+        if ('codingScore' in data) {
+          return (
+            <GeeksForGeeksDashboard
+              username={username}
+              data={data as GeeksForGeeksData}
+              platform={platform}
+              onClose={() => setIsOpen(false)}
+            />
+          );
+        }
+        break;
+      case 'codeforces':
+        if ('rating' in data) {
+          return (
+            <CodeForcesDashboard
+              username={username}
+              data={data as CodeforcesData}
+              platform={platform}
+              onClose={() => setIsOpen(false)}
+            />
           );
         }
         break;
