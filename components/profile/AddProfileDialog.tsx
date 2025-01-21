@@ -168,10 +168,10 @@ export function AddPlatformDialog({
   return (
     <>
       <div
-        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999]"
         onClick={handleClose}
       />
-      <div className="fixed inset-0 flex items-center justify-center z-50 p-4 overflow-auto">
+      <div className="fixed inset-0 flex items-center justify-center z-[9999] p-4 overflow-auto">
         <div className="bg-white rounded-lg shadow-xl w-full max-w-[400px] max-h-[90vh] flex flex-col">
           <div className="p-6 border-b">
             <h2 className="text-2xl font-bold text-primary-600">Add Platform</h2>

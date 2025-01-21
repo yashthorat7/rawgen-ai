@@ -44,7 +44,7 @@ export function PlatformCounter() {
         transition={{ duration: 0.5 }}
         className="px-0.5 sm:px-1 pl-1.5 sm:pl-2 py-0.5 sm:py-1 bg-primary-500 rounded text-[13px] sm:text-[15px] font-medium text-white flex items-center gap-1.5 sm:gap-2"
       >
-        Profile Visits
+        Views
         <span className="bg-white text-primary-700 px-1.5 sm:px-2 py-0.2 rounded-sm font-semibold min-w-[2rem] sm:min-w-[2.5rem] text-center">
           {shouldAnimate ? (
             <CountUp start={0} end={counters?.profileViews || 0} {...countUpProps} />
@@ -92,4 +92,4 @@ export function PlatformCounter() {
       )}
     </div>
   );
-} 
+}

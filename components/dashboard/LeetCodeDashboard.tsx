@@ -53,8 +53,8 @@ export function LeetCodeDashboard({ username, data, platform, onDelete, onClose 
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-lg z-50 max-h-[90vh] overflow-y-auto sm:max-h-[85vh] w-full max-w-[90vw] sm:max-w-[80%] mx-auto mt-[6vh] sm:mt-0">
-      <div className="flex justify-between items-center p-4 sm:p-6 border-b sticky top-0 bg-white z-[1]">
+    <div className="bg-white rounded-lg shadow-lg z-[9999] max-h-[90vh] overflow-y-auto sm:max-h-[85vh] w-full max-w-[90vw] sm:max-w-[80%] mx-auto mt-[6vh] sm:mt-0">
+      <div className="flex justify-between items-center p-4 sm:p-6 border-b sticky top-0 bg-white z-[9999]">
         <div className="flex items-center gap-4">
           <div className="relative flex-shrink-0">
             <Image

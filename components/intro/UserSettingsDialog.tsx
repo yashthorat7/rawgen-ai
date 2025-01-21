@@ -5,7 +5,7 @@ import { useUser } from "@clerk/nextjs";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { ImageSelector } from "./ImageSelector";
-import { CheckCircle2, XCircle, Github, Linkedin, Twitter, Globe } from "lucide-react";
+import { CheckCircle2, XCircle, Github, Linkedin, PenOff, Globe } from "lucide-react";
 import { SocialLinks } from "@/lib/types";
 
 interface UserSettingsDialogProps {
@@ -383,7 +383,7 @@ export function UserSettingsDialog({ isOpen, onClose, defaultFirstName = "", def
                                         />
                                     </div>
                                     <div className="flex items-center gap-3">
-                                        <Twitter className="w-5 h-5 text-gray-500" />
+                                        <PenOff className="w-5 h-5 text-gray-500" />
                                         <input
                                             type="text"
                                             value={socialLinks.twitter || ''}

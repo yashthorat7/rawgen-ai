@@ -188,10 +188,10 @@ export function EditSkillDialog({ isOpen, onClose, category, initialSkills, onUp
   return (
     <>
       <div
-        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999]"
         onClick={handleClose}
       />
-      <div className="fixed inset-0 flex items-center justify-center z-50 p-4 overflow-auto">
+      <div className="fixed inset-0 flex items-center justify-center z-[9999] p-4 overflow-auto">
         <div className="bg-white rounded-lg shadow-xl w-full max-w-[500px] max-h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
           <div className="p-6 border-b flex justify-between items-center">
             <h2 className="text-2xl font-bold text-primary-600">Edit Skills - {categoryName}</h2>

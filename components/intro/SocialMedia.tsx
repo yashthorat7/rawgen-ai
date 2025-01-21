@@ -1,6 +1,6 @@
 "use client";
 
-import { Github, Linkedin, Twitter, Globe, Mail, LucideIcon } from "lucide-react";
+import { Github, Linkedin, PenOff, Globe, Mail, LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface SocialMediaProps {
@@ -25,7 +25,7 @@ interface SocialLink {
 export function SocialMedia({ 
   github, 
   linkedin, 
-  twitter, 
+  twitter,
   website,
   email,
   iconSize = 24,
@@ -63,9 +63,9 @@ export function SocialMedia({
     },
     twitter && {
       url: `https://twitter.com/${twitter}`,
-      icon: Twitter,
+      icon: PenOff,
       label: "Twitter",
-      hoverColor: "hover:text-sky-500"
+      hoverColor: "hover:text-violet-600"
     },
     website && {
       url: website,

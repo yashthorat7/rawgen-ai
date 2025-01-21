@@ -3,7 +3,7 @@
 import { useUser } from "@clerk/nextjs";
 import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
-import { UserSettingsDialog } from "../UserSettingsDialog";
+import { UserSettingsDialog } from "../intro/UserSettingsDialog";
 import { Menu } from "lucide-react";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
@@ -91,7 +91,7 @@ export function Header() {
           </button>
           
           {showDropdown && (
-            <div className="absolute right-4 top-full mt-2 z-[102]">
+            <div className="absolute right-4 top-full mt-2 z-[101]">
               <HeaderMenu />
             </div>
           )}

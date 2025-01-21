@@ -144,7 +144,7 @@ export function TagStrip() {
         {[...tags, ...tags, ...tags].map((tag, index) => (
           <div
             key={index}
-            className="bg-gray-100 text-gray-800 px-3 py-1 rounded-md mx-2 
+            className="bg-gray-100 text-gray-900 px-3 py-1 rounded-md mx-2 
                      shadow-sm font-medium text-sm inline-block select-none"
           >
             {tag.text}

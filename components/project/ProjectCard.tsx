@@ -4,6 +4,8 @@ import { Trash2, PencilIcon } from "lucide-react";
 import { Id } from "@/convex/_generated/dataModel";
 import { useState } from "react";
 import { AddProjectDialog } from "./AddProjectDialog";
+import { UpdateCardIcon } from "../ui/UpdateCardIcon";
+import { InfoProjectCard } from "./InfoProjectCard";
 
 interface ProjectCardProps {
   id: Id<"projects">;
@@ -27,6 +29,7 @@ export function ProjectCard({
   onDelete 
 }: ProjectCardProps) {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [showInfo, setShowInfo] = useState(false);
 
   // Function to truncate description to first sentence
   const truncateDescription = (text: string) => {
@@ -36,10 +39,14 @@ export function ProjectCard({
 
   return (
     <>
-      <div className="group relative bg-white 
-                    w-full overflow-hidden
-                    shadow-[0_4px_8px_rgba(0,0,100,0.08)] transition-all duration-200 ease-in-out 
-                    hover:shadow-[0_8px_12px_rgba(0,0,100,0.1)] hover:scale-[1.01] rounded-lg">
+      <div 
+        className="group relative bg-white 
+                  w-full overflow-hidden
+                  shadow-[0_4px_8px_rgba(0,0,100,0.08)] transition-all duration-200 ease-in-out 
+                  hover:shadow-[0_8px_12px_rgba(0,0,100,0.1)] hover:scale-[1.01] rounded-lg
+                  cursor-pointer"
+        onClick={() => setShowInfo(true)}
+      >
         {image && (
           <div className="aspect-video overflow-hidden p-4 pb-1">
             <img 
@@ -71,29 +78,26 @@ export function ProjectCard({
               </span>
             ))}
           </div>
-
-          <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex gap-2">
-            <button
-              onClick={() => setIsEditDialogOpen(true)}
-              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-            >
-              <PencilIcon className="w-5 h-5 text-gray-600" />
-            </button>
-            {onDelete && (
-              <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  onDelete();
-                }}
-                className="p-2 hover:bg-red-50 rounded-full transition-colors"
-              >
-                <Trash2 className="w-5 h-5 text-red-500" />
-              </button>
-            )}
+          <div className="absolute bottom-4 right-4">
+            <UpdateCardIcon
+              onEdit={() => setIsEditDialogOpen(true)}
+              onDelete={onDelete}
+            />
           </div>
         </div>
       </div>
+
+      {showInfo && (
+        <InfoProjectCard
+          title={title}
+          description={description}
+          projectLink={projectLink}
+          deployLink={deployLink}
+          techStack={techStack}
+          image={image}
+          onClose={() => setShowInfo(false)}
+        />
+      )}
 
       <AddProjectDialog
         isOpen={isEditDialogOpen}

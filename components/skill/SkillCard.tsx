@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { PencilIcon, Trash2Icon } from 'lucide-react';
 import { useState, useMemo } from 'react';
 import { EditSkillDialog } from './EditSkillDialog';
+import { UpdateCardIcon } from '../ui/UpdateCardIcon';
 
 interface SkillCardProps {
   category: string;
@@ -119,7 +120,7 @@ const SkillCard = ({ category, skills = [], onEdit, onDelete, onUpdate }: SkillC
 
   return (
     <>
-      <div className="w-full h-auto sm:h-[225px] flex flex-col border-2 border-transparent rounded-lg">
+      <div className="w-full h-auto sm:h-[225px] flex flex-col border-2 border-transparent rounded-lg group">
         {/* Skills Area */}
         <div className="flex-1 p-2 sm:p-2">
           <div className="w-full h-full flex flex-col items-center justify-center gap-2">
@@ -184,52 +185,18 @@ const SkillCard = ({ category, skills = [], onEdit, onDelete, onUpdate }: SkillC
 
         {/* Category Name */}
         <div 
-          className="flex justify-center items-center relative mb-0 w-full"
-          onMouseEnter={() => setIsHovered(true)}
-          onMouseLeave={() => setIsHovered(false)}
+          className="flex justify-center items-center relative mb-0 w-full px-3 py-1"
         >
-          <motion.div 
-            className="px-3 py-1 text-black text-xl title font-bold flex items-center justify-center relative"
-            initial={false}
-            animate={{
-              width: isHovered ? 'auto' : 'auto',
-              paddingRight: isHovered ? '3.5rem' : '0.75rem'
-            }}
-            transition={{
-              duration: 0.2,
-              ease: 'easeInOut'
-            }}
-          >
+          <div className="text-black text-xl title font-bold">
             {category}
-            <motion.div 
-              className="flex gap-1 absolute -right-0"
-              initial={{ opacity: 0, x: -5 }}
-              animate={{ 
-                opacity: isHovered ? 1 : 0,
-                x: isHovered ? 0 : -5
-              }}
-              transition={{ duration: 0.2 }}
-            >
-              <button 
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setIsEditDialogOpen(true);
-                }}
-                className="p-1 hover:bg-gray-100 rounded-full transition-colors"
-              >
-                <PencilIcon className="w-4 h-4 text-gray-600" />
-              </button>
-              <button 
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onDelete?.();
-                }}
-                className="p-1 hover:bg-red-50 rounded-full transition-colors"
-              >
-                <Trash2Icon className="w-4 h-4 text-red-500" />
-              </button>
-            </motion.div>
-          </motion.div>
+          </div>
+          <div className="absolute right-0 bottom-1">
+            <UpdateCardIcon
+              onEdit={() => setIsEditDialogOpen(true)}
+              onDelete={onDelete}
+              position="bottom-right"
+            />
+          </div>
         </div>
       </div>
 

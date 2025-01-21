@@ -11,6 +11,7 @@ import { CodeforcesStats } from "../platform-stats/CodeforcesStats";
 import { LoadingSkeleton } from "../platform-stats/LoadingSkeleton";
 import { LeetCodeDashboard } from "../dashboard/LeetCodeDashboard";
 import type { LeetCodeData, CodeChefData, GeeksForGeeksData, CodeforcesData } from "@/lib/types";
+import { UpdateCardIcon } from "../ui/UpdateCardIcon";
 
 export function ProfileCard({
   platform,
@@ -182,11 +183,11 @@ export function ProfileCard({
                 username
               )}
             </h3>
-            <div className="pr-6 flex-1">
+            <div className="pr-2 flex-1">
               {renderStats()}
             </div>
-            <div className="absolute bottom-0 right-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-              <DeleteButton onDelete={() => removePlatform(platform, username)} />
+            <div className="absolute bottom-0 right-0">
+              <UpdateCardIcon onDelete={() => removePlatform(platform, username)} />
             </div>
           </div>
         </div>
