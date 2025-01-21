@@ -101,7 +101,7 @@ export function PlatformForm({
     <>
       {isOpen && (
         <>
-          <div className="dialog-backdrop z-40" onClick={onClose} />
+          <div className="dialog-backdrop z-[9999]" onClick={onClose} />
           <div className="dialog-content z-50">
             <div className="bg-white rounded-lg p-6 shadow-xl w-[400px] max-w-[90vw]">
               <h2 className="text-2xl font-bold text-primary-600 mb-4">Add Platform</h2>

@@ -88,6 +88,7 @@
   }
 }
 
+
 @layer base {
   * {
     @apply border-border;
@@ -124,11 +125,11 @@
 }
 
 .dialog-backdrop {
-  @apply fixed inset-0 bg-black/30 backdrop-blur-sm z-[10];
+  @apply fixed inset-0 bg-black/50 backdrop-blur-sm z-[99999];
 }
 
 .dialog-content {
-  @apply fixed inset-0 flex items-center justify-center z-[10];
+  @apply fixed inset-0 flex items-center justify-center z-[99999] p-4 overflow-auto;
 }
 
 @keyframes gradient {

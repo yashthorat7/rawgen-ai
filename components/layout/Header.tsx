@@ -63,7 +63,7 @@ export function Header() {
   return (
     <header className={`sticky transition-transform duration-300 ${
       scrollDirection === "down" ? "-translate-y-full" : "translate-y-0"
-    } top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60`}>
+    } top-0 z-20 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60`}>
       <div className="flex items-center justify-between px-6 py-2 mx-auto w-full lg:w-[90%] relative">
         <div className="flex items-center gap-2">
           <div className="relative w-8 h-8">
@@ -91,7 +91,7 @@ export function Header() {
           </button>
           
           {showDropdown && (
-            <div className="absolute right-4 top-full mt-2 z-[101]">
+            <div className="absolute right-4 top-full mt-2 z-[100]">
               <HeaderMenu />
             </div>
           )}

@@ -230,7 +230,7 @@ export function ProfileCard({
         <>
           <div className="dialog-backdrop" onClick={() => setIsOpen(false)} />
           <div className="dialog-content">
-            <div className="relative w-full max-w-4xl mx-auto">
+            <div className="relative w-full max-w-4xl mx-auto z-[9999]">
               {renderDashboard()}
             </div>
           </div>
