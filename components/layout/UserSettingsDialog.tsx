@@ -6,6 +6,7 @@ import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { ImageSelector } from "./ImageSelector";
 import { CheckCircle2, XCircle, Github, Linkedin, Twitter, Globe } from "lucide-react";
+import { SocialLinks } from "@/lib/types";
 
 interface UserSettingsDialogProps {
     isOpen: boolean;
@@ -26,10 +27,7 @@ export function UserSettingsDialog({ isOpen, onClose, defaultFirstName = "", def
     const [image, setImage] = useState<string | null>(null);
     const [isUploadingMarksheet, setIsUploadingMarksheet] = useState(false);
     const [shouldAutoOpen, setShouldAutoOpen] = useState(false);
-    const [github, setGithub] = useState("");
-    const [linkedin, setLinkedin] = useState("");
-    const [twitter, setTwitter] = useState("");
-    const [website, setWebsite] = useState("");
+    const [socialLinks, setSocialLinks] = useState<SocialLinks>({});
 
     const updateSettings = useMutation(api.users.updateUser);
     const generateMarksheetUrl = useMutation(api.users.generateMarksheetUploadUrl);
@@ -58,10 +56,16 @@ export function UserSettingsDialog({ isOpen, onClose, defaultFirstName = "", def
             setUsername(userInfo.username || "");
             setCgpa(userInfo.cgpa?.toString() || "");
             setIsUsernameValid(!!userInfo.username);
-            setGithub(userInfo.github ?? "");
-            setLinkedin(userInfo.linkedin ?? "");
-            setTwitter(userInfo.twitter ?? "");
-            setWebsite(userInfo.website ?? "");
+            
+            // Parse social links from JSON string
+            if (userInfo.socialLinks) {
+                try {
+                    setSocialLinks(JSON.parse(userInfo.socialLinks));
+                } catch (e) {
+                    console.error('Error parsing social links:', e);
+                    setSocialLinks({});
+                }
+            }
         } else if (userEmail) {
             setUsername(userEmail);
             setFirstName(defaultFirstName);
@@ -158,37 +162,32 @@ export function UserSettingsDialog({ isOpen, onClose, defaultFirstName = "", def
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!userEmail || !isFormValid) return;
+        if (!userEmail || isLoading || !isFormValid) return;
 
         setIsLoading(true);
         try {
-            const newCgpaValue = cgpa ? parseFloat(cgpa) : undefined;
-            const isVerificationReset = userInfo?.cgpa !== newCgpaValue;
-
-            const processField = (value: string) => {
-                const trimmed = value.trim();
-                return trimmed === "" ? undefined : trimmed;
-            };
-
             await updateSettings({
                 email: userEmail,
-                username: username.trim(),
-                firstName: firstName || undefined,
-                lastName: lastName || undefined,
-                cgpa: newCgpaValue,
-                isverified: isVerificationReset ? false : userInfo?.isverified,
-                github: processField(github),
-                linkedin: processField(linkedin),
-                twitter: processField(twitter),
-                website: processField(website),
+                username,
+                firstName,
+                lastName,
+                cgpa: cgpa ? parseFloat(cgpa) : undefined,
+                socialLinks: JSON.stringify(socialLinks), // Stringify social links for storage
             });
-
-            onClose();
+            handleClose();
         } catch (error) {
-            console.error("Error updating settings:", error);
+            console.error('Error updating settings:', error);
         } finally {
             setIsLoading(false);
         }
+    };
+
+    // Add handler for social link updates
+    const handleSocialLinkChange = (platform: keyof SocialLinks, value: string) => {
+        setSocialLinks(prev => ({
+            ...prev,
+            [platform]: value || undefined // Remove empty values
+        }));
     };
 
     // Handle click events for closing
@@ -345,16 +344,16 @@ export function UserSettingsDialog({ isOpen, onClose, defaultFirstName = "", def
                                 )}
                             </div>
 
-                            {/* Social Media Section */}
-                            <div className="mt-6">
-                                <h3 className="text-lg font-medium text-gray-900 mb-4">Social Media</h3>
-                                <div className="space-y-4">
+                            {/* Social Links Section */}
+                            <div>
+                                <h3 className="text-lg font-semibold mb-4">Social Links</h3>
+                                <div className="space-y-3">
                                     <div className="flex items-center gap-3">
                                         <Github className="w-5 h-5 text-gray-500" />
                                         <input
                                             type="text"
-                                            value={github}
-                                            onChange={(e) => setGithub(e.target.value)}
+                                            value={socialLinks.github || ''}
+                                            onChange={(e) => handleSocialLinkChange('github', e.target.value)}
                                             placeholder="GitHub username"
                                             className="flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                                         />
@@ -363,8 +362,8 @@ export function UserSettingsDialog({ isOpen, onClose, defaultFirstName = "", def
                                         <Linkedin className="w-5 h-5 text-gray-500" />
                                         <input
                                             type="text"
-                                            value={linkedin}
-                                            onChange={(e) => setLinkedin(e.target.value)}
+                                            value={socialLinks.linkedin || ''}
+                                            onChange={(e) => handleSocialLinkChange('linkedin', e.target.value)}
                                             placeholder="LinkedIn username"
                                             className="flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                                         />
@@ -373,8 +372,8 @@ export function UserSettingsDialog({ isOpen, onClose, defaultFirstName = "", def
                                         <Twitter className="w-5 h-5 text-gray-500" />
                                         <input
                                             type="text"
-                                            value={twitter}
-                                            onChange={(e) => setTwitter(e.target.value)}
+                                            value={socialLinks.twitter || ''}
+                                            onChange={(e) => handleSocialLinkChange('twitter', e.target.value)}
                                             placeholder="Twitter username"
                                             className="flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                                         />
@@ -383,8 +382,8 @@ export function UserSettingsDialog({ isOpen, onClose, defaultFirstName = "", def
                                         <Globe className="w-5 h-5 text-gray-500" />
                                         <input
                                             type="url"
-                                            value={website}
-                                            onChange={(e) => setWebsite(e.target.value)}
+                                            value={socialLinks.website || ''}
+                                            onChange={(e) => handleSocialLinkChange('website', e.target.value)}
                                             placeholder="Personal website URL"
                                             className="flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                                         />

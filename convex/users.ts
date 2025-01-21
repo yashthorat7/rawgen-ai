@@ -321,10 +321,7 @@ export const updateUser = mutation({
     stars: v.optional(v.number()),
     isverified: v.optional(v.boolean()),
     cgpa: v.optional(v.float64()),
-    github: v.optional(v.string()),
-    linkedin: v.optional(v.string()),
-    twitter: v.optional(v.string()),
-    website: v.optional(v.string()),
+    socialLinks: v.optional(v.string()), // JSON string of social links
   },
   handler: async (ctx, args) => {
     const { email, username, ...updates } = args;
@@ -341,10 +338,7 @@ export const updateUser = mutation({
         stars: undefined,
         isverified: undefined,
         cgpa: undefined,
-        github: undefined,
-        linkedin: undefined,
-        twitter: undefined,
-        website: undefined,
+        socialLinks: undefined,
         ...Object.fromEntries(
           Object.entries(updates).filter(([_, value]) => value !== undefined)
         ),

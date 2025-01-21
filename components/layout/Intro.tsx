@@ -10,6 +10,7 @@ import Image from "next/image";
 import { CheckCircle, Github, Linkedin, Twitter, Globe } from "lucide-react";
 import { motion, Variants } from "framer-motion";
 import { SocialMedia } from "./SocialMedia";
+import { SocialLinks } from "@/lib/types";
 
 const shineAnimation: Variants = {
   initial: { x: "-100%" },
@@ -56,12 +57,17 @@ export function Intro() {
       ? `${userSettings.firstName || defaultName.firstName} ${userSettings.lastName || defaultName.lastName}`.trim()
       : `${defaultName.firstName} ${defaultName.lastName}`.trim();
 
+  // Parse social links from JSON string
+  const socialLinks: SocialLinks | null = userSettings?.socialLinks 
+    ? JSON.parse(userSettings.socialLinks)
+    : null;
+
   return (
     <div className="flex flex-col-reverse sm:flex-row justify-between items-center gap-2 sm:gap-4 mb-2 sm:mb-4 -mt-4 sm:mt-1 px-8">
       <div className="text-center sm:text-left -mt-8 sm:mt-0">
         <h1 className="text-2xl sm:text-4xl font-bold -mb-4 sm:-mb-1">
           {displayName === null ? (
-            <span className="text-2xl sm:text-3xl text-gray-900">Hi, there 👋</span>
+            <span className="text-2xl sm:text-4xl text-gray-900">Hi, there 👋</span>
           ) : (
             <>
               {displayName && <span className="text-xl sm:text-3xl text-gray-400">I'm </span>}
@@ -70,14 +76,17 @@ export function Intro() {
           )}
         </h1>
         <PlatformCounter />
-        {userSettings && (
+        {/* Only render SocialMedia if we have social links or email */}
+        {(socialLinks || user?.primaryEmailAddress?.emailAddress) && (
           <SocialMedia
-            github={userSettings.github}
-            linkedin={userSettings.linkedin}
-            twitter={userSettings.twitter}
-            website={userSettings.website}
+            github={socialLinks?.github}
+            linkedin={socialLinks?.linkedin}
+            twitter={socialLinks?.twitter}
+            website={socialLinks?.website}
+            email={user?.primaryEmailAddress?.emailAddress}
             className="justify-center sm:justify-start mt-2"
             iconSize={18}
+            isLoading={userSettings === undefined}
           />
         )}
       </div>
@@ -86,7 +95,7 @@ export function Intro() {
         className="scale-75 sm:scale-100 cursor-pointer group relative"
         onClick={() => setIsSettingsOpen(true)}
       >
-        <div className="w-40 h-40 sm:w-48 sm:h-48 rounded-full overflow-hidden bg-gray-100 border-2 border-gray-200 transition-all duration-200 group-hover:border-blue-500">
+        <div className="w-40 h-40 sm:w-46 sm:h-46 rounded-full overflow-hidden bg-gray-100 border-2 border-gray-200 transition-all duration-200 group-hover:border-blue-500">
           {profileImage ? (
             <div className="relative w-full h-full">
               <Image

@@ -91,4 +91,16 @@ export type PlatformContextType = {
   addPlatform: (platform: string, username: string) => void;
   removePlatform: (platform: string, username: string) => void;
   reorderPlatforms: (fromIndex: number, toIndex: number) => void;
+};
+
+export type SocialLinks = {
+  github?: string;
+  linkedin?: string;
+  twitter?: string;
+  website?: string;
+  instagram?: string;
+  facebook?: string;
+  youtube?: string;
+  medium?: string;
+  [key: string]: string | undefined; // Allow for future social media platforms
 }; 

@@ -59,26 +59,18 @@ export function CertificateGrid() {
     );
   }
 
-  // Show message if no user is logged in
-  if (!email) {
-    return (
-      <div className="mt-12 text-center text-gray-500">
-        Please log in to view certificates
-      </div>
-    );
-  }
 
   // Show message if no certificates found
   if (certificates.length === 0) {
     return (
-      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4 mt-12">
+      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 mt-12">
         <AddCertificateCard />
       </div>
     );
   }
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4 mt-12">
+    <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 mt-12">
       {certificates.map((certificate: Certificate) => (
         <CertificateCard
           key={certificate.id}
