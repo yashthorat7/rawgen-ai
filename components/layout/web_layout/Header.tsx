@@ -1,12 +1,13 @@
 "use client";
 
-import { SignOutButton, useUser } from "@clerk/nextjs";
+import { useUser } from "@clerk/nextjs";
 import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
 import { UserSettingsDialog } from "../UserSettingsDialog";
-import { LogOut, Menu } from "lucide-react";
+import { Menu } from "lucide-react";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
+import { HeaderMenu } from "./HeaderMenu";
 
 function useScrollDirection() {
   const [scrollDirection, setScrollDirection] = useState("up");
@@ -35,13 +36,12 @@ function useScrollDirection() {
 }
 
 export function Header() {
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [showDropdown, setShowDropdown] = useState(false);
   const { user } = useUser();
-  const scrollDirection = useScrollDirection();
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const scrollDirection = useScrollDirection();
 
-  // Get username from users table
   const userInfo = useQuery(
     api.users.getUser,
     user?.primaryEmailAddress?.emailAddress
@@ -49,19 +49,6 @@ export function Header() {
       : "skip"
   );
 
-  // Close dropdown on scroll
-  useEffect(() => {
-    const handleScroll = () => {
-      if (showDropdown) {
-        setShowDropdown(false);
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [showDropdown]);
-
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -69,14 +56,14 @@ export function Header() {
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   return (
-    <header className={`fixed top-0 left-0 right-0 z-[5] bg-white/60 backdrop-blur-sm border-b border-gray-200 isolate transition-transform duration-300 ${
+    <header className={`sticky transition-transform duration-300 ${
       scrollDirection === "down" ? "-translate-y-full" : "translate-y-0"
-    }`}>
+    } top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60`}>
       <div className="flex items-center justify-between px-6 py-2 mx-auto w-full lg:w-[90%] relative">
         <div className="flex items-center gap-2">
           <div className="relative w-8 h-8">
@@ -104,15 +91,8 @@ export function Header() {
           </button>
           
           {showDropdown && (
-            <div className="absolute right-4 top-full mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-[102]">
-              <div className="px-4 py-2 text-sm text-gray-600 border-b border-gray-100">
-                {user?.primaryEmailAddress?.emailAddress}
-              </div>
-              <SignOutButton>
-                <button className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-50">
-                  Logout
-                </button>
-              </SignOutButton>
+            <div className="absolute right-4 top-full mt-2 z-[102]">
+              <HeaderMenu />
             </div>
           )}
         </div>

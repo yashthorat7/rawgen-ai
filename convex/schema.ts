@@ -7,16 +7,21 @@ export default defineSchema({
         username: v.string(),
         firstName: v.optional(v.string()),
         lastName: v.optional(v.string()),
-        profileViews: v.optional(v.number()),
-        stars: v.optional(v.number()),
         isverified: v.optional(v.boolean()),
         cgpa: v.optional(v.float64()),
         profileImage: v.optional(v.id("_storage")),
         marksheetImage: v.optional(v.id("_storage")),
-        socialLinks: v.optional(v.string()), // JSON string containing social media links
     })
         .index("by_email", ["email"])
         .index("by_username", ["username"]),
+
+    counters: defineTable({
+        userId: v.id("users"),
+        profileViews: v.optional(v.number()),
+        stars: v.optional(v.number()),
+        socialLinks: v.optional(v.string()), // JSON string containing social media links
+    })
+        .index("by_user", ["userId"]),
 
     profiles: defineTable({
         userId: v.id("users"),  // Reference to users table by ID

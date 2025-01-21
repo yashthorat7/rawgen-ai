@@ -23,7 +23,7 @@ export default async function DashboardPage() {
       <div className="min-h-screen flex flex-col">
         <Header />
         <main className="flex-1 dotted-background">
-          <div className="p-4 mt-[57px] mx-auto w-full lg:w-[90%]">
+          <div className="p-4 mt-4 mx-auto w-full lg:w-[90%]">
             <Intro />
             <AiSuggestor />
             <TagStrip />

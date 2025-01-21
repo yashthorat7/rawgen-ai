@@ -317,11 +317,8 @@ export const updateUser = mutation({
     username: v.string(),
     firstName: v.optional(v.string()),
     lastName: v.optional(v.string()),
-    profileViews: v.optional(v.number()),
-    stars: v.optional(v.number()),
     isverified: v.optional(v.boolean()),
     cgpa: v.optional(v.float64()),
-    socialLinks: v.optional(v.string()), // JSON string of social links
   },
   handler: async (ctx, args) => {
     const { email, username, ...updates } = args;
@@ -334,11 +331,8 @@ export const updateUser = mutation({
       const completeUpdate = {
         firstName: undefined,
         lastName: undefined,
-        profileViews: undefined,
-        stars: undefined,
         isverified: undefined,
         cgpa: undefined,
-        socialLinks: undefined,
         ...Object.fromEntries(
           Object.entries(updates).filter(([_, value]) => value !== undefined)
         ),
@@ -346,16 +340,18 @@ export const updateUser = mutation({
       };
 
       await ctx.db.patch(existingUser._id, completeUpdate);
+      return existingUser._id;
     } else {
       const validFields = Object.fromEntries(
         Object.entries(updates).filter(([_, value]) => value !== undefined)
       );
 
-      await ctx.db.insert("users", {
+      const id = await ctx.db.insert("users", {
         email,
         username,
         ...validFields
       });
+      return id;
     }
   },
 });
@@ -402,6 +398,14 @@ export const updateOrder = mutation({
 
 // Add this query for getting marksheet image URL
 export const getMarksheetImageUrl = query({
+  args: { storageId: v.id("_storage") },
+  handler: async (ctx, args) => {
+    return await ctx.storage.getUrl(args.storageId);
+  },
+});
+
+// Add this query if it doesn't exist
+export const getProfileImageUrl = query({
   args: { storageId: v.id("_storage") },
   handler: async (ctx, args) => {
     return await ctx.storage.getUrl(args.storageId);

@@ -11,25 +11,30 @@ export function PlatformCounter() {
   const { user } = useUser();
   const [shouldAnimate, setShouldAnimate] = useState(false);
 
-  const userSettings = useQuery(
+  const userInfo = useQuery(
     api.users.getUser,
     user?.primaryEmailAddress?.emailAddress
       ? { email: user.primaryEmailAddress.emailAddress }
       : "skip"
   );
 
+  const counters = useQuery(
+    api.counters.get,
+    userInfo?._id ? { userId: userInfo._id } : "skip"
+  );
+
   useEffect(() => {
-    if (userSettings !== undefined) {
+    if (counters !== undefined) {
       setShouldAnimate(true);
     }
-  }, [userSettings]);
+  }, [counters]);
 
   const countUpProps = {
     duration: 2,
     separator: ",",
   };
 
-  if (userSettings === undefined) return null;
+  if (!userInfo || counters === undefined) return null;
 
   return (
     <div className="flex flex-wrap gap-2 sm:gap-3 mt-3 sm:mt-2">
@@ -42,9 +47,9 @@ export function PlatformCounter() {
         Profile Visits
         <span className="bg-white text-primary-700 px-1.5 sm:px-2 py-0.2 rounded-sm font-semibold min-w-[2rem] sm:min-w-[2.5rem] text-center">
           {shouldAnimate ? (
-            <CountUp start={0} end={userSettings?.profileViews || 0} {...countUpProps} />
+            <CountUp start={0} end={counters?.profileViews || 0} {...countUpProps} />
           ) : (
-            userSettings?.profileViews || 0
+            counters?.profileViews || 0
           )}
         </span>
       </motion.div>
@@ -52,18 +57,18 @@ export function PlatformCounter() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="px-0.5 sm:px-1 pl-1.5 sm:pl-2 py-0.5 sm:py-1 bg-pink-500 rounded text-[13px] sm:text-[15px] font-medium text-white flex items-center gap-1.5 sm:gap-2"
+        className="px-0.5 sm:px-1 pl-1.5 sm:pl-2 py-0.5 sm:py-1 bg-pink-600 rounded text-[13px] sm:text-[15px] font-medium text-white flex items-center gap-1.5 sm:gap-2"
       >
         Stars ⭐
         <span className="bg-white text-pink-700 px-1.5 sm:px-2 py-0.2 rounded-sm font-semibold min-w-[2rem] sm:min-w-[2.5rem] text-center">
           {shouldAnimate ? (
-            <CountUp start={0} end={userSettings?.stars || 0} {...countUpProps} />
+            <CountUp start={0} end={counters?.stars || 0} {...countUpProps} />
           ) : (
-            userSettings?.stars || 0
+            counters?.stars || 0
           )}
         </span>
       </motion.div>
-      {userSettings?.cgpa && (
+      {userInfo?.cgpa && (
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -75,12 +80,12 @@ export function PlatformCounter() {
             {shouldAnimate ? (
               <CountUp 
                 start={0} 
-                end={userSettings.cgpa} 
+                end={userInfo.cgpa} 
                 decimals={1}
                 duration={2}
               />
             ) : (
-              userSettings.cgpa.toFixed(1)
+              userInfo.cgpa.toFixed(1)
             )}
           </span>
         </motion.div>

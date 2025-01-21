@@ -30,6 +30,7 @@ export function UserSettingsDialog({ isOpen, onClose, defaultFirstName = "", def
     const [socialLinks, setSocialLinks] = useState<SocialLinks>({});
 
     const updateSettings = useMutation(api.users.updateUser);
+    const updateCounters = useMutation(api.counters.update);
     const generateMarksheetUrl = useMutation(api.users.generateMarksheetUploadUrl);
     const saveMarksheet = useMutation(api.users.saveMarksheetImage);
 
@@ -38,6 +39,12 @@ export function UserSettingsDialog({ isOpen, onClose, defaultFirstName = "", def
     const userInfo = useQuery(
         api.users.getUser,
         userEmail ? { email: userEmail } : "skip"
+    );
+
+    // Get counters data
+    const counters = useQuery(
+        api.counters.get,
+        userInfo?._id ? { userId: userInfo._id } : "skip"
     );
 
     // Get marksheet image URL if it exists
@@ -57,10 +64,10 @@ export function UserSettingsDialog({ isOpen, onClose, defaultFirstName = "", def
             setCgpa(userInfo.cgpa?.toString() || "");
             setIsUsernameValid(!!userInfo.username);
             
-            // Parse social links from JSON string
-            if (userInfo.socialLinks) {
+            // Parse social links from counters
+            if (counters?.socialLinks) {
                 try {
-                    setSocialLinks(JSON.parse(userInfo.socialLinks));
+                    setSocialLinks(JSON.parse(counters.socialLinks));
                 } catch (e) {
                     console.error('Error parsing social links:', e);
                     setSocialLinks({});
@@ -72,7 +79,7 @@ export function UserSettingsDialog({ isOpen, onClose, defaultFirstName = "", def
             setLastName(defaultLastName);
             setIsUsernameValid(true);
         }
-    }, [userInfo, userEmail, defaultFirstName, defaultLastName, isOpen]);
+    }, [userInfo, counters, isOpen, defaultFirstName, defaultLastName]);
 
     // Check if we need to auto-open the dialog
     useEffect(() => {
@@ -166,14 +173,21 @@ export function UserSettingsDialog({ isOpen, onClose, defaultFirstName = "", def
 
         setIsLoading(true);
         try {
-            await updateSettings({
+            // First update user info and get the userId
+            const userId = await updateSettings({
                 email: userEmail,
                 username,
                 firstName,
                 lastName,
                 cgpa: cgpa ? parseFloat(cgpa) : undefined,
-                socialLinks: JSON.stringify(socialLinks), // Stringify social links for storage
             });
+
+            // Then update counters with the userId
+            await updateCounters({
+                userId,
+                socialLinks: JSON.stringify(socialLinks),
+            });
+
             handleClose();
         } catch (error) {
             console.error('Error updating settings:', error);

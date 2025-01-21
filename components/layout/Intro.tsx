@@ -4,10 +4,10 @@ import { useUser } from "@clerk/nextjs";
 import { useState } from "react";
 import { PlatformCounter } from "./ProfileCounter";
 import { UserSettingsDialog } from "./UserSettingsDialog";
-import { useQuery } from "convex/react";
+import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import Image from "next/image";
-import { CheckCircle, Github, Linkedin, Twitter, Globe } from "lucide-react";
+import { CheckCircle } from "lucide-react";
 import { motion, Variants } from "framer-motion";
 import { SocialMedia } from "./SocialMedia";
 import { SocialLinks } from "@/lib/types";
@@ -30,19 +30,29 @@ export function Intro() {
   const { user } = useUser();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
-  const profileImage = useQuery(
-    api.users.getUserProfileImage,
-    user?.primaryEmailAddress?.emailAddress
-      ? { email: user.primaryEmailAddress.emailAddress }
-      : "skip"
-  );
-
-  const userSettings = useQuery(
+  const userInfo = useQuery(
     api.users.getUser,
     user?.primaryEmailAddress?.emailAddress
       ? { email: user.primaryEmailAddress.emailAddress }
       : "skip"
   );
+
+  // Get profile image URL if it exists
+  const profileImageUrl = useQuery(
+    api.users.getProfileImageUrl,
+    userInfo?.profileImage ? { storageId: userInfo.profileImage } : "skip"
+  );
+
+  // Get counters data
+  const counters = useQuery(
+    api.counters.get,
+    userInfo?._id ? { userId: userInfo._id } : "skip"
+  );
+
+  // Parse social links from JSON string
+  const socialLinks: SocialLinks | null = counters?.socialLinks 
+    ? JSON.parse(counters.socialLinks)
+    : null;
 
   // Get default name from Clerk user data
   const defaultName = {
@@ -51,16 +61,11 @@ export function Intro() {
   };
 
   // Only show name after database is fetched
-  const displayName = userSettings === undefined
+  const displayName = userInfo === undefined
     ? null  // Loading state
-    : userSettings
-      ? `${userSettings.firstName || defaultName.firstName} ${userSettings.lastName || defaultName.lastName}`.trim()
+    : userInfo
+      ? `${userInfo.firstName || defaultName.firstName} ${userInfo.lastName || defaultName.lastName}`.trim()
       : `${defaultName.firstName} ${defaultName.lastName}`.trim();
-
-  // Parse social links from JSON string
-  const socialLinks: SocialLinks | null = userSettings?.socialLinks 
-    ? JSON.parse(userSettings.socialLinks)
-    : null;
 
   return (
     <div className="flex flex-col-reverse sm:flex-row justify-between items-center gap-2 sm:gap-4 mb-2 sm:mb-4 -mt-4 sm:mt-1 px-8">
@@ -86,7 +91,7 @@ export function Intro() {
             email={user?.primaryEmailAddress?.emailAddress}
             className="justify-center sm:justify-start mt-2"
             iconSize={18}
-            isLoading={userSettings === undefined}
+            isLoading={counters === undefined}
           />
         )}
       </div>
@@ -96,10 +101,10 @@ export function Intro() {
         onClick={() => setIsSettingsOpen(true)}
       >
         <div className="w-40 h-40 sm:w-46 sm:h-46 rounded-full overflow-hidden bg-gray-100 border-2 border-gray-200 transition-all duration-200 group-hover:border-blue-500">
-          {profileImage ? (
+          {userInfo?.profileImage && profileImageUrl ? (
             <div className="relative w-full h-full">
               <Image
-                src={profileImage}
+                src={profileImageUrl}
                 alt="Profile"
                 fill
                 className="object-cover rounded-full"
@@ -133,7 +138,7 @@ export function Intro() {
         </div>
 
         {/* Verification Badge */}
-        {userSettings?.isverified && (
+        {userInfo?.isverified && (
           <div className="absolute -bottom-1 border-[#f8fafc] border-4 -right-1 bg-green-600 rounded-full p-2 overflow-hidden">
             <motion.div
               className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent skew-x-12"
