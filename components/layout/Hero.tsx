@@ -48,7 +48,7 @@ export function Hero() {
             <div className="relative w-8 h-8">
               <Image src="/logo.svg" alt="Logo" fill className="animate-pulse" />
             </div>
-            <span className="text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-primary-600 via-purple-600 to-pink-600 font-raleway">
+            <span className="text-2xl bg-clip-text text-transparent bg-gradient-to-r from-primary-600 via-purple-600 to-pink-600 font-Raleway font-[900]" style={{ fontFamily: 'Raleway' }}>
               CodeX
             </span>
           </div>

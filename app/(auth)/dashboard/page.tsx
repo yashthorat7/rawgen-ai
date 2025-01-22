@@ -20,15 +20,13 @@ export default async function DashboardPage() {
 
   return (
     <PlatformProvider>
-      <div className="min-h-screen flex flex-col relative bg-gradient-to-br from-white via-primary-50 to-white">
-        {/* Background Elements */}
-        <div className="absolute inset-0 z-0 pointer-events-none">
-          <div className="absolute top-40 left-10 w-72 h-72 bg-gradient-to-r from-primary-400/20 to-purple-400/20 rounded-full blur-3xl" />
-          <div className="absolute bottom-40 right-10 w-72 h-72 bg-gradient-to-r from-primary-600/20 to-pink-400/20 rounded-full blur-3xl" />
-        </div>
-
+      <div className="min-h-screen flex flex-col relative">
+        {/* Gradient Background */}
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-purple-100/40 pointer-events-none" />
+        
+        {/* Content */}
         <Header />
-        <main className="flex-1 relative">
+        <main className="flex-1 relative dotted-background">
           <div className="p-4 mt-4 mx-auto w-full lg:w-[90%]">
             <Intro />
             <AiSuggestor />

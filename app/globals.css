@@ -24,11 +24,12 @@
 .dotted-background {
   background-image: radial-gradient(
     circle at 2px 2px,
-    rgb(225, 228, 233) 1px,
+    rgba(225, 228, 233, 0.6) 1px,
     transparent 0
   );
   background-size: 24px 24px;
-  background-color: #f8fafc;
+  /* background-color: #f8fafc; */
+  background-color: transparent;
 }
 
 @layer base {
