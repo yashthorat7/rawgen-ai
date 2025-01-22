@@ -3,19 +3,15 @@ export const validateGeeksForGeeksProfile = async (
   signal?: AbortSignal
 ): Promise<boolean> => {
   try {
-    const corsProxy = 'https://api.allorigins.win/get?url=';
-    const targetUrl = `${process.env.NEXT_PUBLIC_GEEKSFORGEEKS}/${username}`;
-    const proxyUrl = corsProxy + encodeURIComponent(targetUrl);
-
-    const response = await fetch(proxyUrl, { signal });
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_CODEFETCH_API_URL}/geeksforgeeks/${username}`,
+      { signal }
+    );
     
-    const contentType = response.headers.get("content-type");
-    if (!contentType || !contentType.includes("application/json")) {
-      return false;
-    }
+    if (!response.ok) return false;
     
     const data = await response.json();
-    return data.status.http_code === 200;
+    return !data.error;
 
   } catch (error: unknown) {
     if (error instanceof Error && error.name === 'AbortError') {

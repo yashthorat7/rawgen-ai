@@ -129,7 +129,7 @@
 }
 
 .dialog-content {
-  @apply fixed inset-0 flex items-center justify-center z-[99999] p-4 overflow-auto;
+  @apply fixed inset-0 flex items-center justify-center z-[99999] p-4;
 }
 
 @keyframes gradient {

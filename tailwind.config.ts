@@ -68,12 +68,16 @@ export default {
   		},
   		animation: {
   			scroll: 'scroll 30s linear infinite',
+  			'spin-slow': 'spin 3s linear infinite',
   		},
   		keyframes: {
   			scroll: {
   				'0%': { transform: 'translateX(0)' },
   				'100%': { transform: 'translateX(-50%)' },
   			}
+  		},
+  		fontFamily: {
+  			raleway: ['var(--font-raleway)'],
   		},
   	}
   },

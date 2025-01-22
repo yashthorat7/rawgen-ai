@@ -2,10 +2,10 @@ import type { LeetCodeData } from '../types';
 
 export async function extractLeetCodeData(username: string): Promise<LeetCodeData | null> {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_LEETCODE_API}/${username}`);
+    const response = await fetch(`${process.env.NEXT_PUBLIC_CODEFETCH_API_URL}/leetcode/${username}`);
     const data = await response.json();
 
-    if (data.error) {
+    if (!data || data.error) {
       return null;
     }
 

@@ -2,6 +2,7 @@ interface CodeChefResponse {
   success: boolean;
   status: number;
   name?: string;
+  error?: boolean;
 }
 
 export const validateCodeChefProfile = async (
@@ -16,7 +17,7 @@ export const validateCodeChefProfile = async (
 
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_CODECHEF_API_URL}/${username}`,
+        `${process.env.NEXT_PUBLIC_CODEFETCH_API_URL}/codechef/${username}`,
         { signal }
       );
 
@@ -28,7 +29,7 @@ export const validateCodeChefProfile = async (
       }
 
       const data: CodeChefResponse = await response.json();
-      return data.success && data.status === 200;
+      return !data.error;
               
     } catch (error: unknown) {
       if (error instanceof Error && error.name === 'AbortError') {

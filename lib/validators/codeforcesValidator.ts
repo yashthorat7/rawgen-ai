@@ -3,17 +3,15 @@ export const validateCodeforcesProfile = async (
   signal?: AbortSignal
 ): Promise<boolean> => {
   try {
-    const url = `${process.env.NEXT_PUBLIC_CODEFORCES_API_URL}/user.info?handles=${username}`;
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_CODEFETCH_API_URL}/codeforces/${username}`,
+      { signal }
+    );
 
-    const response = await fetch(url, { signal });
-
-    const contentType = response.headers.get("content-type");
-    if (!contentType || !contentType.includes("application/json")) {
-      return false;
-    }
+    if (!response.ok) return false;
 
     const data = await response.json();
-    return data.status === "OK";
+    return !data.error;
   } catch (error: unknown) {
     if (error instanceof Error && error.name === 'AbortError') {
       throw new Error('Validation aborted');

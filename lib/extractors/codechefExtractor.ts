@@ -11,15 +11,14 @@ interface CodeChefContest {
 
 export async function extractCodeChefData(username: string): Promise<CodeChefData | null> {
   try {
-    const url = `${process.env.NEXT_PUBLIC_CODECHEF_API_URL}/${username}`;
-    const response = await fetch(url);
+    const response = await fetch(`${process.env.NEXT_PUBLIC_CODEFETCH_API_URL}/codechef/${username}`);
     const data = await response.json();
 
-    if (!data || !data.success) {
+    if (!data || data.error) {
       return null;
     }
 
-    const extractedData = {
+    return {
       username,
       name: data.name || '',
       currentRating: data.currentRating || 0,
@@ -28,19 +27,12 @@ export async function extractCodeChefData(username: string): Promise<CodeChefDat
       countryRank: data.countryRank || 0,
       countryName: data.countryName || '',
       stars: data.stars || '',
-      contests: data.ratingData?.length || 0,
+      contests: data.contests || 0,
       heatMap: data.heatMap || [],
-      ratingHistory: data.ratingData?.map((contest: CodeChefContest) => ({
-        name: contest.name,
-        rating: contest.rating,
-        rank: contest.rank,
-        date: `${contest.getyear}-${contest.getmonth}-${contest.getday}`
-      })) || []
+      ratingHistory: data.ratingHistory || []
     };
-    
-    return extractedData;
   } catch (error) {
-    console.error('CodeChefExtractor: Error:', error);
+    console.error('CodeChef data extraction error:', error);
     return null;
   }
 } 
