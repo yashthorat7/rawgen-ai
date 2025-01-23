@@ -31,13 +31,6 @@ export function AiSuggestor() {
       const gfgUsers = Object.values(platformData.geeksforgeeks);
       const codeforcesUsers = Object.values(platformData.codeforces);
 
-      // Only proceed if we have data
-      if (leetcodeUsers.length === 0 && codechefUsers.length === 0 &&
-        gfgUsers.length === 0 && codeforcesUsers.length === 0) {
-        setAdvice("Add some coding platforms to get personalized summary!");
-        return;
-      }
-
       const response = await groq.chat.completions.create({
         messages: [
           {

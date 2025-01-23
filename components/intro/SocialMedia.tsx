@@ -89,7 +89,7 @@ export function SocialMedia({
   if (socialLinks.length === 0) return null;
 
   return (
-    <div className={cn("flex items-center mt-0 sm:mt-4 gap-8 animate-in fade-in-50", className)}>
+    <div className={cn("flex items-center mt-0 sm:mt-4 gap-8 sm:gap-12 animate-in fade-in-50", className)}>
       {socialLinks.map(({ url, icon: Icon, label, hoverColor }) => (
         <a
           key={label}

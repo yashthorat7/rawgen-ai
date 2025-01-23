@@ -5,10 +5,13 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Star, Code2, Trophy, Brain, Target, Users, ArrowRight } from "lucide-react";
 import { useState, useEffect } from "react";
+import { useUser } from "@clerk/nextjs";
+import { SignInButton, SignUpButton, UserButton } from "@clerk/nextjs";
 
 export function Hero() {
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
+  const { user, isLoaded } = useUser();
 
   useEffect(() => {
     const controlHeader = () => {
@@ -52,12 +55,39 @@ export function Hero() {
               CodeX
             </span>
           </div>
+
+          {/* Auth Buttons */}
+          <div className="flex items-center gap-4">
+            {!isLoaded ? (
+              // Loading state
+              <div className="h-8 w-8 animate-pulse rounded-full bg-gray-200" />
+            ) : user ? (
+              // Logged in - show user button
+              <UserButton 
+                afterSignOutUrl="/"
+                appearance={{
+                  elements: {
+                    avatarBox: "w-8 h-8"
+                  }
+                }}
+              />
+            ) : (
+              // Not logged in - show sign in/up buttons
+              <div className="flex items-center gap-2">
+                <SignUpButton mode="modal">
+                  <button className="rounded-md bg-primary-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-primary-700">
+                    Sign Up
+                  </button>
+                </SignUpButton>
+              </div>
+            )}
+          </div>
         </div>
       </header>
 
-      <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 pt-24 sm:pt-32 lg:pt-40">
+      <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 pt-18 sm:pt-30 lg:pt-40">
         <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-16">
+          <div className="text-center mb-8">
             <div className="inline-flex items-center px-4 py-1.5 mb-6 rounded-full bg-white/50 backdrop-blur-sm border border-primary-100 shadow-sm hover:shadow-md transition-all hover:scale-105">
               <Star className="w-4 h-4 text-yellow-500 mr-2 animate-spin-slow" fill="currentColor" />
               <span className="text-sm font-medium bg-gradient-to-r from-primary-600 to-purple-600 bg-clip-text text-transparent">
@@ -65,7 +95,7 @@ export function Hero() {
               </span>
             </div>
             
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-6 sm:mb-8 leading-tight">
+            <h1 className="text-5xl sm:text-6xl lg:text-6xl text-gray-900 mb-6 sm:mb-8 leading-tight font-Raleway font-[800]" style={{ fontFamily: 'Raleway' }}>
               Your{" "}
               <span className="relative inline-block">
                 <span className="relative z-10 bg-gradient-to-r from-primary-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
@@ -83,17 +113,17 @@ export function Hero() {
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center mb-16 sm:mb-20">
-              <Link href="/sign-in" className="w-full sm:w-auto">
                 <div className="hover:scale-105 transition-transform">
-                  <Button 
-                    size="lg" 
-                    className="w-full sm:w-[320px] text-base sm:text-lg bg-gradient-to-r from-primary-600 via-purple-600 to-pink-600 hover:from-primary-700 hover:via-purple-700 hover:to-pink-700 shadow-lg hover:shadow-xl transition-all duration-200 group"
-                  >
-                    Student Login
-                    <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-                  </Button>
+                  <SignInButton mode="modal">
+                    <Button 
+                      size="lg" 
+                      className="w-full sm:w-[320px] text-base sm:text-lg bg-gradient-to-r from-primary-600 via-purple-600 to-pink-600 hover:from-primary-700 hover:via-purple-700 hover:to-pink-700 shadow-lg hover:shadow-xl transition-all duration-200 group"
+                    >
+                      Student Login
+                      <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                    </Button>
+                  </SignInButton>
                 </div>
-              </Link>
               <Button 
                 size="lg" 
                 variant="outline" 

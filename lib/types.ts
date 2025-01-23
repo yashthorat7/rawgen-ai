@@ -1,5 +1,38 @@
 export type LeetCodeData = {
+  // Basic Info
   username: string;
+  realName: string;
+  avatar: string;
+  about: string;
+  school?: string;
+  company?: string;
+  jobTitle?: string;
+  countryName: string;
+  websites: string[];
+  skills: string[];
+
+  // Stats
+  ranking: number;
+  starRating: number;
+  reputation: number;
+  contributionPoints: {
+    points: number;
+    diff: number;
+  };
+  solutions: {
+    count: number;
+    diff: number;
+  };
+  discussions: {
+    count: number;
+    diff: number;
+  };
+  views: {
+    count: number;
+    diff: number;
+  };
+
+  // Submission Stats
   totalSolved: number;
   totalQuestions: number;
   easySolved: number;
@@ -8,15 +41,65 @@ export type LeetCodeData = {
   totalEasy: number;
   totalMedium: number;
   totalHard: number;
-  ranking: number;
-  contributionPoint: number;
-  reputation: number;
-  totalSubmissions: Array<{
-    difficulty: string;
-    count: number;
-    submissions: number;
+  totalSubmissions: number;
+  acceptanceRate: string;
+
+  // Calendar & Streak
+  calendar: {
+    activeYears: number[];
+    streak: number;
+    totalActiveDays: number;
+    submissionCalendar: string;
+  };
+
+  // Badges
+  badges: Array<{
+    id: string;
+    name: string;
+    shortName: string;
+    displayName: string;
+    icon: string;
+    hoverText: string;
+    creationDate: string;
+    category: string;
+    gifIcon?: string;
+    gifBackground?: string;
   }>;
-  submissionCalendar: Record<string, number>;
+  activeBadge: any;
+  upcomingBadges: any[];
+
+  // Language Stats
+  languageStats: Array<{
+    name: string;
+    solved: number;
+  }>;
+
+  // Topic Stats
+  topicStats: {
+    advanced: Array<{
+      name: string;
+      slug: string;
+      solved: number;
+    }>;
+    intermediate: Array<{
+      name: string;
+      slug: string;
+      solved: number;
+    }>;
+    fundamental: Array<{
+      name: string;
+      slug: string;
+      solved: number;
+    }>;
+  };
+
+  // Social Links
+  social: {
+    github?: string;
+    linkedin?: string;
+    twitter?: string;
+    websites?: string[];
+  };
 };
 
 export type CodeChefData = {
@@ -97,10 +180,6 @@ export type SocialLinks = {
   github?: string;
   linkedin?: string;
   twitter?: string;
-  website?: string;
-  instagram?: string;
-  facebook?: string;
-  youtube?: string;
-  medium?: string;
-  [key: string]: string | undefined; // Allow for future social media platforms
+  websites?: string[];
+  [key: string]: string | string[] | undefined; // Allow for future social media platforms
 }; 

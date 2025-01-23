@@ -76,7 +76,7 @@ const getRandomColor = () => {
   return colors[Math.floor(Math.random() * colors.length)];
 };
 
-const SkillCard = ({ category, skills = [], onDelete, index, onReorder }: SkillCardProps) => {
+export function SkillCard({ category, skills = [], onDelete, index, onReorder }: SkillCardProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [hoveredPosition, setHoveredPosition] = useState<{ row: number, col: number } | null>(null);
   const [hoverColor, setHoverColor] = useState('');
@@ -248,6 +248,6 @@ const SkillCard = ({ category, skills = [], onDelete, index, onReorder }: SkillC
       />
     </>
   );
-};
+}
 
 export default SkillCard; 

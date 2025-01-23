@@ -107,9 +107,9 @@ export function ProfileCard({
         if ('totalSolved' in data) {
           return (
             <LeetCodeDashboard
-              username={username}
+              // username={username}
               data={data as LeetCodeData}
-              platform={platform}
+              // platform={platform}
               onClose={() => setIsOpen(false)}
             />
           );
@@ -206,7 +206,7 @@ export function ProfileCard({
         <>
           <div className="dialog-backdrop" onClick={() => setIsOpen(false)} />
           <div className="dialog-content">
-            <div className="relative w-full max-w-4xl mx-auto z-[9999]">
+            <div className="absolute top-0 left-0 w-full h-full bg-white z-[9999]">
               {renderDashboard()}
             </div>
           </div>

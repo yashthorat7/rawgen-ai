@@ -147,3 +147,78 @@
   initial-value: 0deg;
   inherits: false;
 }
+
+.react-calendar-heatmap .color-empty { fill: #ebedf0; }
+.react-calendar-heatmap .color-scale-1 { fill: #9be9a8; }
+.react-calendar-heatmap .color-scale-2 { fill: #40c463; }
+.react-calendar-heatmap .color-scale-3 { fill: #30a14e; }
+.react-calendar-heatmap .color-scale-4 { fill: #216e39; }
+
+/* Responsive container */
+@media (min-width: 1024px) {
+  .leetcode-dashboard {
+    width: 90%;
+    margin: 0 auto;
+  }
+}
+
+/* Modern scrollbar */
+.scrollbar-modern::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.scrollbar-modern::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.scrollbar-modern::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.scrollbar-modern::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Responsive container adjustments */
+@media (min-width: 1024px) {
+  .dashboard-container {
+    width: 90%;
+    margin: 0 auto;
+    max-width: 1600px;
+  }
+}
+
+/* Tooltip styles */
+[data-tip] {
+  position: relative;
+}
+
+[data-tip]:hover:after {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 4px 8px;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  font-size: 12px;
+  white-space: nowrap;
+  z-index: 100;
+  border-radius: 4px;
+  margin-bottom: 6px;
+}
+
+[data-tip]:hover:before {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: rgba(0, 0, 0, 0.8);
+  margin-bottom: -6px;
+}
