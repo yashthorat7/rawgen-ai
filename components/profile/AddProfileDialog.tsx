@@ -2,20 +2,22 @@
 
 import { useState, useRef } from "react"
 import { usePlatforms } from "@/lib/PlatformContext"
-import { validateLeetCodeProfile } from "@/lib/validators/leetcodeValidator"
-import { validateGeeksForGeeksProfile } from "@/lib/validators/geeksforgeeksValidator"
-import { validateCodeChefProfile } from "@/lib/validators/codechefValidator"
-import { validateCodeforcesProfile } from "@/lib/validators/codeforcesValidator"
+import { validateProfile } from "@/lib/profileValidator"
 import Select from "react-select";
 
-export const platforms = [
-  { value: 'leetcode', label: 'LeetCode' },
-  { value: 'codechef', label: 'CodeChef' },
-  { value: 'geeksforgeeks', label: 'GeeksForGeeks' },
-  { value: 'codeforces', label: 'Codeforces' }
-];
+type Platform = 'leetcode' | 'codechef' | 'geeksforgeeks' | 'codeforces';
 
-type PlatformOption = typeof platforms[0];
+interface PlatformOption {
+  value: Platform;
+  label: string;
+}
+
+export const platforms: PlatformOption[] = [
+  { value: 'leetcode' as Platform, label: 'LeetCode' },
+  { value: 'codechef' as Platform, label: 'CodeChef' },
+  { value: 'geeksforgeeks' as Platform, label: 'GeeksForGeeks' },
+  { value: 'codeforces' as Platform, label: 'Codeforces' }
+];
 
 interface AddPlatformDialogProps {
   open: boolean;
@@ -70,7 +72,7 @@ export function AddPlatformDialog({
     onOpenChange(false)
   }
 
-  const validateProfile = async () => {
+  const validateUserProfile = async () => {
     if (!selectedPlatform || !username.trim()) return;
 
     if (checkIfUsernameExists(selectedPlatform.value, username)) {
@@ -88,23 +90,7 @@ export function AddPlatformDialog({
     let exists = false;
 
     try {
-      // Validate against platform API
-      switch (selectedPlatform.value) {
-        case 'leetcode':
-          exists = await validateLeetCodeProfile(username);
-          break;
-        case 'codechef':
-          exists = await validateCodeChefProfile(username, signal);
-          break;
-        case 'geeksforgeeks':
-          exists = await validateGeeksForGeeksProfile(username, signal);
-          break;
-        case 'codeforces':
-          exists = await validateCodeforcesProfile(username, signal);
-          break;
-        default:
-          exists = false;
-      }
+      exists = await validateProfile(selectedPlatform.value, username, signal);
 
       if (!signal.aborted) {
         setValidationMessage(
@@ -158,7 +144,7 @@ export function AddPlatformDialog({
     if (e.key === 'Enter') {
       e.preventDefault();
       if (selectedPlatform && username && !isValidating && !isValidated) {
-        validateProfile();
+        validateUserProfile();
       }
     }
   };
@@ -180,7 +166,7 @@ export function AddPlatformDialog({
           <div className="p-6 overflow-y-auto">
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="relative">
-                <label className="block text-sm font-medium mb-1">
+                <label className="block text-sm font-medium mb-1 -mt-2">
                   Platform
                 </label>
                 <div className="relative">
@@ -257,7 +243,7 @@ export function AddPlatformDialog({
               {!isValidated ? (
                 <button
                   type="button"
-                  onClick={validateProfile}
+                  onClick={validateUserProfile}
                   disabled={!selectedPlatform || !username || isValidating}
                   className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
                 >

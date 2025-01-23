@@ -1,23 +1,67 @@
-reset the database and make it work like this
+CodeX - Competitive Programming Portfolio Generator
 
-table-1 users
-    email
-    username
-    profileImage
-    firstName
-    lastName
-    marksheetImage
-    isverified
-    profileViews
-    Stars
+Description:
+CodeX is a modern web application that helps programmers create and showcase their competitive programming portfolios. It aggregates coding profiles from multiple platforms and presents them in a beautiful, unified dashboard.
 
-table-2 profiles
-    username - derived from users table
-    platformName - platform name
-    platformUsername - comes under platformName
-    platformCacheData - json file of the platform data
+Key Features:
+1. Multi-Platform Integration
+   - LeetCode
+   - CodeChef
+   - GeeksForGeeks
+   - Codeforces
 
-table-3 skills
-    username - derived from users table
-    category - category of the skill(unique)
-    skills - array of skills
+2. User Interface
+   - Modern glassmorphic design
+   - Responsive layout
+   - Interactive animations
+   - Light theme with gradient accents
+   - Animated header with scroll behavior
+
+3. Authentication
+   - Clerk-based authentication
+   - Student login
+   - Recruiter login (upcoming feature)
+
+4. Technical Stack:
+   - Frontend: Next.js 15.1.3
+   - Styling: TailwindCSS
+   - Authentication: Clerk
+   - Database: Convex
+   - API Integration: Custom codefetch API
+   - UI Components: Radix UI, Headless UI
+   - Charts: Chart.js
+   - Icons: Lucide React
+
+5. Features:
+   - Real-time profile validation
+   - AI-powered insights
+   - Skill visualization
+   - Project showcase
+   - Certificate management
+   - Performance analytics
+   - Profile statistics
+   - Custom API integration
+
+6. API Structure:
+   Unified API endpoint pattern:
+   ${NEXT_PUBLIC_CODEFETCH_API_URL}/<platform>/<username>
+   Supports all major competitive programming platforms
+
+7. User Experience:
+   - Seamless profile integration
+   - Interactive dashboard
+   - Real-time updates
+   - Mobile-responsive design
+   - Performance optimized
+
+Target Audience:
+- Competitive programmers
+- College students
+- Job seekers
+- Technical recruiters
+
+Future Scope:
+- Recruiter portal
+- Enhanced analytics
+- More platform integrations
+- Advanced AI features

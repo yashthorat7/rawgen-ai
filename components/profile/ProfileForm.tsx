@@ -105,7 +105,7 @@ export function PlatformForm({
           <div className="dialog-content z-50">
             <div className="bg-white rounded-lg p-6 shadow-xl w-[400px] max-w-[90vw]">
               <h2 className="text-2xl font-bold text-primary-600 mb-4">Add Platform</h2>
-              <form onSubmit={handleSubmit} className="space-y-3">
+              <form onSubmit={handleSubmit} className="space-y-2">
                 <div>
                   <label className="block text-sm font-medium mb-1">
                     Platform

@@ -120,9 +120,9 @@ const SkillCard = ({ category, skills = [], onEdit, onDelete, onUpdate }: SkillC
 
   return (
     <>
-      <div className="w-full h-auto sm:h-[225px] flex flex-col border-2 border-transparent rounded-lg group">
+      <div className="w-full min-h-[225px] flex flex-col border-2 border-transparent rounded-lg group">
         {/* Skills Area */}
-        <div className="flex-1 p-2 sm:p-2">
+        <div className="flex-1 p-2">
           <div className="w-full h-full flex flex-col items-center justify-center gap-2">
             {distribution.map((rowCount, rowIndex) => {
               const rowSkills = shuffledSkills.slice(currentIndex, currentIndex + rowCount);
@@ -132,7 +132,7 @@ const SkillCard = ({ category, skills = [], onEdit, onDelete, onUpdate }: SkillC
               return (
                 <motion.div 
                   key={rowIndex} 
-                  className="flex justify-center"
+                  className="flex justify-center flex-wrap gap-2"
                   layout
                 >
                   {rowSkills.map((skill, colIndex) => {
@@ -142,7 +142,7 @@ const SkillCard = ({ category, skills = [], onEdit, onDelete, onUpdate }: SkillC
                     return (
                       <motion.div
                         key={colIndex}
-                        className={`px-3 py-2 bg-white shadow-[0_4px_8px_rgba(0,0,100,0.08)] rounded-md text-base whitespace-nowrap cursor-default mx-1 ${
+                        className={`px-3 py-2 bg-white shadow-[0_4px_8px_rgba(0,0,100,0.08)] rounded-md text-sm sm:text-base break-words max-w-full ${
                           isHovered ? 'z-10' : 'z-0'
                         }`}
                         layout
@@ -184,10 +184,8 @@ const SkillCard = ({ category, skills = [], onEdit, onDelete, onUpdate }: SkillC
         </div>
 
         {/* Category Name */}
-        <div 
-          className="flex justify-center items-center relative mb-0 w-full px-3 py-1"
-        >
-          <div className="text-black text-xl title font-bold">
+        <div className="flex justify-center items-center relative mb-0 w-full px-3 py-1">
+          <div className="text-black text-lg sm:text-xl title font-bold truncate">
             {category}
           </div>
           <div className="absolute right-0 bottom-1">
