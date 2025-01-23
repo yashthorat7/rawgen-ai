@@ -220,16 +220,20 @@ export const remove = mutation({
     projectId: v.id("projects"),
   },
   handler: async (ctx, args) => {
-    // Get the project
+    // Get the project first
     const project = await ctx.db.get(args.projectId);
     if (!project) {
       throw new Error("Project not found");
     }
 
+    // If project has an image, delete it from storage
+    if (project.projectImage) {
+      await ctx.storage.delete(project.projectImage);
+    }
+
     // Delete the project
     await ctx.db.delete(args.projectId);
 
-    // Return success without any circular references
     return { success: true };
   },
 });

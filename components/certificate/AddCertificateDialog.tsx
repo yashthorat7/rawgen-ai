@@ -17,6 +17,7 @@ interface AddCertificateDialogProps {
     category: string;
     description: string;
     image?: string;
+    certificateImage?: Id<"_storage">;
   };
   mode?: 'add' | 'edit';
 }
@@ -69,14 +70,37 @@ export function AddCertificateDialog({
     }
   }, [initialData]);
 
-  const handleClose = () => {
-    setTitle("");
-    setCategory("");
-    setDescription("");
-    setImage(null);
-    setPreviewUrl(null);
+  useEffect(() => {
+    if (!isOpen) {
+      setTitle("");
+      setCategory("");
+      setDescription("");
+      setImage(null);
+      setPreviewUrl(null);
+      setIsDragging(false);
+    }
+  }, [isOpen]);
+
+  const resetForm = () => {
+    if (initialData) {
+      setTitle(initialData.title);
+      setCategory(initialData.category);
+      setDescription(initialData.description);
+      setImage(null);
+      setPreviewUrl(initialData.image || null);
+    } else {
+      setTitle("");
+      setCategory("");
+      setDescription("");
+      setImage(null);
+      setPreviewUrl(null);
+    }
     setIsLoading(false);
     setIsDragging(false);
+  };
+
+  const handleClose = () => {
+    resetForm();
     onClose();
   };
 
@@ -125,55 +149,67 @@ export function AddCertificateDialog({
     }
   };
 
-  const isFormValid = title.trim() && category.trim() && description.trim();
+  const isFormValid = 
+    title.trim() !== "" && 
+    category.trim() !== "" && 
+    description.trim() !== "" && 
+    (image !== null || (initialData && previewUrl)); // Allow existing image in edit mode
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user?.primaryEmailAddress?.emailAddress || !isFormValid) return;
+    const email = user?.emailAddresses[0]?.emailAddress;
+    if (!email) return;
 
     setIsLoading(true);
     try {
-      let certificateImage: Id<"_storage"> | undefined = undefined;
+      let imageId = undefined;
 
       if (image) {
+        // Get upload URL
         const uploadUrl = await generateUploadUrl();
         
-        await fetch(uploadUrl, {
+        // Upload the image
+        const result = await fetch(uploadUrl, {
           method: "POST",
           headers: { "Content-Type": image.type },
           body: image,
         });
+        
+        if (!result.ok) {
+          throw new Error(`Upload failed: ${result.statusText}`);
+        }
 
-        const storageId = uploadUrl.split('/').pop()?.split('?')[0] as Id<"_storage">;
-        if (!storageId) throw new Error("Failed to get storage ID");
+        const { storageId } = await result.json();
+        imageId = storageId;
 
-        const { storageId: savedStorageId } = await saveImage({ storageId });
-        certificateImage = savedStorageId;
+        // Save the image reference
+        await saveImage({
+          storageId: imageId
+        });
       }
 
       if (mode === 'edit' && initialData?.id) {
         await updateCertificate({
           certificateId: initialData.id,
-          email: user.primaryEmailAddress.emailAddress,
+          email,
           title,
           category,
           description,
-          certificateImage,
+          certificateImage: image ? imageId : undefined,
         });
       } else {
         await addCertificate({
-          email: user.primaryEmailAddress.emailAddress,
+          email,
           title,
           category,
           description,
-          certificateImage,
+          certificateImage: imageId,
         });
       }
 
       handleClose();
     } catch (error) {
-      console.error('Error saving certificate:', error);
-    } finally {
+      console.error(`Failed to ${mode} certificate:`, error);
       setIsLoading(false);
     }
   };
@@ -184,59 +220,46 @@ export function AddCertificateDialog({
     <>
       <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9998]" onClick={handleClose} />
       <div className="fixed inset-0 flex items-center justify-center z-[9999] p-4 overflow-auto">
-        <div className="bg-white rounded-lg shadow-xl w-[500px] ">
-          <div className="flex justify-between items-center p-6 border-b">
-            <h2 className="text-2xl font-bold text-gray-900">
-              {mode === 'edit' ? 'Edit' : 'Add'}
+        <div className="bg-white rounded-lg shadow-xl w-[500px]">
+          <div className="p-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+              {mode === 'edit' ? 'Edit Certificate' : 'Add Certificate'}
             </h2>
-            <button 
-              onClick={handleClose}
-              className="rounded-full p-2 hover:bg-gray-100 transition-colors"
-            >
-              <X className="w-5 h-5 text-gray-500" />
-            </button>
-          </div>
-
-          <form id="certificate-form" onSubmit={handleSubmit} className="p-6">
-            <div className="space-y-4">
+            
+            <form id="certificate-form" onSubmit={handleSubmit} className="space-y-4">
               {/* Image Upload */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Certificate Image
-                </label>
-                <div className="flex justify-center">
-                  <div 
-                    className={`relative w-full aspect-video rounded-lg border-2 ${
-                      isDragging 
-                        ? 'border-primary-500 bg-primary-50' 
-                        : 'border-dashed border-gray-300 hover:border-gray-400'
-                    } transition-colors cursor-pointer overflow-hidden`}
-                    onDragOver={handleDragOver}
-                    onDragLeave={handleDragLeave}
-                    onDrop={handleDrop}
-                    onClick={() => document.getElementById('certificate-image')?.click()}
-                  >
-                    {previewUrl ? (
-                      <img 
-                        src={previewUrl} 
-                        alt="Certificate preview" 
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-400">
-                        <Upload className="w-8 h-8 mb-2" />
-                        <p className="text-sm font-medium">Drop image here or click to upload</p>
-                        <p className="text-xs mt-1">Supports JPG, PNG, GIF</p>
-                      </div>
-                    )}
-                    <input
-                      type="file"
-                      id="certificate-image"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={(e) => handleImageChange(e.target.files?.[0] || null)}
+              <div className="flex justify-center">
+                <div 
+                  className={`relative w-full aspect-video rounded-lg border-2 ${
+                    isDragging 
+                      ? 'border-primary-500 bg-primary-50' 
+                      : 'border-dashed border-gray-300 hover:border-gray-400'
+                  } transition-colors cursor-pointer overflow-hidden`}
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                  onClick={() => document.getElementById('certificate-image')?.click()}
+                >
+                  {previewUrl ? (
+                    <img 
+                      src={previewUrl} 
+                      alt="Certificate preview" 
+                      className="w-full h-full object-cover"
                     />
-                  </div>
+                  ) : (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-400">
+                      <Upload className="w-8 h-8 mb-2" />
+                      <p className="text-sm font-medium">Drop image here or click to upload</p>
+                      <p className="text-xs mt-1">Supports JPG, PNG, GIF</p>
+                    </div>
+                  )}
+                  <input
+                    type="file"
+                    id="certificate-image"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => handleImageChange(e.target.files?.[0] || null)}
+                  />
                 </div>
               </div>
 
@@ -293,8 +316,8 @@ export function AddCertificateDialog({
                   placeholder="Enter certificate description"
                 />
               </div>
-            </div>
-          </form>
+            </form>
+          </div>
 
           <div className="p-6 border-t">
             <div className="flex justify-end gap-2">

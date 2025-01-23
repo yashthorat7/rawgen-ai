@@ -40,8 +40,11 @@ export function ProjectGrid() {
   const handleDelete = async (projectId: Id<"projects">) => {
     try {
       await removeProject({ projectId });
+      // Optionally show success message
     } catch (error) {
       console.error("Failed to delete project:", error);
+      // Optionally show error message to user
+      alert("Failed to delete project. Please try again.");
     }
   };
 

@@ -12,6 +12,7 @@ interface CertificateCardProps {
   category: string;
   description: string;
   image?: string | null;
+  certificateImage?: Id<"_storage">;
   isLoading?: boolean;
   onDelete?: (id: Id<"certificates">) => void;
   index: number;
@@ -24,6 +25,7 @@ export function CertificateCard({
   category,
   description,
   image,
+  certificateImage,
   isLoading,
   onDelete,
   index,
@@ -152,7 +154,8 @@ export function CertificateCard({
             title,
             category,
             description,
-            image: image || undefined
+            image: image || undefined,
+            certificateImage,
           }}
           mode="edit"
         />

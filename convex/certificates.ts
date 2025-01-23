@@ -78,30 +78,28 @@ export const add = mutation({
     if (!user) throw new Error("User not found");
 
     // Get current highest order
-    const certificates = await ctx.db
+    const existingCertificates = await ctx.db
       .query("certificates")
       .withIndex("by_user", (q) => q.eq("userId", user._id))
       .collect();
     
-    const order = certificates.length;
+    const order = existingCertificates.length;
 
-    // Insert new certificate with all required fields
+    // Insert new certificate
     const certificateId = await ctx.db.insert("certificates", {
       userId: user._id,
-      order,
       certificateTitle: args.title,
       category: args.category,
       description: args.description,
       certificateImage: args.certificateImage,
+      order,
     });
 
-    // Get image URL if exists
     let imageUrl = null;
     if (args.certificateImage) {
       imageUrl = await ctx.storage.getUrl(args.certificateImage);
     }
 
-    // Return the complete certificate data
     return {
       id: certificateId,
       title: args.title,
@@ -124,6 +122,7 @@ export const update = mutation({
     certificateImage: v.optional(v.id("_storage")),
   },
   handler: async (ctx, args) => {
+    // Get user by email
     const user = await ctx.db
       .query("users")
       .withIndex("by_email", (q) => q.eq("email", args.email))
@@ -131,19 +130,35 @@ export const update = mutation({
 
     if (!user) throw new Error("User not found");
 
+    // Get existing certificate
     const existingCertificate = await ctx.db.get(args.certificateId);
     if (!existingCertificate) throw new Error("Certificate not found");
 
+    // Verify ownership
+    if (existingCertificate.userId !== user._id) {
+      throw new Error("Unauthorized to update this certificate");
+    }
+
+    // If there's a new image and an old one exists, delete the old one
+    if (args.certificateImage && 
+        existingCertificate.certificateImage && 
+        args.certificateImage !== existingCertificate.certificateImage) {
+      await ctx.storage.delete(existingCertificate.certificateImage);
+    }
+
+    // Update certificate
     await ctx.db.patch(args.certificateId, {
       certificateTitle: args.title,
       category: args.category,
       description: args.description,
-      certificateImage: args.certificateImage,
+      certificateImage: args.certificateImage ?? existingCertificate.certificateImage,
     });
 
+    // Get the URL for the image
     let imageUrl = null;
-    if (args.certificateImage) {
-      imageUrl = await ctx.storage.getUrl(args.certificateImage);
+    const imageId = args.certificateImage ?? existingCertificate.certificateImage;
+    if (imageId) {
+      imageUrl = await ctx.storage.getUrl(imageId);
     }
 
     return {
@@ -152,6 +167,7 @@ export const update = mutation({
       category: args.category,
       description: args.description,
       image: imageUrl,
+      certificateImage: imageId,
       order: existingCertificate.order,
     };
   },
