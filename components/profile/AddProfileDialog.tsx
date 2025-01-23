@@ -4,6 +4,8 @@ import { useState, useRef } from "react"
 import { usePlatforms } from "@/lib/PlatformContext"
 import { validateProfile } from "@/lib/profileValidator"
 import Select from "react-select";
+import { api } from "@/convex/_generated/api";
+import { useQuery } from "convex/react";
 
 type Platform = 'leetcode' | 'codechef' | 'geeksforgeeks' | 'codeforces';
 
@@ -44,6 +46,15 @@ export function AddPlatformDialog({
   const [error, setError] = useState<string | null>(null)
   const abortControllerRef = useRef<AbortController | null>(null)
 
+  // Add this to check for existing profiles
+  const existingProfile = useQuery(
+    api.users.checkProfileExists,
+    selectedPlatform && username ? {
+      platformName: selectedPlatform.value,
+      platformUsername: username
+    } : "skip"
+  );
+
   const checkIfUsernameExists = (platform: string, username: string) => {
     return existingPlatforms.some(p =>
       p.platform === platform &&
@@ -77,6 +88,13 @@ export function AddPlatformDialog({
 
     if (checkIfUsernameExists(selectedPlatform.value, username)) {
       setValidationMessage(`${username} is already added for ${selectedPlatform.label}`);
+      setIsValidated(false);
+      return;
+    }
+
+    // Check if profile exists in database
+    if (existingProfile?.exists) {
+      setValidationMessage(`${username} on ${selectedPlatform.label} already in use by ${existingProfile.username}`);
       setIsValidated(false);
       return;
     }

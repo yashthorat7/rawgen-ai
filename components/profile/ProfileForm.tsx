@@ -3,6 +3,8 @@
 import { useState } from "react";
 import Select from "react-select";
 import { usePlatforms } from "@/lib/PlatformContext";
+import { api } from "@/convex/_generated/api";
+import { useQuery } from "convex/react";
 
 export const platforms = [
   { value: 'leetcode', label: 'LeetCode' },
@@ -47,6 +49,14 @@ export function PlatformForm({
   const { platforms: existingPlatforms } = usePlatforms();
   const [error, setError] = useState<string | null>(null);
 
+  const existingProfile = useQuery(
+    api.users.checkProfileExists,
+    selectedPlatform && username ? {
+      platformName: selectedPlatform.value,
+      platformUsername: username
+    } : "skip"
+  );
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -61,6 +71,12 @@ export function PlatformForm({
 
       if (existingInSamePlatform) {
         setError(`Username ${username} already exists for ${selectedPlatform.value}`);
+        return;
+      }
+
+      // Check if profile exists in database
+      if (existingProfile?.exists) {
+        setError(`${username} on ${selectedPlatform.label} already in use by ${existingProfile.username}`);
         return;
       }
 
