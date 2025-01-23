@@ -16,8 +16,8 @@ export default function Page() {
 
       {/* Close Button */}
       <Link
-        href="/"
-        className="fixed top-6 right-6 lg:top-[20%] lg:right-[38%] z-[2] p-2 rounded-full bg-white hover:bg-white/80 shadow-xl transition-all hover:scale-110"
+        href={process.env.NEXT_PUBLIC_URL || 'http://localhost:3000'}
+        className="fixed top-6 right-6 lg:top-[20%] lg:right-[38%] p-2 rounded-full bg-white hover:bg-white/80 shadow-xl transition-all hover:scale-110 z-[20]" 
       >
         <X className="w-6 h-6 text-gray-600" />
       </Link>

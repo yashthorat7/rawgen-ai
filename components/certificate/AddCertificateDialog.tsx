@@ -58,7 +58,7 @@ export function AddCertificateDialog({
   const addCertificate = useMutation(api.certificates.add);
   const updateCertificate = useMutation(api.certificates.update);
   const generateUploadUrl = useMutation(api.certificates.generateUploadUrl);
-  const storeImage = useMutation(api.certificates.storeImage);
+  const saveImage = useMutation(api.certificates.saveImage);
 
   useEffect(() => {
     if (initialData) {
@@ -144,11 +144,11 @@ export function AddCertificateDialog({
           body: image,
         });
 
-        const storageId = uploadUrl.split('/').pop()?.split('?')[0];
+        const storageId = uploadUrl.split('/').pop()?.split('?')[0] as Id<"_storage">;
         if (!storageId) throw new Error("Failed to get storage ID");
 
-        await storeImage({ storageId: storageId as Id<"_storage"> });
-        certificateImage = storageId as Id<"_storage">;
+        const { storageId: savedStorageId } = await saveImage({ storageId });
+        certificateImage = savedStorageId;
       }
 
       if (mode === 'edit' && initialData?.id) {

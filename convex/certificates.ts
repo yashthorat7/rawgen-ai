@@ -1,27 +1,28 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 
+// Image handling mutations
 export const generateUploadUrl = mutation({
   handler: async (ctx) => {
     return await ctx.storage.generateUploadUrl();
   },
 });
 
-export const storeImage = mutation({
+export const saveImage = mutation({
   args: {
     storageId: v.id("_storage"),
   },
   handler: async (ctx, args) => {
-    return { success: true };
+    return { storageId: args.storageId };
   },
 });
 
+// Get certificates query
 export const get = query({
   args: {
     username: v.string(),
   },
   handler: async (ctx, args) => {
-    // Get user by username
     const user = await ctx.db
       .query("users")
       .withIndex("by_username", (q) => q.eq("username", args.username))
@@ -29,13 +30,11 @@ export const get = query({
 
     if (!user) return [];
 
-    // Get all certificates and sort by order
     const certificates = await ctx.db
       .query("certificates")
       .withIndex("by_user", (q) => q.eq("userId", user._id))
       .collect();
 
-    // Get storage URLs and map data
     const certificatesWithUrls = await Promise.all(
       certificates
         .sort((a, b) => a.order - b.order)
@@ -60,6 +59,7 @@ export const get = query({
   },
 });
 
+// Add certificate mutation
 export const add = mutation({
   args: {
     email: v.string(),
@@ -69,6 +69,7 @@ export const add = mutation({
     certificateImage: v.optional(v.id("_storage")),
   },
   handler: async (ctx, args) => {
+    // Get user by email
     const user = await ctx.db
       .query("users")
       .withIndex("by_email", (q) => q.eq("email", args.email))
@@ -84,14 +85,14 @@ export const add = mutation({
     
     const order = certificates.length;
 
-    // Insert new certificate
+    // Insert new certificate with all required fields
     const certificateId = await ctx.db.insert("certificates", {
       userId: user._id,
+      order,
       certificateTitle: args.title,
       category: args.category,
       description: args.description,
       certificateImage: args.certificateImage,
-      order,
     });
 
     // Get image URL if exists
@@ -100,6 +101,7 @@ export const add = mutation({
       imageUrl = await ctx.storage.getUrl(args.certificateImage);
     }
 
+    // Return the complete certificate data
     return {
       id: certificateId,
       title: args.title,
@@ -111,6 +113,7 @@ export const add = mutation({
   },
 });
 
+// Update certificate mutation
 export const update = mutation({
   args: {
     certificateId: v.id("certificates"),
@@ -128,20 +131,16 @@ export const update = mutation({
 
     if (!user) throw new Error("User not found");
 
-    // Get existing certificate to preserve order
     const existingCertificate = await ctx.db.get(args.certificateId);
     if (!existingCertificate) throw new Error("Certificate not found");
 
-    // Update certificate
     await ctx.db.patch(args.certificateId, {
       certificateTitle: args.title,
       category: args.category,
       description: args.description,
       certificateImage: args.certificateImage,
-      order: existingCertificate.order,
     });
 
-    // Get image URL if exists
     let imageUrl = null;
     if (args.certificateImage) {
       imageUrl = await ctx.storage.getUrl(args.certificateImage);
@@ -158,13 +157,27 @@ export const update = mutation({
   },
 });
 
+// Delete certificate mutation
+export const remove = mutation({
+  args: {
+    certificateId: v.id("certificates"),
+  },
+  handler: async (ctx, args) => {
+    await ctx.db.delete(args.certificateId);
+    return { success: true };
+  },
+});
+
+// Reorder certificates mutation
 export const reorder = mutation({
   args: {
     email: v.string(),
-    updates: v.array(v.object({
-      certificateId: v.id("certificates"),
-      order: v.number(),
-    })),
+    updates: v.array(
+      v.object({
+        certificateId: v.id("certificates"),
+        order: v.number(),
+      })
+    ),
   },
   handler: async (ctx, args) => {
     const user = await ctx.db
@@ -174,7 +187,6 @@ export const reorder = mutation({
 
     if (!user) throw new Error("User not found");
 
-    // Update all certificates in parallel
     await Promise.all(
       args.updates.map(update => 
         ctx.db.patch(update.certificateId, { order: update.order })
@@ -184,18 +196,3 @@ export const reorder = mutation({
     return { success: true };
   },
 });
-
-export const remove = mutation({
-  args: {
-    certificateId: v.id("certificates"),
-  },
-  handler: async (ctx, args) => {
-    const certificate = await ctx.db.get(args.certificateId);
-    if (!certificate) {
-      return { success: false, error: "Certificate not found" };
-    }
-
-    await ctx.db.delete(args.certificateId);
-    return { success: true };
-  },
-}); 
