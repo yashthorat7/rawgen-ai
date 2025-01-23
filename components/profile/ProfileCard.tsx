@@ -19,20 +19,15 @@ import { UpdateCardIcon } from "../ui/UpdateCardIcon";
 export function ProfileCard({
   platform,
   username,
-  index,
-  isLoading: initialLoading = false
+  index
 }: {
   platform: string;
   username: string;
   index: number;
-  isLoading?: boolean;
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const { platformData, platforms, removePlatform, reorderPlatforms } = usePlatforms();
-  
-  // More robust loading check
-  const isLoadingData = initialLoading || !platformData[platform as keyof typeof platformData]?.[username];
 
   const handleDragStart = (e: React.DragEvent) => {
     setIsDragging(true);
@@ -75,10 +70,6 @@ export function ProfileCard({
   };
 
   const renderStats = () => {
-    if (isLoadingData) {
-      return <LoadingSkeleton />;
-    }
-
     const data = platformData[platform as keyof typeof platformData]?.[username];
     if (!data) return null;
 
@@ -108,8 +99,6 @@ export function ProfileCard({
   };
 
   const renderDashboard = () => {
-    if (isLoadingData) return null;
-
     const data = platformData[platform as keyof typeof platformData]?.[username];
     if (!data) return null;
 
@@ -174,10 +163,9 @@ export function ProfileCard({
                     w-full min-w-[280px] max-w-full h-[225px] overflow-hidden
                     shadow-[0_4px_8px_rgba(0,0,100,0.08)] transition-all duration-200 ease-in-out 
                     hover:shadow-[0_8px_12px_rgba(0,0,100,0.1)] hover:scale-[1.01] cursor-pointer p-4 rounded-lg
-                    ${isLoadingData ? 'min-w-[320px]' : 'min-w-[280px]'}
                     ${isDragging ? 'opacity-50' : ''}`}
-          onClick={() => !isLoadingData && setIsOpen(true)}
-          draggable={!isLoadingData}
+          onClick={() => setIsOpen(true)}
+          draggable
           onDragStart={handleDragStart}
           onDragEnd={handleDragEnd}
           onDragOver={handleDragOver}
@@ -186,35 +174,23 @@ export function ProfileCard({
         >
           <div className="w-full bg-gray-50 h-full flex flex-col items-center rounded-lg transition-colors hover:bg-white">
             <div className="flex-1 flex items-center justify-center">
-              {isLoadingData ? (
-                <div className="w-32 h-32 bg-gray-200 rounded-lg animate-pulse" />
-              ) : (
-                <Image
-                  src={`/${platform}.png`}
-                  alt={platform}
-                  width={200}
-                  height={200}
-                  className="w-auto h-auto"
-                  draggable={false}
-                />
-              )}
+              <Image
+                src={`/${platform}.png`}
+                alt={platform}
+                width={200}
+                height={200}
+                className="w-auto h-auto"
+                draggable={false}
+              />
             </div>
             <div className="block text-sm text-gray-800 uppercase tracking-wider font-bold mb-2">
-              {isLoadingData ? (
-                <div className="w-20 h-4 bg-gray-200 rounded animate-pulse" />
-              ) : (
-                platform
-              )}
+              {platform}
             </div>
           </div>
 
           <div className="relative flex flex-col h-full rounded-lg">
-            <h3 className="text-xl font-bold text-gray-900 truncate w-full">
-              {isLoadingData ? (
-                <div className="w-32 h-6 bg-gray-200 rounded animate-pulse" />
-              ) : (
-                username
-              )}
+            <h3 className="text-xl font-bold text-gray-900 truncate w-full mb-4">
+              {username}
             </h3>
             <div className="pr-2 flex-1">
               {renderStats()}

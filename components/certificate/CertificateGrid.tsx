@@ -46,19 +46,24 @@ export function CertificateGrid() {
   if (!isLoaded || !userData || certificates === undefined) {
     return (
       <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 mt-12">
-        {[...Array(1)].map((_, i) => (
-          <CertificateCard
-            key={i}
-            title=""
-            category=""
-            description=""
-            isLoading={true}
-          />
+        {[...Array(4)].map((_, i) => (
+          <div key={i} className="bg-white rounded-lg shadow-sm animate-pulse">
+            {/* Image placeholder */}
+            <div className="aspect-video p-4 pb-1">
+              <div className="w-full h-full bg-gray-200 rounded-lg" />
+            </div>
+            
+            {/* Content */}
+            <div className="p-4 pt-0">
+              <div className="h-6 bg-gray-200 rounded w-3/4 mb-3" />
+              <div className="h-5 bg-gray-200 rounded w-1/4 mb-3" />
+              <div className="h-4 bg-gray-200 rounded w-full" />
+            </div>
+          </div>
         ))}
       </div>
     );
   }
-
 
   // Show message if no certificates found
   if (certificates.length === 0) {

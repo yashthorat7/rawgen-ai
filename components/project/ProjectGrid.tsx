@@ -6,6 +6,7 @@ import { useUser } from "@clerk/nextjs";
 import { AddProjectCard } from "./AddProjectCard";
 import { ProjectCard } from "./ProjectCard";
 import { Id } from "@/convex/_generated/dataModel";
+import { ProjectCardSkeleton } from "../platform-stats/LoadingSkeleton";
 
 interface Project {
   id: Id<"projects">;
@@ -47,12 +48,8 @@ export function ProjectGrid() {
   if (!isLoaded || !userData || projects === undefined) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 mt-12">
-        {[...Array(1)].map((_, i) => (
-          <div key={i} className="p-4 border rounded-lg animate-pulse bg-white">
-            <div className="aspect-video bg-gray-200 rounded-lg mb-4"></div>
-            <div className="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
-            <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-          </div>
+        {[...Array(3)].map((_, i) => (
+          <ProjectCardSkeleton key={i} />
         ))}
       </div>
     );
