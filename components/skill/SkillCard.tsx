@@ -8,10 +8,10 @@ import { UpdateCardIcon } from '../ui/UpdateCardIcon';
 
 interface SkillCardProps {
   category: string;
-  skills?: string[];
-  onEdit?: () => void;
+  skills: string[];
   onDelete?: () => void;
-  onUpdate?: () => void;
+  index: number;
+  onReorder?: (fromIndex: number, toIndex: number) => Promise<void>;
 }
 
 const distributeSkills = (skills: string[]) => {
@@ -76,11 +76,12 @@ const getRandomColor = () => {
   return colors[Math.floor(Math.random() * colors.length)];
 };
 
-const SkillCard = ({ category, skills = [], onEdit, onDelete, onUpdate }: SkillCardProps) => {
+const SkillCard = ({ category, skills = [], onDelete, index, onReorder }: SkillCardProps) => {
   const [isHovered, setIsHovered] = useState(false);
   const [hoveredPosition, setHoveredPosition] = useState<{ row: number, col: number } | null>(null);
   const [hoverColor, setHoverColor] = useState('');
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
 
   const shuffledSkills = useMemo(() => 
     [...skills].sort(() => Math.random() - 0.5), 
@@ -118,82 +119,123 @@ const SkillCard = ({ category, skills = [], onEdit, onDelete, onUpdate }: SkillC
 
   let currentIndex = 0;
 
+  // Add drag handlers
+  const handleDragStart = (e: React.DragEvent) => {
+    setIsDragging(true);
+    e.dataTransfer.setData('text/plain', index.toString());
+  };
+
+  const handleDragEnd = () => {
+    setIsDragging(false);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.currentTarget.classList.add('border-2', 'border-primary-500', 'border-dashed');
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.currentTarget.classList.remove('border-2', 'border-primary-500', 'border-dashed');
+  };
+
+  const handleDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    e.currentTarget.classList.remove('border-2', 'border-primary-500', 'border-dashed');
+
+    const fromIndex = parseInt(e.dataTransfer.getData('text/plain'));
+    if (fromIndex === index) return;
+
+    await onReorder?.(fromIndex, index);
+  };
+
   return (
     <>
-      <div className="w-full min-h-[225px] flex flex-col border-2 border-transparent rounded-lg group">
-        {/* Skills Area */}
-        <div className="flex-1 p-2">
-          <div className="w-full h-full flex flex-col items-center justify-center gap-2">
-            {distribution.map((rowCount, rowIndex) => {
-              const rowSkills = shuffledSkills.slice(currentIndex, currentIndex + rowCount);
-              const startIndex = currentIndex;
-              currentIndex += rowCount;
-              
-              return (
-                <motion.div 
-                  key={rowIndex} 
-                  className="flex justify-center flex-wrap gap-2"
-                  layout
-                >
-                  {rowSkills.map((skill, colIndex) => {
-                    const isHovered = hoveredPosition?.row === rowIndex && hoveredPosition?.col === colIndex;
-                    const offset = getOffset(rowIndex, colIndex);
-                    
-                    return (
-                      <motion.div
-                        key={colIndex}
-                        className={`px-3 py-2 bg-white shadow-[0_4px_8px_rgba(0,0,100,0.08)] rounded-md text-sm sm:text-base break-words max-w-full ${
-                          isHovered ? 'z-10' : 'z-0'
-                        }`}
-                        layout
-                        onHoverStart={() => {
-                          setHoveredPosition({ row: rowIndex, col: colIndex });
-                          setHoverColor(getRandomColor());
-                        }}
-                        onHoverEnd={() => {
-                          setHoveredPosition(null);
-                          setHoverColor('');
-                        }}
-                        animate={{
-                          scale: isHovered ? 1.3 : 1,
-                          color: isHovered ? 'white' : 'black',
-                          backgroundColor: isHovered ? hoverColor : 'white',
-                          x: offset.x,
-                          y: offset.y,
-                          zIndex: isHovered ? 10 : 0,
-                        }}
-                        transition={{
-                          type: "spring",
-                          stiffness: 300,
-                          damping: 20,
-                          layout: {
+      <div 
+        className={`group relative bg-transparent 
+                  w-full min-h-[120px] sm:min-h-[225px] overflow-hidden
+                  rounded-lg cursor-pointer select-none ${isDragging ? 'opacity-50' : ''}`}
+        draggable
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+      >
+        <div className="w-full h-full flex flex-col border-2 border-transparent rounded-lg">
+          {/* Skills Area */}
+          <div className="flex-1 p-2">
+            <div className="w-full h-full flex flex-col items-center justify-center gap-2">
+              {distribution.map((rowCount, rowIndex) => {
+                const rowSkills = shuffledSkills.slice(currentIndex, currentIndex + rowCount);
+                const startIndex = currentIndex;
+                currentIndex += rowCount;
+                
+                return (
+                  <motion.div 
+                    key={rowIndex} 
+                    className="flex justify-center flex-wrap gap-2"
+                    layout
+                  >
+                    {rowSkills.map((skill, colIndex) => {
+                      const isHovered = hoveredPosition?.row === rowIndex && hoveredPosition?.col === colIndex;
+                      const offset = getOffset(rowIndex, colIndex);
+                      
+                      return (
+                        <motion.div
+                          key={colIndex}
+                          className={`px-3 py-2 bg-white shadow-[0_4px_8px_rgba(0,0,100,0.08)] rounded-md text-sm sm:text-base break-words max-w-full ${
+                            isHovered ? 'z-10' : 'z-0'
+                          }`}
+                          layout
+                          onHoverStart={() => {
+                            setHoveredPosition({ row: rowIndex, col: colIndex });
+                            setHoverColor(getRandomColor());
+                          }}
+                          onHoverEnd={() => {
+                            setHoveredPosition(null);
+                            setHoverColor('');
+                          }}
+                          animate={{
+                            scale: isHovered ? 1.3 : 1,
+                            color: isHovered ? 'white' : 'black',
+                            backgroundColor: isHovered ? hoverColor : 'white',
+                            x: offset.x,
+                            y: offset.y,
+                            zIndex: isHovered ? 10 : 0,
+                          }}
+                          transition={{
                             type: "spring",
-                            stiffness: 200,
-                            damping: 25
-                          }
-                        }}
-                      >
-                        {skill}
-                      </motion.div>
-                    );
-                  })}
-                </motion.div>
-              );
-            })}
+                            stiffness: 300,
+                            damping: 20,
+                            layout: {
+                              type: "spring",
+                              stiffness: 200,
+                              damping: 25
+                            }
+                          }}
+                        >
+                          {skill}
+                        </motion.div>
+                      );
+                    })}
+                  </motion.div>
+                );
+              })}
+            </div>
           </div>
-        </div>
 
-        {/* Category Name */}
-        <div className="flex justify-center items-center relative mb-0 w-full px-3 py-1">
-          <div className="text-black text-lg sm:text-xl title font-bold truncate">
-            {category}
-          </div>
-          <div className="absolute right-0 bottom-1">
-            <UpdateCardIcon
-              onEdit={() => setIsEditDialogOpen(true)}
-              onDelete={onDelete}
-              position="bottom-right"
-            />
+          {/* Category Name */}
+          <div className="flex justify-center items-center relative mb-0 w-full px-3 py-1">
+            <div className="text-black text-lg sm:text-xl title font-bold truncate">
+              {category}
+            </div>
+            <div className="absolute right-0 bottom-1">
+              <UpdateCardIcon
+                onEdit={() => setIsEditDialogOpen(true)}
+                onDelete={onDelete}
+                position="bottom-right"
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -203,7 +245,6 @@ const SkillCard = ({ category, skills = [], onEdit, onDelete, onUpdate }: SkillC
         onClose={() => setIsEditDialogOpen(false)}
         category={category}
         initialSkills={skills}
-        onUpdate={onUpdate}
       />
     </>
   );

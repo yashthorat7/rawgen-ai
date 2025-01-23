@@ -14,6 +14,7 @@ interface CategorySkills {
 export function SkillGrid() {
   const { user, isLoaded } = useUser();
   const email = user?.primaryEmailAddress?.emailAddress;
+  const reorderSkills = useMutation(api.skills.reorderSkills);
 
   // First get user data from email
   const userData = useQuery(
@@ -68,6 +69,26 @@ export function SkillGrid() {
     );
   }
 
+  const handleReorder = async (fromIndex: number, toIndex: number) => {
+    if (!email || !skills) return;
+
+    // Create updates array with new order
+    const newSkills = [...skills];
+    const [movedItem] = newSkills.splice(fromIndex, 1);
+    newSkills.splice(toIndex, 0, movedItem);
+
+    // Update order in database
+    const updates = newSkills.map((skill, i) => ({
+      category: skill.category,
+      order: i,
+    }));
+
+    await reorderSkills({
+      email,
+      updates,
+    });
+  };
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 mt-8 gap-5">
       {skills.map((categorySkills, index) => (
@@ -75,6 +96,8 @@ export function SkillGrid() {
           key={categorySkills._id || `skill-${categorySkills.category}-${index}`}
           category={categorySkills.category}
           skills={categorySkills.skills}
+          index={index}
+          onReorder={handleReorder}
           onDelete={() => deleteSkillCategory({
             username: userData.username,
             category: categorySkills.category

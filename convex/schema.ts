@@ -37,9 +37,11 @@ export default defineSchema({
         userId: v.id("users"),
         category: v.string(),
         skillsData: v.string(), // JSON string containing skills data
+        order: v.number(),
     })
         .index("by_user", ["userId"])
-        .index("by_user_category", ["userId", "category"]),
+        .index("by_user_category", ["userId", "category"])
+        .index("by_order", ["order"]),
 
     projects: defineTable({
         userId: v.id("users"),

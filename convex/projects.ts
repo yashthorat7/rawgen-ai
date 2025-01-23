@@ -118,27 +118,29 @@ export const get = query({
 
     console.log('Found projects:', projects);
 
-    // Get storage URLs for all projects with images
+    // Sort projects by order before returning
     const projectsWithUrls = await Promise.all(
-      projects.map(async (project) => {
-        let imageUrl;
-        console.log('Project image data:', project.projectImage);
-        if (project.projectImage) {
-          imageUrl = await ctx.storage.getUrl(project.projectImage);
-          console.log('Generated image URL:', imageUrl);
-        }
+      projects
+        .sort((a, b) => a.order - b.order)
+        .map(async (project) => {
+          let imageUrl;
+          console.log('Project image data:', project.projectImage);
+          if (project.projectImage) {
+            imageUrl = await ctx.storage.getUrl(project.projectImage);
+            console.log('Generated image URL:', imageUrl);
+          }
 
-        return {
-          id: project._id,
-          title: project.projectName,
-          description: project.projectDescription,
-          projectLink: project.projectLink,
-          deployLink: project.deployLink,
-          techStack: JSON.parse(project.techStack),
-          image: imageUrl,
-          order: project.order,
-        };
-      })
+          return {
+            id: project._id,
+            title: project.projectName,
+            description: project.projectDescription,
+            projectLink: project.projectLink,
+            deployLink: project.deployLink,
+            techStack: JSON.parse(project.techStack || "[]"),
+            image: imageUrl,
+            order: project.order,
+          };
+        })
     );
 
     console.log('Projects with URLs:', projectsWithUrls);
@@ -228,6 +230,35 @@ export const remove = mutation({
     await ctx.db.delete(args.projectId);
 
     // Return success without any circular references
+    return { success: true };
+  },
+});
+
+export const reorder = mutation({
+  args: {
+    email: v.string(),
+    updates: v.array(v.object({
+      projectId: v.id("projects"),
+      order: v.number(),
+    })),
+  },
+  handler: async (ctx, args) => {
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_email", (q) => q.eq("email", args.email))
+      .first();
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    // Update all projects in a single transaction
+    await Promise.all(
+      args.updates.map(update => 
+        ctx.db.patch(update.projectId, { order: update.order })
+      )
+    );
+
     return { success: true };
   },
 }); 

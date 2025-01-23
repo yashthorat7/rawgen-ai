@@ -41,6 +41,14 @@ export const addSkills = mutation({
       throw new Error("Maximum 16 skills allowed per category");
     }
 
+    // Get current highest order
+    const existingSkills = await ctx.db
+      .query("skills")
+      .withIndex("by_user", (q) => q.eq("userId", user._id))
+      .collect();
+    
+    const order = existingSkills.length;
+
     // Convert array to object format
     const skillsObject = {
       skills: args.skills.reduce((acc, skill) => {
@@ -50,7 +58,6 @@ export const addSkills = mutation({
       updatedAt: Date.now()
     };
 
-    // Store as JSON string
     const skillsData = JSON.stringify(skillsObject);
 
     // Check if category exists
@@ -65,11 +72,19 @@ export const addSkills = mutation({
     console.log('Existing category:', existingCategory);
 
     try {
-      // If no skills provided and category exists, delete it
       if (args.skills.length === 0) {
         if (existingCategory) {
           console.log('Deleting category due to empty skills');
           await ctx.db.delete(existingCategory._id);
+          // Reorder remaining skills
+          const remainingSkills = await ctx.db
+            .query("skills")
+            .withIndex("by_user", (q) => q.eq("userId", user._id))
+            .collect();
+          
+          for (let i = 0; i < remainingSkills.length; i++) {
+            await ctx.db.patch(remainingSkills[i]._id, { order: i });
+          }
           return { success: true, deleted: true };
         }
         return { success: false, reason: "No skills provided" };
@@ -77,32 +92,56 @@ export const addSkills = mutation({
 
       if (existingCategory) {
         console.log('Updating existing category with new skills');
-        // Replace existing skills with new ones
         await ctx.db.patch(existingCategory._id, { skillsData });
-        return { 
-          success: true, 
-          updated: true, 
-          skills: args.skills,
-          category: args.category
-        };
+        return { success: true, updated: true };
       } else {
         console.log('Creating new category with skills');
-        // Create new category with skills
         await ctx.db.insert("skills", {
           userId: user._id,
           category: args.category,
-          skillsData
+          skillsData,
+          order
         });
-        return { 
-          success: true, 
-          created: true, 
-          skills: args.skills,
-          category: args.category
-        };
+        return { success: true, created: true };
       }
     } catch (error) {
       console.error('Error updating skills:', error);
       throw error;
+    }
+  },
+});
+
+// Add new mutation for reordering skills
+export const reorderSkills = mutation({
+  args: {
+    email: v.string(),
+    updates: v.array(v.object({
+      category: v.string(),
+      order: v.number(),
+    })),
+  },
+  handler: async (ctx, args) => {
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_email", (q) => q.eq("email", args.email))
+      .first();
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    for (const update of args.updates) {
+      const skill = await ctx.db
+        .query("skills")
+        .withIndex("by_user_category", (q) => 
+          q.eq("userId", user._id)
+           .eq("category", update.category)
+        )
+        .first();
+
+      if (skill) {
+        await ctx.db.patch(skill._id, { order: update.order });
+      }
     }
   },
 });
@@ -127,18 +166,22 @@ export const getUserSkills = query({
       .withIndex("by_user", (q) => q.eq("userId", user._id))
       .collect();
 
-    return categories.map(category => {
-      if (!category._id) {
-        console.error('Category missing _id:', category);
-      }
-      const skillsData = category.skillsData ? JSON.parse(category.skillsData) : null;
-      
-      return {
-        _id: category._id,
-        category: category.category,
-        skills: skillsData?.skills ? Object.keys(skillsData.skills) : []
-      };
-    });
+    // Sort by order before mapping
+    return categories
+      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+      .map(category => {
+        if (!category._id) {
+          console.error('Category missing _id:', category);
+        }
+        const skillsData = category.skillsData ? JSON.parse(category.skillsData) : null;
+        
+        return {
+          _id: category._id,
+          category: category.category,
+          skills: skillsData?.skills ? Object.keys(skillsData.skills) : [],
+          order: category.order
+        };
+      });
   },
 });
 

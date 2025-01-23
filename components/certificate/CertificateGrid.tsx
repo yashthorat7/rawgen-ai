@@ -33,6 +33,7 @@ export function CertificateGrid() {
   );
 
   const removeCertificate = useMutation(api.certificates.remove);
+  const reorderCertificates = useMutation(api.certificates.reorder);
 
   const handleDelete = async (certificateId: Id<"certificates">) => {
     try {
@@ -40,6 +41,26 @@ export function CertificateGrid() {
     } catch (error) {
       console.error("Failed to delete certificate:", error);
     }
+  };
+
+  const handleReorder = async (fromIndex: number, toIndex: number) => {
+    if (!email || !certificates) return;
+
+    // Create updates array with new order
+    const newCertificates = [...certificates];
+    const [movedItem] = newCertificates.splice(fromIndex, 1);
+    newCertificates.splice(toIndex, 0, movedItem);
+
+    // Update order in database
+    const updates = newCertificates.map((cert, i) => ({
+      certificateId: cert.id,
+      order: i,
+    }));
+
+    await reorderCertificates({
+      email,
+      updates,
+    });
   };
 
   // Show loading state while user data is loading
@@ -76,7 +97,7 @@ export function CertificateGrid() {
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 mt-12">
-      {certificates.map((certificate: Certificate) => (
+      {certificates.map((certificate: Certificate, index) => (
         <CertificateCard
           key={certificate.id}
           id={certificate.id}
@@ -84,6 +105,8 @@ export function CertificateGrid() {
           category={certificate.category}
           description={certificate.description}
           image={certificate.image}
+          index={index}
+          onReorder={handleReorder}
           onDelete={handleDelete}
         />
       ))}

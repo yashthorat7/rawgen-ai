@@ -16,6 +16,8 @@ interface ProjectCardProps {
   techStack: string[];
   image?: string;
   onDelete?: () => void;
+  index: number;
+  onReorder?: (fromIndex: number, toIndex: number) => Promise<void>;
 }
 
 export function ProjectCard({ 
@@ -26,10 +28,13 @@ export function ProjectCard({
   deployLink,
   techStack,
   image,
-  onDelete 
+  onDelete,
+  index,
+  onReorder
 }: ProjectCardProps) {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
 
   // Function to truncate description to first sentence
   const truncateDescription = (text: string) => {
@@ -37,15 +42,49 @@ export function ProjectCard({
     return sentence + (text.length > sentence.length ? '...' : '');
   };
 
+  const handleDragStart = (e: React.DragEvent) => {
+    setIsDragging(true);
+    e.dataTransfer.setData('text/plain', index.toString());
+  };
+
+  const handleDragEnd = () => {
+    setIsDragging(false);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.currentTarget.classList.add('border-2', 'border-primary-500', 'border-dashed');
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.currentTarget.classList.remove('border-2', 'border-primary-500', 'border-dashed');
+  };
+
+  const handleDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    e.currentTarget.classList.remove('border-2', 'border-primary-500', 'border-dashed');
+
+    const fromIndex = parseInt(e.dataTransfer.getData('text/plain'));
+    if (fromIndex === index) return;
+
+    await onReorder?.(fromIndex, index);
+  };
+
   return (
     <>
       <div 
-        className="group relative bg-white 
-                  w-full overflow-hidden
+        className={`group relative bg-white 
+                  w-full overflow-hidden select-none
                   shadow-[0_4px_8px_rgba(0,0,100,0.08)] transition-all duration-200 ease-in-out 
                   hover:shadow-[0_8px_12px_rgba(0,0,100,0.1)] hover:scale-[1.01] rounded-lg
-                  cursor-pointer"
+                  cursor-pointer ${isDragging ? 'opacity-50' : ''}`}
         onClick={() => setShowInfo(true)}
+        draggable
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
       >
         {image && (
           <div className="aspect-video overflow-hidden p-4 pb-1">

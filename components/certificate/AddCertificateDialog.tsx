@@ -1,84 +1,98 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useUser } from "@clerk/nextjs";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { X, Upload } from "lucide-react";
+import { Id } from "@/convex/_generated/dataModel";
 import Select from "react-select";
-
-const CATEGORIES = [
-  { value: "Internships", label: "Internships" },
-  { value: "Competitions", label: "Competitions" },
-  { value: "Courses", label: "Courses" }
-] as const;
-
-type CategoryOption = typeof CATEGORIES[number];
 
 interface AddCertificateDialogProps {
   isOpen: boolean;
   onClose: () => void;
+  initialData?: {
+    id?: Id<"certificates">;
+    title: string;
+    category: string;
+    description: string;
+    image?: string;
+  };
+  mode?: 'add' | 'edit';
 }
 
-export function AddCertificateDialog({ isOpen, onClose }: AddCertificateDialogProps) {
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+const CERTIFICATE_CATEGORIES = [
+  "Internship",
+  "Competition",
+  "Course",
+] as const;
+
+// Add this type for categories
+type CategoryOption = {
+  value: string;
+  label: string;
+};
+
+const categoryOptions: CategoryOption[] = [
+  { value: "Internship", label: "Internship" },
+  { value: "Competition", label: "Competition" },
+  { value: "Course", label: "Course" },
+];
+
+export function AddCertificateDialog({ 
+  isOpen, 
+  onClose, 
+  initialData,
+  mode = 'add' 
+}: AddCertificateDialogProps) {
   const { user } = useUser();
-  const [title, setTitle] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<CategoryOption | null>(null);
-  const [description, setDescription] = useState("");
+  const [title, setTitle] = useState(initialData?.title || "");
+  const [category, setCategory] = useState(initialData?.category || "");
+  const [description, setDescription] = useState(initialData?.description || "");
   const [image, setImage] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(initialData?.image || null);
   const [isLoading, setIsLoading] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
-  const [imageError, setImageError] = useState<string | null>(null);
 
   const addCertificate = useMutation(api.certificates.add);
+  const updateCertificate = useMutation(api.certificates.update);
   const generateUploadUrl = useMutation(api.certificates.generateUploadUrl);
-  const saveImage = useMutation(api.certificates.saveImage);
+  const storeImage = useMutation(api.certificates.storeImage);
 
-  const resetForm = () => {
+  useEffect(() => {
+    if (initialData) {
+      setTitle(initialData.title);
+      setCategory(initialData.category);
+      setDescription(initialData.description);
+      setPreviewUrl(initialData.image || null);
+    }
+  }, [initialData]);
+
+  const handleClose = () => {
     setTitle("");
-    setSelectedCategory(null);
+    setCategory("");
     setDescription("");
     setImage(null);
     setPreviewUrl(null);
     setIsLoading(false);
     setIsDragging(false);
-    setImageError(null);
-  };
-
-  const handleClose = () => {
-    resetForm();
     onClose();
   };
 
-  const validateImageDimensions = (file: File): Promise<boolean> => {
-    return new Promise((resolve) => {
-      const img = new Image();
-      img.onload = () => {
-        const aspectRatio = img.width / img.height;
-        const isValid = Math.abs(aspectRatio - 16/9) < 0.1; // Allow small deviation
-        if (!isValid) {
-          setImageError("Image must have a 16:9 aspect ratio");
-        } else {
-          setImageError(null);
-        }
-        resolve(isValid);
-      };
-      img.src = URL.createObjectURL(file);
-    });
-  };
-
-  const handleImageChange = async (file: File | null) => {
+  const handleImageChange = (file: File | null) => {
     if (file) {
-      const isValidDimensions = await validateImageDimensions(file);
-      if (isValidDimensions) {
-        setImage(file);
-        const url = URL.createObjectURL(file);
-        setPreviewUrl(url);
-      } else {
-        setImage(null);
-        setPreviewUrl(null);
+      if (file.size > MAX_FILE_SIZE) {
+        alert("File size must be less than 10MB");
+        return;
       }
+      if (!file.type.startsWith('image/')) {
+        alert("File must be an image");
+        return;
+      }
+      setImage(file);
+      const url = URL.createObjectURL(file);
+      setPreviewUrl(url);
     }
   };
 
@@ -95,63 +109,70 @@ export function AddCertificateDialog({ isOpen, onClose }: AddCertificateDialogPr
   const handleDrop = async (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
-    const file = e.dataTransfer.files[0];
-    if (file && file.type.startsWith('image/')) {
-      await handleImageChange(file);
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      if (file.size > MAX_FILE_SIZE) {
+        alert("File size must be less than 10MB");
+        return;
+      }
+      if (!file.type.startsWith('image/')) {
+        alert("File must be an image");
+        return;
+      }
+      setImage(file);
+      const url = URL.createObjectURL(file);
+      setPreviewUrl(url);
     }
   };
 
-  const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const value = e.target.value;
-    if (value.length <= 100) {
-      setDescription(value);
-    }
-  };
+  const isFormValid = title.trim() && category.trim() && description.trim();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isFormValid || !user?.emailAddresses[0]?.emailAddress) return;
+    if (!user?.primaryEmailAddress?.emailAddress || !isFormValid) return;
 
     setIsLoading(true);
     try {
-      let imageId = undefined;
+      let certificateImage: Id<"_storage"> | undefined = undefined;
 
       if (image) {
-        // Get upload URL
         const uploadUrl = await generateUploadUrl();
         
-        // Upload the image
-        const result = await fetch(uploadUrl, {
+        await fetch(uploadUrl, {
           method: "POST",
           headers: { "Content-Type": image.type },
           body: image,
         });
-        
-        if (!result.ok) {
-          throw new Error(`Upload failed: ${result.statusText}`);
-        }
 
-        const { storageId } = await result.json();
-        imageId = storageId;
+        const storageId = uploadUrl.split('/').pop()?.split('?')[0];
+        if (!storageId) throw new Error("Failed to get storage ID");
 
-        // Save the image reference
-        await saveImage({
-          storageId: imageId
+        await storeImage({ storageId: storageId as Id<"_storage"> });
+        certificateImage = storageId as Id<"_storage">;
+      }
+
+      if (mode === 'edit' && initialData?.id) {
+        await updateCertificate({
+          certificateId: initialData.id,
+          email: user.primaryEmailAddress.emailAddress,
+          title,
+          category,
+          description,
+          certificateImage,
+        });
+      } else {
+        await addCertificate({
+          email: user.primaryEmailAddress.emailAddress,
+          title,
+          category,
+          description,
+          certificateImage,
         });
       }
 
-      // Create the certificate
-      await addCertificate({
-        email: user.emailAddresses[0].emailAddress,
-        title: title.trim(),
-        category: selectedCategory.value,
-        description: description.trim(),
-        certificateImage: imageId,
-      });
-
       handleClose();
     } catch (error) {
-      console.error("Failed to add certificate:", error);
+      console.error('Error saving certificate:', error);
     } finally {
       setIsLoading(false);
     }
@@ -159,137 +180,118 @@ export function AddCertificateDialog({ isOpen, onClose }: AddCertificateDialogPr
 
   if (!isOpen) return null;
 
-  const isFormValid = title.trim() !== "" && 
-                     selectedCategory !== null && 
-                     description.trim() !== "";
-
-  const selectStyles = {
-    control: (base: any, state: { isFocused: boolean }) => ({
-      ...base,
-      backgroundColor: 'white',
-      borderColor: state.isFocused ? '#6366f1' : '#d1d5db',
-      borderWidth: '1px',
-      borderRadius: '0.375rem',
-      boxShadow: 'none',
-      '&:hover': {
-        borderColor: state.isFocused ? '#6366f1' : '#d1d5db'
-      }
-    }),
-    menuPortal: (base: any) => ({
-      ...base,
-      zIndex: 9999
-    })
-  };
-
   return (
     <>
-      <div
-        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
-        onClick={handleClose}
-      />
-      <div className="fixed inset-0 flex items-center justify-center z-50 p-4 overflow-auto">
-        <div className="bg-white rounded-lg shadow-xl w-full max-w-[500px] max-h-[90vh] flex flex-col">
-          <div className="p-6 border-b">
-            <h2 className="text-2xl font-bold text-primary-600">Add New Certificate</h2>
+      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9998]" onClick={handleClose} />
+      <div className="fixed inset-0 flex items-center justify-center z-[9999] p-4 overflow-auto">
+        <div className="bg-white rounded-lg shadow-xl w-[500px] ">
+          <div className="flex justify-between items-center p-6 border-b">
+            <h2 className="text-2xl font-bold text-gray-900">
+              {mode === 'edit' ? 'Edit' : 'Add'}
+            </h2>
+            <button 
+              onClick={handleClose}
+              className="rounded-full p-2 hover:bg-gray-100 transition-colors"
+            >
+              <X className="w-5 h-5 text-gray-500" />
+            </button>
           </div>
 
-          <form onSubmit={handleSubmit} className="flex-1 overflow-auto p-6">
-            <div className="space-y-6">
+          <form id="certificate-form" onSubmit={handleSubmit} className="p-6">
+            <div className="space-y-4">
               {/* Image Upload */}
               <div>
-                <div
-                  className={`relative border-2 border-dashed rounded-lg transition-colors
-                            ${isDragging ? 'border-primary-500 bg-primary-50' : 'border-gray-300 hover:border-gray-400'}
-                            ${image ? 'aspect-video' : 'h-[200px]'}`}
-                  onDragOver={handleDragOver}
-                  onDragLeave={handleDragLeave}
-                  onDrop={handleDrop}
-                >
-                  {image ? (
-                    <>
-                      <img
-                        src={previewUrl || ''}
-                        alt="Preview"
-                        className="w-full h-full object-contain rounded"
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Certificate Image
+                </label>
+                <div className="flex justify-center">
+                  <div 
+                    className={`relative w-full aspect-video rounded-lg border-2 ${
+                      isDragging 
+                        ? 'border-primary-500 bg-primary-50' 
+                        : 'border-dashed border-gray-300 hover:border-gray-400'
+                    } transition-colors cursor-pointer overflow-hidden`}
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
+                    onClick={() => document.getElementById('certificate-image')?.click()}
+                  >
+                    {previewUrl ? (
+                      <img 
+                        src={previewUrl} 
+                        alt="Certificate preview" 
+                        className="w-full h-full object-cover"
                       />
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setImage(null);
-                          setPreviewUrl(null);
-                          setImageError(null);
-                        }}
-                        className="absolute top-2 right-2 p-1 bg-red-100 rounded-full text-red-600 hover:bg-red-200"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
-                    </>
-                  ) : (
-                    <div className="h-full flex flex-col items-center justify-center text-gray-500">
-                      <Upload className="w-8 h-8 mb-2" />
-                      <p className="text-sm">Drag and drop an image, or click to select</p>
-                      <p className="text-xs text-gray-400 mt-1">Image must be in 16:9 ratio</p>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => handleImageChange(e.target.files?.[0] || null)}
-                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                      />
-                    </div>
-                  )}
+                    ) : (
+                      <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-400">
+                        <Upload className="w-8 h-8 mb-2" />
+                        <p className="text-sm font-medium">Drop image here or click to upload</p>
+                        <p className="text-xs mt-1">Supports JPG, PNG, GIF</p>
+                      </div>
+                    )}
+                    <input
+                      type="file"
+                      id="certificate-image"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => handleImageChange(e.target.files?.[0] || null)}
+                    />
+                  </div>
                 </div>
-                {imageError && (
-                  <p className="mt-1 text-sm text-red-500">{imageError}</p>
-                )}
               </div>
 
-              {/* Title */}
+              {/* Title Input */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Certificate Title
+                <label htmlFor="title" className="block text-sm font-medium text-gray-700">
+                  Title
                 </label>
                 <input
                   type="text"
+                  id="title"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
                   placeholder="Enter certificate title"
                 />
               </div>
 
-              {/* Category */}
+              {/* Category Dropdown */}
               <div>
-                <label className="block text-sm font-medium mb-1">
+                <label htmlFor="category" className="block text-sm font-medium text-gray-700">
                   Category
                 </label>
                 <Select
-                  value={selectedCategory}
-                  onChange={(option) => setSelectedCategory(option as CategoryOption)}
-                  options={CATEGORIES}
+                  id="category"
+                  value={categoryOptions.find(opt => opt.value === category)}
+                  onChange={(newValue) => setCategory(newValue?.value || "")}
+                  options={categoryOptions}
+                  className="mt-1"
                   placeholder="Select a category"
-                  menuPortalTarget={document.body}
-                  styles={selectStyles}
+                  isClearable
+                  classNames={{
+                    control: (state) => 
+                      `border rounded-md ${
+                        state.isFocused 
+                          ? 'border-primary-500 ring-1 ring-primary-500' 
+                          : 'border-gray-300'
+                      }`,
+                  }}
                 />
               </div>
 
-              {/* Description */}
+              {/* Description Input */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="description" className="block text-sm font-medium text-gray-700">
                   Description
                 </label>
-                <div className="relative">
-                  <textarea
-                    value={description}
-                    onChange={handleDescriptionChange}
-                    rows={3}
-                    maxLength={500}
-                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                    placeholder="Enter certificate description"
-                  />
-                  <div className="absolute bottom-2 right-2 text-xs text-gray-400">
-                    {description.length}/500
-                  </div>
-                </div>
+                <textarea
+                  id="description"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  rows={3}
+                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+                  placeholder="Enter certificate description"
+                />
               </div>
             </div>
           </form>
@@ -297,23 +299,24 @@ export function AddCertificateDialog({ isOpen, onClose }: AddCertificateDialogPr
           <div className="p-6 border-t">
             <div className="flex justify-end gap-2">
               <button
-                type="button"
                 onClick={handleClose}
                 className="px-4 py-2 border rounded-md hover:bg-gray-50"
               >
                 Cancel
               </button>
               <button
-                type="button"
-                onClick={handleSubmit}
-                disabled={!isFormValid || isLoading}
+                form="certificate-form"
+                type="submit"
+                disabled={isLoading || !isFormValid}
                 className={`px-4 py-2 rounded-md text-white ${
                   isLoading || !isFormValid
                     ? 'bg-primary-400 cursor-not-allowed'
                     : 'bg-primary-600 hover:bg-primary-700'
                 }`}
               >
-                {isLoading ? 'Adding...' : 'Add'}
+                {isLoading 
+                  ? (mode === 'edit' ? 'Updating...' : 'Adding...') 
+                  : (mode === 'edit' ? 'Update' : 'Add')}
               </button>
             </div>
           </div>

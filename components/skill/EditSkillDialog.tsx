@@ -4,7 +4,7 @@ import { useState, KeyboardEvent, useEffect } from "react"
 import { useUser } from "@clerk/nextjs"
 import { useMutation, useQuery } from "convex/react"
 import { api } from "@/convex/_generated/api"
-import { X, Plus, Trash2 } from "lucide-react"
+import { X, Plus } from "lucide-react"
 
 interface EditSkillDialogProps {
   isOpen: boolean;
@@ -193,15 +193,8 @@ export function EditSkillDialog({ isOpen, onClose, category, initialSkills, onUp
       />
       <div className="fixed inset-0 flex items-center justify-center z-[9999] p-4 overflow-auto">
         <div className="bg-white rounded-lg shadow-xl w-full max-w-[500px] max-h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
-          <div className="p-6 border-b flex justify-between items-center">
+          <div className="p-6 border-b">
             <h2 className="text-2xl font-bold text-primary-600">Edit Skills - {categoryName}</h2>
-            <button
-              onClick={handleDelete}
-              className="p-2 hover:bg-red-50 rounded-full transition-colors"
-              disabled={isDisabled}
-            >
-              <Trash2 className="w-5 h-5 text-red-500" />
-            </button>
           </div>
 
           <div className="p-6 pt-4 overflow-y-auto">
