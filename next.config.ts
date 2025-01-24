@@ -7,6 +7,14 @@ const config: NextConfig = {
         protocol: 'https',
         hostname: 'woozy-malamute-880.convex.cloud',
       },
+      {
+        protocol: 'https',
+        hostname: 'assets.leetcode.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'leetcode.com',
+      },
     ],
   },
   eslint: {
