@@ -7,7 +7,7 @@ interface SocialMediaProps {
   github?: string;
   linkedin?: string;
   twitter?: string;
-  website?: string;
+  website?: string | string[];
   email?: string;
   iconSize?: number;
   className?: string;
