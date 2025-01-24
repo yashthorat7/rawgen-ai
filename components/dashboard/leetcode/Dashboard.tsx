@@ -10,14 +10,27 @@ import { Skills } from "./Skills";
 import { ContestRank } from "./ContestRank";
 import { Badges } from "./Badges";
 import { SolvedQuestionList } from "./SolvedQuestionList";
-import { X } from "lucide-react";
+import { X, Loader2 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface LeetCodeDashboardProps {
   data: LeetCodeData;
   onClose?: () => void;
+  isLoading?: boolean;
 }
 
-export function LeetCodeDashboard({ data, onClose }: LeetCodeDashboardProps) {
+export function LeetCodeDashboard({ data, onClose, isLoading }: LeetCodeDashboardProps) {
+  if (isLoading) {
+    return (
+      <div className="fixed inset-0 bg-gradient-to-br from-white/30 to-white/10 backdrop-blur-xl overflow-hidden flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 className="w-8 h-8 text-primary-600 animate-spin" />
+          <p className="text-gray-600 font-medium">Loading LeetCode profile...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="fixed inset-0 bg-gradient-to-br from-white/30 to-white/10 backdrop-blur-xl overflow-hidden">
       {/* Close button */}
@@ -33,21 +46,21 @@ export function LeetCodeDashboard({ data, onClose }: LeetCodeDashboardProps) {
       {/* Scrollable container */}
       <div className="h-full overflow-y-auto">
         {/* Main content */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-32">
-          <div className="space-y-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-8">
+          <div className="space-y-4">
             {/* Profile Summary - Always show */}
             <div className="transform transition-all duration-200 hover:scale-[1.01]">
               <Summary data={data} />
             </div>
             
             {/* Questions Solved and Stats */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               <div className="h-full">
                 <div className="h-full transform transition-all duration-200 hover:scale-[1.01]">
                   <QuestionsSolved data={data} />
                 </div>
               </div>
-              <div className="grid grid-cols-1 gap-6 h-full">
+              <div className="grid grid-cols-1 gap-4 h-full">
                 <div className="transform transition-all duration-200 hover:scale-[1.01]">
                   <Stats data={data} />
                 </div>
@@ -73,19 +86,28 @@ export function LeetCodeDashboard({ data, onClose }: LeetCodeDashboardProps) {
               </div>
             )}
 
-            {/* Skills */}
-            {data.topicStats && (
-              <div className="transform transition-all duration-200 hover:scale-[1.01]">
-                <Skills data={data} />
-              </div>
-            )}
-            
-            {/* Badges */}
-            {data.badges && data.badges.length > 0 && (
-              <div className="transform transition-all duration-200 hover:scale-[1.01]">
-                <Badges data={data} />
-              </div>
-            )}
+            {/* Skills and Badges side by side */}
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+              {/* Badges - 60% width */}
+              {data.badges && data.badges.length > 0 ? (
+                <div className="lg:col-span-3 transform transition-all duration-200 hover:scale-[1.01]">
+                  <Badges data={data} />
+                </div>
+              ) : null}
+              
+              {/* Skills - 40% width or full width if no badges */}
+              {data.topicStats && (
+                <div className={cn(
+                  "transform transition-all duration-200 hover:scale-[1.01]",
+                  data.badges && data.badges.length > 0 ? "lg:col-span-2" : "lg:col-span-5"
+                )}>
+                  <Skills 
+                    data={data} 
+                    hasBadges={Boolean(data.badges && data.badges.length > 0)} 
+                  />
+                </div>
+              )}
+            </div>
 
             {/* Recent Questions */}
             {data.recentlySolved && data.recentlySolved.length > 0 && (

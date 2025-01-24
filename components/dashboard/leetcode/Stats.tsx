@@ -12,6 +12,8 @@ interface StatItemProps {
   label: string;
   count: number;
   weeklyCount?: number;
+  color: string;
+  bgColor: string;
 }
 
 export function Stats({ data }: StatsProps) {
@@ -25,35 +27,43 @@ export function Stats({ data }: StatsProps) {
           label="Profile Views"
           count={data.views.count}
           weeklyCount={data.views.diff}
+          color="text-purple-500"
+          bgColor="bg-purple-50"
         />
         <StatItem
           icon={Code2}
           label="Solution Views"
           count={data.solutions.count}
           weeklyCount={data.solutions.diff}
+          color="text-blue-500"
+          bgColor="bg-blue-50"
         />
         <StatItem
           icon={MessageSquare}
           label="Discussion Posts"
           count={data.discussions.count}
           weeklyCount={data.discussions.diff}
+          color="text-indigo-500"
+          bgColor="bg-indigo-50"
         />
         <StatItem
           icon={Star}
           label="Reputation Score"
           count={data.reputation}
           weeklyCount={data.contributionPoints?.diff}
+          color="text-amber-500"
+          bgColor="bg-amber-50"
         />
       </div>
     </div>
   );
 }
 
-function StatItem({ icon: Icon, label, count, weeklyCount }: StatItemProps) {
+function StatItem({ icon: Icon, label, count, weeklyCount, color, bgColor }: StatItemProps) {
   return (
-    <div className="group flex items-start gap-3 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-all duration-200">
-      <div className="p-2 rounded-lg bg-white shadow-sm group-hover:shadow transition-shadow">
-        <Icon className="w-5 h-5 text-primary-500" />
+    <div className="group flex items-start gap-3 p-3 rounded-lg bg-gray-50/50 hover:bg-gray-50 transition-all duration-200">
+      <div className={`p-2.5 rounded-xl ${bgColor} shadow-sm group-hover:shadow-md transition-all duration-200`}>
+        <Icon className={`w-6 h-6 ${color}`} />
       </div>
       <div className="flex-1">
         <p className="text-sm font-medium text-gray-600 mb-1">{label}</p>

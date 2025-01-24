@@ -1,7 +1,7 @@
 "use client";
 
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
-import { Send } from 'lucide-react';
+import { Send, CheckCircle2, Code2, Sigma } from 'lucide-react';
 import 'react-circular-progressbar/dist/styles.css';
 import type { LeetCodeData } from "@/lib/types";
 
@@ -35,7 +35,7 @@ export function QuestionsSolved({ data }: QuestionsSolvedProps) {
 
       <div className="flex-1 flex flex-col">
         {/* Circles Container */}
-        <div className="flex-1 grid grid-cols-2 gap-x-8 gap-y-6 place-items-center max-h-[400px]">
+        <div className="flex-1 grid grid-cols-2 gap-x-4 gap-y-6 place-items-center max-h-[400px]">
           <ProgressCircle
             title="Easy"
             value={data.easySolved}
@@ -64,7 +64,7 @@ export function QuestionsSolved({ data }: QuestionsSolvedProps) {
             title="Total"
             value={data.totalSolved}
             total={data.totalQuestions}
-            color="#10B981"
+            color="#3b82f6"
             submissions={data.totalSubmissions}
             acceptanceRate={totalAcceptance}
           />
@@ -75,7 +75,9 @@ export function QuestionsSolved({ data }: QuestionsSolvedProps) {
           {/* Total Stats */}
           <div className="flex items-center justify-center gap-12">
             <div className="flex items-center gap-3">
-              <Send className="w-5 h-5 text-primary-500" />
+              <div className="p-2 rounded-lg bg-blue-50">
+                <Code2 className="w-5 h-5 text-blue-500" />
+              </div>
               <div className="flex flex-col">
                 <span className="text-2xl font-bold text-gray-800">
                   {data.totalSubmissions.toLocaleString()}
@@ -83,11 +85,16 @@ export function QuestionsSolved({ data }: QuestionsSolvedProps) {
                 <span className="text-sm text-gray-500">Total Submissions</span>
               </div>
             </div>
-            <div className="flex flex-col text-center">
-              <span className="text-2xl font-bold text-gray-800">
-                {data.totalSolved.toLocaleString()}
-              </span>
-              <span className="text-sm text-gray-500">Questions Solved</span>
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-green-50">
+                <CheckCircle2 className="w-5 h-5 text-green-500" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-2xl font-bold text-gray-800">
+                  {data.totalSolved.toLocaleString()}
+                </span>
+                <span className="text-sm text-gray-500">Questions Solved</span>
+              </div>
             </div>
           </div>
 

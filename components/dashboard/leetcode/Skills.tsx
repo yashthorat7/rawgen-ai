@@ -1,10 +1,12 @@
 "use client";
 
 import type { LeetCodeData } from "@/lib/types";
-import { Brain } from 'lucide-react';
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { cn } from "@/lib/utils";
 
 interface SkillsProps {
   data: LeetCodeData;
+  hasBadges?: boolean;
 }
 
 interface TagSection {
@@ -14,46 +16,67 @@ interface TagSection {
     slug: string;
     solved: number;
   }>;
+  color: string;
 }
 
-export function Skills({ data }: SkillsProps) {
+export function Skills({ data, hasBadges }: SkillsProps) {
   const sections: TagSection[] = [
-    { title: 'Advanced', tags: data.topicStats.advanced },
-    { title: 'Intermediate', tags: data.topicStats.intermediate },
-    { title: 'Fundamental', tags: data.topicStats.fundamental }
+    { 
+      title: 'Advanced', 
+      tags: data.topicStats.advanced,
+      color: 'bg-indigo-600 hover:bg-indigo-700'
+    },
+    { 
+      title: 'Intermediate', 
+      tags: data.topicStats.intermediate,
+      color: 'bg-blue-600 hover:bg-blue-700'
+    },
+    { 
+      title: 'Fundamental', 
+      tags: data.topicStats.fundamental,
+      color: 'bg-sky-600 hover:bg-sky-700'
+    }
   ];
 
   return (
-    <div className="bg-white p-6 rounded-xl shadow-sm">
-      <div className="flex items-center gap-2 mb-4">
-        <Brain className="w-5 h-5 text-gray-500" />
-        <h3 className="text-lg font-semibold">Skills</h3>
-      </div>
-      <div className="space-y-8">
-        {sections.map((section) => (
-          <div key={section.title}>
-            <h4 className="text-sm font-medium text-gray-700 mb-3">{section.title}</h4>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {section.tags
-                .sort((a, b) => b.solved - a.solved)
-                .map((tag) => (
-                  <div key={tag.slug} className="space-y-1 p-3 bg-gray-50 rounded-lg">
-                    <div className="flex justify-between text-sm">
-                      <span className="font-medium">{tag.name}</span>
-                      <span className="text-gray-500">{tag.solved}</span>
+    <div className="bg-white p-6 rounded-xl shadow-sm h-[490px] hover:shadow-md transition-all duration-300 overflow-hidden">
+      <h3 className="text-lg font-semibold mb-4">Skills</h3>
+      <ScrollArea className="h-[calc(100%-2rem)]">
+        <div className="space-y-8 pr-4">
+          {sections.map((section) => {
+            const sortedTags = section.tags.sort((a, b) => b.solved - a.solved);
+            
+            return (
+              <div key={section.title}>
+                <h4 className="text-base font-bold text-gray-700 text-center mb-3">{section.title}</h4>
+                <div className={cn(
+                  "grid gap-2",
+                  hasBadges 
+                    ? "grid-cols-2" // Always 2 columns when badges are present
+                    : "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5" // More columns when full width
+                )}>
+                  {sortedTags.map((tag) => (
+                    <div 
+                      key={tag.slug}
+                      className={cn(
+                        "flex items-center gap-2 p-2.5 rounded-lg transition-colors duration-200",
+                        section.color
+                      )}
+                    >
+                      <span className="text-sm font-medium text-white flex-1 truncate">
+                        {tag.name}
+                      </span>
+                      <span className="text-xs font-medium px-2 py-1 rounded-md bg-white/20 text-white">
+                        ×{tag.solved}
+                      </span>
                     </div>
-                    <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-primary-500 rounded-full"
-                        style={{ width: `${Math.max((tag.solved / 100) * 100, 2)}%` }}
-                      />
-                    </div>
-                  </div>
-                ))}
-            </div>
-          </div>
-        ))}
-      </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </ScrollArea>
     </div>
   );
 }

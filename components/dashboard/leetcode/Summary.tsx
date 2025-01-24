@@ -9,6 +9,8 @@ interface SummaryProps {
 }
 
 export function Summary({ data }: SummaryProps) {
+  const leetcodeProfileUrl = `https://leetcode.com/${data.username}`;
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-4">
       {/* Profile Info */}
@@ -16,13 +18,19 @@ export function Summary({ data }: SummaryProps) {
         <div className="flex items-start gap-4">
           {/* Avatar Section */}
           <div className="relative flex-shrink-0">
-            <div className="relative w-32 h-32 rounded-lg overflow-hidden border-4 border-primary-100">
+            <a 
+              href={leetcodeProfileUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block relative w-32 h-32 rounded-2xl overflow-hidden border-4 border-primary-100 shadow-lg hover:shadow-xl transition-all duration-300 group"
+            >
               <img 
                 src={data.avatar} 
                 alt={data.username}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
               />
-            </div>
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
+            </a>
             <div className="absolute -bottom-3 -right-3 bg-yellow-500 text-white px-3 py-1.5 rounded-lg flex items-center gap-1.5 shadow-lg">
               <Star className="w-5 h-5 fill-current" />
               <span className="text-lg font-bold">{data.starRating}</span>
@@ -32,8 +40,18 @@ export function Summary({ data }: SummaryProps) {
           {/* Info Section */}
           <div className="flex-1 min-w-0">
             {/* Name and Location */}
-            <div className="flex flex-wrap items-center gap-3 mb-2">
-              <h2 className="text-2xl font-bold">{data.realName || data.username}</h2>
+            <div className="flex flex-wrap items-start gap-3 mb-1">
+              <div className="flex flex-col">
+                <a 
+                  href={leetcodeProfileUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-2xl font-bold hover:text-primary-600 transition-colors"
+                >
+                  {data.realName || data.username}
+                </a>
+                <span className="text-sm text-gray-500">@{data.username}</span>
+              </div>
               {data.countryName && (
                 <span className="inline-flex items-center rounded-md bg-gray-100 px-2.5 py-0.5 text-sm font-medium">
                   <MapPin className="w-4 h-4 mr-1" />
@@ -75,16 +93,15 @@ export function Summary({ data }: SummaryProps) {
             )}
 
             {/* Social Links */}
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap gap-6">
               {data.social.github && (
                 <a
                   href={data.social.github}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 text-gray-600 hover:text-gray-900"
+                  className="text-gray-600 hover:text-gray-900 transition-colors"
                 >
-                  <Github className="w-5 h-5" />
-                  <span className="text-sm">GitHub</span>
+                  <Github className="w-6 h-6" />
                 </a>
               )}
               {data.social.linkedin && (
@@ -92,10 +109,9 @@ export function Summary({ data }: SummaryProps) {
                   href={data.social.linkedin}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 text-gray-600 hover:text-gray-900"
+                  className="text-gray-600 hover:text-[#0077b5] transition-colors"
                 >
-                  <Linkedin className="w-5 h-5" />
-                  <span className="text-sm">LinkedIn</span>
+                  <Linkedin className="w-6 h-6" />
                 </a>
               )}
               {data.social.twitter && (
@@ -103,10 +119,9 @@ export function Summary({ data }: SummaryProps) {
                   href={data.social.twitter}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 text-gray-600 hover:text-gray-900"
+                  className="text-gray-600 hover:text-[#1DA1F2] transition-colors"
                 >
-                  <Twitter className="w-5 h-5" />
-                  <span className="text-sm">Twitter</span>
+                  <Twitter className="w-6 h-6" />
                 </a>
               )}
               {data.websites?.map((website, index) => (
@@ -115,10 +130,9 @@ export function Summary({ data }: SummaryProps) {
                   href={website}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 text-gray-600 hover:text-gray-900"
+                  className="text-gray-600 hover:text-primary-600 transition-colors"
                 >
-                  <Globe className="w-5 h-5" />
-                  <span className="text-sm">Website</span>
+                  <Globe className="w-6 h-6" />
                 </a>
               ))}
             </div>

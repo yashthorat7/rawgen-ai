@@ -1,8 +1,7 @@
 "use client";
 
-import { CheckCircle2, Clock } from 'lucide-react';
+import { Clock, ArrowUpRight } from 'lucide-react';
 import type { LeetCodeData } from "@/lib/types";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 
 interface SolvedQuestionListProps {
@@ -22,19 +21,13 @@ interface QuestionItemProps {
 
 export function SolvedQuestionList({ data }: SolvedQuestionListProps) {
   return (
-    <div className="bg-white p-6 rounded-xl shadow-sm">
-      <div className="flex items-center gap-2 mb-6">
-        <CheckCircle2 className="w-5 h-5 text-gray-500" />
-        <h3 className="text-lg font-semibold">Recently Solved</h3>
+    <div className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-all duration-300">
+      <h3 className="text-lg font-semibold mb-4">Recently Solved</h3>
+      <div className="divide-y divide-gray-100">
+        {data.recentlySolved.map((question, index) => (
+          <QuestionItem key={question.id} question={question} />
+        ))}
       </div>
-
-      <ScrollArea className="h-[400px] pr-4">
-        <div className="space-y-3">
-          {data.recentlySolved.map((question, index) => (
-            <QuestionItem key={question.id} question={question} />
-          ))}
-        </div>
-      </ScrollArea>
     </div>
   );
 }
@@ -59,26 +52,26 @@ function QuestionItem({ question }: QuestionItemProps) {
   };
 
   return (
-    <a
-      href={question.url}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="block p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors"
-    >
-      <div className="flex justify-between items-start gap-4">
-        <div>
-          <h4 className="font-medium hover:text-primary-600 transition-colors">
+    <div className="group py-3 first:pt-0 last:pb-0">
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-3 min-w-0 flex-1">
+          <h4 className="font-medium text-gray-900 truncate group-hover:text-primary-600 transition-colors">
             {question.title}
           </h4>
-          <span className={cn("text-sm", difficultyColor)}>
-            {question.difficulty}
-          </span>
+          <a
+            href={question.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-gray-400 hover:text-primary-600 transition-colors flex-shrink-0"
+          >
+            <ArrowUpRight className="w-4 h-4" />
+          </a>
         </div>
-        <div className="flex items-center gap-1 text-sm text-gray-500 whitespace-nowrap">
+        <div className="flex items-center gap-1 text-sm text-gray-500 whitespace-nowrap flex-shrink-0">
           <Clock className="w-4 h-4" />
           {timeAgo(question.timestamp)}
         </div>
       </div>
-    </a>
+    </div>
   );
 }
