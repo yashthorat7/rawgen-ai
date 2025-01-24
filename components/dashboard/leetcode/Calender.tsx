@@ -34,8 +34,8 @@ export function Calendar({ data }: CalendarProps) {
   const endDate = new Date(selectedYear, 11, 31);
 
   return (
-    <div className="bg-white p-6 rounded-xl shadow-sm">
-      <div className="flex justify-between items-center mb-6">
+    <div className="bg-white p-4 rounded-lg shadow-sm">
+      <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-semibold">Submission Activity</h3>
         <select
           value={selectedYear}
@@ -50,8 +50,8 @@ export function Calendar({ data }: CalendarProps) {
         </select>
       </div>
 
-      <div className="-mx-6 overflow-x-auto overflow-y-hidden scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
-        <div className="min-w-[750px] px-6 md:transform-none scale-80 origin-top">
+      <div className="-mx-3 mr-2 sm:mr-0 overflow-x-auto overflow-y-hidden scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+        <div className="min-w-[750px] px-5 md:transform-none scale-80 origin-top">
           <ReactCalendarHeatmap
             startDate={startDate}
             endDate={endDate}
@@ -135,7 +135,7 @@ export function Calendar({ data }: CalendarProps) {
           background-color: white !important;
           border-radius: 1rem !important;
           padding: 1rem 1.25rem !important;
-          font-size: 0.875rem !important;
+          font-size: 1.3rem !important;
           line-height: 1.5 !important;
           color: #1f2937 !important;
           box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;

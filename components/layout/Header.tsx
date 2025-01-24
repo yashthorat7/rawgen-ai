@@ -85,7 +85,9 @@ export function Header() {
             `}
           >
             <span className="hidden sm:block text-sm font-medium">
-              {userInfo?.username || 'Loading...'}
+              {userInfo?.username || (
+                <div className="w-20 h-4 bg-gray-200 rounded animate-pulse" />
+              )}
             </span>
             <Menu className="w-5 h-5 sm:hidden" />
           </button>

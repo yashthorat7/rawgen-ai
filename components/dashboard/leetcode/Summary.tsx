@@ -61,13 +61,15 @@ export function Summary({ data }: SummaryProps) {
             </div>
 
             {/* Rank */}
-            <div className="flex items-center gap-2 mb-3">
-              <Trophy className="w-6 h-6 text-primary-500" />
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-6 h-6 flex items-center justify-center">
+                <Trophy className="w-6 h-6 text-yellow-500 fill-yellow-500 drop-shadow" />
+              </div>
               <span className="text-xl font-bold text-primary-600">Rank #{data.ranking}</span>
             </div>
 
             {/* Work Info */}
-            <div className="flex flex-wrap gap-2 mb-3">
+            <div className="flex flex-wrap gap-2 mb-2">
               {data.jobTitle && (
                 <span className="inline-flex items-center rounded-md border px-2.5 py-0.5 text-sm font-medium">
                   <Building className="w-4 h-4 mr-1" />
@@ -93,7 +95,7 @@ export function Summary({ data }: SummaryProps) {
             )}
 
             {/* Social Links */}
-            <div className="flex flex-wrap gap-6">
+            <div className="flex flex-wrap gap-4">
               {data.social.github && (
                 <a
                   href={data.social.github}

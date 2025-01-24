@@ -18,7 +18,7 @@ export function Languages({ data }: LanguagesProps) {
       <h3 className="text-lg font-semibold mb-2">Languages</h3>
       
       <ScrollArea className="max-h-[270px] sm:h-[270px]"> {/* 4 items * 40px per item */}
-        <div className="space-y-2 pr-4">
+        <div className="space-y-2 pr-2">
           {sortedLanguages.map((language, index) => (
             <div 
               key={language.name}

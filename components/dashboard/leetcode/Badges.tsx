@@ -28,7 +28,7 @@ export function Badges({ data }: BadgesProps) {
 
   return (
     <div className={cn(
-      "bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-all duration-500 overflow-hidden",
+      "bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-all duration-500 overflow-hidden",
       showAll ? "h-auto" : "h-[490px]"
     )}>
       <div className="flex justify-between items-center mb-4">

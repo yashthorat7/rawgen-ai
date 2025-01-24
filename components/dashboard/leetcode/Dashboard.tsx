@@ -23,7 +23,7 @@ export function LeetCodeDashboard({ data, onClose, isLoading }: LeetCodeDashboar
   if (isLoading) {
     return (
       <div className="fixed inset-0 bg-gradient-to-br from-white/30 to-white/10 backdrop-blur-xl overflow-hidden flex items-center justify-center">
-        <div className="flex flex-col items-center gap-3">
+        <div className="flex flex-col items-center gap-4 px-5 text-center">
           <Loader2 className="w-8 h-8 text-primary-600 animate-spin" />
           <p className="text-gray-600 font-medium">Loading LeetCode profile...</p>
         </div>
@@ -37,30 +37,30 @@ export function LeetCodeDashboard({ data, onClose, isLoading }: LeetCodeDashboar
       {onClose && (
         <button
           onClick={onClose}
-          className="fixed top-6 right-6 z-50 p-2 rounded-full bg-white/80 shadow-lg backdrop-blur-sm hover:bg-white/90 transition-all duration-200"
+          className="fixed top-5 sm:top-7 right-5 sm:right-7 z-50 p-3 rounded-full bg-white/80 shadow-lg backdrop-blur-sm hover:bg-red-50 hover:text-red-600 transition-all duration-200 group"
         >
-          <X className="w-5 h-5" />
+          <X className="w-5 h-5 group-hover:scale-110 transition-transform duration-200" />
         </button>
       )}
 
       {/* Scrollable container */}
       <div className="h-full overflow-y-auto">
         {/* Main content */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-8">
-          <div className="space-y-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-7 lg:px-9 py-5 sm:py-7 lg:py-9">
+          <div className="space-y-5">
             {/* Profile Summary - Always show */}
             <div className="transform transition-all duration-200 hover:scale-[1.01]">
               <Summary data={data} />
             </div>
             
             {/* Questions Solved and Stats */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
               <div className="h-full">
                 <div className="h-full transform transition-all duration-200 hover:scale-[1.01]">
                   <QuestionsSolved data={data} />
                 </div>
               </div>
-              <div className="grid grid-cols-1 gap-4 h-full">
+              <div className="grid grid-cols-1 gap-5 h-full">
                 <div className="transform transition-all duration-200 hover:scale-[1.01]">
                   <Stats data={data} />
                 </div>
@@ -74,7 +74,7 @@ export function LeetCodeDashboard({ data, onClose, isLoading }: LeetCodeDashboar
 
             {/* Calendar - Show if submission calendar exists */}
             {data.calendar && (
-              <div className="transform transition-all duration-200 hover:scale-[1.01]">
+              <div className="transform transition-all duration-200 hover:scale-[1.01] mx-0 sm:mx-0">
                 <Calendar data={data} />
               </div>
             )}
@@ -87,7 +87,7 @@ export function LeetCodeDashboard({ data, onClose, isLoading }: LeetCodeDashboar
             )}
 
             {/* Skills and Badges side by side */}
-            <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
               {/* Badges - 60% width */}
               {data.badges && data.badges.length > 0 ? (
                 <div className="lg:col-span-3 transform transition-all duration-200 hover:scale-[1.01]">

@@ -35,15 +35,19 @@ export function SkillGrid() {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 mt-8 gap-5">
         {[...Array(4)].map((_, i) => (
-          <div key={i} className="bg-white rounded-lg shadow-sm animate-pulse min-h-[225px] p-4">
-            {/* Category */}
-            <div className="h-6 bg-gray-200 rounded w-1/3 mb-4" />
+          <div key={i} className="bg-white rounded-lg shadow-sm animate-pulse min-h-[225px] flex flex-col">
+            {/* Skills at the top */}
+            <div className="flex-1 p-4">
+              <div className="flex flex-wrap gap-2 justify-center">
+                {[...Array(6)].map((_, j) => (
+                  <div key={j} className="h-7 bg-gray-200 rounded-md w-16" />
+                ))}
+              </div>
+            </div>
             
-            {/* Skills */}
-            <div className="flex flex-wrap gap-2">
-              {[...Array(6)].map((_, j) => (
-                <div key={j} className="h-8 bg-gray-200 rounded w-20" />
-              ))}
+            {/* Category at the bottom */}
+            <div className="p-3 flex justify-center items-center border-t border-gray-100">
+              <div className="h-6 bg-gray-200 rounded w-32" />
             </div>
           </div>
         ))}
