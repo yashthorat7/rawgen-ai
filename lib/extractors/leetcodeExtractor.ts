@@ -2,10 +2,43 @@ import type { LeetCodeData } from '../types';
 
 export async function extractLeetCodeData(username: string): Promise<LeetCodeData | null> {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_CODEFETCH_API_URL}/leetcode/${username}`);
+    const response = await fetch(`${process.env.NEXT_PUBLIC_CODEFETCH_API_URL}/leetcode/${username}`, {
+      headers: {
+        'Accept': 'application/json'
+      }
+    });
+
+    // Check if response is OK and is JSON
+    if (!response.ok) {
+      console.error('LeetCode API error:', {
+        status: response.status,
+        statusText: response.statusText
+      });
+      return null;
+    }
+
+    // Check content type
+    const contentType = response.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      console.error('Invalid content type:', contentType);
+      return null;
+    }
+
     const data = await response.json();
 
-    if (!data.success) return null;
+    if (!data || !data.success || !data.user) {
+      console.error('Invalid LeetCode data structure:', data);
+      return null;
+    }
+
+    // Validate required data exists
+    if (!data.user.submitStats || !data.user.profile) {
+      console.error('Missing required LeetCode data:', {
+        hasSubmitStats: !!data.user.submitStats,
+        hasProfile: !!data.user.profile
+      });
+      return null;
+    }
 
     return {
       // Basic Info
@@ -17,101 +50,123 @@ export async function extractLeetCodeData(username: string): Promise<LeetCodeDat
       company: data.user.profile.company,
       jobTitle: data.user.profile.jobTitle,
       countryName: data.user.profile.countryName,
-      websites: data.user.profile.websites,
-      skills: data.user.profile.skillTags,
+      websites: data.user.profile.websites || [],
+      skills: data.user.profile.skillTags || [],
 
       // Stats
       ranking: data.user.profile.ranking,
       starRating: data.user.profile.starRating,
       reputation: data.user.profile.reputation,
       contributionPoints: {
-        points: data.user.profile.reputation,
-        diff: data.user.profile.reputationDiff
+        points: data.user.contributions?.points || 0,
+        diff: data.user.profile.reputationDiff || 0,
       },
       solutions: {
-        count: data.user.profile.solutionCount,
-        diff: data.user.profile.solutionCountDiff
+        count: data.user.profile.solutionCount || 0,
+        diff: data.user.profile.solutionCountDiff || 0,
       },
       discussions: {
-        count: data.user.profile.categoryDiscussCount,
-        diff: data.user.profile.categoryDiscussCountDiff
+        count: data.user.profile.categoryDiscussCount || 0,
+        diff: data.user.profile.categoryDiscussCountDiff || 0,
       },
       views: {
-        count: data.user.profile.postViewCount,
-        diff: data.user.profile.postViewCountDiff
+        count: data.user.profile.postViewCount || 0,
+        diff: data.user.profile.postViewCountDiff || 0,
       },
 
       // Submission Stats
-      totalSolved: data.user.submitStats.acSubmissionNum[0].count,
-      totalQuestions: data.stats.totalQuestions[0].count,
-      easySolved: data.user.submitStats.acSubmissionNum[1].count,
-      mediumSolved: data.user.submitStats.acSubmissionNum[2].count,
-      hardSolved: data.user.submitStats.acSubmissionNum[3].count,
-      totalEasy: data.stats.totalQuestions[1].count,
-      totalMedium: data.stats.totalQuestions[2].count,
-      totalHard: data.stats.totalQuestions[3].count,
-      totalSubmissions: data.user.submitStats.totalSubmissionNum[0].submissions,
-      acceptanceRate: (data.user.submitStats.acSubmissionNum[0].count / data.user.submitStats.totalSubmissionNum[0].submissions * 100).toFixed(1),
+      totalSolved: data.user.submitStats.acSubmissionNum?.[0]?.count || 0,
+      totalQuestions: data.stats?.totalQuestions?.[0]?.count || 0,
+      easySolved: data.user.submitStats.acSubmissionNum?.[1]?.count || 0,
+      mediumSolved: data.user.submitStats.acSubmissionNum?.[2]?.count || 0,
+      hardSolved: data.user.submitStats.acSubmissionNum?.[3]?.count || 0,
+      totalEasy: data.stats?.totalQuestions?.[1]?.count || 0,
+      totalMedium: data.stats?.totalQuestions?.[2]?.count || 0,
+      totalHard: data.stats?.totalQuestions?.[3]?.count || 0,
+      totalSubmissions: data.user.submitStats.totalSubmissionNum?.[0]?.submissions || 0,
+      acceptanceRate: data.user.submitStats.totalSubmissionNum?.[0]?.submissions 
+        ? ((data.user.submitStats.acSubmissionNum?.[0]?.count || 0) / data.user.submitStats.totalSubmissionNum[0].submissions * 100).toFixed(1)
+        : "0.0",
+      submitStats: {
+        acSubmissionNum: data.user.submitStats.acSubmissionNum || [],
+        totalSubmissionNum: data.user.submitStats.totalSubmissionNum || [],
+      },
 
       // Calendar & Streak
       calendar: {
-        activeYears: data.calendar.activeYears,
-        streak: data.calendar.streak,
-        totalActiveDays: data.calendar.totalActiveDays,
-        submissionCalendar: data.calendar.submissionCalendar
+        streak: data.calendar?.streak || 0,
+        totalActiveDays: data.calendar?.totalActiveDays || 0,
+        submissionCalendar: data.calendar?.submissionCalendar || "{}",
       },
 
-      // Badges
-      badges: data.user.badges.map((badge: any) => ({
-        id: badge.id,
-        name: badge.name,
-        shortName: badge.shortName,
-        displayName: badge.displayName,
-        icon: badge.icon.startsWith('http') ? badge.icon : `https://leetcode.com${badge.icon}`,
-        hoverText: badge.hoverText,
-        creationDate: badge.creationDate,
-        category: badge.category,
-        gifIcon: badge.medal?.config?.iconGif,
-        gifBackground: badge.medal?.config?.iconGifBackground
+      // Contests
+      contests: (data.user.contestHistory || []).map((contest: any) => ({
+        title: contest.contestName || 'Unknown Contest',
+        rating: contest.rating || 0,
+        ranking: contest.ranking || 0,
+        globalRanking: contest.globalRanking || 0
       })),
-      activeBadge: data.user.activeBadge,
-      upcomingBadges: data.user.upcomingBadges,
+
+      // Recent Submissions
+      recentlySolved: (data.user.recentSubmissions || []).map((sub: any) => ({
+        id: sub.id || '',
+        title: sub.title || 'Unknown Problem',
+        titleSlug: sub.titleSlug || '',
+        timestamp: sub.timestamp || '',
+        url: sub.titleSlug ? `https://leetcode.com/problems/${sub.titleSlug}/` : '#',
+        difficulty: sub.difficulty || 'Unknown'
+      })),
+
+      // Badges
+      badges: (data.badges?.all || []).map((badge: any) => ({
+        id: badge.id || '',
+        name: badge.name || '',
+        shortName: badge.shortName || '',
+        displayName: badge.displayName || '',
+        icon: badge.icon || '',
+        hoverText: badge.hoverText || '',
+        creationDate: badge.creationDate || '',
+        category: badge.category || '',
+        gifIcon: badge.medal?.config?.iconGif || null,
+        gifBackground: badge.medal?.config?.iconGifBackground || null,
+      })),
+      activeBadge: data.badges?.active || null,
+      upcomingBadges: data.badges?.upcoming || [],
 
       // Language Stats
-      languageStats: data.user.languageProblemCount.map((lang: any) => ({
-        name: lang.languageName,
-        solved: lang.problemsSolved
+      languageStats: (data.user.languageProblemCount || []).map((lang: any) => ({
+        name: lang.languageName || 'Unknown',
+        solved: lang.problemsSolved || 0,
       })),
 
       // Topic Stats
       topicStats: {
-        advanced: data.user.tagProblemCounts.advanced.map((tag: any) => ({
-          name: tag.tagName,
-          slug: tag.tagSlug,
-          solved: tag.problemsSolved
+        advanced: (data.user.tagProblemCounts?.advanced || []).map((tag: any) => ({
+          name: tag.tagName || '',
+          slug: tag.tagSlug || '',
+          solved: tag.problemsSolved || 0,
         })),
-        intermediate: data.user.tagProblemCounts.intermediate.map((tag: any) => ({
-          name: tag.tagName,
-          slug: tag.tagSlug,
-          solved: tag.problemsSolved
+        intermediate: (data.user.tagProblemCounts?.intermediate || []).map((tag: any) => ({
+          name: tag.tagName || '',
+          slug: tag.tagSlug || '',
+          solved: tag.problemsSolved || 0,
         })),
-        fundamental: data.user.tagProblemCounts.fundamental.map((tag: any) => ({
-          name: tag.tagName,
-          slug: tag.tagSlug,
-          solved: tag.problemsSolved
-        }))
+        fundamental: (data.user.tagProblemCounts?.fundamental || []).map((tag: any) => ({
+          name: tag.tagName || '',
+          slug: tag.tagSlug || '',
+          solved: tag.problemsSolved || 0,
+        })),
       },
 
       // Social Links
       social: {
-        github: data.user.githubUrl,
-        twitter: data.user.twitterUrl,
-        linkedin: data.user.linkedinUrl,
-        websites: data.user.profile.websites
-      }
+        github: data.user.githubUrl || null,
+        linkedin: data.user.linkedinUrl || null,
+        twitter: data.user.twitterUrl || null,
+      },
     };
   } catch (error) {
-    console.error('LeetCode data extraction error:', error);
+    console.error('Error fetching LeetCode data:', error);
     return null;
   }
 } 

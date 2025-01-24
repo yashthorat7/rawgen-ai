@@ -9,7 +9,7 @@ import { GeeksForGeeksStats } from "../platform-stats/GeeksForGeeksStats";
 import { DeleteButton } from "../ui/DeleteButton";
 import { CodeforcesStats } from "../platform-stats/CodeforcesStats";
 import { LoadingSkeleton } from "../platform-stats/LoadingSkeleton";
-import { LeetCodeDashboard } from "../dashboard/LeetCodeDashboard";
+import { LeetCodeDashboard } from "../dashboard/leetcode/Dashboard";
 import { CodeChefDashboard } from "../dashboard/CodeChefDashboard";
 import { GeeksForGeeksDashboard } from "../dashboard/GeeksForGeeksDashboard";
 import { CodeForcesDashboard } from "../dashboard/CodeForcesDashboard";
@@ -189,7 +189,7 @@ export function ProfileCard({
           </div>
 
           <div className="relative flex flex-col h-full rounded-lg">
-            <h3 className="text-xl font-bold text-gray-900 truncate w-full mb-4">
+            <h3 className="text-xl font-bold text-gray-900 truncate w-full mb-1">
               {username}
             </h3>
             <div className="pr-2 flex-1">
@@ -204,11 +204,12 @@ export function ProfileCard({
 
       {isOpen && (
         <>
-          <div className="dialog-backdrop" onClick={() => setIsOpen(false)} />
-          <div className="dialog-content">
-            <div className="absolute top-0 left-0 w-full h-full bg-white z-[9999]">
-              {renderDashboard()}
-            </div>
+          <div 
+            className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40"
+            onClick={() => setIsOpen(false)}
+          />
+          <div className="fixed inset-0 z-50">
+            {renderDashboard()}
           </div>
         </>
       )}

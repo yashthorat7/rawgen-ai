@@ -1,13 +1,13 @@
-export type LeetCodeData = {
+export interface LeetCodeData {
   // Basic Info
   username: string;
-  realName: string;
+  realName: string | null;
   avatar: string;
-  about: string;
-  school?: string;
-  company?: string;
-  jobTitle?: string;
-  countryName: string;
+  about: string | null;
+  school: string | null;
+  company: string | null;
+  jobTitle: string | null;
+  countryName: string | null;
   websites: string[];
   skills: string[];
 
@@ -43,14 +43,43 @@ export type LeetCodeData = {
   totalHard: number;
   totalSubmissions: number;
   acceptanceRate: string;
+  submitStats: {
+    acSubmissionNum: Array<{
+      difficulty: string;
+      count: number;
+      submissions: number;
+    }>;
+    totalSubmissionNum: Array<{
+      difficulty: string;
+      count: number;
+      submissions: number;
+    }>;
+  };
 
   // Calendar & Streak
   calendar: {
-    activeYears: number[];
     streak: number;
     totalActiveDays: number;
-    submissionCalendar: string;
+    submissionCalendar: Record<string, number>;
   };
+
+  // Contests
+  contests: Array<{
+    title: string;
+    rating: number;
+    ranking: number;
+    globalRanking: number;
+  }>;
+
+  // Recent Submissions
+  recentlySolved: Array<{
+    id: string;
+    title: string;
+    titleSlug: string;
+    timestamp: string;
+    url: string;
+    difficulty: string;
+  }>;
 
   // Badges
   badges: Array<{
@@ -95,12 +124,12 @@ export type LeetCodeData = {
 
   // Social Links
   social: {
-    github?: string;
-    linkedin?: string;
-    twitter?: string;
+    github: string | null;
+    linkedin: string | null;
+    twitter: string | null;
     websites?: string[];
   };
-};
+}
 
 export type CodeChefData = {
   username: string;
