@@ -4,6 +4,7 @@ import { useState } from 'react';
 import ReactCalendarHeatmap from 'react-calendar-heatmap';
 import 'react-calendar-heatmap/dist/styles.css';
 import type { LeetCodeData } from "@/lib/types";
+import HeatMap from 'react-calendar-heatmap';
 
 interface CalendarProps {
   data: LeetCodeData;
@@ -50,35 +51,39 @@ export function Calendar({ data }: CalendarProps) {
         </select>
       </div>
 
-      <div className="-mx-3 mr-2 sm:mr-0 overflow-x-auto overflow-y-hidden scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
-        <div className="min-w-[750px] px-5 md:transform-none scale-80 origin-top">
-          <ReactCalendarHeatmap
-            startDate={startDate}
-            endDate={endDate}
-            values={heatmapData}
-            classForValue={(value) => {
-              if (!value || !value.count) return 'color-empty';
-              if (value.count <= 2) return 'color-scale-1';
-              if (value.count <= 4) return 'color-scale-2';
-              if (value.count <= 6) return 'color-scale-3';
-              return 'color-scale-4';
-            }}
-            titleForValue={(value) => {
-              if (!value || !value.count) return 'No submissions';
-              const date = value.date.toLocaleDateString('en-US', {
-                weekday: 'long',
-                month: 'long',
-                day: 'numeric'
-              });
-              return `${value.count} submission${value.count === 1 ? '' : 's'}\n${date}`;
-            }}
-            showMonthLabels
-            monthLabels={[
-              'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-              'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-            ]}
-            gutterSize={3}
-          />
+      <div className="overflow-x-auto -mx-4 sm:-mx-0">
+        <div className="min-w-[700px] px-4 sm:px-0">
+          <div className="transform sm:transform-none sm:scale-100 scale-[1] origin-left">
+            <HeatMap
+              values={heatmapData}
+              startDate={startDate}
+              endDate={endDate}
+              classForValue={(value) => {
+                if (!value) return "color-empty";
+                const count = value.count;
+                if (count >= 10) return "color-scale-4";
+                if (count >= 5) return "color-scale-3";
+                if (count >= 3) return "color-scale-2";
+                return "color-scale-1";
+              }}
+              titleForValue={(value) => {
+                if (!value || !value.count) return 'No submissions';
+                const date = value.date.toLocaleDateString('en-US', {
+                  weekday: 'long',
+                  month: 'long',
+                  day: 'numeric'
+                });
+                return `${value.count} submission${value.count === 1 ? '' : 's'}\n${date}`;
+              }}
+              gutterSize={3}
+              showWeekdayLabels={false}
+              showMonthLabels
+              monthLabels={[
+                "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+              ]}
+            />
+          </div>
         </div>
       </div>
 
@@ -107,59 +112,38 @@ export function Calendar({ data }: CalendarProps) {
 
       <style jsx global>{`
         .react-calendar-heatmap {
-          font-size: 12px;
+          font-size: 10px;
         }
-        .react-calendar-heatmap .color-empty { fill: #ebedf0; }
-        .react-calendar-heatmap .color-scale-1 { fill: #9be9a8; }
-        .react-calendar-heatmap .color-scale-2 { fill: #40c463; }
-        .react-calendar-heatmap .color-scale-3 { fill: #30a14e; }
-        .react-calendar-heatmap .color-scale-4 { fill: #216e39; }
+        
+        .react-calendar-heatmap .color-empty {
+          fill: #ebedf0;
+        }
+        
+        .react-calendar-heatmap .color-scale-1 {
+          fill: #9be9a8;
+        }
+        
+        .react-calendar-heatmap .color-scale-2 {
+          fill: #40c463;
+        }
+        
+        .react-calendar-heatmap .color-scale-3 {
+          fill: #30a14e;
+        }
+        
+        .react-calendar-heatmap .color-scale-4 {
+          fill: #216e39;
+        }
+
         .react-calendar-heatmap rect:hover {
           stroke: #1f2937;
           stroke-width: 1px;
         }
-        @media (max-width: 768px) {
-          .react-calendar-heatmap {
-            font-size: 11px;
-            height: 160px;
-          }
+
+        @media (max-width: 640px) {
           .react-calendar-heatmap text {
-            font-size: 10px;
-            font-weight: 500;
+            font-size: 8px;
           }
-          .react-calendar-heatmap rect {
-            rx: 2;
-          }
-        }
-        [role="tooltip"] {
-          background-color: white !important;
-          border-radius: 1rem !important;
-          padding: 1rem 1.25rem !important;
-          font-size: 1.3rem !important;
-          line-height: 1.5 !important;
-          color: #1f2937 !important;
-          box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
-          border: 1px solid #e5e7eb !important;
-          font-weight: 500 !important;
-          z-index: 50 !important;
-          white-space: pre-line !important;
-          backdrop-filter: blur(8px) !important;
-        }
-        @media (max-width: 768px) {
-          [role="tooltip"] {
-            font-size: 1rem !important;
-            padding: 1rem 1.25rem !important;
-          }
-          [role="tooltip"] > div:first-child {
-            font-size: 1.25rem !important;
-            font-weight: 600 !important;
-          }
-        }
-        [role="tooltip"] > div:first-child {
-          font-size: 1.5rem !important;
-          font-weight: 600 !important;
-          margin-bottom: 0.25rem !important;
-          color: #111827 !important;
         }
       `}</style>
     </div>

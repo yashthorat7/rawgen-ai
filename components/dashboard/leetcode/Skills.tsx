@@ -40,9 +40,9 @@ export function Skills({ data, hasBadges }: SkillsProps) {
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-sm h-[490px] hover:shadow-md transition-all duration-300 overflow-hidden">
-      <h3 className="text-lg font-semibold mb-4">Skills</h3>
+      <h3 className="text-lg font-semibold">Skills</h3>
       <ScrollArea className="h-[calc(100%-2rem)]">
-        <div className="space-y-8 pr-2">
+        <div className="space-y-6 pr-2">
           {sections.map((section) => {
             const sortedTags = section.tags.sort((a, b) => b.solved - a.solved);
             

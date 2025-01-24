@@ -3,7 +3,7 @@
 import type { LeetCodeData } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { useState } from 'react';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronDown, ChevronUp, Medal } from 'lucide-react';
 
 interface BadgesProps {
   data: LeetCodeData;
@@ -31,17 +31,23 @@ export function Badges({ data }: BadgesProps) {
       "bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-all duration-500 overflow-hidden",
       showAll ? "h-auto" : "h-[490px]"
     )}>
-      <div className="flex justify-between items-center mb-4">
+      <div className="grid grid-cols-3 items-center mb-4">
         <h3 className="text-lg font-semibold">Badges</h3>
-        {otherBadges.length > MINIMUM_BADGES_FOR_VIEW_ALL && (
-          <button
-            onClick={() => setShowAll(!showAll)}
-            className="text-sm text-primary-600 hover:text-primary-700 font-medium flex items-center gap-1 transition-colors duration-200"
-          >
-            {showAll ? 'Show Less' : 'View All'}
-            {showAll ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-          </button>
-        )}
+        <div className="flex items-center gap-2 justify-center">
+          <Medal className="w-6 h-6 text-yellow-500" />
+          <span className="text-base font-medium text-gray-700">{data.badges.length} earned</span>
+        </div>
+        <div className="flex justify-end">
+          {otherBadges.length > MINIMUM_BADGES_FOR_VIEW_ALL && (
+            <button
+              onClick={() => setShowAll(!showAll)}
+              className="text-sm text-primary-600 hover:text-primary-700 font-medium flex items-center gap-1 transition-colors duration-200"
+            >
+              {showAll ? 'Show Less' : 'View All'}
+              {showAll ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+            </button>
+          )}
+        </div>
       </div>
       
       {/* Center section with recent badge */}

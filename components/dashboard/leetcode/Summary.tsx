@@ -95,7 +95,7 @@ export function Summary({ data }: SummaryProps) {
             )}
 
             {/* Social Links */}
-            <div className="flex flex-wrap gap-4">
+            <div className="flex flex-wrap gap-8">
               {data.social.github && (
                 <a
                   href={data.social.github}
