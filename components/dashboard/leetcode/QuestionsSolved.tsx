@@ -41,100 +41,106 @@ export function QuestionsSolved({ data }: QuestionsSolvedProps) {
 
       <div className="flex-1 flex flex-col">
         {/* Circles Container */}
-        <div className="flex-1 flex flex-wrap justify-center items-center gap-5 max-h-[500px]">
-          <div className="flex flex-wrap justify-center gap-5 w-full">
-            <ProgressCircle
-              title="Easy"
-              value={data.easySolved}
-              total={data.totalEasy}
-              color="#00b8a3"
-              submissions={easySubmissions}
-              acceptanceRate={parseFloat(easyAcceptance)}
-            />
-            <ProgressCircle
-              title="Medium"
-              value={data.mediumSolved}
-              total={data.totalMedium}
-              color="#ffc01e"
-              submissions={mediumSubmissions}
-              acceptanceRate={parseFloat(mediumAcceptance)}
-            />
-            <ProgressCircle
-              title="Hard"
-              value={data.hardSolved}
-              total={data.totalHard}
-              color="#ff375f"
-              submissions={hardSubmissions}
-              acceptanceRate={parseFloat(hardAcceptance)}
-            />
+        <div className="flex-1 flex flex-col justify-center items-center gap-6 max-h-[500px] sm:gap-8">
+          {/* First row - 3 circles */}
+          <div className="w-full flex justify-center">
+            <div className="flex gap-6 sm:gap-8 sm:transform-none sm:scale-100 transform scale-[0.85] origin-center">
+              <ProgressCircle
+                title="Easy"
+                value={data.easySolved}
+                total={data.totalEasy}
+                color="#00b8a3"
+                submissions={easySubmissions}
+                acceptanceRate={parseFloat(easyAcceptance)}
+              />
+              <ProgressCircle
+                title="Medium"
+                value={data.mediumSolved}
+                total={data.totalMedium}
+                color="#ffc01e"
+                submissions={mediumSubmissions}
+                acceptanceRate={parseFloat(mediumAcceptance)}
+              />
+              <ProgressCircle
+                title="Hard"
+                value={data.hardSolved}
+                total={data.totalHard}
+                color="#ff375f"
+                submissions={hardSubmissions}
+                acceptanceRate={parseFloat(hardAcceptance)}
+              />
+            </div>
           </div>
-          <div className="flex justify-center gap-5 w-full">
-            <ProgressCircle
-              title="Total"
-              value={data.totalSolved}
-              total={data.totalQuestions}
-              color="#3b82f6"
-              submissions={data.totalSubmissions}
-              acceptanceRate={totalAcceptance}
-            />
-            <div className="flex flex-col items-center">
-              <div className="w-[112px] sm:w-[140px] relative aspect-square group">
-                <svg viewBox="0 0 36 36" className="w-full h-full">
-                  <path
-                    d="M18 2.0845
-                      a 15.9155 15.9155 0 0 1 0 31.831
-                      a 15.9155 15.9155 0 0 1 0 -31.831"
-                    fill="none"
-                    stroke="#eee"
-                    strokeWidth="3"
-                  />
-                  {/* Easy segment */}
-                  <path
-                    d="M18 2.0845
-                      a 15.9155 15.9155 0 0 1 0 31.831
-                      a 15.9155 15.9155 0 0 1 0 -31.831"
-                    fill="none"
-                    stroke="#00b8a3"
-                    strokeWidth="3"
-                    strokeDasharray={`${totalProgress.easy}, 100`}
-                  />
-                  {/* Medium segment */}
-                  <path
-                    d="M18 2.0845
-                      a 15.9155 15.9155 0 0 1 0 31.831
-                      a 15.9155 15.9155 0 0 1 0 -31.831"
-                    fill="none"
-                    stroke="#ffc01e"
-                    strokeWidth="3"
-                    strokeDasharray={`${totalProgress.medium}, 100`}
-                    transform={`rotate(${totalProgress.easy * 3.6}, 18, 18)`}
-                  />
-                  {/* Hard segment */}
-                  <path
-                    d="M18 2.0845
-                      a 15.9155 15.9155 0 0 1 0 31.831
-                      a 15.9155 15.9155 0 0 1 0 -31.831"
-                    fill="none"
-                    stroke="#ff375f"
-                    strokeWidth="3"
-                    strokeDasharray={`${totalProgress.hard}, 100`}
-                    transform={`rotate(${(totalProgress.easy + totalProgress.medium) * 3.6}, 18, 18)`}
-                  />
-                </svg>
-                {/* Default Text Labels */}
-                <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 text-xs sm:text-sm font-medium group-hover:opacity-0 transition-all duration-300">
-                  <span className="text-[#00b8a3]">Easy</span>
-                  <span className="text-[#ffc01e]">Medium</span>
-                  <span className="text-[#ff375f]">Hard</span>
+          {/* Second row - 2 circles */}
+          <div className="w-full flex justify-center">
+            <div className="flex gap-6 sm:gap-8 sm:transform-none sm:scale-100 transform scale-[0.85] origin-center">
+              <ProgressCircle
+                title="Total"
+                value={data.totalSolved}
+                total={data.totalQuestions}
+                color="#3b82f6"
+                submissions={data.totalSubmissions}
+                acceptanceRate={totalAcceptance}
+              />
+              <div className="flex flex-col items-center">
+                <div className="w-[112px] sm:w-[140px] relative aspect-square group">
+                  <svg viewBox="0 0 36 36" className="w-full h-full">
+                    <path
+                      d="M18 2.0845
+                        a 15.9155 15.9155 0 0 1 0 31.831
+                        a 15.9155 15.9155 0 0 1 0 -31.831"
+                      fill="none"
+                      stroke="#eee"
+                      strokeWidth="3"
+                    />
+                    {/* Easy segment */}
+                    <path
+                      d="M18 2.0845
+                        a 15.9155 15.9155 0 0 1 0 31.831
+                        a 15.9155 15.9155 0 0 1 0 -31.831"
+                      fill="none"
+                      stroke="#00b8a3"
+                      strokeWidth="3"
+                      strokeDasharray={`${totalProgress.easy}, 100`}
+                    />
+                    {/* Medium segment */}
+                    <path
+                      d="M18 2.0845
+                        a 15.9155 15.9155 0 0 1 0 31.831
+                        a 15.9155 15.9155 0 0 1 0 -31.831"
+                      fill="none"
+                      stroke="#ffc01e"
+                      strokeWidth="3"
+                      strokeDasharray={`${totalProgress.medium}, 100`}
+                      transform={`rotate(${totalProgress.easy * 3.6}, 18, 18)`}
+                    />
+                    {/* Hard segment */}
+                    <path
+                      d="M18 2.0845
+                        a 15.9155 15.9155 0 0 1 0 31.831
+                        a 15.9155 15.9155 0 0 1 0 -31.831"
+                      fill="none"
+                      stroke="#ff375f"
+                      strokeWidth="3"
+                      strokeDasharray={`${totalProgress.hard}, 100`}
+                      transform={`rotate(${(totalProgress.easy + totalProgress.medium) * 3.6}, 18, 18)`}
+                    />
+                  </svg>
+                  {/* Default Text Labels */}
+                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 text-xs sm:text-sm font-medium group-hover:opacity-0 transition-all duration-300">
+                    <span className="text-[#00b8a3]">Easy</span>
+                    <span className="text-[#ffc01e]">Medium</span>
+                    <span className="text-[#ff375f]">Hard</span>
+                  </div>
+                  {/* Hover Text Labels */}
+                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 text-xs sm:text-sm font-medium opacity-0 group-hover:opacity-100 transition-all duration-300">
+                    <span className="text-[#00b8a3]">{totalProgress.easy.toFixed(1)}%</span>
+                    <span className="text-[#ffc01e]">{totalProgress.medium.toFixed(1)}%</span>
+                    <span className="text-[#ff375f]">{totalProgress.hard.toFixed(1)}%</span>
+                  </div>
                 </div>
-                {/* Hover Text Labels */}
-                <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 text-xs sm:text-sm font-medium opacity-0 group-hover:opacity-100 transition-all duration-300">
-                  <span className="text-[#00b8a3]">{totalProgress.easy.toFixed(1)}%</span>
-                  <span className="text-[#ffc01e]">{totalProgress.medium.toFixed(1)}%</span>
-                  <span className="text-[#ff375f]">{totalProgress.hard.toFixed(1)}%</span>
-                </div>
+                <span className="mt-3 text-base font-medium text-gray-700">Summary</span>
               </div>
-              <span className="mt-3 text-base font-medium text-gray-700">Summary</span>
             </div>
           </div>
         </div>

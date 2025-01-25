@@ -15,14 +15,14 @@ export function Summary({ data }: SummaryProps) {
     <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-4">
       {/* Profile Info */}
       <div className="bg-white p-4 rounded-lg shadow-sm select-none">
-        <div className="flex items-start gap-4">
+        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 sm:gap-4">
           {/* Avatar Section */}
           <div className="relative flex-shrink-0">
             <a 
               href={leetcodeProfileUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="block relative w-32 h-32 rounded-2xl overflow-hidden border-4 border-primary-100 shadow-lg hover:shadow-xl transition-all duration-300 group"
+              className="block relative w-28 sm:w-32 h-28 sm:h-32 rounded-2xl overflow-hidden border-4 border-primary-100 shadow-lg hover:shadow-xl transition-all duration-300 group"
             >
               <img 
                 src={data.avatar} 
@@ -31,59 +31,59 @@ export function Summary({ data }: SummaryProps) {
               />
               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
             </a>
-            <div className="absolute -bottom-3 -right-3 bg-yellow-500 text-white px-3 py-1.5 rounded-lg flex items-center gap-1.5 shadow-lg">
-              <Star className="w-5 h-5 fill-current" />
-              <span className="text-lg font-bold">{data.starRating}</span>
+            <div className="absolute -bottom-3 -right-3 bg-yellow-500 text-white px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg flex items-center gap-1.5 shadow-lg">
+              <Star className="w-4 h-4 sm:w-5 sm:h-5 fill-current" />
+              <span className="text-base sm:text-lg font-bold">{data.starRating}</span>
             </div>
           </div>
 
           {/* Info Section */}
-          <div className="flex-1 min-w-0">
+          <div className="flex-1 min-w-0 text-center sm:text-left">
             {/* Name and Location */}
-            <div className="flex flex-wrap items-start gap-3 mb-1">
+            <div className="flex flex-wrap items-center sm:items-start justify-center sm:justify-start gap-3 mb-1">
               <div className="flex flex-col">
                 <a 
                   href={leetcodeProfileUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-2xl font-bold hover:text-primary-600 transition-colors"
+                  className="text-xl sm:text-2xl font-bold hover:text-primary-600 transition-colors"
                 >
                   {data.realName || data.username}
                 </a>
-                <span className="text-sm text-gray-500">@{data.username}</span>
+                <span className="text-xs hidden sm:block sm:text-sm text-gray-500">@{data.username}</span>
               </div>
               {data.countryName && (
-                <span className="inline-flex items-center rounded-md bg-gray-100 px-2.5 py-0.5 text-sm font-medium">
-                  <MapPin className="w-4 h-4 mr-1" />
+                <span className="inline-flex items-center rounded-md bg-gray-100 px-2 sm:px-2.5 py-0.5 text-xs sm:text-sm font-medium">
+                  <MapPin className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
                   {data.countryName}
                 </span>
               )}
             </div>
 
             {/* Rank */}
-            <div className="flex items-center gap-2 mb-2">
-              <div className="w-6 h-6 flex items-center justify-center">
-                <Trophy className="w-6 h-6 text-yellow-500 fill-yellow-500 drop-shadow" />
+            <div className="flex items-center justify-center sm:justify-start gap-2 mb-2">
+              <div className="w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center">
+                <Trophy className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-500 fill-yellow-500 drop-shadow" />
               </div>
-              <span className="text-xl font-bold text-primary-600">Rank #{data.ranking}</span>
+              <span className="text-lg sm:text-xl font-bold text-primary-600">Rank #{data.ranking}</span>
             </div>
 
             {/* Work Info */}
-            <div className="flex flex-wrap gap-2 mb-2">
+            <div className="flex flex-wrap justify-center sm:justify-start gap-2 mb-2">
               {data.jobTitle && (
-                <span className="inline-flex items-center rounded-md border px-2.5 py-0.5 text-sm font-medium">
-                  <Building className="w-4 h-4 mr-1" />
+                <span className="inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs sm:text-sm font-medium">
+                  <Building className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
                   {data.jobTitle}
                 </span>
               )}
               {data.company && (
-                <span className="inline-flex items-center rounded-md border px-2.5 py-0.5 text-sm font-medium">
-                  <Building className="w-4 h-4 mr-1" />
+                <span className="inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs sm:text-sm font-medium">
+                  <Building className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
                   {data.company}
                 </span>
               )}
               {data.school && (
-                <span className="inline-flex items-center rounded-lg bg-blue-100 text-blue-700 px-2.5 py-0.5 text-sm font-medium">
+                <span className="inline-flex items-center rounded-lg bg-blue-100 text-blue-700 px-2.5 py-0.5 text-xs sm:text-sm font-medium">
                   {data.school}
                 </span>
               )}
@@ -91,11 +91,11 @@ export function Summary({ data }: SummaryProps) {
 
             {/* About */}
             {data.about && (
-              <p className="text-gray-600 italic mb-3 line-clamp-2">{data.about}</p>
+              <p className="text-gray-600 italic mb-3 line-clamp-2 text-center sm:text-left">{data.about}</p>
             )}
 
             {/* Social Links */}
-            <div className="flex flex-wrap gap-8">
+            <div className="flex flex-wrap justify-center sm:justify-start gap-6 sm:gap-8">
               {data.social.github && (
                 <a
                   href={data.social.github}
@@ -103,7 +103,7 @@ export function Summary({ data }: SummaryProps) {
                   rel="noopener noreferrer"
                   className="text-gray-600 hover:text-gray-900 transition-colors"
                 >
-                  <Github className="w-6 h-6" />
+                  <Github className="w-5 h-5 sm:w-6 sm:h-6" />
                 </a>
               )}
               {data.social.linkedin && (
@@ -113,7 +113,7 @@ export function Summary({ data }: SummaryProps) {
                   rel="noopener noreferrer"
                   className="text-gray-600 hover:text-[#0077b5] transition-colors"
                 >
-                  <Linkedin className="w-6 h-6" />
+                  <Linkedin className="w-5 h-5 sm:w-6 sm:h-6" />
                 </a>
               )}
               {data.social.twitter && (
@@ -123,7 +123,7 @@ export function Summary({ data }: SummaryProps) {
                   rel="noopener noreferrer"
                   className="text-gray-600 hover:text-[#1DA1F2] transition-colors"
                 >
-                  <Twitter className="w-6 h-6" />
+                  <Twitter className="w-5 h-5 sm:w-6 sm:h-6" />
                 </a>
               )}
               {data.websites?.map((website, index) => (
@@ -134,7 +134,7 @@ export function Summary({ data }: SummaryProps) {
                   rel="noopener noreferrer"
                   className="text-gray-600 hover:text-primary-600 transition-colors"
                 >
-                  <Globe className="w-6 h-6" />
+                  <Globe className="w-5 h-5 sm:w-6 sm:h-6" />
                 </a>
               ))}
             </div>
@@ -145,24 +145,24 @@ export function Summary({ data }: SummaryProps) {
       {/* Stats Cards */}
       <div className="grid grid-cols-2 gap-4">
         {/* Active Days */}
-        <div className="bg-white p-4 rounded-lg shadow-sm flex items-center sm:flex-col sm:items-center justify-start sm:justify-center text-left sm:text-center select-none">
-          <Calendar className="w-8 h-8 text-primary-500 mb-0 sm:mb-2 mr-3 sm:mr-0" />
+        <div className="bg-white p-3 sm:p-4 rounded-lg shadow-sm flex items-center sm:flex-col sm:items-center justify-start sm:justify-center text-left sm:text-center select-none">
+          <Calendar className="w-6 h-6 sm:w-8 sm:h-8 text-primary-500 mb-0 sm:mb-2 mr-3 sm:mr-0" />
           <div>
-            <div className="text-2xl sm:text-3xl font-bold text-gray-900 mb-0 sm:mb-1">
+            <div className="text-xl sm:text-2xl font-bold text-gray-900 mb-0 sm:mb-1">
               {data.calendar.totalActiveDays}
             </div>
-            <div className="text-sm text-gray-600">Active Days</div>
+            <div className="text-xs sm:text-sm text-gray-600">Active Days</div>
           </div>
         </div>
 
         {/* Max Streak */}
-        <div className="bg-white p-4 rounded-lg shadow-sm flex items-center sm:flex-col sm:items-center justify-start sm:justify-center text-left sm:text-center select-none">
-          <Flame className="w-8 h-8 text-orange-500 mb-0 sm:mb-2 mr-3 sm:mr-0" />
+        <div className="bg-white p-3 sm:p-4 rounded-lg shadow-sm flex items-center sm:flex-col sm:items-center justify-start sm:justify-center text-left sm:text-center select-none">
+          <Flame className="w-6 h-6 sm:w-8 sm:h-8 text-orange-500 mb-0 sm:mb-2 mr-3 sm:mr-0" />
           <div>
-            <div className="text-2xl sm:text-3xl font-bold text-gray-900 mb-0 sm:mb-1">
+            <div className="text-xl sm:text-2xl font-bold text-gray-900 mb-0 sm:mb-1">
               {data.calendar.streak}
             </div>
-            <div className="text-sm text-gray-600">Max Streak</div>
+            <div className="text-xs sm:text-sm text-gray-600">Max Streak</div>
           </div>
         </div>
       </div>

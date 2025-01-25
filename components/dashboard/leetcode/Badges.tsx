@@ -45,7 +45,7 @@ export function Badges({ data }: BadgesProps) {
   return (
     <div className={cn(
       "bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-all duration-500 overflow-hidden select-none",
-      showAll ? "h-auto" : "h-[490px]"
+      showAll ? "h-auto" : "h-[460px] sm:h-[490px]"
     )}>
       <div className="grid grid-cols-3 items-center mb-4">
         <h3 className="text-lg font-semibold">Badges</h3>
