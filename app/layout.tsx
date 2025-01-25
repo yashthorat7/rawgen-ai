@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
-import { ConvexClientProvider } from "@/components/ConvexClientProvider";
+import { ConvexClientProvider } from "@/components/layout/ConvexClientProvider";
 
 const quicksand = localFont({
   src: '../public/fonts/Quicksand-VariableFont_wght.ttf',

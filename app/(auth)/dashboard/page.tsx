@@ -21,8 +21,8 @@ export default async function DashboardPage() {
   return (
     <PlatformProvider>
       <div className="min-h-screen flex flex-col relative">
-        {/* Gradient Background */}
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-purple-100/40 pointer-events-none" />
+        {/* Fixed Gradient Background */}
+        <div className="fixed inset-0 bg-gradient-to-b from-transparent to-purple-100/40 pointer-events-none" />
         
         {/* Content */}
         <Header />

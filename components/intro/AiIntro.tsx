@@ -94,7 +94,7 @@ export function AiSuggestor() {
                      before:absolute before:inset-0 before:rounded-lg before:content-[''] before:z-[1]
                      before:bg-[linear-gradient(var(--gradient-angle,0deg),#12c2e9,#c471ed,#f64f59)]
                      before:animate-[gradient_4s_linear_infinite]
-                     after:absolute after:inset-[2px] after:rounded-lg after:bg-gray-50 after:z-[2]"
+                     after:absolute after:inset-[2px] after:rounded-lg after:bg-[#f7f7fd] sm:after:bg-[#f8f8fc] after:z-[2]"
            style={{ "--gradient-angle": "0deg" } as React.CSSProperties}>
         {isInitialLoading || isLoading ? (
           <div className="relative z-[3] w-full">
