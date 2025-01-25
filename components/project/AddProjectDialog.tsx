@@ -6,6 +6,7 @@ import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { X, Plus, Upload } from "lucide-react";
 import { Id } from "@/convex/_generated/dataModel";
+import { cn, useScrollLock } from "@/lib/utils";
 
 interface AddProjectDialogProps {
   isOpen: boolean;
@@ -23,6 +24,7 @@ interface AddProjectDialogProps {
 }
 
 export function AddProjectDialog({ isOpen, onClose, initialData, mode = 'add' }: AddProjectDialogProps) {
+  useScrollLock(isOpen);
   const { user } = useUser();
   const [title, setTitle] = useState(initialData?.title || "");
   const [description, setDescription] = useState(initialData?.description || "");

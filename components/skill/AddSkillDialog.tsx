@@ -5,6 +5,7 @@ import { useUser } from "@clerk/nextjs"
 import { useMutation } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import { X, Plus } from "lucide-react"
+import { cn, useScrollLock } from "@/lib/utils"
 
 interface AddSkillDialogProps {
   isOpen: boolean;
@@ -12,6 +13,7 @@ interface AddSkillDialogProps {
 }
 
 export function AddSkillDialog({ isOpen, onClose }: AddSkillDialogProps) {
+  useScrollLock(isOpen);
   const { user } = useUser()
   const [category, setCategory] = useState("")
   const [skillInput, setSkillInput] = useState("")

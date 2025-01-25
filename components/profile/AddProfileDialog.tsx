@@ -6,6 +6,7 @@ import { validateProfile } from "@/lib/profileValidator"
 import Select from "react-select";
 import { api } from "@/convex/_generated/api";
 import { useQuery } from "convex/react";
+import { useScrollLock } from "@/lib/utils";
 
 type Platform = 'leetcode' | 'codechef' | 'geeksforgeeks' | 'codeforces';
 
@@ -34,6 +35,7 @@ export function AddPlatformDialog({
   onSubmit,
   isLoading
 }: AddPlatformDialogProps) {
+  useScrollLock(open);
   const { platforms: existingPlatforms } = usePlatforms()
   const [selectedPlatform, setSelectedPlatform] = useState<PlatformOption | null>(null)
   const [username, setUsername] = useState("")

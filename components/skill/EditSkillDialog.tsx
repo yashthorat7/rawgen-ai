@@ -5,6 +5,7 @@ import { useUser } from "@clerk/nextjs"
 import { useMutation, useQuery } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import { X, Plus } from "lucide-react"
+import { cn, useScrollLock } from "@/lib/utils"
 
 interface EditSkillDialogProps {
   isOpen: boolean;
@@ -15,6 +16,7 @@ interface EditSkillDialogProps {
 }
 
 export function EditSkillDialog({ isOpen, onClose, category, initialSkills, onUpdate }: EditSkillDialogProps) {
+  useScrollLock(isOpen);
   const { user, isLoaded: isUserLoaded } = useUser()
   const [skillInput, setSkillInput] = useState("")
   const [selectedSkills, setSelectedSkills] = useState<Set<string>>(new Set(initialSkills))

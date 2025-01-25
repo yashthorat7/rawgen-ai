@@ -7,6 +7,7 @@ import { api } from "@/convex/_generated/api";
 import { X, Upload } from "lucide-react";
 import { Id } from "@/convex/_generated/dataModel";
 import Select from "react-select";
+import { cn, useScrollLock } from "@/lib/utils";
 
 interface AddCertificateDialogProps {
   isOpen: boolean;
@@ -47,6 +48,7 @@ export function AddCertificateDialog({
   initialData,
   mode = 'add' 
 }: AddCertificateDialogProps) {
+  useScrollLock(isOpen);
   const { user } = useUser();
   const [title, setTitle] = useState(initialData?.title || "");
   const [category, setCategory] = useState(initialData?.category || "");

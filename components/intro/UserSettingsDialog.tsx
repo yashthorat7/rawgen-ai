@@ -7,6 +7,7 @@ import { api } from "@/convex/_generated/api";
 import { ImageSelector } from "./ImageSelector";
 import { CheckCircle2, XCircle, Github, Linkedin, PenOff, Globe } from "lucide-react";
 import { SocialLinks } from "@/lib/types";
+import { useScrollLock } from "@/lib/utils";
 
 interface UserSettingsDialogProps {
     isOpen: boolean;
@@ -16,6 +17,7 @@ interface UserSettingsDialogProps {
 }
 
 export function UserSettingsDialog({ isOpen, onClose, defaultFirstName = "", defaultLastName = "" }: UserSettingsDialogProps) {
+    useScrollLock(isOpen);
     const { user } = useUser();
     const [firstName, setFirstName] = useState(defaultFirstName);
     const [lastName, setLastName] = useState(defaultLastName);

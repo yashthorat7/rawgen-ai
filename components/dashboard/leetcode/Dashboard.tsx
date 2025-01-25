@@ -11,7 +11,7 @@ import { ContestRank } from "./ContestRank";
 import { Badges } from "./Badges";
 import { SolvedQuestionList } from "./SolvedQuestionList";
 import { X, Loader2 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, useScrollLock } from "@/lib/utils";
 
 interface LeetCodeDashboardProps {
   data: LeetCodeData;
@@ -20,6 +20,8 @@ interface LeetCodeDashboardProps {
 }
 
 export function LeetCodeDashboard({ data, onClose, isLoading }: LeetCodeDashboardProps) {
+  useScrollLock(true);
+
   if (isLoading) {
     return (
       <div className="fixed inset-0 bg-gradient-to-br from-white/30 to-white/10 backdrop-blur-xl overflow-hidden flex items-center justify-center">
