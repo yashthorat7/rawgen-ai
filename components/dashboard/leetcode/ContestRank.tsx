@@ -83,7 +83,7 @@ export function ContestRank({ data }: ContestRankProps) {
   const globalRank = data.contests[data.contests.length - 1]?.globalRanking || 0;
 
   return (
-    <div className="bg-white p-6 rounded-xl shadow-sm">
+    <div className="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 select-none">
       <div className="flex items-center gap-2 mb-6">
         <Trophy className="w-5 h-5 text-gray-500" />
         <h3 className="text-lg font-semibold">Contest Performance</h3>

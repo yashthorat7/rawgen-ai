@@ -6,7 +6,6 @@ import { usePlatforms } from "@/lib/PlatformContext";
 import { LeetCodeStats } from "../platform-stats/LeetCodeStats";
 import { CodeChefStats } from "../platform-stats/CodeChefStats";
 import { GeeksForGeeksStats } from "../platform-stats/GeeksForGeeksStats";
-import { DeleteButton } from "../ui/DeleteButton";
 import { CodeforcesStats } from "../platform-stats/CodeforcesStats";
 import { LoadingSkeleton } from "../platform-stats/LoadingSkeleton";
 import { LeetCodeDashboard } from "../dashboard/leetcode/Dashboard";

@@ -4,7 +4,7 @@ import type { LeetCodeData } from "@/lib/types";
 import { Summary } from "./Summary";
 import { Stats } from "./Stats";
 import { QuestionsSolved } from "./QuestionsSolved";
-import { Calendar } from "./Calender";
+import { Calendar } from "./Calendar";
 import { Languages } from "./Languages";
 import { Skills } from "./Skills";
 import { ContestRank } from "./ContestRank";
@@ -47,20 +47,20 @@ export function LeetCodeDashboard({ data, onClose, isLoading }: LeetCodeDashboar
       <div className="h-full overflow-y-auto">
         {/* Main content */}
         <div className="max-w-7xl mx-auto px-4 sm:px-7 lg:px-9 py-5 sm:py-7 lg:py-9">
-          <div className="space-y-5">
+          <div className="space-y-4">
             {/* Profile Summary - Always show */}
             <div className="transform transition-all duration-200 hover:scale-[1.01]">
               <Summary data={data} />
             </div>
             
             {/* Questions Solved and Stats */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               <div className="h-full">
                 <div className="h-full transform transition-all duration-200 hover:scale-[1.01]">
                   <QuestionsSolved data={data} />
                 </div>
               </div>
-              <div className="grid grid-cols-1 gap-5 h-full">
+              <div className="grid grid-cols-1 gap-4 h-full">
                 <div className="transform transition-all duration-200 hover:scale-[1.01]">
                   <Stats data={data} />
                 </div>
@@ -87,7 +87,7 @@ export function LeetCodeDashboard({ data, onClose, isLoading }: LeetCodeDashboar
             )}
 
             {/* Skills and Badges side by side */}
-            <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
               {/* Badges - 60% width */}
               {data.badges && data.badges.length > 0 ? (
                 <div className="lg:col-span-3 transform transition-all duration-200 hover:scale-[1.01]">

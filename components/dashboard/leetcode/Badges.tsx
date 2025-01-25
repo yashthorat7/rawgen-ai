@@ -2,7 +2,7 @@
 
 import type { LeetCodeData } from "@/lib/types";
 import { cn } from "@/lib/utils";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ChevronDown, ChevronUp, Medal } from 'lucide-react';
 
 interface BadgesProps {
@@ -22,13 +22,29 @@ interface BadgeCardProps {
 
 export function Badges({ data }: BadgesProps) {
   const [showAll, setShowAll] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const recentBadge = data.badges[0];
   const otherBadges = data.badges.slice(1);
   const MINIMUM_BADGES_FOR_VIEW_ALL = 6;
 
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 640);
+    };
+
+    // Initial check
+    checkMobile();
+
+    // Add event listener
+    window.addEventListener('resize', checkMobile);
+
+    // Cleanup
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   return (
     <div className={cn(
-      "bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-all duration-500 overflow-hidden",
+      "bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-all duration-500 overflow-hidden select-none",
       showAll ? "h-auto" : "h-[490px]"
     )}>
       <div className="grid grid-cols-3 items-center mb-4">
@@ -66,9 +82,14 @@ export function Badges({ data }: BadgesProps) {
       <div className="transition-all duration-500">
         <div className={cn(
           "grid gap-4",
-          showAll ? "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5" : "grid-cols-3 sm:grid-cols-5"
+          showAll 
+            ? "grid-cols-3 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-5" 
+            : "grid-cols-3 sm:grid-cols-5"
         )}>
-          {(showAll ? otherBadges : otherBadges.slice(0, 5)).map((badge, index) => (
+          {(showAll 
+            ? otherBadges 
+            : otherBadges.slice(0, isMobile ? 3 : 5)
+          ).map((badge, index) => (
             <div key={index}>
               <BadgeCard badge={badge} size="sm" />
             </div>

@@ -30,7 +30,7 @@ export function QuestionsSolved({ data }: QuestionsSolvedProps) {
   const totalAcceptance = parseFloat(data.acceptanceRate || '0');
 
   return (
-    <div className="bg-white p-4 rounded-lg shadow-sm h-full flex flex-col">
+    <div className="bg-white p-4 rounded-lg shadow-sm h-full flex flex-col select-none">
       <h3 className="text-lg font-semibold mb-4">Questions Solved</h3>
 
       <div className="flex-1 flex flex-col">

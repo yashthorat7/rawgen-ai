@@ -39,7 +39,7 @@ export function Skills({ data, hasBadges }: SkillsProps) {
   ];
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-sm h-[490px] hover:shadow-md transition-all duration-300 overflow-hidden">
+    <div className="bg-white p-6 rounded-lg shadow-sm h-[490px] hover:shadow-md transition-all duration-300 overflow-hidden select-none">
       <h3 className="text-lg font-semibold">Skills</h3>
       <ScrollArea className="h-[calc(100%-2rem)]">
         <div className="space-y-6 pr-2">
@@ -59,7 +59,7 @@ export function Skills({ data, hasBadges }: SkillsProps) {
                     <div 
                       key={tag.slug}
                       className={cn(
-                        "flex items-center gap-2 p-2.5 rounded-lg transition-colors duration-200",
+                        "flex items-center gap-2 p-2 rounded-lg transition-colors duration-200",
                         section.color
                       )}
                     >

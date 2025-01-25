@@ -14,7 +14,7 @@ export function Summary({ data }: SummaryProps) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-4">
       {/* Profile Info */}
-      <div className="bg-white p-4 rounded-lg shadow-sm">
+      <div className="bg-white p-4 rounded-lg shadow-sm select-none">
         <div className="flex items-start gap-4">
           {/* Avatar Section */}
           <div className="relative flex-shrink-0">
@@ -145,21 +145,25 @@ export function Summary({ data }: SummaryProps) {
       {/* Stats Cards */}
       <div className="grid grid-cols-2 gap-4">
         {/* Active Days */}
-        <div className="bg-white p-4 rounded-lg shadow-sm flex flex-col items-center justify-center text-center">
-          <Calendar className="w-8 h-8 text-primary-500 mb-2" />
-          <div className="text-3xl font-bold text-gray-900 mb-1">
-            {data.calendar.totalActiveDays}
+        <div className="bg-white p-4 rounded-lg shadow-sm flex items-center sm:flex-col sm:items-center justify-start sm:justify-center text-left sm:text-center select-none">
+          <Calendar className="w-8 h-8 text-primary-500 mb-0 sm:mb-2 mr-3 sm:mr-0" />
+          <div>
+            <div className="text-2xl sm:text-3xl font-bold text-gray-900 mb-0 sm:mb-1">
+              {data.calendar.totalActiveDays}
+            </div>
+            <div className="text-sm text-gray-600">Active Days</div>
           </div>
-          <div className="text-sm text-gray-600">Active Days</div>
         </div>
 
         {/* Max Streak */}
-        <div className="bg-white p-4 rounded-lg shadow-sm flex flex-col items-center justify-center text-center">
-          <Flame className="w-8 h-8 text-orange-500 mb-2" />
-          <div className="text-3xl font-bold text-gray-900 mb-1">
-            {data.calendar.streak}
+        <div className="bg-white p-4 rounded-lg shadow-sm flex items-center sm:flex-col sm:items-center justify-start sm:justify-center text-left sm:text-center select-none">
+          <Flame className="w-8 h-8 text-orange-500 mb-0 sm:mb-2 mr-3 sm:mr-0" />
+          <div>
+            <div className="text-2xl sm:text-3xl font-bold text-gray-900 mb-0 sm:mb-1">
+              {data.calendar.streak}
+            </div>
+            <div className="text-sm text-gray-600">Max Streak</div>
           </div>
-          <div className="text-sm text-gray-600">Max Streak</div>
         </div>
       </div>
     </div>

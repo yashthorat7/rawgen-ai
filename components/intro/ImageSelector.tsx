@@ -153,7 +153,7 @@ export function ImageSelector({ image: initialImage, onImageChange }: ImageSelec
         className="relative cursor-pointer group"
         onClick={handleImageClick}
       >
-        <div className="w-40 h-40 sm:w-48 sm:h-48 rounded-full overflow-hidden bg-gray-100 border-2 border-gray-200 transition-all duration-200 group-hover:border-blue-500">
+        <div className="w-40 h-40 sm:w-48 sm:h-48 rounded-full overflow-hidden bg-gray-100 border-2 border-gray-200 select-none transition-all duration-200 group-hover:border-blue-500">
           {currentImage ? (
             <div className="relative w-full h-full">
               <Image

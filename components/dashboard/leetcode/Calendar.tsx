@@ -35,7 +35,7 @@ export function Calendar({ data }: CalendarProps) {
   const endDate = new Date(selectedYear, 11, 31);
 
   return (
-    <div className="bg-white p-4 rounded-lg shadow-sm">
+    <div className="bg-white p-4 rounded-lg shadow-sm select-none">
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-semibold">Submission Activity</h3>
         <select
@@ -51,9 +51,9 @@ export function Calendar({ data }: CalendarProps) {
         </select>
       </div>
 
-      <div className="overflow-x-auto -mx-4 sm:-mx-0">
-        <div className="min-w-[700px] px-4 sm:px-0">
-          <div className="transform sm:transform-none sm:scale-100 scale-[1] origin-left">
+      <div className="overflow-x-auto mx-1 sm:-mx-0">
+        <div className="min-w-[700px] pr-4 py-3 sm:py-0 sm:px-0">
+          <div className="transform sm:transform-none sm:scale-100 scale-[1.2] origin-left -mr-[20%] sm:mx-2">
             <HeatMap
               values={heatmapData}
               startDate={startDate}

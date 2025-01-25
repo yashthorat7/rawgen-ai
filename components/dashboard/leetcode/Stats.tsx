@@ -18,7 +18,7 @@ interface StatItemProps {
 
 export function Stats({ data }: StatsProps) {
   return (
-    <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm h-full">
+    <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm h-full select-none">
       <h3 className="text-lg font-semibold mb-4">Community Stats</h3>
       
       <div className="grid grid-cols-2 gap-2 sm:gap-3 lg:gap-4">

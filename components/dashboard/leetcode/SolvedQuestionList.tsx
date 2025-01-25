@@ -21,7 +21,7 @@ interface QuestionItemProps {
 
 export function SolvedQuestionList({ data }: SolvedQuestionListProps) {
   return (
-    <div className="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-all duration-300">
+    <div className="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 select-none">
       <h3 className="text-lg font-semibold mb-4">Recently Solved</h3>
       <div className="divide-y divide-gray-100">
         {data.recentlySolved.map((question, index) => (

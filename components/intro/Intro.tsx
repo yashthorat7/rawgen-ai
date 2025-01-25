@@ -68,7 +68,7 @@ export function Intro() {
       : `${defaultName.firstName} ${defaultName.lastName}`.trim();
 
   return (
-    <div className="flex flex-col-reverse sm:flex-row justify-between items-center gap-2 sm:gap-4 mb-2 sm:mb-4 -mt-4 sm:mt-1 px-8">
+    <div className="flex flex-col-reverse sm:flex-row justify-between items-center gap-2 sm:gap-4 mb-2 sm:mb-4 -mt-4 sm:mt-1 px-8 select-none">
       <div className="text-center sm:text-left -mt-8 sm:mt-0">
         <h1 className="text-2xl sm:text-4xl font-bold -mb-4 sm:-mb-1">
           {displayName === null ? (

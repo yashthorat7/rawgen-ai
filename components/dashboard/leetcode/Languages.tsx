@@ -14,8 +14,8 @@ export function Languages({ data }: LanguagesProps) {
   const VISIBLE_ITEMS = 4;
 
   return (
-    <div className="bg-white p-4 rounded-lg shadow-sm">
-      <h3 className="text-lg font-semibold mb-2">Languages</h3>
+    <div className="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 select-none">
+      <h3 className="text-lg font-semibold mb-4">Languages</h3>
       
       <ScrollArea className="max-h-[270px] sm:h-[270px]"> {/* 4 items * 40px per item */}
         <div className="space-y-2 pr-2">
