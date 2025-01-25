@@ -104,7 +104,7 @@ function BadgeCard({ badge, size = 'sm' }: BadgeCardProps) {
   return (
     <div
       className={cn(
-        "relative",
+        "relative group",
         size === 'lg' ? "text-base" : "text-sm"
       )}
     >
@@ -122,14 +122,9 @@ function BadgeCard({ badge, size = 'sm' }: BadgeCardProps) {
         )}>
           {badge.shortName}
         </div>
-        <div className="text-xs text-gray-500">
+        <div className="text-xs text-gray-500 opacity-0 group-hover:opacity-100 transition-all duration-300 absolute inset-x-0 -bottom-5">
           {new Date(badge.creationDate).toLocaleDateString()}
         </div>
-      </div>
-
-      {/* Hover tooltip */}
-      <div className="absolute invisible group-hover:visible bg-gray-800 text-white text-xs rounded-md py-1.5 px-3 -top-2 left-1/2 transform -translate-x-1/2 -translate-y-full whitespace-nowrap shadow-lg">
-        {badge.name}
       </div>
     </div>
   );

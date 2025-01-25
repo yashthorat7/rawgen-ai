@@ -11,13 +11,13 @@ interface LanguagesProps {
 export function Languages({ data }: LanguagesProps) {
   const sortedLanguages = [...data.languageStats].sort((a, b) => b.solved - a.solved);
   const ITEM_HEIGHT = 40; // Height of each language item (py-1.5 + px-2 = ~40px)
-  const VISIBLE_ITEMS = 4;
+  const VISIBLE_ITEMS = 3;
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 select-none">
       <h3 className="text-lg font-semibold mb-4">Languages</h3>
       
-      <ScrollArea className="max-h-[270px] sm:h-[270px]"> {/* 4 items * 40px per item */}
+      <ScrollArea className="max-h-[180px] sm:h-[180px]"> {/* 4 items * 40px per item */}
         <div className="space-y-2 pr-2">
           {sortedLanguages.map((language, index) => (
             <div 
