@@ -24,6 +24,7 @@ interface AddCertificateDialogProps {
 }
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+const MAX_CERTIFICATE_IMAGE_SIZE = 200 * 1024; // 200KB
 const CERTIFICATE_CATEGORIES = [
   "Internship",
   "Competition",
@@ -108,14 +109,12 @@ export function AddCertificateDialog({
 
   const handleImageChange = (file: File | null) => {
     if (file) {
-      if (file.size > MAX_FILE_SIZE) {
-        alert("File size must be less than 10MB");
+      // Check file size
+      if (file.size > MAX_CERTIFICATE_IMAGE_SIZE) {
+        alert(`File size must be less than ${MAX_CERTIFICATE_IMAGE_SIZE / 1024}KB`);
         return;
       }
-      if (!file.type.startsWith('image/')) {
-        alert("File must be an image");
-        return;
-      }
+
       setImage(file);
       const url = URL.createObjectURL(file);
       setPreviewUrl(url);
@@ -132,22 +131,17 @@ export function AddCertificateDialog({
     setIsDragging(false);
   };
 
-  const handleDrop = async (e: React.DragEvent) => {
+  const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
-    const file = e.dataTransfer.files?.[0];
-    if (file) {
-      if (file.size > MAX_FILE_SIZE) {
-        alert("File size must be less than 10MB");
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith('image/')) {
+      // Check file size
+      if (file.size > MAX_CERTIFICATE_IMAGE_SIZE) {
+        alert(`File size must be less than ${MAX_CERTIFICATE_IMAGE_SIZE / 1024}KB`);
         return;
       }
-      if (!file.type.startsWith('image/')) {
-        alert("File must be an image");
-        return;
-      }
-      setImage(file);
-      const url = URL.createObjectURL(file);
-      setPreviewUrl(url);
+      handleImageChange(file);
     }
   };
 

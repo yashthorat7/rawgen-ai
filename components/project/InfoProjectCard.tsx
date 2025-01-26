@@ -28,10 +28,10 @@ export function InfoProjectCard({
         onClick={onClose}
       />
       <div className="fixed inset-0 flex items-center justify-center z-[9999] p-4 overflow-auto">
-        <div className="bg-white rounded-lg shadow-xl w-full max-w-[600px] max-h-[90vh] flex flex-col">
+        <div className="bg-white rounded-lg shadow-xl w-full max-w-[90%] md:max-w-[800px] lg:max-w-[1000px] max-h-[90vh] flex flex-col">
           {/* Header with integrated close button */}
-          <div className="p-6 border-b flex justify-between items-center">
-            <h2 className="text-2xl font-bold text-primary-600">{title}</h2>
+          <div className="p-4 sm:p-6 border-b flex justify-between items-center">
+            <h2 className="text-xl sm:text-2xl font-bold text-primary-600">{title}</h2>
             <button
               onClick={onClose}
               className="p-2 hover:bg-gray-100 rounded-md transition-colors"
@@ -41,19 +41,19 @@ export function InfoProjectCard({
           </div>
 
           {/* Content */}
-          <div className="p-6 overflow-y-auto">
+          <div className="p-4 sm:p-6 overflow-y-auto">
             {image && (
-              <div className="aspect-video mb-6 overflow-hidden -px-4 rounded-lg border border-gray-200">
+              <div className="aspect-video mb-4 sm:mb-6 overflow-hidden rounded-lg border border-gray-200">
                 <img
                   src={image}
                   alt={title}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-contain bg-gray-50"
                 />
               </div>
             )}
 
             {/* Tech Stack with less rounded tags */}
-            <div className="flex flex-wrap gap-2 mb-6">
+            <div className="flex flex-wrap gap-2 mb-4 sm:mb-6">
               {techStack.map((tech, index) => (
                 <span
                   key={index}
@@ -65,13 +65,13 @@ export function InfoProjectCard({
             </div>
 
             {/* Description */}
-            <p className="text-gray-600 whitespace-pre-wrap mb-6">
+            <p className="text-gray-600 whitespace-pre-wrap mb-4 sm:mb-6 text-sm sm:text-base">
               {description}
             </p>
           </div>
 
           {/* Footer with Actions */}
-          <div className="p-6 border-t flex justify-between gap-4">
+          <div className="p-4 sm:p-6 border-t flex flex-col sm:flex-row justify-between gap-3 sm:gap-4">
             <a
               href={projectLink}
               target="_blank"

@@ -56,15 +56,27 @@ export function ImageSelector({ image: initialImage, onImageChange }: ImageSelec
     fileInputRef.current?.click();
   };
 
+  const MAX_PROFILE_IMAGE_SIZE = 50 * 1024; // 50KB
+  const MAX_OTHER_IMAGE_SIZE = 200 * 1024; // 200KB
+
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setTempImage(reader.result as string);
-        setShowCropModal(true);
-      };
-      reader.readAsDataURL(file);
+        // Check file size
+        const isProfileImage = !currentImage; // Assuming currentImage is null for profile image
+        const maxSize = isProfileImage ? MAX_PROFILE_IMAGE_SIZE : MAX_OTHER_IMAGE_SIZE;
+
+        if (file.size > maxSize) {
+            alert(`File size must be less than ${maxSize / 1024}KB`);
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            setTempImage(reader.result as string);
+            setShowCropModal(true);
+        };
+        reader.readAsDataURL(file);
     }
   };
 

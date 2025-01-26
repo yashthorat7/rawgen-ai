@@ -16,6 +16,9 @@ interface UserSettingsDialogProps {
     defaultLastName?: string;
 }
 
+const MAX_PROFILE_IMAGE_SIZE = 50 * 1024; // 50KB
+const MAX_MARKSHEET_IMAGE_SIZE = 200 * 1024; // 200KB
+
 export function UserSettingsDialog({ isOpen, onClose, defaultFirstName = "", defaultLastName = "" }: UserSettingsDialogProps) {
     useScrollLock(isOpen);
     const { user } = useUser();
@@ -140,13 +143,23 @@ export function UserSettingsDialog({ isOpen, onClose, defaultFirstName = "", def
         }
     };
 
-    const handleMarksheetUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0];
+    const handleMarksheetChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
         if (!file || !userEmail) return;
+
+        // Check file size
+        if (file.size > MAX_MARKSHEET_IMAGE_SIZE) {
+            alert(`Marksheet file size must be less than ${MAX_MARKSHEET_IMAGE_SIZE / 1024}KB`);
+            return;
+        }
 
         try {
             setIsUploadingMarksheet(true);
+
+            // Get upload URL
             const uploadUrl = await generateMarksheetUrl();
+
+            // Upload the file
             const result = await fetch(uploadUrl, {
                 method: "POST",
                 headers: { "Content-Type": file.type },
@@ -158,15 +171,36 @@ export function UserSettingsDialog({ isOpen, onClose, defaultFirstName = "", def
             }
 
             const { storageId } = await result.json();
+
+            // Save the marksheet image reference
             await saveMarksheet({
                 email: userEmail,
                 storageId
             });
+
         } catch (error) {
             console.error("Failed to upload marksheet:", error);
+            alert("Failed to upload marksheet. Please try again.");
         } finally {
             setIsUploadingMarksheet(false);
         }
+    };
+
+    const handleImageChange = (newImage: string) => {
+        // Convert base64 to blob to check size
+        fetch(newImage)
+            .then(res => res.blob())
+            .then(blob => {
+                if (blob.size > MAX_PROFILE_IMAGE_SIZE) {
+                    alert(`Profile image size must be less than ${MAX_PROFILE_IMAGE_SIZE / 1024}KB`);
+                    return;
+                }
+                setImage(newImage);
+            })
+            .catch(error => {
+                console.error("Error processing image:", error);
+                alert("Failed to process image. Please try again.");
+            });
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -234,7 +268,7 @@ export function UserSettingsDialog({ isOpen, onClose, defaultFirstName = "", def
                             <div className="flex justify-center">
                                 <ImageSelector
                                     image={image}
-                                    onImageChange={setImage}
+                                    onImageChange={handleImageChange}
                                 />
                             </div>
 
@@ -313,7 +347,7 @@ export function UserSettingsDialog({ isOpen, onClose, defaultFirstName = "", def
                                 <div className="relative">
                                     <input
                                         type="file"
-                                        onChange={handleMarksheetUpload}
+                                        onChange={handleMarksheetChange}
                                         className="hidden"
                                         id="marksheet-upload"
                                         accept="image/*,.pdf"

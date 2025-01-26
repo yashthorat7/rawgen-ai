@@ -23,6 +23,8 @@ interface AddProjectDialogProps {
   mode?: 'add' | 'edit';
 }
 
+const MAX_PROJECT_IMAGE_SIZE = 200 * 1024; // 200KB
+
 export function AddProjectDialog({ isOpen, onClose, initialData, mode = 'add' }: AddProjectDialogProps) {
   useScrollLock(isOpen);
   const { user } = useUser();
@@ -83,6 +85,12 @@ export function AddProjectDialog({ isOpen, onClose, initialData, mode = 'add' }:
 
   const handleImageChange = (file: File | null) => {
     if (file) {
+      // Check file size
+      if (file.size > MAX_PROJECT_IMAGE_SIZE) {
+        alert(`File size must be less than ${MAX_PROJECT_IMAGE_SIZE / 1024}KB`);
+        return;
+      }
+
       setImage(file);
       const url = URL.createObjectURL(file);
       setPreviewUrl(url);
@@ -104,6 +112,11 @@ export function AddProjectDialog({ isOpen, onClose, initialData, mode = 'add' }:
     setIsDragging(false);
     const file = e.dataTransfer.files[0];
     if (file && file.type.startsWith('image/')) {
+      // Check file size
+      if (file.size > MAX_PROJECT_IMAGE_SIZE) {
+        alert(`File size must be less than ${MAX_PROJECT_IMAGE_SIZE / 1024}KB`);
+        return;
+      }
       handleImageChange(file);
     }
   };
