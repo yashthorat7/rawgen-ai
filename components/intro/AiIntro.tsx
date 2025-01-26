@@ -54,8 +54,9 @@ export function AiSuggestor() {
               GeeksForGeeks:
               - Problems Solved: ${user.problemsSolved}
               - Score: ${user.codingScore}
-              - Basic: ${user.basicCount}, Easy: ${user.easyCount}
-              - Medium: ${user.mediumCount}, Hard: ${user.hardCount}
+              - School: ${user.schoolProblems}, Basic: ${user.basicProblems}
+              - Easy: ${user.easyProblems}, Medium: ${user.mediumProblems}
+              - Hard: ${user.hardProblems}
               - Current Streak: ${user.currentStreak}
             ` : '').join('\n')}
 
@@ -63,9 +64,9 @@ export function AiSuggestor() {
               Codeforces:
               - Current Rating: ${user.rating} (Max: ${user.maxRating})
               - Current Rank: ${user.rank} (Max: ${user.maxRank})
-              - Problems Solved: ${user.problemsSolved}
-              - Contests Participated: ${user.contestsParticipated}
-              - Platform Contribution: ${user.contribution}
+              - Contest Count: ${user.contestCount}
+              - Recent Performance: Avg Rank #${user.recentPerformance.averageRank}
+              - Contribution: ${user.contribution}
             ` : '').join('\n')}
             
             Act like this is your profile and provide a brief (35 to 45 words stay in that range) personalized coding summary. Focus on areas of improvement, and maintain an encouraging tone. Speak directly to the recruiter and be specific. dont't add quotes on the ends. be concise and to the point. explain in detail yet be concise. dont't say here is the summary or greetingsdirectly give me the summary. just give me the summary. If Codeforces data is present, emphasize competitive programming achievements and contest performance. don't add fluff. stick to the facts`,
