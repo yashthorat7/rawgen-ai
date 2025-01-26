@@ -1,0 +1,1113 @@
+{
+  "success": true,
+  "data": {
+    "profile": {
+      "username": "potato167",
+      "name": "po167",
+      "stars": 7,
+      "institution": "Tokyo Institute of Technology",
+      "rating": 3058,
+      "highestRating": 3058,
+      "globalRank": 1,
+      "countryRank": 1,
+      "country": "Japan",
+      "badges": [
+        {
+          "image": "https://cdn.codechef.com/images/badges/contest/bronze.svg",
+          "title": "Contest Contender - Bronze Badge",
+          "description": "Received for participating in 5 Contests",
+          "goal": "5",
+          "alt": "Contest Contender - Bronze Badge"
+        },
+        {
+          "image": "https://cdn.codechef.com/images/badges/problem/bronze.svg",
+          "title": "Problem Solver - Bronze Badge",
+          "description": "Received for solving 50 Problems",
+          "goal": "50",
+          "alt": "Problem Solver - Bronze Badge"
+        }
+      ]
+    },
+    "stats": {
+      "contests": {
+        "total": 41,
+        "details": [
+          {
+            "name": "CodeChef Starters 22 Division 3 (Rated)",
+            "problems": [
+              "Pie Tasting",
+              "An Interesting Sequence",
+              "Even Subset Xor",
+              "Convert Strings by Flips",
+              "Equal Card Game",
+              "Merging Binary Strings",
+              "Elections in Chefland",
+              "Equal LIS",
+              "Convert Strings by Flips 2",
+              "Palindromes Not Allowed",
+              "Mean Maximization",
+              "Subsegment Divisibility",
+              "Mask Policy",
+              "Merged LIS",
+              "Hungry Ashish",
+              "Boring Trip",
+              "Prime Graph",
+              "Beautiful Permutation",
+              "Erase All But One",
+              "Subarray permutations",
+              "Prefix Zeros",
+              "Circular Permutation Recovery",
+              "Permutation XOR Sum",
+              "Permutation Deletion",
+              "Xor Becoming Uncanny",
+              "Perfect Permutation",
+              "PerMEXuation",
+              "Mango Market",
+              "Slingshot",
+              "Permutation Xor",
+              "Chef Cooks Permutation",
+              "Visit Them All",
+              "Magnet Sort",
+              "Secret Tree",
+              "Dragonado And XOR",
+              "Oh I Dont Care",
+              "Alternating Divisibility",
+              "Sussy Rooks",
+              "Key-bored",
+              "Winter",
+              "Adjacency Love",
+              "Separate Them All",
+              "Chef Goes Shopping",
+              "Sorted Distances",
+              "Sequence Cost",
+              "Split Powers Of 2",
+              "Different Subarrays Rearrange",
+              "Triple Inversions",
+              "Balanced 0-1 Tree",
+              "Equal After And",
+              "Rearrange Ranges",
+              "Permutation Segments",
+              "Throw and Take",
+              "Simple XOR",
+              "Prefix Suffix Distinct",
+              "Split AND Sum",
+              "The Lost Array",
+              "Max Shift After XOR",
+              "XOR Times 2 Is Sum",
+              "Minimum Xor On Segment",
+              "SPLIT With XOR Not X",
+              "Tree Interval Queries",
+              "Inversions Retrieval",
+              "Binary String Happiness",
+              "Consecutive XOR",
+              "Largest Family",
+              "Sort the Array",
+              "Tree Coloring",
+              "Subtract 12 Operation",
+              "Mex On Subtrees",
+              "MEX Permutation Difference",
+              "Increasing Addition",
+              "Adjacent Pairs",
+              "Take Not Less",
+              "Alice Potter and OWL",
+              "Alice Potter and Wingardium Leviosa",
+              "Alice Potter And Dumbledore Army",
+              "Least Size",
+              "Minimum Operation",
+              "Sum Over All Arrays",
+              "String Game",
+              "Prefix Max",
+              "Largest Y",
+              "Mex Segments",
+              "Construct String",
+              "Order by XOR",
+              "Saber Slays",
+              "Rotate to Minimum",
+              "Restoration",
+              "Thank U, Next",
+              "Why Try",
+              "Positions",
+              "NASA",
+              "Greedy",
+              "Bloodline",
+              "Motive",
+              "Prime Permutation",
+              "Stamps 100",
+              "Concussive Sequence",
+              "Combinatorics Is Fun",
+              "Interesting Swap",
+              "Ant",
+              "Codechef Copy",
+              "Spiritual Chef",
+              "All New CodeChef",
+              "Maximum Deliciousness",
+              "I Can Use Both Hands!",
+              "Count Distinct Arrays",
+              "Counting Is Fun",
+              "Maximise The Minimum",
+              "Minimise Maximum Subarray Sum",
+              "Make All Equal",
+              "Score Sum",
+              "Maximum Score",
+              "Trees Are Fun",
+              "Delete The Array",
+              "Subtraction Sequence I",
+              "Subtraction Sequence II",
+              "Greedy LIS Algorithm",
+              "Binary Grid Forces",
+              "Make All Zero",
+              "Counting Is Fun",
+              "ABC Conjecture 3",
+              "Powered Parameters",
+              "Too Far For Comfort",
+              "Too Far For Comfort (Easy Version)",
+              "A power B mod C",
+              "TRIPLE PRIMES",
+              "K Subarray Products",
+              "Prefix Suffix Inequality",
+              "Cyclopian Edges",
+              "Breezy Mode Problem",
+              "Distinct Substring",
+              "Lucky Matrix",
+              "Split Permutation",
+              "Trick Or Treat",
+              "Break The String",
+              "Tree Removal",
+              "Possible Contender",
+              "Central Cutting",
+              "Amphibian Escape",
+              "Color Difference",
+              "Perfect Prefixes",
+              "Counting Is Fun",
+              "Sort Lexicographically",
+              "Find P",
+              "Minimise Inversions",
+              "Largest K",
+              "Beautiful Array",
+              "Make Bob Win",
+              "Querified",
+              "Token Passing on Tree",
+              "Square String",
+              "Bouncing Ball",
+              "Permutation Construction",
+              "Equal Pairs (Hard)",
+              "Min Ops (Hard)",
+              "Tree Requirements (Hard)",
+              "Tree Requirements (Easy)",
+              "Not Equal On Tree",
+              "Replacing Game",
+              "Alien Operation",
+              "Completion (Hard)",
+              "Maximize Hamming Distance",
+              "Completion (Easy)",
+              "Anti-Palindrome Queries",
+              "Min Max Paths",
+              "Tree Cut Xor",
+              "Count Winning Subarrays",
+              "GCD and XOR",
+              "Triangle Count (Hard)",
+              "Triangle Count (Easy)",
+              "Numismatics",
+              "GCD to 1 (Hard)",
+              "Replace With First",
+              "Replace With First Literally",
+              "Prefix Suffix Min Max",
+              "Array Concatanation",
+              "Keep Magnets Separated",
+              "Expected Value Problem",
+              "Balance Difficulties",
+              "Interval Cliques",
+              "Partition Score",
+              "Small, Smaller, Smallest",
+              "MEXtreme Divisibility",
+              "Normal is Good",
+              "Unmedian",
+              "Crafty Coloring (Hard)",
+              "Crafty Coloring (Easy)",
+              "Glass Bridge (Hard)",
+              "Super Hero",
+              "Random Nim",
+              "Glass Bridge (Easy)",
+              "Chess Colouring",
+              "Elections",
+              "Palindrome Love",
+              "Modindrome",
+              "Unstable Elections",
+              "Buying Order (Easy)",
+              "Buying Order (Hard)",
+              "Quick Exit (Counting)",
+              "Min-Max Game",
+              "Red-Blue Sort",
+              "The XOR Machine",
+              "One To Three",
+              "Quick Exit",
+              "GCD Partition",
+              "No Two Alike",
+              "Binary Removals",
+              "Xoperations",
+              "Equate XOR",
+              "Chef Loves Maths"
+            ]
+          },
+          {
+            "name": "CodeChef Starters 22 Division 3 (Rated)",
+            "problems": [
+              "Pie Tasting",
+              "An Interesting Sequence",
+              "Even Subset Xor",
+              "Convert Strings by Flips",
+              "Equal Card Game",
+              "Merging Binary Strings",
+              "Elections in Chefland",
+              "Equal LIS",
+              "Convert Strings by Flips 2"
+            ]
+          },
+          {
+            "name": "January Cook-Off 2022 Division 2",
+            "problems": [
+              "Palindromes Not Allowed",
+              "Mean Maximization",
+              "Subsegment Divisibility",
+              "Mask Policy",
+              "Merged LIS",
+              "Hungry Ashish",
+              "Boring Trip",
+              "Prime Graph",
+              "Beautiful Permutation",
+              "Erase All But One"
+            ]
+          },
+          {
+            "name": "January Lunchtime 2022 Division 2",
+            "problems": [
+              "Subarray permutations",
+              "Prefix Zeros",
+              "Circular Permutation Recovery",
+              "Permutation XOR Sum",
+              "Permutation Deletion"
+            ]
+          },
+          {
+            "name": "February Cook-Off 2022 Division 1",
+            "problems": [
+              "Xor Becoming Uncanny",
+              "Perfect Permutation",
+              "PerMEXuation",
+              "Mango Market",
+              "Slingshot"
+            ]
+          },
+          {
+            "name": "February Lunchtime 2022 Division 1",
+            "problems": [
+              "Permutation Xor",
+              "Chef Cooks Permutation",
+              "Visit Them All",
+              "Magnet Sort"
+            ]
+          },
+          {
+            "name": "March Cook-Off 2022 Division 1",
+            "problems": [
+              "Secret Tree",
+              "Dragonado And XOR",
+              "Oh I Dont Care",
+              "Alternating Divisibility"
+            ]
+          },
+          {
+            "name": "March Lunchtime 2022 Division 1",
+            "problems": [
+              "Sussy Rooks",
+              "Key-bored",
+              "Winter",
+              "Adjacency Love",
+              "Separate Them All"
+            ]
+          },
+          {
+            "name": "April Cook-Off 2022 Division 1",
+            "problems": [
+              "Chef Goes Shopping",
+              "Sorted Distances",
+              "Sequence Cost"
+            ]
+          },
+          {
+            "name": "May Cook-Off 2022 Division 1 (Rated)",
+            "problems": [
+              "Split Powers Of 2",
+              "Different Subarrays Rearrange",
+              "Triple Inversions"
+            ]
+          },
+          {
+            "name": "May Lunchtime 2022 Division 1 (Rated)",
+            "problems": [
+              "Balanced 0-1 Tree",
+              "Equal After And",
+              "Rearrange Ranges"
+            ]
+          },
+          {
+            "name": "June Cook-Off 2022 Division 1 (Rated)",
+            "problems": [
+              "Permutation Segments",
+              "Throw and Take",
+              "Simple XOR",
+              "Prefix Suffix Distinct",
+              "Split AND Sum"
+            ]
+          },
+          {
+            "name": "June Lunchtime 2022 Division 1 (Rated)",
+            "problems": [
+              "The Lost Array",
+              "Max Shift After XOR",
+              "XOR Times 2 Is Sum",
+              "Minimum Xor On Segment",
+              "SPLIT With XOR Not X"
+            ]
+          },
+          {
+            "name": "July Lunchtime 2022 Division 1 (Rated)",
+            "problems": [
+              "Tree Interval Queries",
+              "Inversions Retrieval",
+              "Binary String Happiness",
+              "Consecutive XOR",
+              "Largest Family"
+            ]
+          },
+          {
+            "name": "August Lunchtime 2022 Division 1 (Rated)",
+            "problems": [
+              "Sort the Array",
+              "Tree Coloring",
+              "Subtract 12 Operation",
+              "Mex On Subtrees",
+              "MEX Permutation Difference"
+            ]
+          },
+          {
+            "name": "September Lunchtime 2022 Division 1 (Rated) (Based on EJOI)",
+            "problems": [
+              "Increasing Addition",
+              "Adjacent Pairs"
+            ]
+          },
+          {
+            "name": "February Cook-Off 2023 Division 1 (Rated)",
+            "problems": [
+              "Take Not Less",
+              "Alice Potter and OWL",
+              "Alice Potter and Wingardium Leviosa",
+              "Alice Potter And Dumbledore Army"
+            ]
+          },
+          {
+            "name": "Starters 86 Division 1 (Rated for All)",
+            "problems": [
+              "Least Size",
+              "Minimum Operation",
+              "Sum Over All Arrays",
+              "String Game",
+              "Prefix Max",
+              "Largest Y"
+            ]
+          },
+          {
+            "name": "Starters 83 Division 1 (Rated)",
+            "problems": [
+              "Mex Segments",
+              "Construct String",
+              "Order by XOR",
+              "Saber Slays",
+              "Rotate to Minimum",
+              "Restoration"
+            ]
+          },
+          {
+            "name": "Starters 93 Division 1 (Rated for All)",
+            "problems": [
+              "Thank U, Next",
+              "Why Try",
+              "Positions",
+              "NASA",
+              "Greedy",
+              "Bloodline",
+              "Motive"
+            ]
+          },
+          {
+            "name": "Starters 100 Division 1 (Rated)",
+            "problems": [
+              "Prime Permutation",
+              "Stamps 100",
+              "Concussive Sequence",
+              "Combinatorics Is Fun",
+              "Interesting Swap",
+              "Ant"
+            ]
+          },
+          {
+            "name": "August Long 2023 Division 1 (Unrated)",
+            "problems": [
+              "Codechef Copy",
+              "Spiritual Chef",
+              "All New CodeChef",
+              "Maximum Deliciousness",
+              "I Can Use Both Hands!"
+            ]
+          },
+          {
+            "name": "Starters 113 Division 1 (Rated)",
+            "problems": [
+              "Count Distinct Arrays",
+              "Counting Is Fun",
+              "Maximise The Minimum",
+              "Minimise Maximum Subarray Sum",
+              "Make All Equal",
+              "Score Sum",
+              "Maximum Score",
+              "Trees Are Fun"
+            ]
+          },
+          {
+            "name": "Starters 115 Division 1 (Rated)",
+            "problems": [
+              "Delete The Array",
+              "Subtraction Sequence I",
+              "Subtraction Sequence II",
+              "Greedy LIS Algorithm",
+              "Binary Grid Forces",
+              "Make All Zero",
+              "Counting Is Fun"
+            ]
+          },
+          {
+            "name": "Starters 133 Division 1 (Rated till 6-Star)",
+            "problems": [
+              "ABC Conjecture 3",
+              "Powered Parameters",
+              "Too Far For Comfort",
+              "Too Far For Comfort (Easy Version)"
+            ]
+          },
+          {
+            "name": "Starters 138 Division 1 (Rated till 6-Stars)",
+            "problems": [
+              "A power B mod C",
+              "TRIPLE PRIMES",
+              "K Subarray Products",
+              "Prefix Suffix Inequality",
+              "Cyclopian Edges",
+              "Breezy Mode Problem",
+              "Distinct Substring"
+            ]
+          },
+          {
+            "name": "Starters 140 Division 1 (Rated till 5-Stars)",
+            "problems": [
+              "Lucky Matrix",
+              "Split Permutation",
+              "Trick Or Treat",
+              "Break The String",
+              "Tree Removal"
+            ]
+          },
+          {
+            "name": "Starters 141 Division 1 (Rated till 5-Stars)",
+            "problems": [
+              "Possible Contender",
+              "Central Cutting",
+              "Amphibian Escape",
+              "Color Difference",
+              "Perfect Prefixes"
+            ]
+          },
+          {
+            "name": "Starters 144 Division 1 (Rated)",
+            "problems": [
+              "Counting Is Fun",
+              "Sort Lexicographically",
+              "Find P",
+              "Minimise Inversions",
+              "Largest K"
+            ]
+          },
+          {
+            "name": "Starters 145 Division 1 (Rated till 6-Stars)",
+            "problems": [
+              "Beautiful Array",
+              "Make Bob Win",
+              "Querified",
+              "Token Passing on Tree",
+              "Square String"
+            ]
+          },
+          {
+            "name": "Starters 146 Division 1 (Rated till 5 stars)",
+            "problems": [
+              "Bouncing Ball",
+              "Permutation Construction"
+            ]
+          },
+          {
+            "name": "Starters 150 (Rated till 6 stars)",
+            "problems": [
+              "Equal Pairs (Hard)",
+              "Min Ops (Hard)",
+              "Tree Requirements (Hard)",
+              "Tree Requirements (Easy)",
+              "Not Equal On Tree",
+              "Replacing Game"
+            ]
+          },
+          {
+            "name": "Starters 152 (Rated till 6 stars)",
+            "problems": [
+              "Alien Operation",
+              "Completion (Hard)",
+              "Maximize Hamming Distance",
+              "Completion (Easy)",
+              "Anti-Palindrome Queries"
+            ]
+          },
+          {
+            "name": "Starters 154 (Rated till 6 stars)",
+            "problems": [
+              "Min Max Paths",
+              "Tree Cut Xor",
+              "Count Winning Subarrays",
+              "GCD and XOR",
+              "Triangle Count (Hard)",
+              "Triangle Count (Easy)"
+            ]
+          },
+          {
+            "name": "Starters 155 (Rated till 5 stars)",
+            "problems": [
+              "Numismatics",
+              "GCD to 1 (Hard)",
+              "Replace With First",
+              "Replace With First Literally",
+              "Prefix Suffix Min Max",
+              "Array Concatanation"
+            ]
+          },
+          {
+            "name": "Starters 156 (Rated till 6 stars)",
+            "problems": [
+              "Keep Magnets Separated",
+              "Expected Value Problem",
+              "Balance Difficulties",
+              "Interval Cliques",
+              "Partition Score"
+            ]
+          },
+          {
+            "name": "Starters 157 (Rated till 5 stars)",
+            "problems": [
+              "Small, Smaller, Smallest",
+              "MEXtreme Divisibility",
+              "Normal is Good",
+              "Unmedian"
+            ]
+          },
+          {
+            "name": "Starters 159 (Rated till 5 stars)",
+            "problems": [
+              "Crafty Coloring (Hard)",
+              "Crafty Coloring (Easy)",
+              "Glass Bridge (Hard)",
+              "Super Hero",
+              "Random Nim",
+              "Glass Bridge (Easy)",
+              "Chess Colouring",
+              "Elections"
+            ]
+          },
+          {
+            "name": "Starters 160 (Rated till 5 stars)",
+            "problems": [
+              "Palindrome Love",
+              "Modindrome",
+              "Unstable Elections",
+              "Buying Order (Easy)",
+              "Buying Order (Hard)"
+            ]
+          },
+          {
+            "name": "Starters 161 (Rated)",
+            "problems": [
+              "Quick Exit (Counting)",
+              "Min-Max Game",
+              "Red-Blue Sort",
+              "The XOR Machine",
+              "One To Three",
+              "Quick Exit"
+            ]
+          },
+          {
+            "name": "Starters 168 (Rated till 6 stars)",
+            "problems": [
+              "GCD Partition",
+              "No Two Alike",
+              "Binary Removals",
+              "Xoperations",
+              "Equate XOR",
+              "Chef Loves Maths"
+            ]
+          }
+        ]
+      },
+      "paths": {
+        "learning": {
+          "count": 0,
+          "details": "None"
+        },
+        "practice": {
+          "count": 0,
+          "details": "None"
+        }
+      },
+      "totalProblemsSolved": "225"
+    },
+    "activity": {
+      "ratingHistory": [
+        {
+          "code": "START22C",
+          "getyear": "2022",
+          "getmonth": "1",
+          "getday": "19",
+          "reason": null,
+          "penalised_in": null,
+          "rating": "1872",
+          "rank": "1",
+          "name": "CodeChef Starters 22 Division 3 (Rated)",
+          "end_date": "2022-01-19 23:00:04",
+          "color": "#684273"
+        },
+        {
+          "code": "COOK137B",
+          "getyear": "2022",
+          "getmonth": "1",
+          "getday": "23",
+          "reason": null,
+          "penalised_in": null,
+          "rating": "2522",
+          "rank": "1",
+          "name": "January Cook-Off 2022 Division 2",
+          "end_date": "2022-01-23 22:30:02",
+          "color": "#D0011B"
+        },
+        {
+          "code": "LTIME104B",
+          "getyear": "2022",
+          "getmonth": "1",
+          "getday": "29",
+          "reason": null,
+          "penalised_in": null,
+          "rating": "2803",
+          "rank": "1",
+          "name": "January Lunchtime 2022 Division 2",
+          "end_date": "2022-01-29 23:00:02",
+          "color": "#D0011B"
+        },
+        {
+          "code": "COOK138A",
+          "getyear": "2022",
+          "getmonth": "2",
+          "getday": "21",
+          "reason": null,
+          "penalised_in": null,
+          "rating": "2791",
+          "rank": "14",
+          "name": "February Cook-Off 2022 Division 1",
+          "end_date": "2022-02-21 22:30:00",
+          "color": "#D0011B"
+        },
+        {
+          "code": "LTIME105A",
+          "getyear": "2022",
+          "getmonth": "3",
+          "getday": "1",
+          "reason": null,
+          "penalised_in": null,
+          "rating": "2742",
+          "rank": "25",
+          "name": "February Lunchtime 2022 Division 1",
+          "end_date": "2022-03-01 23:00:00",
+          "color": "#D0011B"
+        },
+        {
+          "code": "COOK139A",
+          "getyear": "2022",
+          "getmonth": "3",
+          "getday": "5",
+          "reason": null,
+          "penalised_in": null,
+          "rating": "2746",
+          "rank": "19",
+          "name": "March Cook-Off 2022 Division 1",
+          "end_date": "2022-03-05 22:30:00",
+          "color": "#D0011B"
+        },
+        {
+          "code": "LTIME106A",
+          "getyear": "2022",
+          "getmonth": "3",
+          "getday": "19",
+          "reason": null,
+          "penalised_in": null,
+          "rating": "2752",
+          "rank": "18",
+          "name": "March Lunchtime 2022 Division 1",
+          "end_date": "2022-03-19 23:00:00",
+          "color": "#D0011B"
+        },
+        {
+          "code": "COOK140A",
+          "getyear": "2022",
+          "getmonth": "4",
+          "getday": "2",
+          "reason": null,
+          "penalised_in": null,
+          "rating": "2745",
+          "rank": "18",
+          "name": "April Cook-Off 2022 Division 1",
+          "end_date": "2022-04-02 22:30:00",
+          "color": "#D0011B"
+        },
+        {
+          "code": "COOK141A",
+          "getyear": "2022",
+          "getmonth": "5",
+          "getday": "1",
+          "reason": null,
+          "penalised_in": null,
+          "rating": "2764",
+          "rank": "17",
+          "name": "May Cook-Off 2022 Division 1 (Rated)",
+          "end_date": "2022-05-01 23:00:00",
+          "color": "#D0011B"
+        },
+        {
+          "code": "LTIME108A",
+          "getyear": "2022",
+          "getmonth": "5",
+          "getday": "15",
+          "reason": null,
+          "penalised_in": null,
+          "rating": "2744",
+          "rank": "29",
+          "name": "May Lunchtime 2022 Division 1 (Rated)",
+          "end_date": "2022-05-15 23:00:00",
+          "color": "#D0011B"
+        },
+        {
+          "code": "COOK142A",
+          "getyear": "2022",
+          "getmonth": "6",
+          "getday": "5",
+          "reason": null,
+          "penalised_in": null,
+          "rating": "2767",
+          "rank": "13",
+          "name": "June Cook-Off 2022 Division 1 (Rated)",
+          "end_date": "2022-06-05 22:30:00",
+          "color": "#D0011B"
+        },
+        {
+          "code": "LTIME109A",
+          "getyear": "2022",
+          "getmonth": "6",
+          "getday": "19",
+          "reason": null,
+          "penalised_in": null,
+          "rating": "2760",
+          "rank": "23",
+          "name": "June Lunchtime 2022 Division 1 (Rated)",
+          "end_date": "2022-06-19 23:10:00",
+          "color": "#D0011B"
+        },
+        {
+          "code": "LTIME110A",
+          "getyear": "2022",
+          "getmonth": "7",
+          "getday": "17",
+          "reason": null,
+          "penalised_in": null,
+          "rating": "2752",
+          "rank": "24",
+          "name": "July Lunchtime 2022 Division 1 (Rated)",
+          "end_date": "2022-07-17 23:30:00",
+          "color": "#D0011B"
+        },
+        {
+          "code": "LTIME111A",
+          "getyear": "2022",
+          "getmonth": "8",
+          "getday": "22",
+          "reason": null,
+          "penalised_in": null,
+          "rating": "2787",
+          "rank": "7",
+          "name": "August Lunchtime 2022 Division 1 (Rated)",
+          "end_date": "2022-08-22 23:00:00",
+          "color": "#D0011B"
+        },
+        {
+          "code": "LTIME112A",
+          "getyear": "2022",
+          "getmonth": "9",
+          "getday": "23",
+          "reason": null,
+          "penalised_in": null,
+          "rating": "2765",
+          "rank": "30",
+          "name": "September Lunchtime 2022 Division 1 (Rated) (Based on EJOI)",
+          "end_date": "2022-09-23 23:30:00",
+          "color": "#D0011B"
+        },
+        {
+          "code": "COOK144A",
+          "getyear": "2023",
+          "getmonth": "2",
+          "getday": "8",
+          "reason": null,
+          "penalised_in": null,
+          "rating": "2773",
+          "rank": "20",
+          "name": "February Cook-Off 2023 Division 1 (Rated)",
+          "end_date": "2023-02-08 22:30:00",
+          "color": "#D0011B"
+        },
+        {
+          "code": "START83A",
+          "getyear": "2023",
+          "getmonth": "3",
+          "getday": "29",
+          "reason": null,
+          "penalised_in": null,
+          "rating": "2790",
+          "rank": "8",
+          "name": "Starters 83 Division 1 (Rated)",
+          "end_date": "2023-03-29 22:30:00",
+          "color": "#D0011B"
+        },
+        {
+          "code": "START86A",
+          "getyear": "2023",
+          "getmonth": "4",
+          "getday": "19",
+          "reason": null,
+          "penalised_in": null,
+          "rating": "2823",
+          "rank": "3",
+          "name": "Starters 86 Division 1 (Rated for All)",
+          "end_date": "2023-04-19 22:00:00",
+          "color": "#D0011B"
+        },
+        {
+          "code": "START93A",
+          "getyear": "2023",
+          "getmonth": "6",
+          "getday": "7",
+          "reason": null,
+          "penalised_in": null,
+          "rating": "2829",
+          "rank": "8",
+          "name": "Starters 93 Division 1 (Rated for All)",
+          "end_date": "2023-06-07 22:00:00",
+          "color": "#D0011B"
+        },
+        {
+          "code": "START100A",
+          "getyear": "2023",
+          "getmonth": "9",
+          "getday": "13",
+          "reason": null,
+          "penalised_in": null,
+          "rating": "2866",
+          "rank": "2",
+          "name": "Starters 100 Division 1 (Rated)",
+          "end_date": "2023-09-13 22:00:00",
+          "color": "#D0011B"
+        },
+        {
+          "code": "START113A",
+          "getyear": "2023",
+          "getmonth": "12",
+          "getday": "20",
+          "reason": null,
+          "penalised_in": null,
+          "rating": "2903",
+          "rank": "2",
+          "name": "Starters 113 Division 1 (Rated)",
+          "end_date": "2023-12-20 22:30:00",
+          "color": "#D0011B"
+        },
+        {
+          "code": "START115A",
+          "getyear": "2024",
+          "getmonth": "1",
+          "getday": "3",
+          "reason": null,
+          "penalised_in": null,
+          "rating": "2954",
+          "rank": "1",
+          "name": "Starters 115 Division 1 (Rated)",
+          "end_date": "2024-01-03 22:30:00",
+          "color": "#D0011B"
+        },
+        {
+          "code": "START144A",
+          "getyear": "2024",
+          "getmonth": "7",
+          "getday": "24",
+          "reason": null,
+          "penalised_in": null,
+          "rating": "3005",
+          "rank": "1",
+          "name": "Starters 144 Division 1 (Rated)",
+          "end_date": "2024-07-24 22:00:00",
+          "color": "#D0011B"
+        },
+        {
+          "code": "START161A",
+          "getyear": "2024",
+          "getmonth": "11",
+          "getday": "20",
+          "reason": null,
+          "penalised_in": null,
+          "rating": "3058",
+          "rank": "1",
+          "name": "Starters 161 (Rated)",
+          "end_date": "2024-11-20 22:30:00",
+          "color": "#D0011B"
+        }
+      ],
+      "submissionStats": [
+        {
+          "date": "2023-2-8",
+          "value": 10
+        },
+        {
+          "date": "2023-3-29",
+          "value": 13
+        },
+        {
+          "date": "2023-4-19",
+          "value": 14
+        },
+        {
+          "date": "2023-4-20",
+          "value": 2
+        },
+        {
+          "date": "2023-6-7",
+          "value": 7
+        },
+        {
+          "date": "2023-8-30",
+          "value": 8
+        },
+        {
+          "date": "2023-9-13",
+          "value": 10
+        },
+        {
+          "date": "2023-12-20",
+          "value": 20
+        },
+        {
+          "date": "2024-1-3",
+          "value": 9
+        },
+        {
+          "date": "2024-5-8",
+          "value": 8
+        },
+        {
+          "date": "2024-5-9",
+          "value": 3
+        },
+        {
+          "date": "2024-6-12",
+          "value": 11
+        },
+        {
+          "date": "2024-6-26",
+          "value": 6
+        },
+        {
+          "date": "2024-7-3",
+          "value": 17
+        },
+        {
+          "date": "2024-7-24",
+          "value": 10
+        },
+        {
+          "date": "2024-7-31",
+          "value": 34
+        },
+        {
+          "date": "2024-8-7",
+          "value": 18
+        },
+        {
+          "date": "2024-9-4",
+          "value": 10
+        },
+        {
+          "date": "2024-9-18",
+          "value": 23
+        },
+        {
+          "date": "2024-10-2",
+          "value": 12
+        },
+        {
+          "date": "2024-10-9",
+          "value": 10
+        },
+        {
+          "date": "2024-10-16",
+          "value": 10
+        },
+        {
+          "date": "2024-10-23",
+          "value": 13
+        },
+        {
+          "date": "2024-10-31",
+          "value": 3
+        },
+        {
+          "date": "2024-11-6",
+          "value": 8
+        },
+        {
+          "date": "2024-11-13",
+          "value": 7
+        },
+        {
+          "date": "2024-11-20",
+          "value": 10
+        },
+        {
+          "date": "2024-11-21",
+          "value": 1
+        },
+        {
+          "date": "2025-1-8",
+          "value": 20
+        }
+      ]
+    }
+  }
+}

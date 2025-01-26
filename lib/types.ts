@@ -132,21 +132,59 @@ export interface LeetCodeData {
 }
 
 export type CodeChefData = {
+  // Basic Info
   username: string;
   name: string;
+  stars: number;
+  institution: string | null;
+  countryName: string | null;
+  
+  // Ratings
   currentRating: number;
   highestRating: number;
   globalRank: number;
   countryRank: number;
-  countryName: string;
-  stars: string;
-  contests: number;
-  heatMap: Array<{ date: string; value: number }>;
+
+  // Badges
+  badges: Array<{
+    title: string;
+    description: string;
+    image: string;
+  }>;
+
+  // Stats
+  totalContests: number;
+  totalProblemsSolved: string;
+  practiceProblems: number;
+  learningProblems: number;
+
+  // Rating History
   ratingHistory: Array<{
     name: string;
-    rating: string;
-    rank: string;
+    code: string;
+    rating: number;
+    rank: number;
     date: string;
+    color: string;
+    endDate: string;
+  }>;
+
+  // Submission Activity
+  submissionStats: Array<{
+    date: string;
+    submissions: number;
+  }>;
+
+  // Contest Details
+  contests: Array<{
+    name: string;
+    problemCount: number;
+  }>;
+
+  // Contest Details with Problems
+  contestDetails: Array<{
+    name: string;
+    problems: string[];
   }>;
 };
 
@@ -170,17 +208,42 @@ export type GeeksForGeeksData = {
   school?: number;
 };
 
-export type CodeforcesData = {
+export interface CodeforcesData {
+  // Basic Info
   username: string;
+  rank: string;
   rating: number;
   maxRating: number;
-  rank: string;
   maxRank: string;
-  problemsSolved: number;
-  contestsParticipated: number;
   contribution: number;
   friendOfCount: number;
-};
+  organization?: string;
+  titlePhoto?: string;
+  avatar?: string;
+  lastOnline?: number;
+  registrationTime?: number;
+
+  // Rating History
+  ratingHistory: Array<{
+    contestId: number;
+    contestName: string;
+    rank: number;
+    oldRating: number;
+    newRating: number;
+    ratingChange: number;
+    timestamp: number;
+  }>;
+
+  // Stats
+  contestCount: number;
+  recentPerformance: {
+    averageRank: number;
+    averageRatingChange: number;
+    bestRank: number;
+    worstRank: number;
+    lastContests: number; // number of contests considered for averages
+  };
+}
 
 export type PlatformData = {
   leetcode: Record<string, LeetCodeData | null>;

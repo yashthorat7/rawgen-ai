@@ -9,9 +9,9 @@ import { GeeksForGeeksStats } from "../platform-stats/GeeksForGeeksStats";
 import { CodeforcesStats } from "../platform-stats/CodeforcesStats";
 import { LoadingSkeleton } from "../platform-stats/LoadingSkeleton";
 import { LeetCodeDashboard } from "../dashboard/leetcode/Dashboard";
-import { CodeChefDashboard } from "../dashboard/CodeChefDashboard";
+import { CodeChefDashboard } from "../dashboard/codechef/Dashboard";
 import { GeeksForGeeksDashboard } from "../dashboard/GeeksForGeeksDashboard";
-import { CodeForcesDashboard } from "../dashboard/CodeForcesDashboard";
+import { CodeforcesDashboard } from "../dashboard/codeforces/Dashboard";
 import type { LeetCodeData, CodeChefData, GeeksForGeeksData, CodeforcesData } from "@/lib/types";
 import { UpdateCardIcon } from "../ui/UpdateCardIcon";
 
@@ -106,9 +106,7 @@ export function ProfileCard({
         if ('totalSolved' in data) {
           return (
             <LeetCodeDashboard
-              // username={username}
               data={data as LeetCodeData}
-              // platform={platform}
               onClose={() => setIsOpen(false)}
             />
           );
@@ -118,9 +116,7 @@ export function ProfileCard({
         if ('currentRating' in data) {
           return (
             <CodeChefDashboard
-              username={username}
               data={data as CodeChefData}
-              platform={platform}
               onClose={() => setIsOpen(false)}
             />
           );
@@ -141,10 +137,8 @@ export function ProfileCard({
       case 'codeforces':
         if ('rating' in data) {
           return (
-            <CodeForcesDashboard
-              username={username}
+            <CodeforcesDashboard
               data={data as CodeforcesData}
-              platform={platform}
               onClose={() => setIsOpen(false)}
             />
           );

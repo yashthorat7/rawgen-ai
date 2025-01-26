@@ -13,9 +13,9 @@ export function CodeChefStats({ data, isLoading }: CodeChefStatsProps) {
   if (!data) return null;
 
   const getRecentActivity = () => {
-    if (!data.heatMap.length) return 0;
-    const last3Months = data.heatMap.slice(-3);
-    return last3Months.reduce((sum, item) => sum + item.value, 0);
+    if (!data.submissionStats.length) return 0;
+    const last3Months = data.submissionStats.slice(-3);
+    return last3Months.reduce((sum: number, item: { submissions: number }) => sum + item.submissions, 0);
   };
 
   return (
@@ -25,7 +25,7 @@ export function CodeChefStats({ data, isLoading }: CodeChefStatsProps) {
         {/* Stars and Rating */}
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-1 text-yellow-500">
-            {Array.from({ length: Number(data.stars[0]) }).map((_, i) => (
+            {Array.from({ length: data.stars }).map((_, i) => (
               <Star key={i} size={14} fill="currentColor" />
             ))}
           </div>
@@ -39,10 +39,10 @@ export function CodeChefStats({ data, isLoading }: CodeChefStatsProps) {
           <div>
             <div className="flex justify-between items-center text-xs text-gray-600 mb-1">
               <span className="font-medium">Contests</span>
-              <span className="font-medium text-purple-600">{data.contests}</span>
+              <span className="font-medium text-purple-600">{data.totalContests}</span>
             </div>
             <ProgressBar 
-              solved={data.contests}
+              solved={data.totalContests}
               color="purple"
             />
           </div>
@@ -63,9 +63,9 @@ export function CodeChefStats({ data, isLoading }: CodeChefStatsProps) {
       {/* Ranks at bottom */}
       <div className="mt-auto mb-1">
         <div className="text-[14px] text-gray-500">
-          Global: <span className="font-mono font-medium">{data.globalRank}#</span>
-          <span className="mx-2">•</span>
-          {data.countryName}: <span className="font-mono font-medium">{data.countryRank}#</span>
+          Global: <span className="font-mono font-medium">#{data.globalRank}</span>
+          <span className="mx-2">|</span>
+          {data.countryName}: <span className="font-mono font-medium">#{data.countryRank}</span>
         </div>
       </div>
     </div>
