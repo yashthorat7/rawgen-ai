@@ -22,7 +22,7 @@ export default async function DashboardPage() {
     <PlatformProvider>
       <div className="min-h-screen flex flex-col relative">
         {/* Fixed Gradient Background */}
-        <div className="fixed inset-0 bg-gradient-to-b from-transparent to-purple-100/40 pointer-events-none" />
+        <div className="fixed inset-0 bg-gradient-to-b from-transparent to-primary-100/50 pointer-events-none" />
         
         {/* Content */}
         <Header />
