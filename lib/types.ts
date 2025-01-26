@@ -188,25 +188,46 @@ export type CodeChefData = {
   }>;
 };
 
-export type GeeksForGeeksData = {
+export interface GeeksForGeeksData {
+  // Basic Info
   username: string;
+  profileImage: string;
+  stars: string;
   institution: string;
+  organization: string;
+  
+  // Stats
   codingScore: number;
-  currentStreak: number;
   problemsSolved: number;
-  basicCount: number;
-  easyCount: number;
-  mediumCount: number;
-  hardCount: number;
-  monthlyCoding?: number;
-  weeklyCoding?: number;
-  profilePhoto?: string;
-  languageUsed?: string;
-  totalStreak?: number;
-  contestRating?: number;
-  institutionRank?: number;
-  school?: number;
-};
+  contestRating: number;
+  
+  // Streaks
+  currentStreak: number;
+  totalStreak: number;
+  
+  // Rankings
+  institutionRank: number;
+  
+  // Problem Counts
+  totalProblems: number;
+  schoolProblems: number;
+  basicProblems: number;
+  easyProblems: number;
+  mediumProblems: number;
+  hardProblems: number;
+
+  // Languages
+  languages: string[];
+
+  // Problems by Difficulty - Updated to match API structure
+  problems: {
+    school: Array<{ title: string; url: string; }>;
+    basic: Array<{ title: string; url: string; }>;
+    easy: Array<{ title: string; url: string; }>;
+    medium: Array<{ title: string; url: string; }>;
+    hard: Array<{ title: string; url: string; }>;
+  };
+}
 
 export interface CodeforcesData {
   // Basic Info

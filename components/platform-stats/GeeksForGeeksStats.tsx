@@ -8,6 +8,7 @@ interface GeeksForGeeksStatsProps {
 }
 
 export function GeeksForGeeksStats({ data, isLoading }: GeeksForGeeksStatsProps) {
+
   if (isLoading) return <LoadingSkeleton />;
   if (!data) return null;
 
@@ -22,10 +23,10 @@ export function GeeksForGeeksStats({ data, isLoading }: GeeksForGeeksStatsProps)
         <div>
           <div className="flex justify-between items-center text-xs text-gray-600 mb-1">
             <span className="font-medium">Easy</span>
-            <span className="font-medium text-green-600">{data.easyCount}/{EASY_TOTAL}</span>
+            <span className="font-medium text-green-600">{data.easyProblems}/{EASY_TOTAL}</span>
           </div>
           <ProgressBar 
-            solved={data.easyCount} 
+            solved={data.easyProblems} 
             total={EASY_TOTAL} 
             color="green"
           />
@@ -34,10 +35,10 @@ export function GeeksForGeeksStats({ data, isLoading }: GeeksForGeeksStatsProps)
         <div>
           <div className="flex justify-between items-center text-xs text-gray-600 mb-1">
             <span className="font-medium">Medium</span>
-            <span className="font-medium text-yellow-600">{data.mediumCount}/{MEDIUM_TOTAL}</span>
+            <span className="font-medium text-yellow-600">{data.mediumProblems}/{MEDIUM_TOTAL}</span>
           </div>
           <ProgressBar 
-            solved={data.mediumCount} 
+            solved={data.mediumProblems} 
             total={MEDIUM_TOTAL} 
             color="yellow"
           />
@@ -46,10 +47,10 @@ export function GeeksForGeeksStats({ data, isLoading }: GeeksForGeeksStatsProps)
         <div>
           <div className="flex justify-between items-center text-xs text-gray-600 mb-1">
             <span className="font-medium">Hard</span>
-            <span className="font-medium text-red-600">{data.hardCount}/{HARD_TOTAL}</span>
+            <span className="font-medium text-red-600">{data.hardProblems}/{HARD_TOTAL}</span>
           </div>
           <ProgressBar 
-            solved={data.hardCount} 
+            solved={data.hardProblems} 
             total={HARD_TOTAL} 
             color="red"
           />
@@ -60,7 +61,7 @@ export function GeeksForGeeksStats({ data, isLoading }: GeeksForGeeksStatsProps)
       <div className="mt-auto mb-1">
         <div className="text-[14px] text-gray-500">
           Score: <span className="font-mono font-medium">{data.codingScore}</span>
-          <span className="mx-2">•</span>
+          <span className="mx-2">|</span>
           Streak: <span className="font-mono font-medium">{data.currentStreak}</span>
         </div>
       </div>

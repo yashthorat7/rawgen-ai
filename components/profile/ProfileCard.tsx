@@ -10,7 +10,7 @@ import { CodeforcesStats } from "../platform-stats/CodeforcesStats";
 import { LoadingSkeleton } from "../platform-stats/LoadingSkeleton";
 import { LeetCodeDashboard } from "../dashboard/leetcode/Dashboard";
 import { CodeChefDashboard } from "../dashboard/codechef/Dashboard";
-import { GeeksForGeeksDashboard } from "../dashboard/GeeksForGeeksDashboard";
+import { GeeksForGeeksDashboard } from "../dashboard/geeksforgeeks/Dashboard";
 import { CodeforcesDashboard } from "../dashboard/codeforces/Dashboard";
 import type { LeetCodeData, CodeChefData, GeeksForGeeksData, CodeforcesData } from "@/lib/types";
 import { UpdateCardIcon } from "../ui/UpdateCardIcon";
@@ -126,9 +126,7 @@ export function ProfileCard({
         if ('codingScore' in data) {
           return (
             <GeeksForGeeksDashboard
-              username={username}
               data={data as GeeksForGeeksData}
-              platform={platform}
               onClose={() => setIsOpen(false)}
             />
           );
