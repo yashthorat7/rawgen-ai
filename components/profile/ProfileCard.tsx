@@ -186,7 +186,7 @@ export function ProfileCard({
 
           <div className="relative flex flex-col h-full rounded-lg">
             <h3 className="text-xl font-bold text-gray-900 truncate w-full mb-1">
-              {username}
+              {username.toLocaleLowerCase()}
             </h3>
             <div className="pr-2 flex-1">
               {renderStats()}

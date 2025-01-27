@@ -144,13 +144,13 @@ export function QuestionsSolved({ data }: QuestionsSolvedProps) {
                     />
                   </svg>
                   {/* Default Text Labels */}
-                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 text-xs sm:text-sm font-medium group-hover:opacity-0 transition-all duration-300">
+                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 text-xs sm:text-sm font-medium hover:none sm:group-hover:opacity-0 transition-all duration-300">
                     <span className="text-[#00b8a3]">Easy</span>
                     <span className="text-[#ffc01e]">Medium</span>
                     <span className="text-[#ff375f]">Hard</span>
                   </div>
                   {/* Hover Text Labels */}
-                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 text-xs sm:text-sm font-medium opacity-0 group-hover:opacity-100 transition-all duration-300">
+                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 text-xs sm:text-sm font-medium opacity-0 hover:none sm:group-hover:opacity-100 transition-all duration-300">
                     <span className="text-[#00b8a3]">{totalProgress.easy.toFixed(1)}%</span>
                     <span className="text-[#ffc01e]">{totalProgress.medium.toFixed(1)}%</span>
                     <span className="text-[#ff375f]">{totalProgress.hard.toFixed(1)}%</span>
@@ -187,7 +187,7 @@ export function QuestionsSolved({ data }: QuestionsSolvedProps) {
                 <span className="text-sm text-gray-500">Total Solved</span>
               </div>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="hidden sm:flex items-center gap-3">
               <div className="p-2 rounded-lg bg-yellow-50">
                 <Trophy className="w-5 h-5 text-yellow-500" />
               </div>

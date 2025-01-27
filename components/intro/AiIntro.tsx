@@ -104,7 +104,7 @@ export function AiIntro({ username, isPublicView = false }: AiIntroProps) {
   }, [generateAdvice]);
 
   return (
-    <div className="mt-5 mb-5">
+    <div className="mt-5 mb-4">
       <div className="block w-full px-4 py-3 relative rounded-lg text-[15px] sm:text-base text-gray-500 font-medium overflow-hidden z-0 select-none
                      before:absolute before:inset-0 before:rounded-lg before:content-[''] before:z-[1]
                      before:bg-[linear-gradient(var(--gradient-angle,0deg),#12c2e9,#c471ed,#f64f59)]

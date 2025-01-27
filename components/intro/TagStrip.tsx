@@ -1,8 +1,7 @@
 "use client";
 
 import { usePlatforms } from "@/lib/PlatformContext";
-import { useEffect, useState, useCallback, useRef } from "react";
-import { motion, useAnimationControls } from "framer-motion";
+import { useEffect, useState, useCallback } from "react";
 import Groq from "groq-sdk";
 
 const groq = new Groq({
@@ -22,10 +21,7 @@ export interface TagStripProps {
 export function TagStrip({ username, isPublicView = false }: TagStripProps) {
   const { platformData, platforms } = usePlatforms();
   const [tags, setTags] = useState<Tag[]>([]);
-  const [isPaused, setIsPaused] = useState(false);
   const [hasFetchedTags, setHasFetchedTags] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const controls = useAnimationControls();
 
   useEffect(() => {
     setHasFetchedTags(false);
@@ -120,54 +116,63 @@ export function TagStrip({ username, isPublicView = false }: TagStripProps) {
     generateTags();
   }, [generateTags]);
 
-  useEffect(() => {
-    if (!containerRef.current || tags.length === 0) return;
-
-    const animate = async () => {
-      const width = containerRef.current?.scrollWidth ?? 1;
-      await controls.start({
-        x: [0, -width],
-        transition: {
-          duration: 15,
-          repeat: Infinity,
-          ease: "linear",
-          repeatType: "mirror"
-        }
-      });
-    };
-
-    animate();
-
-    return () => {
-      controls.stop();
-    };
-  }, [controls, tags]);
-
   // Don't render anything if there are no tags
   if (tags.length === 0) return null;
 
   return (
-    <div className="w-full overflow-hidden mb-8 bg-gray-50 relative">
-      <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-gray-50 to-transparent z-10" />
+    <div className="w-full overflow-hidden mb-8 relative">
+      <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-[#f8f8fa] to-transparent z-10" />
 
-      <motion.div
-        ref={containerRef}
-        className="flex whitespace-nowrap gap-2 px-4"
-        animate={controls}
-        initial={{ x: 0 }}
-      >
-        {[...tags, ...tags].map((tag, index) => (
-          <div
-            key={index}
-            className="bg-slate-100 text-gray-900 px-3 py-1 rounded-md
-                     shadow-xl font-medium text-sm inline-block select-none"
-          >
-            {tag.text}
-          </div>
-        ))}
-      </motion.div>
+      <div className="relative flex overflow-x-hidden">
+        <div className="animate-marquee whitespace-nowrap flex gap-4 py-1">
+          {[...tags, ...tags, ...tags].map((tag, index) => (
+            <div
+              key={index}
+              className="bg-gray-100 text-gray-900 px-3 py-0.5 rounded-md text-sm inline-block select-none"
+            >
+              {tag.text}
+            </div>
+          ))}
+        </div>
 
-      <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-gray-50 to-transparent z-10" />
+        <div className="absolute top-0 animate-marquee2 whitespace-nowrap flex gap-4 py-1">
+          {[...tags, ...tags].map((tag, index) => (
+            <div
+              key={index}
+              className="bg-slate-100 text-gray-900 px-3 py-0.5 rounded-md text-sm inline-block select-none"
+            >
+              {tag.text}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-[#f8f8fa] to-transparent z-10" />
+
+      <style jsx>{`
+        @keyframes marquee {
+          0% {
+            transform: translateX(0%);
+          }
+          100% {
+            transform: translateX(-100%);
+          }
+        }
+        @keyframes marquee2 {
+          0% {
+            transform: translateX(100%);
+          }
+          100% {
+            transform: translateX(0%);
+          }
+        }
+        .animate-marquee {
+          animation: marquee 240s linear infinite;
+        }
+        .animate-marquee2 {
+          animation: marquee2 240s linear infinite;
+        }
+      `}</style>
     </div>
   );
 }

@@ -34,7 +34,7 @@ export function Badges({ data }: BadgesProps) {
 
   return (
     <div className={cn(
-      "bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-all duration-500 overflow-hidden select-none h-[400px]"
+      "bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-all duration-500 overflow-hidden select-none h-full sm:h-[400px]"
     )}>
       <div className="grid grid-cols-3 items-center mb-2">
         <h3 className="text-lg font-semibold">Badges</h3>
@@ -56,7 +56,7 @@ export function Badges({ data }: BadgesProps) {
       </div>
 
       {/* Grid of badges */}
-      <div className="transition-all duration-500 overflow-y-auto h-[320px] pr-2 scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent">
+      <div className="transition-all duration-500 overflow-y-auto sm:h-[320px] pr-2 scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent">
         <div className={cn(
           "flex flex-wrap gap-4",
           showAll ? "" : ""

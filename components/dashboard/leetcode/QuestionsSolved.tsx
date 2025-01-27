@@ -198,13 +198,13 @@ function ProgressCircle({ title, value, total, color, submissions, acceptanceRat
         
         {/* Default View (non-hover) */}
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-          <div className="text-base text-gray-600 mt-12 sm:group-hover:hidden transition-all duration-300">
+          <div className="text-base text-gray-600 mt-12 group-hover:hidden transition-all duration-300">
             {value}/{total}
           </div>
         </div>
 
         {/* Hover View */}
-        <div className="absolute inset-0 flex flex-col items-center justify-center opacity-0 sm:group-hover:opacity-100 transition-all duration-300">
+        <div className="absolute inset-0 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
           <div className="text-xl font-bold" style={{ color }}>
             {acceptanceRate}%
           </div>

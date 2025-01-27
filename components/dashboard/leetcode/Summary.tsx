@@ -61,7 +61,7 @@ export function Summary({ data }: SummaryProps) {
             </div>
 
             {/* Rank */}
-            <div className="flex items-center justify-center sm:justify-start gap-2 mb-2">
+            <div className="flex items-center justify-center sm:justify-start gap-2 mb-0">
               <div className="w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center">
                 <Trophy className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-500 fill-yellow-500 drop-shadow" />
               </div>
@@ -69,21 +69,21 @@ export function Summary({ data }: SummaryProps) {
             </div>
 
             {/* Work Info */}
-            <div className="flex flex-wrap justify-center sm:justify-start gap-2 mb-2">
+            <div className="flex flex-wrap justify-center sm:justify-start gap-2 mb-0">
               {data.jobTitle && (
-                <span className="inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs sm:text-sm font-medium">
+                <span className="inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs sm:text-sm font-medium my-1">
                   <Building className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
                   {data.jobTitle}
                 </span>
               )}
               {data.company && (
-                <span className="inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs sm:text-sm font-medium">
+                <span className="inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs sm:text-sm font-medium my-1">
                   <Building className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
                   {data.company}
                 </span>
               )}
               {data.school && (
-                <span className="inline-flex items-center rounded-lg bg-blue-100 text-blue-700 px-2.5 py-0.5 text-xs sm:text-sm font-medium">
+                <span className="inline-flex items-center rounded-lg bg-blue-100 text-blue-700 px-2.5 py-0.5 text-xs sm:text-sm font-medium my-1">
                   {data.school}
                 </span>
               )}
@@ -91,7 +91,7 @@ export function Summary({ data }: SummaryProps) {
 
             {/* About */}
             {data.about && (
-              <p className="text-gray-600 italic mb-3 line-clamp-2 text-center sm:text-left">{data.about}</p>
+              <p className="text-gray-600 italic mb-2 line-clamp-2 text-center sm:text-left">{data.about}</p>
             )}
 
             {/* Social Links */}
