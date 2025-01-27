@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Star, Code2, Trophy, Brain, Target, Users, ArrowRight } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useUser } from "@clerk/nextjs";
-import { SignInButton, SignUpButton, UserButton } from "@clerk/nextjs";
+import { UserButton } from "@clerk/nextjs";
 
 export function Hero() {
   const [isVisible, setIsVisible] = useState(true);
@@ -47,14 +47,14 @@ export function Hero() {
         isVisible ? 'translate-y-0' : '-translate-y-full'
       }`}>
         <div className="flex items-center justify-between px-6 py-3 mx-auto w-full lg:w-[90%]">
-          <div className="flex items-center gap-2 hover:scale-105 transition-transform">
+          <Link href="/" className="flex items-center gap-2 hover:scale-105 transition-transform">
             <div className="relative w-8 h-8">
               <Image src="/logo.svg" alt="Logo" fill className="animate-pulse" />
             </div>
             <span className="text-2xl bg-clip-text text-transparent bg-gradient-to-r from-primary-600 via-purple-600 to-pink-600 font-Raleway font-[900]" style={{ fontFamily: 'Raleway' }}>
               CodeX
             </span>
-          </div>
+          </Link>
 
           {/* Auth Buttons */}
           <div className="flex items-center gap-4">
@@ -74,11 +74,11 @@ export function Hero() {
             ) : (
               // Not logged in - show sign in/up buttons
               <div className="flex items-center gap-2">
-                <SignUpButton mode="modal">
-                  <button className="rounded-md bg-primary-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-primary-700">
+                <Link href="/sign-up">
+                  <Button className="rounded-md bg-primary-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-primary-700">
                     Sign Up
-                  </button>
-                </SignUpButton>
+                  </Button>
+                </Link>
               </div>
             )}
           </div>
@@ -113,17 +113,17 @@ export function Hero() {
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center mb-16 sm:mb-20">
-                <div className="hover:scale-105 transition-transform">
-                  <SignInButton mode="modal">
-                    <Button 
-                      size="lg" 
-                      className="w-full sm:w-[320px] text-base sm:text-lg bg-gradient-to-r from-primary-600 via-purple-600 to-pink-600 hover:from-primary-700 hover:via-purple-700 hover:to-pink-700 shadow-lg hover:shadow-xl transition-all duration-200 group"
-                    >
-                      Student Login
-                      <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-                    </Button>
-                  </SignInButton>
-                </div>
+              <div className="hover:scale-105 transition-transform">
+                <Link href="/sign-in">
+                  <Button 
+                    size="lg" 
+                    className="w-full sm:w-[320px] text-base sm:text-lg bg-gradient-to-r from-primary-600 via-purple-600 to-pink-600 hover:from-primary-700 hover:via-purple-700 hover:to-pink-700 shadow-lg hover:shadow-xl transition-all duration-200 group"
+                  >
+                    Student Login
+                    <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                  </Button>
+                </Link>
+              </div>
               <Button 
                 size="lg" 
                 variant="outline" 

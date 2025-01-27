@@ -11,7 +11,7 @@ import { extractCodeforcesData } from "./extractors/codeforcesExtractor";
 import type { Platform, PlatformData, LeetCodeData, CodeChefData, GeeksForGeeksData, CodeforcesData } from "./types";
 
 export function usePlatformState() {
-  const { user } = useUser();
+  const { user, isLoaded: isUserLoaded } = useUser();
   const [platforms, setPlatforms] = useState<Platform[]>([]);
   const [platformData, setPlatformData] = useState<PlatformData>({
     leetcode: {},
@@ -25,11 +25,30 @@ export function usePlatformState() {
   const deletePlatform = useMutation(api.users.deletePlatform);
   const updateProfileData = useMutation(api.users.updateProfileData);
   const updateOrder = useMutation(api.users.updateOrder);
+  const createUser = useMutation(api.users.createUser);
 
   // Get profiles from database
   const profiles = useQuery(api.users.getProfiles, user?.primaryEmailAddress?.emailAddress ? {
     email: user.primaryEmailAddress.emailAddress
   } : "skip");
+
+  // Create user if not exists
+  useEffect(() => {
+    const initUser = async () => {
+      if (!isUserLoaded || !user?.primaryEmailAddress?.emailAddress) return;
+
+      try {
+        await createUser({
+          email: user.primaryEmailAddress.emailAddress,
+          username: user.username || user.primaryEmailAddress.emailAddress.split('@')[0]
+        });
+      } catch (error) {
+        console.error("Error creating user:", error);
+      }
+    };
+
+    initUser();
+  }, [isUserLoaded, user, createUser]);
 
   // Fetch platform data and update cache
   const fetchPlatformData = useCallback(async (platformName: string, platformUsername: string) => {
@@ -90,8 +109,21 @@ export function usePlatformState() {
 
   // Process profiles and update state
   useEffect(() => {
+    // If user is loaded but not logged in, stop loading
+    if (!user?.primaryEmailAddress?.emailAddress) {
+      return;
+    }
+
     const processProfiles = async () => {
+      // If profiles query is skipped or returns undefined/null, show empty dashboard
       if (!profiles) {
+        setPlatforms([]);
+        setPlatformData({
+          leetcode: {},
+          codechef: {},
+          geeksforgeeks: {},
+          codeforces: {}
+        });
         setIsInitialLoading(false);
         return;
       }
@@ -152,7 +184,7 @@ export function usePlatformState() {
     };
 
     processProfiles();
-  }, [profiles, user?.primaryEmailAddress?.emailAddress, fetchPlatformData]);
+  }, [profiles, user?.primaryEmailAddress?.emailAddress, fetchPlatformData, isUserLoaded, user]);
 
   const handleAddPlatform = async (platformName: string, platformUsername: string) => {
     if (!user?.primaryEmailAddress?.emailAddress) return;

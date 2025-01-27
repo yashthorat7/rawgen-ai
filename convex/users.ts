@@ -411,3 +411,31 @@ export const getProfileImageUrl = query({
     return await ctx.storage.getUrl(args.storageId);
   },
 });
+
+// Create user if not exists
+export const createUser = mutation({
+  args: {
+    email: v.string(),
+    username: v.string(),
+  },
+  handler: async (ctx, args) => {
+    // Check if user already exists
+    const existingUser = await ctx.db
+      .query("users")
+      .withIndex("by_email", q => q.eq("email", args.email))
+      .first();
+
+    if (existingUser) {
+      return existingUser._id;
+    }
+
+    // Create new user
+    const userId = await ctx.db.insert("users", {
+      email: args.email,
+      username: args.username,
+      isverified: false
+    });
+
+    return userId;
+  }
+});
