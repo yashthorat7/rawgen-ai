@@ -4,6 +4,7 @@ import { api } from "@/convex/_generated/api";
 import { AddSkillCard } from "./AddSkillCard";
 import SkillCard from "./SkillCard";
 import { useUser } from "@clerk/nextjs";
+import { Title } from "../ui/Title";
 
 interface CategorySkills {
   _id: string;
@@ -40,9 +41,11 @@ export function SkillGrid({ username, isPublicView = false }: SkillGridProps) {
   // Show loading state while data is loading
   if ((!isLoaded && !isPublicView) || (!isPublicView && !privateUserData) || skills === undefined) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 mt-8 gap-5">
-        {[...Array(4)].map((_, i) => (
-          <div key={i} className="bg-white rounded-lg shadow-sm animate-pulse min-h-[225px] flex flex-col">
+      <>
+        <Title title="Skills" />
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 mt-2 gap-5">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="bg-white rounded-lg shadow-sm animate-pulse min-h-[225px] flex flex-col">
             {/* Skills at the top */}
             <div className="flex-1 p-4">
               <div className="flex flex-wrap gap-2 justify-center">
@@ -55,33 +58,30 @@ export function SkillGrid({ username, isPublicView = false }: SkillGridProps) {
             {/* Category at the bottom */}
             <div className="p-3 flex justify-center items-center border-t border-gray-100">
               <div className="h-6 bg-gray-200 rounded w-32" />
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      </>
     );
   }
 
-  // Show message if no user is logged in and not in public view
-  if (!isPublicView && !email) {
-    return (
-      <div className="mt-8 text-center text-gray-500">
-        Please log in to view skills
-      </div>
-    );
-  }
+
 
   // Show message if no skills found
   if (!skills || skills.length === 0) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 mt-8 gap-5">
-        {!isPublicView && <AddSkillCard />}
-        {isPublicView && (
-          <div className="mt-8 text-center text-gray-500 col-span-4">
-            No skills added yet
-          </div>
-        )}
-      </div>
+      <>
+        <Title title="Skills" />
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 mt-2 gap-5">
+          {!isPublicView && <AddSkillCard />}
+          {isPublicView && (
+            <div className="mt-2 text-center text-gray-500 col-span-4">
+              No skills added yet
+            </div>
+          )}
+        </div>
+      </>
     );
   }
 
@@ -106,22 +106,25 @@ export function SkillGrid({ username, isPublicView = false }: SkillGridProps) {
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 mt-8 gap-5">
-      {skills.map((categorySkills, index) => (
-        <SkillCard
-          key={categorySkills._id || `skill-${categorySkills.category}-${index}`}
-          category={categorySkills.category}
-          skills={categorySkills.skills}
-          index={index}
-          onReorder={!isPublicView ? handleReorder : undefined}
-          onDelete={!isPublicView && privateUserData?.username ? () => deleteSkillCategory({
-            username: privateUserData.username,
-            category: categorySkills.category
-          }) : undefined}
-          isPublicView={isPublicView}
-        />
-      ))}
-      {!isPublicView && <AddSkillCard />}
-    </div>
+    <>
+      <Title title="Skills" />
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 mt-2 gap-5">
+        {skills.map((categorySkills, index) => (
+          <SkillCard
+            key={categorySkills._id || `skill-${categorySkills.category}-${index}`}
+            category={categorySkills.category}
+            skills={categorySkills.skills}
+            index={index}
+            onReorder={!isPublicView ? handleReorder : undefined}
+            onDelete={!isPublicView && privateUserData?.username ? () => deleteSkillCategory({
+              username: privateUserData.username,
+              category: categorySkills.category
+            }) : undefined}
+            isPublicView={isPublicView}
+          />
+        ))}
+        {!isPublicView && <AddSkillCard />}
+      </div>
+    </>
   );
 } 

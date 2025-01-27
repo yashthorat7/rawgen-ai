@@ -94,7 +94,7 @@ export function Header() {
           ) : (
             <Link 
               href="/sign-in"
-              className="flex items-center gap-2 hover:bg-gray-50 px-3 py-2 rounded-md transition-colors text-sm font-medium border-gray-200 border-2"
+              className="flex items-center gap-2 hover:bg-gray-50 px-3 py-2 rounded-md transition-colors text-sm font-medium border border-gray-200 hover:border-gray-300"
             >
               Sign In
             </Link>

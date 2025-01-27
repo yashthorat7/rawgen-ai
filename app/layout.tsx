@@ -22,8 +22,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={quicksand.className}>
+    <html lang="en">
+      <body className={quicksand.className} suppressHydrationWarning>
         <ClerkProvider>
           <ConvexClientProvider>
             {children}

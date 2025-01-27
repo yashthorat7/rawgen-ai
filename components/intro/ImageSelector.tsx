@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import ReactCrop, { Crop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
-import { PencilIcon } from "lucide-react";
+import { PencilIcon, User } from "lucide-react";
 import { createPortal } from 'react-dom';
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
@@ -177,19 +177,7 @@ export function ImageSelector({ image: initialImage, onImageChange }: ImageSelec
             </div>
           ) : (
             <div className="w-full h-full flex items-center justify-center text-gray-400 group-hover:text-blue-500">
-              <svg
-                className="w-12 h-12"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                />
-              </svg>
+              <User className="w-24 h-24" strokeWidth={1.5} />
             </div>
           )}
           

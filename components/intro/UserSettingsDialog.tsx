@@ -18,6 +18,7 @@ interface UserSettingsDialogProps {
 
 const MAX_PROFILE_IMAGE_SIZE = 50 * 1024; // 50KB
 const MAX_MARKSHEET_IMAGE_SIZE = 200 * 1024; // 200KB
+const MIN_USERNAME_LENGTH = 6;
 
 export function UserSettingsDialog({ isOpen, onClose, defaultFirstName = "", defaultLastName = "" }: UserSettingsDialogProps) {
     useScrollLock(isOpen);
@@ -122,6 +123,13 @@ export function UserSettingsDialog({ isOpen, onClose, defaultFirstName = "", def
         // If the username hasn't changed from what's in the database, it's valid
         if (userInfo && username === userInfo.username) {
             setIsUsernameValid(true);
+            setIsValidatingUsername(false);
+            return;
+        }
+
+        // Check username length first
+        if (username && username.length < MIN_USERNAME_LENGTH) {
+            setIsUsernameValid(false);
             setIsValidatingUsername(false);
             return;
         }
@@ -282,7 +290,8 @@ export function UserSettingsDialog({ isOpen, onClose, defaultFirstName = "", def
                                         className={`flex-1 px-3 py-2 border-2 rounded-md focus:outline-primary-500 ${isUsernameValid === false ? 'border-red-500' :
                                             isUsernameValid === true ? 'border-green-500' : ''
                                             }`}
-                                        placeholder="Choose a username"
+                                        placeholder="Choose a username (min. 6 characters)"
+                                        minLength={MIN_USERNAME_LENGTH}
                                     />
                                     {isValidatingUsername ? (
                                         <div className="w-10 flex items-center justify-center">
@@ -298,8 +307,13 @@ export function UserSettingsDialog({ isOpen, onClose, defaultFirstName = "", def
                                         </div>
                                     )}
                                 </div>
-                                {isUsernameValid === false && (
-                                    <p className="text-red-500 text-sm mt-1">Username is already taken</p>
+                                {isUsernameValid === false && username && (
+                                    <p className="text-red-500 text-sm mt-1">
+                                        {username.length < MIN_USERNAME_LENGTH 
+                                            ? `Username must be at least ${MIN_USERNAME_LENGTH} characters long`
+                                            : "Username is already taken"
+                                        }
+                                    </p>
                                 )}
                             </div>
 

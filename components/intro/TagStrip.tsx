@@ -128,7 +128,7 @@ export function TagStrip({ username, isPublicView = false }: TagStripProps) {
           {[...tags, ...tags, ...tags].map((tag, index) => (
             <div
               key={index}
-              className="bg-gray-100 text-gray-900 px-3 py-0.5 rounded-md text-sm inline-block select-none"
+              className="bg-gray-100 border-[1.5px] border-slate-300 text-gray-900 px-3 py-0.5 rounded-md text-sm inline-block select-none"
             >
               {tag.text}
             </div>
@@ -139,7 +139,7 @@ export function TagStrip({ username, isPublicView = false }: TagStripProps) {
           {[...tags, ...tags].map((tag, index) => (
             <div
               key={index}
-              className="bg-slate-100 text-gray-900 px-3 py-0.5 rounded-md text-sm inline-block select-none"
+              className="bg-slate-100 border-[1.5px] border-slate-300 text-gray-900 px-3 py-0.5 rounded-md text-sm inline-block select-none"
             >
               {tag.text}
             </div>

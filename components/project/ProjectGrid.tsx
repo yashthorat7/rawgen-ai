@@ -7,6 +7,7 @@ import { AddProjectCard } from "./AddProjectCard";
 import { ProjectCard } from "./ProjectCard";
 import { Id } from "@/convex/_generated/dataModel";
 import { ProjectCardSkeleton } from "../platform-stats/LoadingSkeleton";
+import { Title } from "../ui/Title";
 
 interface Project {
   id: Id<"projects">;
@@ -78,56 +79,68 @@ export function ProjectGrid({ username, isPublicView = false }: ProjectGridProps
   // Show loading state while data is loading
   if ((!isLoaded && !isPublicView) || (!isPublicView && !privateUserData) || projects === undefined) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 mt-12">
-        {[...Array(3)].map((_, i) => (
-          <ProjectCardSkeleton key={i} />
-        ))}
-      </div>
+      <>
+        <Title title="Projects" />
+        <div className="mt-2 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+          {[...Array(3)].map((_, i) => (
+            <ProjectCardSkeleton key={i} />
+          ))}
+        </div>
+      </>
     );
   }
 
   // Show message if no user is logged in and not in public view
   if (!isPublicView && !email) {
     return (
-      <div className="mt-12 text-center text-gray-500">
-        Please log in to view projects
-      </div>
+      <>
+        <Title title="Projects" />
+        <div className="mt-2 text-center text-gray-500">
+          Please log in to view projects
+        </div>
+      </>
     );
   }
 
   // Show message if no projects found
   if (!projects || projects.length === 0) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 mt-12">
-        {!isPublicView && <AddProjectCard />}
-        {isPublicView && (
-          <div className="mt-8 text-center text-gray-500 col-span-3">
-            No projects added yet
-          </div>
-        )}
-      </div>
+      <>
+        <Title title="Projects" />
+        <div className="mt-2 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+          {!isPublicView && <AddProjectCard />}
+          {isPublicView && (
+            <div className="mt-2 text-center text-gray-500 col-span-3">
+              No projects added yet
+            </div>
+          )}
+        </div>
+      </>
     );
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 mt-12">
-      {projects.map((project: Project, index) => (
-        <ProjectCard
-          key={project.id}
-          id={project.id}
-          title={project.title}
-          description={project.description}
-          projectLink={project.projectLink}
-          deployLink={project.deployLink}
-          techStack={project.techStack}
-          image={project.image || undefined}
-          index={index}
-          onReorder={!isPublicView ? handleReorder : undefined}
-          onDelete={!isPublicView ? () => handleDelete(project.id) : undefined}
-          isPublicView={isPublicView}
-        />
-      ))}
-      {!isPublicView && <AddProjectCard />}
-    </div>
+    <>
+      <Title title="Projects" />
+      <div className="mt-2 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+        {projects.map((project: Project, index) => (
+          <ProjectCard
+            key={project.id}
+            id={project.id}
+            title={project.title}
+            description={project.description}
+            projectLink={project.projectLink}
+            deployLink={project.deployLink}
+            techStack={project.techStack}
+            image={project.image || undefined}
+            index={index}
+            onReorder={!isPublicView ? handleReorder : undefined}
+            onDelete={!isPublicView ? () => handleDelete(project.id) : undefined}
+            isPublicView={isPublicView}
+          />
+        ))}
+        {!isPublicView && <AddProjectCard />}
+      </div>
+    </>
   );
 }

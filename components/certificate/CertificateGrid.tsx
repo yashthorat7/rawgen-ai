@@ -6,6 +6,7 @@ import { useUser } from "@clerk/nextjs";
 import { AddCertificateCard } from "./AddCertificateCard";
 import { CertificateCard } from "./CertificateCard";
 import { Id } from "@/convex/_generated/dataModel";
+import { Title } from "../ui/Title";
 
 interface Certificate {
   id: Id<"certificates">;
@@ -73,57 +74,66 @@ export function CertificateGrid({ username, isPublicView = false }: CertificateG
   // Show loading state while data is loading
   if ((!isLoaded && !isPublicView) || (!isPublicView && !privateUserData) || certificates === undefined) {
     return (
-      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 mt-12">
-        {[...Array(4)].map((_, i) => (
-          <div key={i} className="bg-white rounded-lg shadow-sm animate-pulse">
-            {/* Image placeholder */}
-            <div className="aspect-video p-4 pb-1">
-              <div className="w-full h-full bg-gray-200 rounded-lg" />
+      <>
+        <Title title="Certificates" />
+        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 mt-2">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="bg-white rounded-lg shadow-sm animate-pulse">
+              {/* Image placeholder */}
+              <div className="aspect-video p-4 pb-1">
+                <div className="w-full h-full bg-gray-200 rounded-lg" />
+              </div>
+              
+              {/* Content */}
+              <div className="p-4 pt-0">
+                <div className="h-6 bg-gray-200 rounded w-3/4 mb-3" />
+                <div className="h-5 bg-gray-200 rounded w-1/4 mb-3" />
+                <div className="h-4 bg-gray-200 rounded w-full" />
+              </div>
             </div>
-            
-            {/* Content */}
-            <div className="p-4 pt-0">
-              <div className="h-6 bg-gray-200 rounded w-3/4 mb-3" />
-              <div className="h-5 bg-gray-200 rounded w-1/4 mb-3" />
-              <div className="h-4 bg-gray-200 rounded w-full" />
-            </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      </>
     );
   }
 
   // Show message if no certificates found
   if (!certificates || certificates.length === 0) {
     return (
-      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 mt-12">
-        {!isPublicView && <AddCertificateCard />}
-        {isPublicView && (
-          <div className="mt-8 text-center text-gray-500 col-span-4">
-            No certificates added yet
-          </div>
-        )}
-      </div>
+      <>
+      <Title title="Certificates" />
+        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 mt-2">
+          {!isPublicView && <AddCertificateCard />}
+          {isPublicView && (
+            <div className="mt-2 text-center text-gray-500 col-span-4">
+              No certificates added yet
+            </div>
+          )}
+        </div>
+      </>
     );
   }
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 mt-12">
-      {certificates.map((certificate: Certificate, index) => (
-        <CertificateCard
-          key={certificate.id}
-          id={certificate.id}
-          title={certificate.title}
-          category={certificate.category}
-          description={certificate.description}
-          image={certificate.image}
-          index={index}
-          onReorder={!isPublicView ? handleReorder : undefined}
-          onDelete={!isPublicView ? () => handleDelete(certificate.id) : undefined}
-          isPublicView={isPublicView}
-        />
-      ))}
-      {!isPublicView && <AddCertificateCard />}
-    </div>
+    <>
+    <Title title="Certificates" />
+      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 mt-2">
+        {certificates.map((certificate: Certificate, index) => (
+          <CertificateCard
+            key={certificate.id}
+            id={certificate.id}
+            title={certificate.title}
+            category={certificate.category}
+            description={certificate.description}
+            image={certificate.image}
+            index={index}
+            onReorder={!isPublicView ? handleReorder : undefined}
+            onDelete={!isPublicView ? () => handleDelete(certificate.id) : undefined}
+            isPublicView={isPublicView}
+          />
+        ))}
+        {!isPublicView && <AddCertificateCard />}
+      </div>
+    </>
   );
 } 

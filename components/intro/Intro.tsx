@@ -7,7 +7,7 @@ import { UserSettingsDialog } from "./UserSettingsDialog";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import Image from "next/image";
-import { CheckCircle } from "lucide-react";
+import { CheckCircle, User } from "lucide-react";
 import { motion, Variants } from "framer-motion";
 import { SocialMedia } from "./SocialMedia";
 import { SocialLinks } from "@/lib/types";
@@ -124,19 +124,7 @@ export function Intro({ username, isPublicView = false }: IntroProps) {
             </div>
           ) : (
             <div className="w-full h-full flex items-center justify-center text-gray-400 group-hover:text-blue-500">
-              <svg
-                className="w-12 h-12"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                />
-              </svg>
+              <User className="w-24 h-24" strokeWidth={1.5} />
             </div>
           )}
 
