@@ -12,6 +12,7 @@ interface SkillCardProps {
   onDelete?: () => void;
   index: number;
   onReorder?: (fromIndex: number, toIndex: number) => Promise<void>;
+  isPublicView?: boolean;
 }
 
 const distributeSkills = (skills: string[]) => {
@@ -76,7 +77,14 @@ const getRandomColor = () => {
   return colors[Math.floor(Math.random() * colors.length)];
 };
 
-export function SkillCard({ category, skills = [], onDelete, index, onReorder }: SkillCardProps) {
+export function SkillCard({ 
+  category, 
+  skills = [], 
+  onDelete, 
+  index, 
+  onReorder,
+  isPublicView = false 
+}: SkillCardProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [hoveredPosition, setHoveredPosition] = useState<{ row: number, col: number } | null>(null);
   const [hoverColor, setHoverColor] = useState('');
@@ -154,12 +162,12 @@ export function SkillCard({ category, skills = [], onDelete, index, onReorder }:
         className={`group relative bg-transparent 
                   w-full min-h-[120px] sm:min-h-[225px] overflow-hidden
                   rounded-lg cursor-pointer select-none ${isDragging ? 'opacity-50' : ''}`}
-        draggable
-        onDragStart={handleDragStart}
-        onDragEnd={handleDragEnd}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
+        draggable={!isPublicView}
+        onDragStart={!isPublicView ? handleDragStart : undefined}
+        onDragEnd={!isPublicView ? handleDragEnd : undefined}
+        onDragOver={!isPublicView ? handleDragOver : undefined}
+        onDragLeave={!isPublicView ? handleDragLeave : undefined}
+        onDrop={!isPublicView ? handleDrop : undefined}
       >
         <div className="w-full h-full flex flex-col border-2 border-transparent rounded-lg">
           {/* Skills Area */}
@@ -229,13 +237,15 @@ export function SkillCard({ category, skills = [], onDelete, index, onReorder }:
             <div className="text-black text-lg sm:text-xl title font-bold truncate">
               {category}
             </div>
-            <div className="absolute right-0 bottom-1">
-              <UpdateCardIcon
-                onEdit={() => setIsEditDialogOpen(true)}
-                onDelete={onDelete}
-                position="bottom-right"
-              />
-            </div>
+            {!isPublicView && (
+              <div className="absolute right-0 bottom-1">
+                <UpdateCardIcon
+                  onEdit={() => setIsEditDialogOpen(true)}
+                  onDelete={onDelete}
+                  position="bottom-right"
+                />
+              </div>
+            )}
           </div>
         </div>
       </div>

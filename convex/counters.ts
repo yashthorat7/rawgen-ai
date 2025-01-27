@@ -1,5 +1,6 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { Id } from "./_generated/dataModel";
 
 export const get = query({
   args: { userId: v.id("users") },
@@ -78,4 +79,29 @@ export const incrementViews = mutation({
       });
     }
   },
+});
+
+export const addStar = mutation({
+  args: {
+    userId: v.id("users"),
+    starredBy: v.string()
+  },
+  handler: async (ctx, args) => {
+    // Get the user's stars
+    const user = await ctx.db.get(args.userId);
+    if (!user) return { success: false, reason: "User not found" };
+
+    // Check if user has already starred
+    const stars = user.stars || [];
+    if (stars.includes(args.starredBy)) {
+      return { success: false, reason: "Already starred" };
+    }
+
+    // Add the star
+    await ctx.db.patch(args.userId, {
+      stars: [...stars, args.starredBy]
+    });
+
+    return { success: true };
+  }
 }); 

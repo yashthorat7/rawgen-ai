@@ -1,7 +1,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { Header } from "@/components/layout/Header";
-import { AiSuggestor } from "@/components/intro/AiIntro";
+import { AiIntro } from "@/components/intro/AiIntro";
 import { PlatformProvider } from "@/lib/PlatformContext";
 import { ProfileGrid } from "@/components/profile/ProfileGrid";
 import { Intro } from "@/components/intro/Intro";
@@ -29,7 +29,7 @@ export default async function DashboardPage() {
         <main className="flex-1 relative dotted-background">
           <div className="p-4 mt-4 mx-auto w-full lg:w-[90%]">
             <Intro />
-            <AiSuggestor />
+            <AiIntro />
             <TagStrip />
             <ProfileGrid />
             <SkillGrid />

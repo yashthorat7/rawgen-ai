@@ -439,3 +439,29 @@ export const createUser = mutation({
     return userId;
   }
 });
+
+// Get user by username
+export const getUserByUsername = query({
+  args: { username: v.string() },
+  handler: async (ctx, { username }) => {
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_username", q => q.eq("username", username))
+      .first();
+
+    if (!user) {
+      return null;
+    }
+
+    // Get all profiles for this user
+    const profiles = await ctx.db
+      .query("profiles")
+      .withIndex("by_user", (q) => q.eq("userId", user._id))
+      .collect();
+
+    return {
+      ...user,
+      profiles
+    };
+  }
+});

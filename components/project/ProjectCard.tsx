@@ -18,6 +18,7 @@ interface ProjectCardProps {
   onDelete?: () => void;
   index: number;
   onReorder?: (fromIndex: number, toIndex: number) => Promise<void>;
+  isPublicView?: boolean;
 }
 
 export function ProjectCard({ 
@@ -30,7 +31,8 @@ export function ProjectCard({
   image,
   onDelete,
   index,
-  onReorder
+  onReorder,
+  isPublicView = false
 }: ProjectCardProps) {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
@@ -79,12 +81,12 @@ export function ProjectCard({
                   hover:shadow-[0_8px_12px_rgba(0,0,100,0.1)] hover:scale-[1.01] rounded-lg
                   cursor-pointer ${isDragging ? 'opacity-50' : ''}`}
         onClick={() => setShowInfo(true)}
-        draggable
-        onDragStart={handleDragStart}
-        onDragEnd={handleDragEnd}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
+        draggable={!isPublicView}
+        onDragStart={!isPublicView ? handleDragStart : undefined}
+        onDragEnd={!isPublicView ? handleDragEnd : undefined}
+        onDragOver={!isPublicView ? handleDragOver : undefined}
+        onDragLeave={!isPublicView ? handleDragLeave : undefined}
+        onDrop={!isPublicView ? handleDrop : undefined}
       >
         {image && (
           <div className="aspect-video overflow-hidden p-4 pb-1">
@@ -117,12 +119,14 @@ export function ProjectCard({
               </span>
             ))}
           </div>
-          <div className="absolute bottom-4 right-4">
-            <UpdateCardIcon
-              onEdit={() => setIsEditDialogOpen(true)}
-              onDelete={onDelete}
-            />
-          </div>
+          {!isPublicView && (
+            <div className="absolute bottom-4 right-4">
+              <UpdateCardIcon
+                onEdit={() => setIsEditDialogOpen(true)}
+                onDelete={onDelete}
+              />
+            </div>
+          )}
         </div>
       </div>
 

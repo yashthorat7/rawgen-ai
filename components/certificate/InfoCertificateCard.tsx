@@ -1,6 +1,7 @@
 "use client";
 
 import { X } from "lucide-react";
+import { cn, useScrollLock } from "@/lib/utils";
 
 interface InfoCertificateCardProps {
   title: string;
@@ -17,6 +18,7 @@ export function InfoCertificateCard({
   image,
   onClose
 }: InfoCertificateCardProps) {
+  useScrollLock(true);
   return (
     <>
       <div
@@ -24,7 +26,7 @@ export function InfoCertificateCard({
         onClick={onClose}
       />
       <div className="fixed inset-0 flex items-center justify-center z-[9999] p-4 overflow-auto">
-        <div className="bg-white rounded-lg shadow-xl w-full max-w-[90%] md:max-w-[800px] lg:max-w-[1000px] max-h-[90vh] flex flex-col">
+        <div className="bg-white rounded-lg shadow-xl w-full max-w-full md:max-w-[800px] lg:max-w-[1000px] max-h-[90vh] flex flex-col">
           {/* Header with integrated close button */}
           <div className="p-4 sm:p-6 border-b flex justify-between items-center">
             <h2 className="text-xl sm:text-2xl font-bold text-primary-600">{title}</h2>

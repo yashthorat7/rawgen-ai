@@ -11,27 +11,34 @@ interface CategorySkills {
   skills: string[];
 }
 
-export function SkillGrid() {
+interface SkillGridProps {
+  username?: string;
+  isPublicView?: boolean;
+}
+
+export function SkillGrid({ username, isPublicView = false }: SkillGridProps) {
   const { user, isLoaded } = useUser();
   const email = user?.primaryEmailAddress?.emailAddress;
   const reorderSkills = useMutation(api.skills.reorderSkills);
 
-  // First get user data from email
-  const userData = useQuery(
+  // First get user data from email (for private view)
+  const privateUserData = useQuery(
     api.users.getUser,
-    email ? { email } : "skip"
+    !isPublicView && email ? { email } : "skip"
   );
 
-  // Then use the username from user data to get skills
+  // Get skills either from username (public) or user data (private)
   const skills = useQuery(
     api.skills.getUserSkills,
-    userData?.username ? { username: userData.username } : "skip"
+    isPublicView 
+      ? username ? { username } : "skip"
+      : privateUserData?.username ? { username: privateUserData.username } : "skip"
   );
 
   const deleteSkillCategory = useMutation(api.skills.deleteSkillCategory);
 
-  // Show loading state while user data is loading
-  if (!isLoaded || !userData || skills === undefined) {
+  // Show loading state while data is loading
+  if ((!isLoaded && !isPublicView) || (!isPublicView && !privateUserData) || skills === undefined) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 mt-8 gap-5">
         {[...Array(4)].map((_, i) => (
@@ -55,8 +62,8 @@ export function SkillGrid() {
     );
   }
 
-  // Show message if no user is logged in
-  if (!email) {
+  // Show message if no user is logged in and not in public view
+  if (!isPublicView && !email) {
     return (
       <div className="mt-8 text-center text-gray-500">
         Please log in to view skills
@@ -65,16 +72,21 @@ export function SkillGrid() {
   }
 
   // Show message if no skills found
-  if (skills.length === 0) {
+  if (!skills || skills.length === 0) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 mt-8 gap-5">
-        <AddSkillCard />
+        {!isPublicView && <AddSkillCard />}
+        {isPublicView && (
+          <div className="mt-8 text-center text-gray-500 col-span-4">
+            No skills added yet
+          </div>
+        )}
       </div>
     );
   }
 
   const handleReorder = async (fromIndex: number, toIndex: number) => {
-    if (!email || !skills) return;
+    if (!email || !skills || !privateUserData?.username) return;
 
     // Create updates array with new order
     const newSkills = [...skills];
@@ -101,14 +113,15 @@ export function SkillGrid() {
           category={categorySkills.category}
           skills={categorySkills.skills}
           index={index}
-          onReorder={handleReorder}
-          onDelete={() => deleteSkillCategory({
-            username: userData.username,
+          onReorder={!isPublicView ? handleReorder : undefined}
+          onDelete={!isPublicView && privateUserData?.username ? () => deleteSkillCategory({
+            username: privateUserData.username,
             category: categorySkills.category
-          })}
+          }) : undefined}
+          isPublicView={isPublicView}
         />
       ))}
-      <AddSkillCard />
+      {!isPublicView && <AddSkillCard />}
     </div>
   );
 } 

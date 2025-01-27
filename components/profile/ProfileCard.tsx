@@ -18,15 +18,20 @@ import { UpdateCardIcon } from "../ui/UpdateCardIcon";
 export function ProfileCard({
   platform,
   username,
-  index
+  index,
+  isPublicView = false,
+  platformData
 }: {
   platform: string;
   username: string;
   index: number;
+  isPublicView?: boolean;
+  platformData?: any;
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
-  const { platformData, platforms, removePlatform, reorderPlatforms } = usePlatforms();
+  const platformContext = isPublicView ? null : usePlatforms();
+  const { platforms = [], removePlatform, reorderPlatforms } = platformContext || {};
 
   const handleDragStart = (e: React.DragEvent) => {
     setIsDragging(true);
@@ -65,11 +70,11 @@ export function ProfileCard({
       order: i
     }));
 
-    await reorderPlatforms(fromIndex, index);
+    await reorderPlatforms?.(fromIndex, index);
   };
 
   const renderStats = () => {
-    const data = platformData[platform as keyof typeof platformData]?.[username];
+    const data = (isPublicView ? platformData : platformContext?.platformData)?.[platform as keyof typeof platformData]?.[username];
     if (!data) return null;
 
     switch (platform) {
@@ -98,7 +103,7 @@ export function ProfileCard({
   };
 
   const renderDashboard = () => {
-    const data = platformData[platform as keyof typeof platformData]?.[username];
+    const data = (isPublicView ? platformData : platformContext?.platformData)?.[platform as keyof typeof platformData]?.[username];
     if (!data) return null;
 
     switch (platform) {
@@ -156,12 +161,12 @@ export function ProfileCard({
                     hover:shadow-[0_8px_12px_rgba(0,0,100,0.1)] hover:scale-[1.01] cursor-pointer p-4 rounded-lg
                     ${isDragging ? 'opacity-50' : ''}`}
           onClick={() => setIsOpen(true)}
-          draggable
-          onDragStart={handleDragStart}
-          onDragEnd={handleDragEnd}
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
-          onDrop={handleDrop}
+          draggable={!isPublicView}
+          onDragStart={!isPublicView ? handleDragStart : undefined}
+          onDragEnd={!isPublicView ? handleDragEnd : undefined}
+          onDragOver={!isPublicView ? handleDragOver : undefined}
+          onDragLeave={!isPublicView ? handleDragLeave : undefined}
+          onDrop={!isPublicView ? handleDrop : undefined}
         >
           <div className="w-full bg-gray-50 h-full flex flex-col items-center rounded-lg transition-colors hover:bg-white">
             <div className="flex-1 flex items-center justify-center">
@@ -186,9 +191,11 @@ export function ProfileCard({
             <div className="pr-2 flex-1">
               {renderStats()}
             </div>
-            <div className="absolute bottom-0 right-0">
-              <UpdateCardIcon onDelete={() => removePlatform(platform, username)} />
-            </div>
+            {!isPublicView && removePlatform && (
+              <div className="absolute bottom-0 right-0">
+                <UpdateCardIcon onDelete={() => removePlatform(platform, username)} />
+              </div>
+            )}
           </div>
         </div>
       </div>

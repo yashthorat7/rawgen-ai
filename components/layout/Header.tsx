@@ -8,6 +8,7 @@ import { Menu } from "lucide-react";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { HeaderMenu } from "./HeaderMenu";
+import Link from "next/link";
 
 function useScrollDirection() {
   const [scrollDirection, setScrollDirection] = useState("up");
@@ -36,7 +37,7 @@ function useScrollDirection() {
 }
 
 export function Header() {
-  const { user } = useUser();
+  const { user, isSignedIn } = useUser();
   const [showDropdown, setShowDropdown] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -65,7 +66,7 @@ export function Header() {
       scrollDirection === "down" ? "-translate-y-full" : "translate-y-0"
     } top-0 z-20 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 select-none`}>
       <div className="flex items-center justify-between px-6 py-2 mx-auto w-full lg:w-[90%] relative">
-        <div className="flex items-center gap-2">
+        <Link href="/" className="flex items-center gap-2">
           <div className="relative w-8 h-8">
             <Image
               src="/logo.svg"
@@ -76,21 +77,28 @@ export function Header() {
           <span className="text-2xl font-Raleway text-gray-900 font-[900]" style={{ fontFamily: 'Raleway' }}>
             CodeX
           </span>
-        </div>
+        </Link>
         <div className="flex items-center gap-4" ref={dropdownRef}>
-          <button
-            onClick={() => setShowDropdown(!showDropdown)}
-            className={`flex items-center gap-2 hover:bg-gray-50 px-3 py-2 rounded-md transition-colors
-              ${userInfo?.username ? 'sm:border sm:border-gray-200 sm:hover:border-gray-300' : ''}
-            `}
-          >
-            <span className="hidden sm:block text-sm font-medium">
-              {userInfo?.username || (
-                <div className="w-20 h-4 bg-gray-200 rounded animate-pulse" />
-              )}
-            </span>
-            <Menu className="w-5 h-5 sm:hidden" />
-          </button>
+          {isSignedIn ? (
+            <button
+              onClick={() => setShowDropdown(!showDropdown)}
+              className="flex items-center gap-2 hover:bg-gray-50 px-3 py-2 rounded-md transition-colors sm:border sm:border-gray-200 sm:hover:border-gray-300"
+            >
+              <span className="hidden sm:block text-sm font-medium">
+                {userInfo?.username || (
+                  <div className="w-20 h-4 bg-gray-200 rounded animate-pulse" />
+                )}
+              </span>
+              <Menu className="w-5 h-5 sm:hidden" />
+            </button>
+          ) : (
+            <Link 
+              href="/sign-in"
+              className="flex items-center gap-2 hover:bg-gray-50 px-3 py-2 rounded-md transition-colors text-sm font-medium border-gray-200 border-2"
+            >
+              Sign In
+            </Link>
+          )}
           
           {showDropdown && (
             <div className="absolute right-4 top-full mt-2 z-[100]">

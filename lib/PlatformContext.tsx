@@ -3,13 +3,18 @@
 import { createContext, useContext } from "react";
 import { useUser } from "@clerk/nextjs";
 import { usePlatformState } from "./PlatformState";
-import type { PlatformContextType } from './types';
+import type { PlatformContextType, PlatformData } from './types';
 
 const PlatformContext = createContext<PlatformContextType | undefined>(undefined);
 
-export function PlatformProvider({ children }: { children: React.ReactNode }) {
+interface PlatformProviderProps {
+  children: React.ReactNode;
+  platformData?: PlatformData;
+}
+
+export function PlatformProvider({ children, platformData }: PlatformProviderProps) {
   const { user } = useUser();
-  const platformState = usePlatformState();
+  const platformState = usePlatformState(platformData);
 
   return (
     <PlatformContext.Provider value={platformState}>

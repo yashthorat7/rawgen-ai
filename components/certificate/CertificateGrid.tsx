@@ -16,20 +16,27 @@ interface Certificate {
   order: number;
 }
 
-export function CertificateGrid() {
+interface CertificateGridProps {
+  username?: string;
+  isPublicView?: boolean;
+}
+
+export function CertificateGrid({ username, isPublicView = false }: CertificateGridProps) {
   const { user, isLoaded } = useUser();
   const email = user?.primaryEmailAddress?.emailAddress;
 
-  // First get user data from email
-  const userData = useQuery(
+  // First get user data from email (for private view)
+  const privateUserData = useQuery(
     api.users.getUser,
-    email ? { email } : "skip"
+    !isPublicView && email ? { email } : "skip"
   );
 
-  // Then use the username to get certificates
+  // Get certificates either from username (public) or user data (private)
   const certificates = useQuery(
     api.certificates.get,
-    userData?.username ? { username: userData.username } : "skip"
+    isPublicView 
+      ? username ? { username } : "skip"
+      : privateUserData?.username ? { username: privateUserData.username } : "skip"
   );
 
   const removeCertificate = useMutation(api.certificates.remove);
@@ -44,7 +51,7 @@ export function CertificateGrid() {
   };
 
   const handleReorder = async (fromIndex: number, toIndex: number) => {
-    if (!email || !certificates) return;
+    if (!email || !certificates || !privateUserData?.username) return;
 
     // Create updates array with new order
     const newCertificates = [...certificates];
@@ -63,8 +70,8 @@ export function CertificateGrid() {
     });
   };
 
-  // Show loading state while user data is loading
-  if (!isLoaded || !userData || certificates === undefined) {
+  // Show loading state while data is loading
+  if ((!isLoaded && !isPublicView) || (!isPublicView && !privateUserData) || certificates === undefined) {
     return (
       <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 mt-12">
         {[...Array(4)].map((_, i) => (
@@ -87,10 +94,15 @@ export function CertificateGrid() {
   }
 
   // Show message if no certificates found
-  if (certificates.length === 0) {
+  if (!certificates || certificates.length === 0) {
     return (
       <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 mt-12">
-        <AddCertificateCard />
+        {!isPublicView && <AddCertificateCard />}
+        {isPublicView && (
+          <div className="mt-8 text-center text-gray-500 col-span-4">
+            No certificates added yet
+          </div>
+        )}
       </div>
     );
   }
@@ -106,11 +118,12 @@ export function CertificateGrid() {
           description={certificate.description}
           image={certificate.image}
           index={index}
-          onReorder={handleReorder}
-          onDelete={handleDelete}
+          onReorder={!isPublicView ? handleReorder : undefined}
+          onDelete={!isPublicView ? () => handleDelete(certificate.id) : undefined}
+          isPublicView={isPublicView}
         />
       ))}
-      <AddCertificateCard />
+      {!isPublicView && <AddCertificateCard />}
     </div>
   );
 } 

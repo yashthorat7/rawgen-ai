@@ -10,16 +10,19 @@ import { extractGeeksForGeeksData } from "./extractors/geeksforgeeksExtractor";
 import { extractCodeforcesData } from "./extractors/codeforcesExtractor";
 import type { Platform, PlatformData, LeetCodeData, CodeChefData, GeeksForGeeksData, CodeforcesData } from "./types";
 
-export function usePlatformState() {
+export function usePlatformState(initialPlatformData?: PlatformData) {
   const { user, isLoaded: isUserLoaded } = useUser();
   const [platforms, setPlatforms] = useState<Platform[]>([]);
-  const [platformData, setPlatformData] = useState<PlatformData>({
+  const [platformData, setPlatformData] = useState<PlatformData>(initialPlatformData || {
     leetcode: {},
     codechef: {},
     geeksforgeeks: {},
     codeforces: {}
   });
-  const [isInitialLoading, setIsInitialLoading] = useState(true);
+  const [isInitialLoading, setIsInitialLoading] = useState(!initialPlatformData);
+
+  // If we have initial platform data, we're in public view mode
+  const isPublicView = !!initialPlatformData;
 
   const addPlatform = useMutation(api.users.addPlatform);
   const deletePlatform = useMutation(api.users.deletePlatform);
@@ -27,13 +30,18 @@ export function usePlatformState() {
   const updateOrder = useMutation(api.users.updateOrder);
   const createUser = useMutation(api.users.createUser);
 
-  // Get profiles from database
-  const profiles = useQuery(api.users.getProfiles, user?.primaryEmailAddress?.emailAddress ? {
-    email: user.primaryEmailAddress.emailAddress
-  } : "skip");
+  // Get profiles from database only if not in public view
+  const profiles = useQuery(
+    api.users.getProfiles,
+    !isPublicView && user?.primaryEmailAddress?.emailAddress
+      ? { email: user.primaryEmailAddress.emailAddress }
+      : "skip"
+  );
 
-  // Create user if not exists
+  // Create user if not exists and not in public view
   useEffect(() => {
+    if (isPublicView) return;
+
     const initUser = async () => {
       if (!isUserLoaded || !user?.primaryEmailAddress?.emailAddress) return;
 
@@ -48,7 +56,7 @@ export function usePlatformState() {
     };
 
     initUser();
-  }, [isUserLoaded, user, createUser]);
+  }, [isUserLoaded, user, createUser, isPublicView]);
 
   // Fetch platform data and update cache
   const fetchPlatformData = useCallback(async (platformName: string, platformUsername: string) => {

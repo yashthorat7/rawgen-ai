@@ -11,6 +11,7 @@ export default defineSchema({
         cgpa: v.optional(v.float64()),
         profileImage: v.optional(v.id("_storage")),
         marksheetImage: v.optional(v.id("_storage")),
+        stars: v.optional(v.array(v.string())), // Array of user emails who starred
     })
         .index("by_email", ["email"])
         .index("by_username", ["username"]),

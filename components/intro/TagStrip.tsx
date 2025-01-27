@@ -14,7 +14,12 @@ type Tag = {
   text: string;
 };
 
-export function TagStrip() {
+export interface TagStripProps {
+  username?: string;
+  isPublicView?: boolean;
+}
+
+export function TagStrip({ username, isPublicView = false }: TagStripProps) {
   const { platformData, platforms } = usePlatforms();
   const [tags, setTags] = useState<Tag[]>([]);
   const [isPaused, setIsPaused] = useState(false);
@@ -30,13 +35,15 @@ export function TagStrip() {
     if (hasFetchedTags) return;
 
     try {
-      const leetcodeUsers = Object.values(platformData.leetcode);
-      const codechefUsers = Object.values(platformData.codechef);
-      const gfgUsers = Object.values(platformData.geeksforgeeks);
-      const codeforcesUsers = Object.values(platformData.codeforces);
+      const leetcodeUsers = platformData?.leetcode ? Object.values(platformData.leetcode) : [];
+      const codechefUsers = platformData?.codechef ? Object.values(platformData.codechef) : [];
+      const gfgUsers = platformData?.geeksforgeeks ? Object.values(platformData.geeksforgeeks) : [];
+      const codeforcesUsers = platformData?.codeforces ? Object.values(platformData.codeforces) : [];
 
       if (leetcodeUsers.length === 0 && codechefUsers.length === 0 &&
         gfgUsers.length === 0 && codeforcesUsers.length === 0) {
+        setTags([]);
+        setHasFetchedTags(true);
         return;
       }
 
@@ -117,20 +124,27 @@ export function TagStrip() {
     if (!containerRef.current || tags.length === 0) return;
 
     const animate = async () => {
-      const width = containerRef.current?.scrollWidth || 1000;
+      const width = containerRef.current?.scrollWidth ?? 1;
       await controls.start({
-        x: [-20, -(width / 2)],
+        x: [0, -width],
         transition: {
-          duration: 200,
+          duration: 15,
           repeat: Infinity,
           ease: "linear",
-          repeatType: "loop",
+          repeatType: "mirror"
         }
       });
     };
 
     animate();
+
+    return () => {
+      controls.stop();
+    };
   }, [controls, tags]);
+
+  // Don't render anything if there are no tags
+  if (tags.length === 0) return null;
 
   return (
     <div className="w-full overflow-hidden mb-8 bg-gray-50 relative">
@@ -138,14 +152,14 @@ export function TagStrip() {
 
       <motion.div
         ref={containerRef}
-        className="flex whitespace-nowrap"
+        className="flex whitespace-nowrap gap-2 px-4"
         animate={controls}
         initial={{ x: 0 }}
       >
-        {[...tags, ...tags, ...tags].map((tag, index) => (
+        {[...tags, ...tags].map((tag, index) => (
           <div
             key={index}
-            className="bg-slate-100 text-gray-900 px-3 py-1 rounded-md mx-2 
+            className="bg-slate-100 text-gray-900 px-3 py-1 rounded-md
                      shadow-xl font-medium text-sm inline-block select-none"
           >
             {tag.text}

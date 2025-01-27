@@ -9,7 +9,12 @@ const groq = new Groq({
   dangerouslyAllowBrowser: true,
 });
 
-export function AiSuggestor() {
+export interface AiIntroProps {
+  username?: string;
+  isPublicView?: boolean;
+}
+
+export function AiIntro({ username, isPublicView = false }: AiIntroProps) {
   const { platformData, platforms, isInitialLoading } = usePlatforms();
   const [advice, setAdvice] = useState("");
   const [isLoading, setIsLoading] = useState(true);
@@ -26,10 +31,19 @@ export function AiSuggestor() {
 
     try {
       // Prepare platform data for the AI
-      const leetcodeUsers = Object.values(platformData.leetcode);
-      const codechefUsers = Object.values(platformData.codechef);
-      const gfgUsers = Object.values(platformData.geeksforgeeks);
-      const codeforcesUsers = Object.values(platformData.codeforces);
+      const leetcodeUsers = platformData?.leetcode ? Object.values(platformData.leetcode) : [];
+      const codechefUsers = platformData?.codechef ? Object.values(platformData.codechef) : [];
+      const gfgUsers = platformData?.geeksforgeeks ? Object.values(platformData.geeksforgeeks) : [];
+      const codeforcesUsers = platformData?.codeforces ? Object.values(platformData.codeforces) : [];
+
+      // If no platform data is available, show a message
+      if (leetcodeUsers.length === 0 && codechefUsers.length === 0 &&
+          gfgUsers.length === 0 && codeforcesUsers.length === 0) {
+        setAdvice("Add some coding platforms to get personalized summary!");
+        setIsLoading(false);
+        setHasFetchedAdvice(true);
+        return;
+      }
 
       const response = await groq.chat.completions.create({
         messages: [

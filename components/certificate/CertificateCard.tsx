@@ -17,6 +17,7 @@ interface CertificateCardProps {
   onDelete?: (id: Id<"certificates">) => void;
   index: number;
   onReorder?: (fromIndex: number, toIndex: number) => Promise<void>;
+  isPublicView?: boolean;
 }
 
 export function CertificateCard({ 
@@ -29,7 +30,8 @@ export function CertificateCard({
   isLoading,
   onDelete,
   index,
-  onReorder
+  onReorder,
+  isPublicView = false
 }: CertificateCardProps) {
   const [showInfo, setShowInfo] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
@@ -94,12 +96,12 @@ export function CertificateCard({
                     hover:shadow-[0_8px_12px_rgba(0,0,100,0.1)] hover:scale-[1.01] rounded-lg
                     border border-gray-100 cursor-pointer ${isDragging ? 'opacity-50' : ''}`}
         onClick={() => setShowInfo(true)}
-        draggable
-        onDragStart={handleDragStart}
-        onDragEnd={handleDragEnd}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
+        draggable={!isPublicView}
+        onDragStart={!isPublicView ? handleDragStart : undefined}
+        onDragEnd={!isPublicView ? handleDragEnd : undefined}
+        onDragOver={!isPublicView ? handleDragOver : undefined}
+        onDragLeave={!isPublicView ? handleDragLeave : undefined}
+        onDrop={!isPublicView ? handleDrop : undefined}
       >
         {image && (
           <div className="aspect-video overflow-hidden p-0 sm:p-4">
@@ -125,13 +127,15 @@ export function CertificateCard({
             {truncateDescription(description)}
           </p>
 
-          <div className="absolute bottom-4 right-4">
-            <UpdateCardIcon
-              onEdit={() => setIsEditDialogOpen(true)}
-              onDelete={handleDelete}
-              position="bottom-right"
-            />
-          </div>
+          {!isPublicView && (
+            <div className="absolute bottom-4 right-4">
+              <UpdateCardIcon
+                onEdit={() => setIsEditDialogOpen(true)}
+                onDelete={handleDelete}
+                position="bottom-right"
+              />
+            </div>
+          )}
         </div>
       </div>
 
@@ -145,7 +149,7 @@ export function CertificateCard({
         />
       )}
 
-      {isEditDialogOpen && (
+      {isEditDialogOpen && !isPublicView && (
         <AddCertificateDialog
           isOpen={isEditDialogOpen}
           onClose={() => setIsEditDialogOpen(false)}
