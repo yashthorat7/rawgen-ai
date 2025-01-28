@@ -99,16 +99,14 @@ export function CertificateGrid({ username, isPublicView = false }: CertificateG
 
   // Show message if no certificates found
   if (!certificates || certificates.length === 0) {
+    if (isPublicView) {
+      return null;
+    }
     return (
       <>
-      <Title title="Certificates" />
+        <Title title="Certificates" />
         <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 mt-2">
-          {!isPublicView && <AddCertificateCard />}
-          {isPublicView && (
-            <div className="mt-2 text-center text-gray-500 col-span-4">
-              No certificates added yet
-            </div>
-          )}
+          <AddCertificateCard />
         </div>
       </>
     );

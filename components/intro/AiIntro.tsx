@@ -39,7 +39,7 @@ export function AiIntro({ username, isPublicView = false }: AiIntroProps) {
       // If no platform data is available, show a message
       if (leetcodeUsers.length === 0 && codechefUsers.length === 0 &&
           gfgUsers.length === 0 && codeforcesUsers.length === 0) {
-        setAdvice("Add some coding platforms to get personalized summary!");
+        setAdvice("Nothing has been added yet!");
         setIsLoading(false);
         setHasFetchedAdvice(true);
         return;
@@ -118,7 +118,7 @@ export function AiIntro({ username, isPublicView = false }: AiIntroProps) {
           </div>
         ) : (
           <span className="relative z-[3] block">
-            {advice || "Add some coding platforms to get personalized summary!"}
+            {advice || "Nothing has been added yet!"}
           </span>
         )}
       </div>

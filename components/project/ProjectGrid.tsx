@@ -104,16 +104,14 @@ export function ProjectGrid({ username, isPublicView = false }: ProjectGridProps
 
   // Show message if no projects found
   if (!projects || projects.length === 0) {
+    if (isPublicView) {
+      return null;
+    }
     return (
       <>
         <Title title="Projects" />
         <div className="mt-2 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-          {!isPublicView && <AddProjectCard />}
-          {isPublicView && (
-            <div className="mt-2 text-center text-gray-500 col-span-3">
-              No projects added yet
-            </div>
-          )}
+          <AddProjectCard />
         </div>
       </>
     );

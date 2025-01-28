@@ -72,16 +72,14 @@ export function ProfileGrid({ username, isPublicView = false, platformData }: Pr
 
   // Show message if no platforms found
   if (!userPlatforms || userPlatforms.length === 0) {
+    if (isPublicView) {
+      return null;
+    }
     return (
       <>
         <Title title="Coding Profiles" />
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-          {!isPublicView && <AddCard />}
-          {isPublicView && (
-            <div className="mt-2 text-center text-gray-500 col-span-3">
-              No platforms added yet
-            </div>
-          )}
+          <AddCard />
         </div>
       </>
     );

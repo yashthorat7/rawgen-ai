@@ -66,20 +66,16 @@ export function SkillGrid({ username, isPublicView = false }: SkillGridProps) {
     );
   }
 
-
-
   // Show message if no skills found
   if (!skills || skills.length === 0) {
+    if (isPublicView) {
+      return null;
+    }
     return (
       <>
         <Title title="Skills" />
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 mt-2 gap-5">
-          {!isPublicView && <AddSkillCard />}
-          {isPublicView && (
-            <div className="mt-2 text-center text-gray-500 col-span-4">
-              No skills added yet
-            </div>
-          )}
+          <AddSkillCard />
         </div>
       </>
     );
