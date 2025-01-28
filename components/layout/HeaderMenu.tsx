@@ -17,6 +17,7 @@ export function HeaderMenu() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const [searchStatus, setSearchStatus] = useState<"idle" | "valid" | "invalid">("idle");
+  const [usernameMap, setUsernameMap] = useState<Record<string, string>>({});
 
   const userInfo = useQuery(
     api.users.getUser,
@@ -24,6 +25,17 @@ export function HeaderMenu() {
       ? { email: user.primaryEmailAddress.emailAddress }
       : "skip"
   );
+
+  const usernames = useQuery(
+    api.users.getUsernamesFromEmails,
+    userInfo?.madeStars?.length ? { emails: userInfo.madeStars } : "skip"
+  );
+
+  useEffect(() => {
+    if (usernames) {
+      setUsernameMap(usernames as Record<string, string>);
+    }
+  }, [usernames]);
 
   // Check if username exists as user types
   const usernameExists = useQuery(
@@ -62,12 +74,15 @@ export function HeaderMenu() {
     }
   };
 
-  const handleRemoveStar = async (targetUsername: string) => {
+  const handleRemoveStar = async (email: string) => {
     if (!userInfo?._id) return;
 
     try {
+      const username = usernameMap[email];
+      if (!username) return;
+
       await toggleStar({
-        targetUsername,
+        targetUsername: username,
         starrerUserId: userInfo._id
       });
     } catch (error) {
@@ -128,17 +143,17 @@ export function HeaderMenu() {
           )}
         </div>
         <div className="space-y-2">
-          {userInfo?.madeStars?.slice(0, isSearching ? undefined : 6).map((username) => (
-            <div key={username} className="flex items-center justify-between group">
+          {userInfo?.madeStars?.slice(0, isSearching ? undefined : 6).map((email) => (
+            <div key={email} className="flex items-center justify-between group">
               <Link 
-                href={`/${username}`}
+                href={`/${usernameMap[email] || '...'}`}
                 className="flex items-center gap-2 text-base text-gray-800 hover:text-primary-600 transition-colors"
               >
                 ⭐ {" "}
-                {username}
+                {usernameMap[email] || "Loading..."}
               </Link>
               <button
-                onClick={() => handleRemoveStar(username)}
+                onClick={() => handleRemoveStar(email)}
                 className="p-1 hover:bg-red-50 rounded-full opacity-0 group-hover:opacity-100 transition-all"
                 title="Remove star"
               >

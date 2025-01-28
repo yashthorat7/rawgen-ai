@@ -105,7 +105,7 @@ export const toggleStar = mutation({
     }
 
     // Don't allow self-starring or same username starring
-    if (targetUser._id === args.starrerUserId || targetUser.username === starrerUser.username) {
+    if (targetUser._id === args.starrerUserId || targetUser.email === starrerUser.email) {
       return { success: false, reason: "Cannot star your own profile" };
     }
 
@@ -120,11 +120,11 @@ export const toggleStar = mutation({
       await ctx.db.insert("counters", {
         userId: targetUser._id,
         profileViews: 0,
-        gotStars: [starrerUser.username]
+        gotStars: [starrerUser.email]
       });
-      // Add target's username to starrer's stars array in users table
+      // Add target's email to starrer's stars array in users table
       await ctx.db.patch(args.starrerUserId, {
-        madeStars: Array.from(new Set([...(starrerUser.madeStars || []), targetUser.username]))
+        madeStars: Array.from(new Set([...(starrerUser.madeStars || []), targetUser.email]))
       });
       return { success: true, action: "starred" };
     }
@@ -134,29 +134,29 @@ export const toggleStar = mutation({
     const targetGotStars = targetCounter.gotStars || [];
 
     // Check if already starred
-    const isStarred = targetGotStars.includes(starrerUser.username);
+    const isStarred = targetGotStars.includes(starrerUser.email);
 
     if (isStarred) {
       // Remove star from target's counter stars array
       await ctx.db.patch(targetCounter._id, {
-        gotStars: targetGotStars.filter(username => username !== starrerUser.username)
+        gotStars: targetGotStars.filter(email => email !== starrerUser.email)
       });
 
-      // Remove target's username from starrer's user stars array
+      // Remove target's email from starrer's user stars array
       await ctx.db.patch(args.starrerUserId, {
-        madeStars: starrerMadeStars.filter(username => username !== targetUser.username)
+        madeStars: starrerMadeStars.filter(email => email !== targetUser.email)
       });
 
       return { success: true, action: "unstarred" };
     } else {
-      // Add starrer's username to target's counter stars array (ensure uniqueness)
+      // Add starrer's email to target's counter stars array (ensure uniqueness)
       await ctx.db.patch(targetCounter._id, {
-        gotStars: Array.from(new Set([...targetGotStars, starrerUser.username]))
+        gotStars: Array.from(new Set([...targetGotStars, starrerUser.email]))
       });
 
-      // Add target's username to starrer's user stars array (ensure uniqueness)
+      // Add target's email to starrer's user stars array (ensure uniqueness)
       await ctx.db.patch(args.starrerUserId, {
-        madeStars: Array.from(new Set([...starrerMadeStars, targetUser.username]))
+        madeStars: Array.from(new Set([...starrerMadeStars, targetUser.email]))
       });
 
       return { success: true, action: "starred" };

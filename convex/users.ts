@@ -477,3 +477,30 @@ export const checkUsernameExists = query({
     return Boolean(user);
   },
 });
+
+export const getUsernameFromEmail = query({
+  args: { email: v.string() },
+  handler: async (ctx, args) => {
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_email", (q) => q.eq("email", args.email))
+      .first();
+    return user?.username;
+  },
+});
+
+export const getUsernamesFromEmails = query({
+  args: { emails: v.array(v.string()) },
+  handler: async (ctx, args) => {
+    const users = await Promise.all(
+      args.emails.map(async (email) => {
+        const user = await ctx.db
+          .query("users")
+          .withIndex("by_email", (q) => q.eq("email", email))
+          .first();
+        return { email, username: user?.username };
+      })
+    );
+    return Object.fromEntries(users.map(u => [u.email, u.username]));
+  },
+});
