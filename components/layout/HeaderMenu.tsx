@@ -115,7 +115,7 @@ export function HeaderMenu() {
       {/* Starred Profiles Section */}
       <div className="px-4 py-2 overflow-y-auto max-h-[40vh]">
         <div className="flex items-center justify-between mb-3">
-          <div className="text-sm font-medium text-gray-700">
+          <div className="text-base font-medium text-gray-900">
             Starred Profiles
           </div>
           {userInfo?.madeStars && userInfo.madeStars.length > 6 && (
@@ -147,7 +147,7 @@ export function HeaderMenu() {
             </div>
           ))}
           {!userInfo?.madeStars?.length && (
-            <div className="text-sm text-gray-500 text-center py-2">
+            <div className="text-sm text-gray-500 text-center py-1">
               No starred profiles yet
             </div>
           )}
@@ -157,7 +157,7 @@ export function HeaderMenu() {
       {/* Profile Section */}
       <div className="px-4 py-2 space-y-2">
         <div className="flex items-center justify-between">
-          <span className="font-medium text-gray-900 block sm:hidden">
+          <span className="font-medium text-base text-gray-900 block sm:hidden">
             {userInfo?.username || "Loading..."}
           </span>
           <span className="text-sm text-gray-500 hidden sm:block">

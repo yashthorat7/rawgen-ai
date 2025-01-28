@@ -54,17 +54,17 @@ function QuestionItem({ question }: QuestionItemProps) {
   return (
     <div className="group py-3 first:pt-0 last:pb-0">
       <div className="flex items-center justify-between gap-4">
-        <div className="flex items-center gap-3 min-w-0 flex-1">
-          <h4 className="font-medium text-gray-900 truncate group-hover:text-primary-600 transition-colors">
-            {question.title}
-          </h4>
+        <div className="flex items-center truncate transition-colors gap-3 min-w-0 flex-1">
           <a
             href={question.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-gray-400 hover:text-primary-600 transition-colors flex-shrink-0"
+            className="text-gray-400 hover:text-primary-600 transition-colors flex items-center gap-2"
           >
-            <ArrowUpRight className="w-4 h-4" />
+            <h4 className="font-medium text-gray-900 truncate hover:text-primary-600 overflow-hidden whitespace-nowrap">
+              {question.title}
+            </h4>
+            <ArrowUpRight className="w-4 h-4 flex-shrink-0" />
           </a>
         </div>
         <div className="flex items-center gap-1 text-sm text-gray-500 whitespace-nowrap flex-shrink-0">
