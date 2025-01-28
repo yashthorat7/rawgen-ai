@@ -100,12 +100,25 @@ export async function extractLeetCodeData(username: string): Promise<LeetCodeDat
       },
 
       // Contests
-      contests: (data.user.contestHistory || []).map((contest: any) => ({
-        title: contest.contestName || 'Unknown Contest',
+      contests: (data.contests?.history || data.user.contestHistory || []).map((contest: any) => ({
+        title: contest.contest?.title || contest.contestName || 'Unknown Contest',
         rating: contest.rating || 0,
         ranking: contest.ranking || 0,
-        globalRanking: contest.globalRanking || 0
+        globalRanking: contest.globalRanking || 0,
+        trendDirection: contest.trendDirection || undefined,
+        problemsSolved: contest.problemsSolved || undefined,
+        totalProblems: contest.totalProblems || undefined,
+        finishTimeInSeconds: contest.finishTimeInSeconds || undefined,
+        startTime: contest.contest?.startTime || undefined
       })),
+      contestStats: data.contests ? {
+        attendedContestsCount: data.contests.attendedContestsCount || 0,
+        rating: data.contests.rating || 0,
+        globalRanking: data.contests.globalRanking || 0,
+        totalParticipants: data.contests.totalParticipants || 0,
+        topPercentage: data.contests.topPercentage || 0,
+        badge: data.contests.badge || null
+      } : undefined,
 
       // Recent Submissions
       recentlySolved: (data.user.recentSubmissions || []).map((sub: any) => ({
@@ -118,7 +131,7 @@ export async function extractLeetCodeData(username: string): Promise<LeetCodeDat
       })),
 
       // Badges
-      badges: (data.badges?.all || []).map((badge: any) => ({
+      badges: (data.badges?.all || data.badges || []).map((badge: any) => ({
         id: badge.id || '',
         name: badge.name || '',
         shortName: badge.shortName || '',
@@ -130,8 +143,8 @@ export async function extractLeetCodeData(username: string): Promise<LeetCodeDat
         gifIcon: badge.medal?.config?.iconGif || null,
         gifBackground: badge.medal?.config?.iconGifBackground || null,
       })),
-      activeBadge: data.badges?.active || null,
-      upcomingBadges: data.badges?.upcoming || [],
+      activeBadge: data.badges?.active || data.activeBadge || null,
+      upcomingBadges: data.badges?.upcoming || data.upcomingBadges || [],
 
       // Language Stats
       languageStats: (data.user.languageProblemCount || []).map((lang: any) => ({

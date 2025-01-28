@@ -4,13 +4,15 @@ import { usePlatforms } from "@/lib/PlatformContext";
 import { useEffect, useState, useCallback } from "react";
 import Groq from "groq-sdk";
 
-const groq = new Groq({
-  apiKey: process.env.NEXT_PUBLIC_GROQ_API_KEY!,
+// Initialize Groq only if API key is available
+const groq = process.env.NEXT_PUBLIC_GROQ_API_KEY ? new Groq({
+  apiKey: process.env.NEXT_PUBLIC_GROQ_API_KEY,
   dangerouslyAllowBrowser: true,
-});
+}) : null;
 
 type Tag = {
   text: string;
+  id: number;
 };
 
 export interface TagStripProps {
@@ -22,13 +24,14 @@ export function TagStrip({ username, isPublicView = false }: TagStripProps) {
   const { platformData, platforms } = usePlatforms();
   const [tags, setTags] = useState<Tag[]>([]);
   const [hasFetchedTags, setHasFetchedTags] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     setHasFetchedTags(false);
   }, [platforms.length]);
 
   const generateTags = useCallback(async () => {
-    if (hasFetchedTags) return;
+    if (hasFetchedTags || !groq) return;
 
     try {
       const leetcodeUsers = platformData?.leetcode ? Object.values(platformData.leetcode) : [];
@@ -53,13 +56,16 @@ export function TagStrip({ username, isPublicView = false }: TagStripProps) {
               - Problems Solved: ${user.totalSolved}/${user.totalQuestions}
               - Easy: ${user.easySolved}, Medium: ${user.mediumSolved}, Hard: ${user.hardSolved}
               - Ranking: ${user.ranking}
+              - Contest Rating: ${user.contestStats?.rating || 'N/A'}
+              - Contest Rank: Top ${user.contestStats?.topPercentage || 'N/A'}%
+              - Contests Participated: ${user.contestStats?.attendedContestsCount || user.contests.length}
             ` : '').join('\n')}
             
             ${codechefUsers.map(user => user ? `
               CodeChef:
               - Rating: ${user.currentRating} (${user.stars})
               - Global Rank: ${user.globalRank}
-              - Contests Participated: ${user.contests}
+              - Contests Participated: ${user.totalContests}
             ` : '').join('\n')}
             
             ${gfgUsers.map(user => user ? `
@@ -84,6 +90,8 @@ export function TagStrip({ username, isPublicView = false }: TagStripProps) {
           },
         ],
         model: "llama3-8b-8192",
+        temperature: 0.7,
+        max_tokens: 500,
       });
 
       let tagList: string[] = [];
@@ -102,12 +110,14 @@ export function TagStrip({ username, isPublicView = false }: TagStripProps) {
 
       const formattedTags = tagList
         .filter(tag => tag.length > 0)
-        .map(tag => ({ text: tag.trim() }));
+        .map((tag, index) => ({ text: tag.trim(), id: index }));
 
       setTags(formattedTags);
       setHasFetchedTags(true);
+      setError(null);
     } catch (error) {
       console.error('Tag generation error:', error);
+      setError('Failed to generate tags');
       setTags([]);
     }
   }, [platformData, hasFetchedTags]);
@@ -116,61 +126,61 @@ export function TagStrip({ username, isPublicView = false }: TagStripProps) {
     generateTags();
   }, [generateTags]);
 
-  // Don't render anything if there are no tags
-  if (tags.length === 0) return null;
+  // Show error message if API key is missing
+  if (!groq) {
+    console.warn('NEXT_PUBLIC_GROQ_API_KEY is not configured');
+    return null;
+  }
+
+  // Don't render anything if there are no tags and no error
+  if (tags.length === 0 && !error) return null;
 
   return (
     <div className="w-full overflow-hidden mb-8 relative">
-      <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-[#f8f8fa] to-transparent z-10" />
+      {error ? (
+        <div className="text-center text-sm text-gray-500 py-2">{error}</div>
+      ) : (
+        <>
+          <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-[#f8f8fa] to-transparent z-10" />
 
-      <div className="relative flex overflow-x-hidden">
-        <div className="animate-marquee whitespace-nowrap flex gap-4 py-1">
-          {[...tags, ...tags, ...tags].map((tag, index) => (
-            <div
-              key={index}
-              className="bg-gray-100 border-[1.5px] border-slate-300 text-gray-900 px-3 py-0.5 rounded-md text-sm inline-block select-none"
-            >
-              {tag.text}
+          <div className="relative overflow-hidden">
+            <div className="animate-scroll flex gap-4 py-1 whitespace-nowrap">
+              {/* Original strip */}
+              {tags.map((tag) => (
+                <div
+                  key={tag.id}
+                  className="bg-white border-[1.5px] border-slate-300 text-gray-900 px-3 py-0.5 rounded-md text-sm inline-block select-none whitespace-nowrap"
+                >
+                  {tag.text}
+                </div>
+              ))}
+              {/* Duplicate strip for seamless loop */}
+              {tags.map((tag) => (
+                <div
+                  key={`dup-${tag.id}`}
+                  className="bg-white border-[1.5px] border-slate-300 text-gray-900 px-3 py-0.5 rounded-md text-sm inline-block select-none whitespace-nowrap"
+                >
+                  {tag.text}
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
+          </div>
 
-        <div className="absolute top-0 animate-marquee2 whitespace-nowrap flex gap-4 py-1">
-          {[...tags, ...tags].map((tag, index) => (
-            <div
-              key={index}
-              className="bg-slate-100 border-[1.5px] border-slate-300 text-gray-900 px-3 py-0.5 rounded-md text-sm inline-block select-none"
-            >
-              {tag.text}
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-[#f8f8fa] to-transparent z-10" />
+          <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-[#f8f8fa] to-transparent z-10" />
+        </>
+      )}
 
       <style jsx>{`
-        @keyframes marquee {
+        .animate-scroll {
+          animation: scroll 30s linear infinite;
+        }
+        @keyframes scroll {
           0% {
-            transform: translateX(0%);
+            transform: translateX(0);
           }
           100% {
-            transform: translateX(-100%);
+            transform: translateX(-50%);
           }
-        }
-        @keyframes marquee2 {
-          0% {
-            transform: translateX(100%);
-          }
-          100% {
-            transform: translateX(0%);
-          }
-        }
-        .animate-marquee {
-          animation: marquee 240s linear infinite;
-        }
-        .animate-marquee2 {
-          animation: marquee2 240s linear infinite;
         }
       `}</style>
     </div>

@@ -325,7 +325,7 @@ export function UserSettingsDialog({ isOpen, onClose, defaultFirstName = "", def
                                         value={firstName}
                                         onChange={(e) => setFirstName(e.target.value)}
                                         className="w-full px-3 py-2 border rounded-md focus:outline-primary-500"
-                                        placeholder="John"
+                                        placeholder="Indira"
                                     />
                                 </div>
                                 <div>
@@ -335,7 +335,7 @@ export function UserSettingsDialog({ isOpen, onClose, defaultFirstName = "", def
                                         value={lastName}
                                         onChange={(e) => setLastName(e.target.value)}
                                         className="w-full px-3 py-2 border rounded-md focus:outline-primary-500"
-                                        placeholder="Doe"
+                                        placeholder="Gandhi"
                                     />
                                 </div>
                             </div>
@@ -348,8 +348,8 @@ export function UserSettingsDialog({ isOpen, onClose, defaultFirstName = "", def
                                         value={cgpa}
                                         onChange={(e) => setCgpa(e.target.value)}
                                         className="flex-1 px-3 py-2 border rounded-md focus:outline-primary-500"
-                                        placeholder="3.5"
-                                        step="0.01"
+                                        placeholder="7.5"
+                                        step="0.1"
                                         min="0"
                                         max="10"
                                     />

@@ -69,7 +69,20 @@ export interface LeetCodeData {
     rating: number;
     ranking: number;
     globalRanking: number;
+    trendDirection?: 'UP' | 'DOWN';
+    problemsSolved?: number;
+    totalProblems?: number;
+    finishTimeInSeconds?: number;
+    startTime?: number;
   }>;
+  contestStats?: {
+    attendedContestsCount: number;
+    rating: number;
+    globalRanking: number;
+    totalParticipants: number;
+    topPercentage: number;
+    badge: any;
+  };
 
   // Recent Submissions
   recentlySolved: Array<{
