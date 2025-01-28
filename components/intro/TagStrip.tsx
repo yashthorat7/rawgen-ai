@@ -86,7 +86,11 @@ export function TagStrip({ username, isPublicView = false }: TagStripProps) {
               - Contribution: ${user.contribution}
             ` : '').join('\n')}
             
-            Generate a list of 15 to 40 concise and meaningful tags summarizing the user's solution. Each tag should be one to three words and highlight key aspects such as platform, difficulty, number of questions solved, achievements, coding patterns, and data structures. Include a wide variety of coding patterns (e.g., dynamic programming, backtracking, greedy, divide and conquer) and data structures (e.g., stack, array, linked list, graph). Avoid showcasing tags with values of 0 or none. Focus on providing diverse, relevant, and compact tags. Return the result as an array of tags, separated by commas and spaces in words, without any introductory text or explanation in the response. please make the words have spaces between them and no introductry text or explanation in the response."`,
+            Generate a list of 15 to 40 concise and meaningful tags that summarize the user's coding activity and achievements based on their data from coding platforms. The tags should be short (one to three words each) and highlight key aspects such as platform-specific performance (e.g., "LeetCode Expert," "CodeChef 5-Star"), problem-solving metrics by difficulty (e.g., "1000 Easy Solved," "50 Hard Problems"), contest performance (e.g., "1500 Contest Rating," "Top 5% Rank"), coding patterns (e.g., "Dynamic Programming," "Backtracking," "Divide and Conquer"), data structures (e.g., "Graph Algorithms," "Binary Trees," "HashMap Solutions"), achievements and scores (e.g., "Top Coder," "95% Accuracy"), and areas of skill specialization (e.g., "Bit Manipulation Expert," "Algorithmic Thinking"). Avoid tags with values of 0, "None," or irrelevant/unhelpful information. Focus on meaningful insights only.
+
+            Output the tags as an array of strings, where each tag is separated by commas. Ensure the tags are descriptive, concise, and formatted with spaces between words (e.g., "Greedy Algorithm," not "GreedyAlgorithm"). Avoid duplicates and ensure the tags provide a diverse and compact summary of the user’s coding achievements and skills.
+
+            Example output: ["Dynamic Programming", "Top 5% Rank", "Graph Algorithms", "HashMap Solutions", "LeetCode Medium Expert", "Contest Champion", "Bit Manipulation", "Divide and Conquer", "Trie Applications"]`,
           },
         ],
         model: "llama3-8b-8192",
@@ -136,7 +140,7 @@ export function TagStrip({ username, isPublicView = false }: TagStripProps) {
   if (tags.length === 0 && !error) return null;
 
   return (
-    <div className="w-full overflow-hidden mb-8 relative">
+    <div className="w-full overflow-hidden mb-2 relative">
       {error ? (
         <div className="text-center text-sm text-gray-500 py-2">{error}</div>
       ) : (

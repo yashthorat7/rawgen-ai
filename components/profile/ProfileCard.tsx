@@ -168,7 +168,7 @@ export function ProfileCard({
           onDragLeave={!isPublicView ? handleDragLeave : undefined}
           onDrop={!isPublicView ? handleDrop : undefined}
         >
-          <div className="w-full bg-gray-50 h-full flex flex-col items-center rounded-lg transition-colors hover:bg-white">
+          <div className="w-full -p-4 sm:p-0 bg-gray-50 h-full flex flex-col items-center rounded-lg transition-colors hover:bg-white">
             <div className="flex-1 flex items-center justify-center">
               <Image
                 src={`/${platform}.png`}

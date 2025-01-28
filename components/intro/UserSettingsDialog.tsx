@@ -127,6 +127,13 @@ export function UserSettingsDialog({ isOpen, onClose, defaultFirstName = "", def
             return;
         }
 
+        // if the username is dashboard, the it is invalid
+        if (username === "dashboard") {
+            setIsUsernameValid(false);
+            setIsValidatingUsername(false);
+            return;
+        }
+
         // Check username length first
         if (username && username.length < MIN_USERNAME_LENGTH) {
             setIsUsernameValid(false);

@@ -11,7 +11,7 @@ export default defineSchema({
         cgpa: v.optional(v.float64()),
         profileImage: v.optional(v.id("_storage")),
         marksheetImage: v.optional(v.id("_storage")),
-        stars: v.optional(v.array(v.string())), // Array of user emails who starred
+        madeStars: v.optional(v.array(v.string())),
     })
         .index("by_email", ["email"])
         .index("by_username", ["username"]),
@@ -19,8 +19,8 @@ export default defineSchema({
     counters: defineTable({
         userId: v.id("users"),
         profileViews: v.optional(v.number()),
-        stars: v.optional(v.number()),
-        socialLinks: v.optional(v.string()), // JSON string containing social media links
+        gotStars: v.optional(v.array(v.string())),
+        socialLinks: v.optional(v.string()),
     })
         .index("by_user", ["userId"]),
 
