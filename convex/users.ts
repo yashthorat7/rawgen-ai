@@ -504,3 +504,38 @@ export const getUsernamesFromEmails = query({
     return Object.fromEntries(users.map(u => [u.email, u.username]));
   },
 });
+
+export const searchUsers = query({
+  args: { 
+    query: v.string(),
+    limit: v.optional(v.number())
+  },
+  handler: async (ctx, args) => {
+    const searchQuery = args.query.toLowerCase();
+    const limit = args.limit || 10;
+
+    if (!searchQuery) {
+      return [];
+    }
+
+    const users = await ctx.db
+      .query("users")
+      .collect();
+
+    // Filter users in memory
+    const filteredUsers = users.filter(user => {
+      const searchFields = [
+        user.email?.toLowerCase(),
+        user.username?.toLowerCase(),
+        user.firstName?.toLowerCase(),
+        user.lastName?.toLowerCase()
+      ];
+
+      return searchFields.some(field => 
+        field && field.includes(searchQuery)
+      );
+    });
+
+    return filteredUsers.slice(0, limit);
+  },
+});
