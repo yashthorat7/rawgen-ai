@@ -51,8 +51,8 @@ export default function RecruiterDashboard() {
             
             {/* Content */}
             <Header />
-            <main className="flex-1 relative dotted-background">
-                <div className="p-4 mt-4 mx-auto w-full lg:w-[90%]">
+            <main className="flex-1 relative dotted-background p-4">
+                <div className="mt-1 gap-4 w-full sm:w-[90%] flex flex-col">
                     {/* Recruiter Status Banner */}
                     {!recruiter.isPermitted && (
                         <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6 rounded-r-lg">
@@ -77,5 +77,6 @@ export default function RecruiterDashboard() {
             </main>
             <Footer />
         </div>
+
     );
 } 
