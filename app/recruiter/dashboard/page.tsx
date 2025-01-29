@@ -5,7 +5,7 @@ import { api } from "@/convex/_generated/api";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
-import { Header } from "@/components/layout/Header";
+import { Header } from "@/components/recruiter/Header";
 import { Footer } from "@/components/layout/Footer";
 import { useState, useEffect } from "react";
 
@@ -61,25 +61,6 @@ export default function RecruiterDashboard() {
                             </p>
                         </div>
                     )}
-
-                    {/* Recruiter Welcome Section */}
-                    <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
-                        <div className="flex justify-between items-center">
-                            <h2 className="text-2xl font-semibold bg-gradient-to-r from-primary-600 to-purple-600 bg-clip-text text-transparent">
-                                Welcome, {recruiter.firstName}!
-                            </h2>
-                            <Button
-                                onClick={() => {
-                                    window.localStorage.removeItem('recruiterEmail');
-                                    router.push('/recruiter');
-                                }}
-                                variant="outline"
-                                className="border-primary-200 text-primary-700 hover:bg-primary-50"
-                            >
-                                Logout
-                            </Button>
-                        </div>
-                    </div>
 
                     {recruiter.isPermitted && (
                         <div className="grid gap-6">
