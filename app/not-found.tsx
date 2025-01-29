@@ -13,8 +13,8 @@ export default function NotFound() {
       
       {/* Content */}
       <Header />
-      <main className="flex-1 relative dotted-background">
-        <div className="p-4 mt-4 mx-auto w-full lg:w-[90%] flex flex-col items-center justify-center min-h-[60vh]">
+      <main className="flex-1 relative dotted-background items-center justify-center">
+        <div className="p-4 mx-auto w-full lg:w-[90%] flex flex-col items-center justify-center min-h-[60vh]">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

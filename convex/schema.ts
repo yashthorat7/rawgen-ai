@@ -67,4 +67,16 @@ export default defineSchema({
     })
         .index("by_user", ["userId"])
         .index("by_order", ["order"]),
+
+    recruiters: defineTable({
+        firstName: v.string(),
+        lastName: v.string(),
+        email: v.string(),
+        markstar: v.array(v.string()),
+        password: v.string(),
+        isPermitted: v.boolean(),
+        recruiterImage: v.optional(v.id("_storage")),
+    })
+        .index("by_email", ["email"])
+        .index("by_email_password", ["email", "password"]),
 });

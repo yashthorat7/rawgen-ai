@@ -72,11 +72,11 @@ export function Hero() {
                 }}
               />
             ) : (
-              // Not logged in - show sign in/up buttons
+              // Not logged in - show sign in button
               <div className="flex items-center gap-2">
-                <Link href="/sign-up">
+                <Link href="/sign-in">
                   <Button className="rounded-md bg-primary-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-primary-700">
-                    Sign Up
+                    Sign In
                   </Button>
                 </Link>
               </div>
@@ -114,25 +114,26 @@ export function Hero() {
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center mb-16 sm:mb-20">
               <div className="hover:scale-105 transition-transform">
-                <Link href="/sign-in">
+                <Link href="/sign-up">
                   <Button 
                     size="lg" 
-                    className="w-full sm:w-[320px] text-base sm:text-lg bg-gradient-to-r from-primary-600 via-purple-600 to-pink-600 hover:from-primary-700 hover:via-purple-700 hover:to-pink-700 shadow-lg hover:shadow-xl transition-all duration-200 group"
+                    variant="outline" 
+                    className="w-full sm:w-[320px] text-base sm:text-lg border-2 border-primary-200 text-primary-700 bg-white/50 backdrop-blur-sm hover:bg-white/80"
                   >
-                    Student Login
+                    Student Portal
                     <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
                   </Button>
                 </Link>
               </div>
-              <Button 
-                size="lg" 
-                variant="outline" 
-                className="w-full sm:w-[320px] text-base sm:text-lg border-2 border-primary-200 text-primary-700 bg-white/50 backdrop-blur-sm hover:bg-white/80"
-                disabled
-              >
-                Recruiter Login
-                <span className="ml-2 text-xs text-primary-500">(Coming Soon)</span>
-              </Button>
+              <Link href="/recruiter">
+                <Button 
+                  size="lg" 
+                  className="w-full sm:w-[320px] text-base sm:text-lg bg-gradient-to-r from-primary-600 via-purple-600 to-pink-600 hover:from-primary-700 hover:via-purple-700 hover:to-pink-700 shadow-lg hover:shadow-xl transition-all duration-200 group"
+                >
+                  Recruiter Portal
+                  <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                </Button>
+              </Link>
             </div>
 
             {/* Stats */}

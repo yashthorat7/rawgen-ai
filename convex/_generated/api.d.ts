@@ -16,6 +16,7 @@ import type {
 import type * as certificates from "../certificates.js";
 import type * as counters from "../counters.js";
 import type * as projects from "../projects.js";
+import type * as recruiters from "../recruiters.js";
 import type * as skills from "../skills.js";
 import type * as types from "../types.js";
 import type * as users from "../users.js";
@@ -32,6 +33,7 @@ declare const fullApi: ApiFromModules<{
   certificates: typeof certificates;
   counters: typeof counters;
   projects: typeof projects;
+  recruiters: typeof recruiters;
   skills: typeof skills;
   types: typeof types;
   users: typeof users;
