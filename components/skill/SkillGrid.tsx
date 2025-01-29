@@ -43,7 +43,7 @@ export function SkillGrid({ username, isPublicView = false }: SkillGridProps) {
     return (
       <>
         <Title title="Skills" />
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 mt-2 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 mt-2 gap-4 sm:gap-5">
           {[...Array(4)].map((_, i) => (
             <div key={i} className="bg-white rounded-lg shadow-sm animate-pulse min-h-[225px] flex flex-col">
             {/* Skills at the top */}
@@ -74,7 +74,7 @@ export function SkillGrid({ username, isPublicView = false }: SkillGridProps) {
     return (
       <>
         <Title title="Skills" />
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 mt-2 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 mt-2 gap-4 sm:gap-5">
           <AddSkillCard />
         </div>
       </>
@@ -104,7 +104,7 @@ export function SkillGrid({ username, isPublicView = false }: SkillGridProps) {
   return (
     <>
       <Title title="Skills" />
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 mt-2 gap-5">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 mt-2 gap-4 sm:gap-5">
         {skills.map((categorySkills, index) => (
           <SkillCard
             key={categorySkills._id || `skill-${categorySkills.category}-${index}`}

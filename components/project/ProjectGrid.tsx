@@ -81,7 +81,7 @@ export function ProjectGrid({ username, isPublicView = false }: ProjectGridProps
     return (
       <>
         <Title title="Projects" />
-        <div className="mt-2 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+        <div className="mt-2 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5">
           {[...Array(3)].map((_, i) => (
             <ProjectCardSkeleton key={i} />
           ))}
@@ -110,7 +110,7 @@ export function ProjectGrid({ username, isPublicView = false }: ProjectGridProps
     return (
       <>
         <Title title="Projects" />
-        <div className="mt-2 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+        <div className="mt-2 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5">
           <AddProjectCard />
         </div>
       </>
@@ -120,7 +120,7 @@ export function ProjectGrid({ username, isPublicView = false }: ProjectGridProps
   return (
     <>
       <Title title="Projects" />
-      <div className="mt-2 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+      <div className="mt-2 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5">
         {projects.map((project: Project, index) => (
           <ProjectCard
             key={project.id}

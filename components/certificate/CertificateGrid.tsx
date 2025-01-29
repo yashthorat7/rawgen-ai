@@ -76,7 +76,7 @@ export function CertificateGrid({ username, isPublicView = false }: CertificateG
     return (
       <>
         <Title title="Certificates" />
-        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 mt-2">
+        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5 mt-2">
           {[...Array(4)].map((_, i) => (
             <div key={i} className="bg-white rounded-lg shadow-sm animate-pulse">
               {/* Image placeholder */}
@@ -105,7 +105,7 @@ export function CertificateGrid({ username, isPublicView = false }: CertificateG
     return (
       <>
         <Title title="Certificates" />
-        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 mt-2">
+        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5 mt-2">
           <AddCertificateCard />
         </div>
       </>
@@ -115,7 +115,7 @@ export function CertificateGrid({ username, isPublicView = false }: CertificateG
   return (
     <>
     <Title title="Certificates" />
-      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 mt-2">
+      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5 mt-2">
         {certificates.map((certificate: Certificate, index) => (
           <CertificateCard
             key={certificate.id}

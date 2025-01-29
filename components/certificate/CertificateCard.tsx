@@ -104,7 +104,7 @@ export function CertificateCard({
         onDrop={!isPublicView ? handleDrop : undefined}
       >
         {image && (
-          <div className="aspect-video overflow-hidden p-0 sm:p-4">
+          <div className="aspect-video overflow-hidden p-0 sm:p-4 pb-0 sm:pb-2">
             <img 
               src={image} 
               alt={title}

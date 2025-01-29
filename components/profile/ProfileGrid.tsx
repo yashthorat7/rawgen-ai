@@ -49,7 +49,7 @@ export function ProfileGrid({ username, isPublicView = false, platformData }: Pr
     return (
       <>
         <Title title="Coding Profiles" />
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5">
           {[...Array(3)].map((_, i) => (
             <ProfileCardSkeleton key={i} />
           ))}
@@ -78,7 +78,7 @@ export function ProfileGrid({ username, isPublicView = false, platformData }: Pr
     return (
       <>
         <Title title="Coding Profiles" />
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5">
           <AddCard />
         </div>
       </>
@@ -88,7 +88,7 @@ export function ProfileGrid({ username, isPublicView = false, platformData }: Pr
   return (
     <>
       <Title title="Coding Profiles" />
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5">
         {userPlatforms.map((platform, index) => (
           <ProfileCard
             key={platform.platform + platform.username}
