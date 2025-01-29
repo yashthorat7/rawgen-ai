@@ -213,13 +213,12 @@ export function usePlatformState(initialPlatformData?: PlatformData) {
   const handleDeletePlatform = async (platformName: string, platformUsername: string) => {
     if (!user?.primaryEmailAddress?.emailAddress) return;
 
-    await deletePlatform({
-      email: user.primaryEmailAddress.emailAddress,
-      platformName,
-      platformUsername
-    });
+    // Store current state for rollback
+    const previousPlatforms = [...platforms];
+    const previousPlatformData = { ...platformData };
 
-    // Update local state
+    // Optimistically update UI
+    setPlatforms(prev => prev.filter(p => !(p.platform === platformName && p.username === platformUsername)));
     setPlatformData(prev => {
       const newData = { ...prev };
       switch (platformName) {
@@ -238,6 +237,21 @@ export function usePlatformState(initialPlatformData?: PlatformData) {
       }
       return newData;
     });
+
+    try {
+      // Run deletion in background
+      await deletePlatform({
+        email: user.primaryEmailAddress.emailAddress,
+        platformName,
+        platformUsername
+      });
+    } catch (error) {
+      console.error("Error deleting platform:", error);
+      // Rollback on error
+      setPlatforms(previousPlatforms);
+      setPlatformData(previousPlatformData);
+      throw error;
+    }
   };
 
   const handleUpdateOrder = async (fromIndex: number, toIndex: number) => {

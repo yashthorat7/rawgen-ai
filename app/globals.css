@@ -222,3 +222,16 @@
   border-top-color: rgba(0, 0, 0, 0.8);
   margin-bottom: -6px;
 }
+
+@keyframes scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-scrolling-skills {
+  animation: scroll 20s linear infinite;
+}

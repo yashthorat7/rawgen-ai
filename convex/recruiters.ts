@@ -124,4 +124,194 @@ export const create = mutation({
             };
         }
     },
+});
+
+export const searchUsers = query({
+  args: {
+    query: v.string(),
+    filters: v.object({
+      skills: v.optional(v.array(v.string())),
+    }),
+    sort: v.optional(v.union(
+      v.literal("skills"),
+      v.literal("name"),
+      v.literal("recent")
+    )),
+    sortDirection: v.optional(v.union(v.literal("asc"), v.literal("desc"))),
+    page: v.optional(v.number()),
+    pageSize: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    // Get all users and filter in memory for simplicity
+    const users = await ctx.db.query("users").collect();
+    
+    // Filter users based on search query
+    let filteredUsers = users;
+    if (args.query) {
+      const searchTerm = args.query.toLowerCase().trim();
+      
+      // First try exact username match
+      const exactMatches = filteredUsers.filter(user => 
+        user.username.toLowerCase() === searchTerm
+      );
+
+      // Then try starts with
+      const startsWithMatches = filteredUsers.filter(user => 
+        user.username.toLowerCase().startsWith(searchTerm) &&
+        !exactMatches.find(m => m._id === user._id)
+      );
+
+      // Finally try includes
+      const includesMatches = filteredUsers.filter(user => 
+        user.username.toLowerCase().includes(searchTerm) &&
+        !exactMatches.find(m => m._id === user._id) &&
+        !startsWithMatches.find(m => m._id === user._id)
+      );
+
+      // Combine all matches in priority order
+      filteredUsers = [...exactMatches, ...startsWithMatches, ...includesMatches];
+    }
+
+    // Get related data for filtering
+    const userSkills = await ctx.db
+      .query("skills")
+      .filter(q => q.eq(q.field("category"), "technical"))
+      .collect();
+
+    const skillsMap = new Map();
+    userSkills.forEach(skill => {
+      try {
+        const data = JSON.parse(skill.skillsData);
+        skillsMap.set(skill.userId, data);
+      } catch (e) {
+        // Skip invalid JSON
+      }
+    });
+
+    // Apply skills filter
+    if (args.filters.skills?.length) {
+      filteredUsers = filteredUsers.filter(user => {
+        const userSkillData = skillsMap.get(user._id);
+        if (!userSkillData) return false;
+        return args.filters.skills!.some(skill => 
+          userSkillData.some((s: any) => 
+            s.name.toLowerCase().includes(skill.toLowerCase())
+          )
+        );
+      });
+    }
+
+    // Apply sorting
+    const direction = args.sortDirection === "asc" ? 1 : -1;
+    if (args.sort) {
+      switch (args.sort) {
+        case "name":
+          filteredUsers.sort((a, b) => 
+            direction * (a.username.localeCompare(b.username))
+          );
+          break;
+        case "recent":
+          filteredUsers.sort((a, b) => 
+            direction * (b._creationTime - a._creationTime)
+          );
+          break;
+        case "skills":
+          filteredUsers.sort((a, b) => {
+            const aSkills = skillsMap.get(a._id)?.length || 0;
+            const bSkills = skillsMap.get(b._id)?.length || 0;
+            return direction * (bSkills - aSkills);
+          });
+          break;
+      }
+    } else {
+      // Default sort by recent
+      filteredUsers.sort((a, b) => b._creationTime - a._creationTime);
+    }
+
+    // Handle pagination
+    const page = args.page || 1;
+    const pageSize = args.pageSize || 10;
+    const start = (page - 1) * pageSize;
+    const end = start + pageSize;
+
+    return {
+      users: filteredUsers.slice(start, end),
+      pagination: {
+        total: filteredUsers.length,
+        page,
+        pageSize,
+        totalPages: Math.ceil(filteredUsers.length / pageSize)
+      }
+    };
+  }
+});
+
+export const getAvailableFilters = query({
+  handler: async (ctx) => {
+    // Get all skills from the skills table
+    const skillsData = await ctx.db.query("skills").collect();
+    
+    const filters = {
+      skills: new Set<string>(),
+      maxExperience: 0
+    };
+
+    // Extract unique skills from skillsData
+    skillsData.forEach(skill => {
+      try {
+        const data = JSON.parse(skill.skillsData);
+        data.forEach((s: any) => filters.skills.add(s.name));
+      } catch (e) {
+        // Skip invalid JSON
+      }
+    });
+
+    return {
+      skills: Array.from(filters.skills),
+      maxExperience: 10 // Default max experience
+    };
+  }
+});
+
+export const toggleMarkstar = mutation({
+  args: {
+    recruiterEmail: v.string(),
+    userEmail: v.string(),
+  },
+  handler: async (ctx, args) => {
+    // Get recruiter
+    const recruiter = await ctx.db
+      .query("recruiters")
+      .filter((q) => q.eq(q.field("email"), args.recruiterEmail))
+      .first();
+
+    if (!recruiter) {
+      return { success: false, message: "Recruiter not found" };
+    }
+
+    // Get current markstar array
+    const currentMarkstar = recruiter.markstar || [];
+    
+    // Check if user is already marked
+    const isMarked = currentMarkstar.includes(args.userEmail);
+    
+    // Toggle the mark
+    let newMarkstar;
+    if (isMarked) {
+      newMarkstar = currentMarkstar.filter(email => email !== args.userEmail);
+    } else {
+      newMarkstar = [...currentMarkstar, args.userEmail];
+    }
+
+    // Update recruiter
+    await ctx.db.patch(recruiter._id, {
+      markstar: newMarkstar
+    });
+
+    return { 
+      success: true, 
+      action: isMarked ? "unmarked" : "marked",
+      message: `Successfully ${isMarked ? "unmarked" : "marked"} the profile`
+    };
+  }
 }); 

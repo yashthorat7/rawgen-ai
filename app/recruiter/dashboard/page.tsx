@@ -1,10 +1,33 @@
 "use client";
 
 import { SearchUsers } from "@/components/recruiter/SearchUsers";
-import { Header } from "@/components/layout/Header";
+import { Header } from "@/components/recruiter/Header";
 import { Footer } from "@/components/layout/Footer";
+import { useUser } from "@clerk/nextjs";
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function RecruiterDashboard() {
+  const { user } = useUser();
+  const router = useRouter();
+  const [recruiterEmail, setRecruiterEmail] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Get recruiter email from localStorage
+    const email = window.localStorage.getItem('recruiterEmail');
+    if (!email) {
+      router.push('/recruiter');
+      return;
+    }
+    setRecruiterEmail(email);
+  }, [router]);
+
+  if (!recruiterEmail) {
+    return null;
+  }
+
   return (
     <div className="min-h-screen flex flex-col">
       {/* Fixed Gradient Background */}
@@ -16,7 +39,7 @@ export default function RecruiterDashboard() {
       {/* Content */}
       <Header />
       <main className="flex-1 relative">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12 max-w-[1920px]">
+        <div className="mx-auto px-4 w-full sm:w-[90%]">
           <div className="flex flex-col items-center justify-center w-full">
             {/* Welcome Section */}
             <div className="w-full max-w-4xl mb-12 text-center">
@@ -30,7 +53,7 @@ export default function RecruiterDashboard() {
 
             {/* Search Section */}
             <div className="w-full">
-              <SearchUsers />
+              <SearchUsers recruiterEmail={recruiterEmail} />
             </div>
           </div>
         </div>

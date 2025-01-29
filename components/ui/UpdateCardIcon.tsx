@@ -18,6 +18,7 @@ export function UpdateCardIcon({
   position = "bottom-right" 
 }: UpdateCardIconProps) {
   const [showConfirm, setShowConfirm] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const confirmRef = useRef<HTMLDivElement>(null);
   
   const positionClasses = {
@@ -35,6 +36,22 @@ export function UpdateCardIcon({
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  const handleDelete = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!onDelete) return;
+    
+    setIsDeleting(true);
+    try {
+      await onDelete();
+    } catch (error) {
+      // Error is already handled by PlatformState
+      console.error("Error during deletion:", error);
+    } finally {
+      setIsDeleting(false);
+      setShowConfirm(false);
+    }
+  };
 
   return (
     <motion.div 
@@ -64,8 +81,13 @@ export function UpdateCardIcon({
               setShowConfirm(true);
             }}
             className="p-2 hover:bg-red-50 rounded-full transition-colors bg-white/80"
+            disabled={isDeleting}
           >
-            <Trash2 className="w-5 h-5 text-red-500" />
+            {isDeleting ? (
+              <div className="w-5 h-5 border-2 border-red-500 border-t-transparent rounded-full animate-spin" />
+            ) : (
+              <Trash2 className="w-5 h-5 text-red-500" />
+            )}
           </button>
 
           {showConfirm && (
@@ -84,19 +106,18 @@ export function UpdateCardIcon({
                     e.stopPropagation();
                     setShowConfirm(false);
                   }}
+                  disabled={isDeleting}
                 >
                   Cancel
                 </button>
                 <button
                   className="px-3 py-1.5 bg-red-500 text-white rounded-md 
-                            hover:bg-red-600 transition-colors"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onDelete();
-                    setShowConfirm(false);
-                  }}
+                            hover:bg-red-600 transition-colors disabled:opacity-50
+                            disabled:cursor-not-allowed"
+                  onClick={handleDelete}
+                  disabled={isDeleting}
                 >
-                  Delete
+                  {isDeleting ? 'Deleting...' : 'Delete'}
                 </button>
               </div>
             </div>
