@@ -74,6 +74,11 @@ export default function UserCard({ username, recruiterEmail }: UserCardProps) {
     username: username 
   });
 
+  // Get marksheet URL
+  const marksheetUrl = useQuery(api.recruiters.getMarksheetImageUrl, { 
+    username: username 
+  });
+
   // Get recruiter data if recruiterEmail is provided
   const recruiterData = useQuery(
     api.recruiters.getByEmail,
@@ -228,13 +233,13 @@ export default function UserCard({ username, recruiterEmail }: UserCardProps) {
             }
           }}
           style={{ zIndex: 2147483647 }}
-          className="fixed top-2 right-2 w-8 h-8 rounded-full bg-white/95 
+          className="fixed top-2 right-2 w-10 h-10 rounded-full bg-white/95 
                    shadow-lg hover:shadow-2xl transition-all duration-300 
                    hover:scale-110 hover:bg-indigo-50 border border-gray-200
                    flex items-center justify-center group"
         >
           <Bookmark 
-            className={`w-4 h-4 ${isMarked ? 'text-green-600 fill-green-600' : 'text-indigo-600'} 
+            className={`w-5 h-5 ${isMarked ? 'text-green-600 fill-green-600' : 'text-indigo-600'} 
                      transition-all duration-300 group-hover:scale-110`}
           />
         </button>
@@ -253,11 +258,6 @@ export default function UserCard({ username, recruiterEmail }: UserCardProps) {
                   fill
                   className="rounded-full object-cover ring-2 ring-white shadow-md"
                 />
-                {userData.isverified && (
-                  <div className="absolute -bottom-1 -right-1 bg-white rounded-full p-0.5">
-                    <BadgeCheck className="w-4 h-4 sm:w-5 sm:h-5 text-green-600" />
-                  </div>
-                )}
               </div>
             ) : (
               <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-br from-blue-100 to-purple-100 
@@ -278,84 +278,108 @@ export default function UserCard({ username, recruiterEmail }: UserCardProps) {
         <div className="flex-1 flex flex-col min-w-0 sm:pl-5">
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <h3 className="text-lg sm:text-xl font-bold text-gray-900 truncate">
+              <h3 className="text-2xl sm:text-2xl font-bold text-gray-900 truncate">
                 {userData.firstName && userData.lastName 
                   ? `${userData.firstName} ${userData.lastName}`
                   : userData.username}
               </h3>
               {userData.isverified && (
-                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium 
-                             bg-green-100/80 text-green-800 backdrop-blur-sm flex-shrink-0">
-                  Verified
-                </span>
+                <>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (marksheetUrl) {
+                        window.open(marksheetUrl, '_blank');
+                      }
+                    }}
+                    className="inline-flex items-center gap-1 bg-green-600 text-white px-3 py-1 rounded-lg hover:bg-green-700 transition-colors duration-200"
+                    title="View Marksheet"
+                  >
+                    <BadgeCheck className="w-5 h-5" />
+                    <span className="text-xs font-medium">Verified</span>
+                  </button>
+                  {userData.email && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        window.open(`mailto:${userData.email}`, '_blank');
+                      }}
+                      className="inline-flex items-center gap-1 bg-red-400 text-white px-3 py-1 rounded-lg hover:bg-red-500 transition-colors duration-200"
+                      title="Send Email"
+                    >
+                      <Mail className="w-5 h-5" />
+                    </button>
+                  )}
+                </>
               )}
             </div>
-
-            {/* Social Links */}
-            <div className="flex items-center gap-2 flex-wrap mt-2">
-              {Object.entries(socialLinks).map(([platform, username]) => {
-                const config = socialPlatformConfigs[platform.toLowerCase()];
-                if (!config || !username || typeof username !== 'string') return null;
-
-                const Icon = config.icon;
-                const url = platform === 'website' ? username : `${config.baseUrl}${username}`;
-
-                return (
-                  <a
-                    key={platform}
-                    href={url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={(e) => e.stopPropagation()}
-                    className={`p-1.5 rounded-lg hover:bg-gray-100/80 transition-colors ${config.color}
-                              group/icon flex items-center gap-1.5`}
-                    data-tip={`${platform}: ${username}`}
-                  >
-                    <Icon className="w-4 h-4" />
-                  </a>
-                );
-              })}
-            </div>
-            
-            {/* Stats Section */}
-            <div className="mt-3 flex items-center gap-3 sm:gap-4 flex-wrap">
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="flex items-center gap-1.5 px-2 py-1 bg-blue-50 rounded-md"
-                data-tip={`${formatNumber(counters?.profileViews || 0)} Profile Views`}
-              >
-                <Eye className="w-4 h-4 text-blue-600" />
-                <span className="text-sm font-medium text-blue-700">
-                  {formatNumber(counters?.profileViews || 0)}
-                </span>
-              </motion.div>
-
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="flex items-center gap-1.5 px-2 py-1 bg-pink-50 rounded-md"
-                data-tip={`${formatNumber(counters?.gotStars?.length || 0)} Stars`}
-              >
-                <Star className="w-4 h-4 text-pink-600" />
-                <span className="text-sm font-medium text-pink-700">
-                  {formatNumber(counters?.gotStars?.length || 0)}
-                </span>
-              </motion.div>
-
-              {userData.cgpa && (
+            <div className="flex flex-wrap justify-between items-center mt-2">
+              {/* Stats Section */}
+              <div className="flex items-center gap-3 sm:gap-4 flex-wrap">
                 <motion.div 
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="flex items-center gap-1.5 px-2 py-1 bg-orange-50 rounded-md"
-                  data-tip={`CGPA: ${userData.cgpa.toFixed(1)}`}
+                  className="flex items-center gap-1.5 px-2 py-1 bg-blue-50 rounded-md"
+                  data-tip={`${formatNumber(counters?.profileViews || 0)} Profile Views`}
                 >
-                  <GraduationCap className="w-4 h-4 text-orange-600" />
-                  <span className="text-sm font-medium text-orange-700">
-                    {userData.cgpa.toFixed(1)}
+                  <Eye className="w-4 h-4 text-blue-600" />
+                  <span className="text-sm font-medium text-blue-700">
+                    {formatNumber(counters?.profileViews || 0)}
                   </span>
                 </motion.div>
-              )}
+
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex items-center gap-1.5 px-2 py-1 bg-pink-50 rounded-md"
+                  data-tip={`${formatNumber(counters?.gotStars?.length || 0)} Stars`}
+                >
+                  <Star className="w-4 h-4 text-pink-600" />
+                  <span className="text-sm font-medium text-pink-700">
+                    {formatNumber(counters?.gotStars?.length || 0)}
+                  </span>
+                </motion.div>
+
+                {userData.cgpa && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="flex items-center gap-1.5 px-2 py-1 bg-orange-50 rounded-md"
+                    data-tip={`CGPA: ${userData.cgpa.toFixed(1)}`}
+                  >
+                    <GraduationCap className="w-4 h-4 text-orange-600" />
+                    <span className="text-sm font-medium text-orange-700">
+                      {userData.cgpa.toFixed(1)}
+                    </span>
+                  </motion.div>
+                )}
+              </div>
+
+              {/* Social Links */}
+              <div className="flex items-center gap-2 flex-wrap">
+                {Object.entries(socialLinks).map(([platform, username]) => {
+                  const config = socialPlatformConfigs[platform.toLowerCase()];
+                  if (!config || !username || typeof username !== 'string') return null;
+
+                  const Icon = config.icon;
+                  const url = platform === 'website' ? username : `${config.baseUrl}${username}`;
+
+                  return (
+                    <a
+                      key={platform}
+                      href={url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      className={`p-1.5 rounded-lg hover:bg-gray-100/80 transition-colors ${config.color}
+                                group/icon flex items-center gap-1.5`}
+                      data-tip={`${platform}: ${username}`}
+                    >
+                      <Icon className="w-4 h-4" />
+                    </a>
+                  );
+                })}
+              </div>
             </div>
           </div>
 
@@ -418,14 +442,14 @@ export default function UserCard({ username, recruiterEmail }: UserCardProps) {
             <div className="flex gap-2 sm:gap-3 items-center flex-wrap">
               {Object.entries(platformGroups).map(([platform, { count, platform: profileData }]) => (
                 <div key={platform} className="flex items-center gap-1.5">
-                  <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white shadow-md 
-                               ring-2 ring-white overflow-hidden
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white shadow-md 
+                               ring-1 ring-white overflow-hidden
                                transition-transform duration-200 hover:scale-110 relative">
                     <Image
                       src={platformIcons[platform] || '/globe.png'}
                       alt={profileData.platformName}
-                      width={32}
-                      height={32}
+                      width={42}
+                      height={42}
                       className="w-full h-full p-1.5 object-contain"
                     />
                   </div>

@@ -314,4 +314,23 @@ export const toggleMarkstar = mutation({
       message: `Successfully ${isMarked ? "unmarked" : "marked"} the profile`
     };
   }
+});
+
+export const getMarksheetImageUrl = query({
+  args: { username: v.string() },
+  handler: async (ctx, args) => {
+    // Get user by username
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_username", (q) => q.eq("username", args.username))
+      .first();
+
+    if (!user || !user.marksheetImage) {
+      return null;
+    }
+
+    // Get the URL for the marksheet image
+    const url = await ctx.storage.getUrl(user.marksheetImage);
+    return url;
+  },
 }); 

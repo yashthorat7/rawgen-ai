@@ -63,7 +63,7 @@ export function SearchUsers({ recruiterEmail }: SearchUsersProps) {
 
   return (
     <div className="w-full space-y-8">
-      <div className="flex items-center gap-4 w-full max-w-[90%] mx-auto">
+      <div className="flex items-center gap-4 w-[70%] max-w-[90%] mx-auto">
         {/* Search Bar */}
         <div className={`
           relative flex-1 transition-all duration-300
@@ -74,10 +74,9 @@ export function SearchUsers({ recruiterEmail }: SearchUsersProps) {
               ref={searchInputRef}
               type="text"
               placeholder="Search users by username..."
-              className="w-full pl-12 pr-10 py-4 sm:py-5 bg-white/90 backdrop-blur-sm border border-gray-200 
-                       rounded-2xl outline-none focus:border-blue-500 
+              className="w-full pl-12 pr-10 py-3.5 sm:py-3.5 bg-white/90 backdrop-blur-sm border border-gray-200 
+                       rounded-2xl outline-none
                        transition-all duration-300 placeholder:text-gray-400
-                       shadow-lg hover:shadow-xl focus:shadow-xl
                        text-base sm:text-lg"
               onChange={handleSearchChange}
               onFocus={() => setIsSearchFocused(true)}
