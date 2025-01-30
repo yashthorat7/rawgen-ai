@@ -375,7 +375,7 @@ export default function UserCard({ username, recruiterEmail }: UserCardProps) {
                                 group/icon flex items-center gap-1.5`}
                       data-tip={`${platform}: ${username}`}
                     >
-                      <Icon className="w-4 h-4" />
+                      <Icon className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
                     </a>
                   );
                 })}

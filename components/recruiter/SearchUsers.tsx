@@ -63,7 +63,7 @@ export function SearchUsers({ recruiterEmail }: SearchUsersProps) {
 
   return (
     <div className="w-full space-y-8">
-      <div className="flex items-center gap-4 w-[70%] max-w-[90%] mx-auto">
+      <div className="flex items-center gap-4 w-full sm:w-[70%] mx-auto">
         {/* Search Bar */}
         <div className={`
           relative flex-1 transition-all duration-300
