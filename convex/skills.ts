@@ -284,4 +284,28 @@ export const update = mutation({
       skills: args.skills,
     };
   },
+});
+
+export const getAllSkills = query({
+  args: {},
+  handler: async (ctx) => {
+    const skillCategories = await ctx.db
+      .query("skills")
+      .collect();
+
+    // Extract all unique skills from all categories
+    const uniqueSkills = new Set<string>();
+    skillCategories.forEach(category => {
+      try {
+        const skills = JSON.parse(category.skillsData);
+        if (Array.isArray(skills)) {
+          skills.forEach(skill => uniqueSkills.add(skill));
+        }
+      } catch {
+        // Skip invalid JSON
+      }
+    });
+
+    return Array.from(uniqueSkills).sort();
+  }
 }); 

@@ -5,11 +5,12 @@ import { useRouter } from "next/navigation";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { Mail, Star, Eye, BadgeCheck, GraduationCap, FolderKanban, Award, Bookmark,
+import { Mail, Star, Eye, BadgeCheck, GraduationCap, FolderKanban, Award,
          Github, Linkedin, Twitter, Globe, Instagram, Facebook } from "lucide-react";
 import { motion } from "framer-motion";
 import { useUser } from "@clerk/nextjs";
 import { useState, useEffect } from "react";
+import BookmarkButton from "../ui/Bookmark";
 
 interface UserCardProps {
   username: string;
@@ -206,43 +207,12 @@ export default function UserCard({ username, recruiterEmail }: UserCardProps) {
                     min-h-[200px] sm:min-h-[180px] h-full`}
       >
         {/* High Priority Action Button */}
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            console.log("Button clicked!");
-            console.log("User email:", userData?.email);
-            console.log("Recruiter email:", recruiterEmail);
-            if (!recruiterEmail || !userData?.email) {
-              console.log("Missing email - Recruiter:", !recruiterEmail, "User:", !userData?.email);
-              return;
-            }
-            try {
-              console.log("Attempting to toggle markstar...");
-              toggleMarkstar({
-                recruiterEmail,
-                userEmail: userData.email
-              }).then(result => {
-                console.log("Toggle result:", result);
-                if (result.success) {
-                  console.log(`Successfully ${result.action} the profile`);
-                  setIsMarked(result.action === "marked");
-                }
-              });
-            } catch (error) {
-              console.error('Error toggling mark:', error);
-            }
-          }}
-          style={{ zIndex: 2147483647 }}
-          className="fixed top-2 right-2 w-10 h-10 rounded-full bg-white/95 
-                   shadow-lg hover:shadow-2xl transition-all duration-300 
-                   hover:scale-110 hover:bg-indigo-50 border border-gray-200
-                   flex items-center justify-center group"
-        >
-          <Bookmark 
-            className={`w-5 h-5 ${isMarked ? 'text-green-600 fill-green-600' : 'text-indigo-600'} 
-                     transition-all duration-300 group-hover:scale-110`}
-          />
-        </button>
+        <BookmarkButton
+          recruiterEmail={recruiterEmail}
+          userEmail={userData?.email}
+          isMarked={isMarked}
+          onMarkChange={setIsMarked}
+        />
 
         {/* Left Section - User Image & Name */}
         <div className="flex-shrink-0 w-full sm:w-[140px] flex flex-col items-center justify-center 

@@ -2,6 +2,9 @@ import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { Doc, Id } from "./_generated/dataModel";
 import { ConvexError } from "convex/values";
+import { getUserByUsername } from "./users";
+import { QueryCtx } from "./_generated/server";
+import { FilterBuilder } from "convex/server";
 
 // Password validation function
 function isValidPassword(password: string) {
@@ -126,122 +129,417 @@ export const create = mutation({
     },
 });
 
+// Helper function to get all user data
+async function getAllUserData(ctx: QueryCtx, username: string) {
+  const user = await getUserByUsername(ctx, { username });
+  if (!user) return null;
+
+  const userId = user._id;
+
+  // Get skills
+  const skills = await ctx.db
+    .query("skills")
+    .filter(q => q.eq(q.field("userId"), userId))
+    .collect();
+
+  // Get projects
+  const projects = await ctx.db
+    .query("projects")
+    .filter(q => q.eq(q.field("userId"), userId))
+    .collect();
+
+  // Get profiles
+  const profiles = await ctx.db
+    .query("profiles")
+    .filter(q => q.eq(q.field("userId"), userId))
+    .collect();
+
+  // Get certificates
+  const certificates = await ctx.db
+    .query("certificates")
+    .filter(q => q.eq(q.field("userId"), userId))
+    .collect();
+
+  // Get stars
+  const stars = user.madeStars?.length || 0;
+
+  return {
+    skills,
+    projects,
+    profiles,
+    certificates,
+    stars
+  };
+}
+
+interface PlatformData {
+  rank?: number;
+  [key: string]: any;
+}
+
+interface UserWithData {
+  _id: Id<"users">;
+  _creationTime: number;
+  username: string;
+  email: string;
+  firstName?: string;
+  lastName?: string;
+  isverified?: boolean;
+  skillCount: number;
+  projectCount: number;
+  platformCount: number;
+  certificateCount: number;
+  starCount: number;
+  // Tab-specific data
+  skillCategory?: string;
+  skills?: any[];
+  projectId?: Id<"projects">;
+  projectTitle?: string;
+  projectDescription?: string;
+  projectLink?: string;
+  deployLink?: string;
+  techStack?: string;
+  projectImageUrl?: string;
+  platform?: string;
+  platformUsername?: string;
+  platformData?: PlatformData;
+  certificateId?: Id<"certificates">;
+  certificateTitle?: string;
+  certificateCategory?: string;
+  certificateDescription?: string;
+  certificateImageUrl?: string;
+}
+
 export const searchUsers = query({
   args: {
     query: v.string(),
     filters: v.object({
-      skills: v.optional(v.array(v.string())),
+      verified: v.boolean(),
+      sortBy: v.union(
+        v.literal("recent"),
+        v.literal("stars"),
+        v.literal("projects"),
+        v.literal("skills"),
+        v.literal("platforms"),
+        v.literal("certificates")
+      ),
+      tab: v.optional(v.union(
+        v.literal("users"),
+        v.literal("platforms"),
+        v.literal("skills"),
+        v.literal("projects"),
+        v.literal("internships")
+      )),
+      platformFilters: v.optional(v.object({
+        leetcode: v.optional(v.boolean()),
+        codechef: v.optional(v.boolean()),
+        codeforces: v.optional(v.boolean()),
+        geeksforgeeks: v.optional(v.boolean()),
+        sortByRank: v.optional(v.boolean()),
+        minRank: v.optional(v.number()),
+        maxRank: v.optional(v.number())
+      })),
+      skillFilters: v.optional(v.object({
+        searchTerms: v.array(v.string()),
+        categories: v.optional(v.array(v.string())),
+        minSkills: v.optional(v.number()),
+        maxSkills: v.optional(v.number())
+      })),
+      projectFilters: v.optional(v.object({
+        hasDeployment: v.optional(v.boolean()),
+        hasImage: v.optional(v.boolean()),
+        techStack: v.optional(v.array(v.string())),
+        minTechStack: v.optional(v.number())
+      })),
+      certificateFilters: v.optional(v.object({
+        categories: v.optional(v.array(v.string())),
+        hasImage: v.optional(v.boolean()),
+        dateRange: v.optional(v.object({
+          start: v.optional(v.string()),
+          end: v.optional(v.string())
+        }))
+      })),
+      userFilters: v.optional(v.object({
+        hasProfileImage: v.optional(v.boolean()),
+        isVerified: v.optional(v.boolean()),
+        minStars: v.optional(v.number()),
+        minProjects: v.optional(v.number()),
+        minSkills: v.optional(v.number()),
+        minPlatforms: v.optional(v.number()),
+        minCertificates: v.optional(v.number())
+      }))
     }),
-    sort: v.optional(v.union(
-      v.literal("skills"),
-      v.literal("name"),
-      v.literal("recent")
-    )),
-    sortDirection: v.optional(v.union(v.literal("asc"), v.literal("desc"))),
-    page: v.optional(v.number()),
-    pageSize: v.optional(v.number()),
+    page: v.number(),
+    pageSize: v.number(),
   },
   handler: async (ctx, args) => {
-    // Get all users and filter in memory for simplicity
-    const users = await ctx.db.query("users").collect();
-    
-    // Filter users based on search query
-    let filteredUsers = users;
-    if (args.query) {
-      const searchTerm = args.query.toLowerCase().trim();
-      
-      // First try exact username match
-      const exactMatches = filteredUsers.filter(user => 
-        user.username.toLowerCase() === searchTerm
-      );
+    const { query, filters, page, pageSize } = args;
+    const { 
+      verified, 
+      sortBy, 
+      tab, 
+      platformFilters, 
+      skillFilters,
+      projectFilters,
+      certificateFilters,
+      userFilters
+    } = filters;
 
-      // Then try starts with
-      const startsWithMatches = filteredUsers.filter(user => 
-        user.username.toLowerCase().startsWith(searchTerm) &&
-        !exactMatches.find(m => m._id === user._id)
-      );
-
-      // Finally try includes
-      const includesMatches = filteredUsers.filter(user => 
-        user.username.toLowerCase().includes(searchTerm) &&
-        !exactMatches.find(m => m._id === user._id) &&
-        !startsWithMatches.find(m => m._id === user._id)
-      );
-
-      // Combine all matches in priority order
-      filteredUsers = [...exactMatches, ...startsWithMatches, ...includesMatches];
-    }
-
-    // Get related data for filtering
-    const userSkills = await ctx.db
-      .query("skills")
-      .filter(q => q.eq(q.field("category"), "technical"))
+    // Get all users first
+    let users = await ctx.db
+      .query("users")
       .collect();
 
-    const skillsMap = new Map();
-    userSkills.forEach(skill => {
-      try {
-        const data = JSON.parse(skill.skillsData);
-        skillsMap.set(skill.userId, data);
-      } catch (e) {
-        // Skip invalid JSON
-      }
-    });
-
-    // Apply skills filter
-    if (args.filters.skills?.length) {
-      filteredUsers = filteredUsers.filter(user => {
-        const userSkillData = skillsMap.get(user._id);
-        if (!userSkillData) return false;
-        return args.filters.skills!.some(skill => 
-          userSkillData.some((s: any) => 
-            s.name.toLowerCase().includes(skill.toLowerCase())
-          )
-        );
+    // Filter by search query if provided
+    if (query) {
+      users = users.filter(user => {
+        const searchStr = `${user.username} ${user.firstName || ''} ${user.lastName || ''}`.toLowerCase();
+        return searchStr.includes(query.toLowerCase());
       });
     }
 
-    // Apply sorting
-    const direction = args.sortDirection === "asc" ? 1 : -1;
-    if (args.sort) {
-      switch (args.sort) {
-        case "name":
-          filteredUsers.sort((a, b) => 
-            direction * (a.username.localeCompare(b.username))
-          );
-          break;
-        case "recent":
-          filteredUsers.sort((a, b) => 
-            direction * (b._creationTime - a._creationTime)
-          );
-          break;
-        case "skills":
-          filteredUsers.sort((a, b) => {
-            const aSkills = skillsMap.get(a._id)?.length || 0;
-            const bSkills = skillsMap.get(b._id)?.length || 0;
-            return direction * (bSkills - aSkills);
-          });
-          break;
-      }
-    } else {
-      // Default sort by recent
-      filteredUsers.sort((a, b) => b._creationTime - a._creationTime);
+    // Filter by verified status if required
+    if (verified) {
+      users = users.filter(user => user.isverified);
     }
 
-    // Handle pagination
-    const page = args.page || 1;
-    const pageSize = args.pageSize || 10;
+    // Get additional data for each user
+    const usersWithData = await Promise.all(
+      users.map(async user => {
+        const userData = await getAllUserData(ctx, user.username);
+        if (!userData) return null;
+
+        // Base user data
+        const baseUser: UserWithData = {
+          ...user,
+          skillCount: userData.skills?.length || 0,
+          projectCount: userData.projects?.length || 0,
+          platformCount: userData.profiles?.length || 0,
+          certificateCount: userData.certificates?.length || 0,
+          starCount: userData.stars || 0
+        };
+
+        // Apply user-specific filters
+        if (tab === "users" && userFilters) {
+          if (userFilters.hasProfileImage && !user.profileImage) return null;
+          if (userFilters.isVerified && !user.isverified) return null;
+          if (userFilters.minStars && baseUser.starCount < userFilters.minStars) return null;
+          if (userFilters.minProjects && baseUser.projectCount < userFilters.minProjects) return null;
+          if (userFilters.minSkills && baseUser.skillCount < userFilters.minSkills) return null;
+          if (userFilters.minPlatforms && baseUser.platformCount < userFilters.minPlatforms) return null;
+          if (userFilters.minCertificates && baseUser.certificateCount < userFilters.minCertificates) return null;
+        }
+
+        // Add tab-specific data
+        switch (tab) {
+          case "skills":
+            const skill = userData.skills?.[0];
+            if (!skill) return baseUser;
+
+            const skillsData = JSON.parse(skill.skillsData || "[]");
+            
+            // Apply skill filters
+            if (skillFilters) {
+              if (skillFilters.categories?.length && !skillFilters.categories.includes(skill.category)) {
+                return null;
+              }
+
+              if (skillFilters.minSkills && skillsData.length < skillFilters.minSkills) {
+                return null;
+              }
+
+              if (skillFilters.maxSkills && skillsData.length > skillFilters.maxSkills) {
+                return null;
+              }
+
+              if (skillFilters.searchTerms.length > 0) {
+                const hasMatchingSkills = skillFilters.searchTerms.some(term =>
+                  skillsData.some((s: string) => 
+                    s.toLowerCase().includes(term.toLowerCase())
+                  )
+                );
+                if (!hasMatchingSkills) return null;
+              }
+            }
+
+            return {
+              ...baseUser,
+              skillCategory: skill.category,
+              skills: skillsData
+            };
+
+          case "projects":
+            const project = userData.projects?.[0];
+            if (!project) return baseUser;
+            
+            // Apply project filters
+            if (projectFilters) {
+              if (projectFilters.hasDeployment && !project.deployLink) return null;
+              if (projectFilters.hasImage && !project.projectImage) return null;
+              
+              const techStack = JSON.parse(project.techStack || "[]");
+              if (projectFilters.minTechStack && techStack.length < projectFilters.minTechStack) return null;
+              
+              if (projectFilters.techStack?.length) {
+                const hasMatchingTech = projectFilters.techStack.some(tech =>
+                  techStack.some((t: string) => 
+                    t.toLowerCase().includes(tech.toLowerCase())
+                  )
+                );
+                if (!hasMatchingTech) return null;
+              }
+            }
+            
+            let projectImageUrl;
+            if (project.projectImage) {
+              projectImageUrl = await ctx.storage.getUrl(project.projectImage);
+            }
+            
+            return {
+              ...baseUser,
+              projectId: project._id,
+              projectTitle: project.projectName,
+              projectDescription: project.projectDescription,
+              projectLink: project.projectLink,
+              deployLink: project.deployLink,
+              techStack: project.techStack,
+              projectImageUrl
+            };
+
+          case "platforms":
+            const profile = userData.profiles?.[0];
+            if (!profile) return baseUser;
+
+            // Apply platform filters
+            if (platformFilters) {
+              const platform = profile.platformName.toLowerCase();
+              const shouldShow = (
+                (!platformFilters.leetcode || platform === "leetcode") &&
+                (!platformFilters.codechef || platform === "codechef") &&
+                (!platformFilters.codeforces || platform === "codeforces") &&
+                (!platformFilters.geeksforgeeks || platform === "geeksforgeeks")
+              );
+              if (!shouldShow) return null;
+
+              // Parse platform data for rank filtering
+              let platformData: PlatformData | null = null;
+              try {
+                platformData = profile.platformCacheData ? JSON.parse(profile.platformCacheData) : null;
+                
+                if (platformData?.rank !== undefined) {
+                  if (platformFilters.minRank !== undefined && platformData.rank < platformFilters.minRank) {
+                    return null;
+                  }
+                  if (platformFilters.maxRank !== undefined && platformData.rank > platformFilters.maxRank) {
+                    return null;
+                  }
+                }
+              } catch (e) {
+                console.error('Error parsing platform data:', e);
+              }
+
+              return {
+                ...baseUser,
+                platform: profile.platformName,
+                platformUsername: profile.platformUsername,
+                platformData
+              };
+            }
+
+          case "internships":
+            const cert = userData.certificates?.[0];
+            if (!cert) return baseUser;
+            
+            // Apply certificate filters
+            if (certificateFilters) {
+              if (certificateFilters.categories?.length && 
+                  !certificateFilters.categories.includes(cert.category)) {
+                return null;
+              }
+
+              if (certificateFilters.hasImage && !cert.certificateImage) {
+                return null;
+              }
+
+              if (certificateFilters.dateRange) {
+                const certDate = new Date(cert._creationTime);
+                if (certificateFilters.dateRange.start && 
+                    certDate < new Date(certificateFilters.dateRange.start)) {
+                  return null;
+                }
+                if (certificateFilters.dateRange.end && 
+                    certDate > new Date(certificateFilters.dateRange.end)) {
+                  return null;
+                }
+              }
+            }
+            
+            let certificateImageUrl;
+            if (cert.certificateImage) {
+              certificateImageUrl = await ctx.storage.getUrl(cert.certificateImage);
+            }
+            
+            return {
+              ...baseUser,
+              certificateId: cert._id,
+              certificateTitle: cert.certificateTitle,
+              certificateCategory: cert.category,
+              certificateDescription: cert.description,
+              certificateImageUrl
+            };
+
+          default:
+            return baseUser;
+        }
+      })
+    );
+
+    // Filter out null values and sort users
+    const filteredUsers = usersWithData.filter((user): user is UserWithData => user !== null);
+    let sortedUsers = [...filteredUsers];
+
+    // Sort users based on selected option
+    switch (sortBy) {
+      case "stars":
+        sortedUsers.sort((a, b) => (b.starCount || 0) - (a.starCount || 0));
+        break;
+      case "projects":
+        sortedUsers.sort((a, b) => (b.projectCount || 0) - (a.projectCount || 0));
+        break;
+      case "skills":
+        sortedUsers.sort((a, b) => (b.skillCount || 0) - (a.skillCount || 0));
+        break;
+      case "platforms":
+        if (platformFilters?.sortByRank) {
+          sortedUsers.sort((a, b) => {
+            const rankA = a.platformData?.rank || 0;
+            const rankB = b.platformData?.rank || 0;
+            return rankA - rankB;
+          });
+        } else {
+          sortedUsers.sort((a, b) => (b.platformCount || 0) - (a.platformCount || 0));
+        }
+        break;
+      case "certificates":
+        sortedUsers.sort((a, b) => (b.certificateCount || 0) - (a.certificateCount || 0));
+        break;
+      case "recent":
+      default:
+        sortedUsers.sort((a, b) => {
+          const dateA = new Date(a._creationTime || 0);
+          const dateB = new Date(b._creationTime || 0);
+          return dateB.getTime() - dateA.getTime();
+        });
+    }
+
+    // Apply pagination
     const start = (page - 1) * pageSize;
     const end = start + pageSize;
+    const paginatedUsers = sortedUsers.slice(start, end);
 
     return {
-      users: filteredUsers.slice(start, end),
-      pagination: {
-        total: filteredUsers.length,
-        page,
-        pageSize,
-        totalPages: Math.ceil(filteredUsers.length / pageSize)
-      }
+      users: paginatedUsers,
+      total: sortedUsers.length
     };
   }
 });

@@ -1,6 +1,6 @@
 "use client";
 
-import { SearchUsers } from "@/components/recruiter/SearchUsers";
+import { SearchContainer } from "@/components/recruiter/search/SearchContainer";
 import { Header } from "@/components/recruiter/Header";
 import { Footer } from "@/components/layout/Footer";
 import { useUser } from "@clerk/nextjs";
@@ -53,7 +53,7 @@ export default function RecruiterDashboard() {
 
             {/* Search Section */}
             <div className="w-full">
-              <SearchUsers recruiterEmail={recruiterEmail} />
+              <SearchContainer />
             </div>
           </div>
         </div>
