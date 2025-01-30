@@ -78,6 +78,47 @@ export function SearchResults({
 }: SearchResultsProps) {
   const [visibleItems, setVisibleItems] = useState<number>(ITEMS_PER_BATCH);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [localFilters, setLocalFilters] = useState(filters);
+
+  // Reset filters when tab changes
+  useEffect(() => {
+    const defaultFilters: FilterState = {
+      verified: filters.verified,
+      sortBy: "recent",
+      platformFilters: tab === "platforms" ? {
+        leetcode: false,
+        codechef: false,
+        codeforces: false,
+        geeksforgeeks: false,
+        sortByRank: false
+      } : undefined,
+      skillFilters: tab === "skills" ? {
+        searchTerms: [],
+        categories: []
+      } : undefined,
+      projectFilters: tab === "projects" ? {
+        hasDeployment: false,
+        hasImage: false,
+        techStack: []
+      } : undefined,
+      certificateFilters: tab === "internships" ? {
+        categories: [],
+        hasImage: false
+      } : undefined,
+      userFilters: tab === "users" ? {
+        hasProfileImage: false,
+        isVerified: false,
+        minStars: undefined,
+        minProjects: undefined,
+        minSkills: undefined,
+        minPlatforms: undefined,
+        minCertificates: undefined
+      } : undefined
+    };
+    
+    setLocalFilters(defaultFilters);
+    onFilterChange(defaultFilters);
+  }, [tab]);
 
   // Parse search query for skills
   const searchSkills = useMemo(() => {
@@ -166,7 +207,11 @@ export function SearchResults({
     if (typeof value === 'string') {
       try {
         const parsed = JSON.parse(value);
-        return Array.isArray(parsed) ? parsed : [];
+        if (Array.isArray(parsed)) return parsed;
+        if (parsed.skills && typeof parsed.skills === 'object') {
+          return Object.keys(parsed.skills);
+        }
+        return [];
       } catch {
         // If it's a comma-separated string, split it
         if (value.includes(',')) {
@@ -304,10 +349,11 @@ export function SearchResults({
 
           const platform = user.platform.toLowerCase();
           const shouldShow = (
-            (!leetcode || platform === "leetcode") &&
-            (!codechef || platform === "codechef") &&
-            (!codeforces || platform === "codeforces") &&
-            (!geeksforgeeks || platform === "geeksforgeeks")
+            (!leetcode && !codechef && !codeforces && !geeksforgeeks) || // Show all if none selected
+            (leetcode && platform === "leetcode") ||
+            (codechef && platform === "codechef") ||
+            (codeforces && platform === "codeforces") ||
+            (geeksforgeeks && platform === "geeksforgeeks")
           );
           
           if (!shouldShow) return null;
@@ -318,14 +364,81 @@ export function SearchResults({
             if (maxRank !== undefined && rank > maxRank) return null;
           }
         }
+
+        // Search in platform data
+        if (searchQuery) {
+          const searchLower = searchQuery.toLowerCase();
+          const matchesUsername = user.platformUsername.toLowerCase().includes(searchLower);
+          const matchesPlatform = user.platform.toLowerCase().includes(searchLower);
+          const matchesSkills = user.platformData?.skills?.some(
+            (skill: string) => skill.toLowerCase().includes(searchLower)
+          );
+
+          if (!matchesUsername && !matchesPlatform && !matchesSkills) return null;
+        }
+
+        // Format platform data
+        const platformName = user.platform.toLowerCase();
+        const formattedPlatformData = {
+          [platformName]: {
+            [user.platformUsername]: {
+              ...user.platformData,
+              // Add specific platform data based on platform type
+              ...(platformName === 'leetcode' && {
+                totalSolved: user.platformData?.totalSolved || 0,
+                easySolved: user.platformData?.easySolved || 0,
+                mediumSolved: user.platformData?.mediumSolved || 0,
+                hardSolved: user.platformData?.hardSolved || 0,
+                totalEasy: user.platformData?.totalEasy || 0,
+                totalMedium: user.platformData?.totalMedium || 0,
+                totalHard: user.platformData?.totalHard || 0,
+                ranking: user.platformData?.ranking || 0,
+                submitStats: user.platformData?.submitStats || {
+                  acSubmissionNum: [],
+                  totalSubmissionNum: []
+                }
+              }),
+              ...(platformName === 'codechef' && {
+                currentRating: user.platformData?.currentRating || 0,
+                highestRating: user.platformData?.highestRating || 0,
+                globalRank: user.platformData?.globalRank || 0,
+                countryRank: user.platformData?.countryRank || 0,
+                stars: user.platformData?.stars || 0,
+                submissionStats: user.platformData?.submissionStats || [],
+                totalContests: user.platformData?.totalContests || 0,
+                countryName: user.platformData?.countryName || ''
+              }),
+              ...(platformName === 'geeksforgeeks' && {
+                codingScore: user.platformData?.codingScore || 0,
+                problemsSolved: user.platformData?.problemsSolved || 0,
+                monthlyCoding: user.platformData?.monthlyCoding || 0,
+                rank: user.platformData?.rank || 0,
+                totalProblems: user.platformData?.totalProblems || 0,
+                schoolProblems: user.platformData?.schoolProblems || 0,
+                basicProblems: user.platformData?.basicProblems || 0,
+                easyProblems: user.platformData?.easyProblems || 0,
+                mediumProblems: user.platformData?.mediumProblems || 0,
+                hardProblems: user.platformData?.hardProblems || 0
+              }),
+              ...(platformName === 'codeforces' && {
+                rating: user.platformData?.rating || 0,
+                maxRating: user.platformData?.maxRating || 0,
+                rank: user.platformData?.rank || 0,
+                maxRank: user.platformData?.maxRank || 0,
+                contribution: user.platformData?.contribution || 0,
+                friendOfCount: user.platformData?.friendOfCount || 0
+              })
+            }
+          }
+        };
         
         return (
           <ProfileCard
             platform={user.platform}
-            username={user.platformUsername || ""}
+            username={user.platformUsername}
             index={index}
-            platformData={user.platformData || null}
             isPublicView={true}
+            platformData={formattedPlatformData}
           />
         );
       case "internships":

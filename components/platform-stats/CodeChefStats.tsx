@@ -13,7 +13,7 @@ export function CodeChefStats({ data, isLoading }: CodeChefStatsProps) {
   if (!data) return null;
 
   const getRecentActivity = () => {
-    if (!data.submissionStats.length) return 0;
+    if (!data?.submissionStats?.length) return 0;
     const last3Months = data.submissionStats.slice(-3);
     return last3Months.reduce((sum: number, item: { submissions: number }) => sum + item.submissions, 0);
   };

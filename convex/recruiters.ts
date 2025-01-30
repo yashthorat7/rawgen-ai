@@ -210,6 +210,70 @@ interface UserWithData {
   certificateImageUrl?: string;
 }
 
+// Helper function to format platform data based on platform type
+function formatPlatformData(platform: string, data: any, skills: any[]) {
+  if (!data) return null;
+
+  // Format skills array
+  const formattedSkills = skills.reduce((acc: string[], skill: any) => {
+    try {
+      const skillData = JSON.parse(skill.skillsData);
+      return acc.concat(Array.isArray(skillData) ? skillData : []);
+    } catch (e) {
+      return acc;
+    }
+  }, []);
+
+  switch (platform.toLowerCase()) {
+    case 'leetcode':
+      return {
+        totalSolved: data.totalSolved || 0,
+        easySolved: data.easySolved || 0,
+        mediumSolved: data.mediumSolved || 0,
+        hardSolved: data.hardSolved || 0,
+        totalEasy: data.totalEasy || 0,
+        totalMedium: data.totalMedium || 0,
+        totalHard: data.totalHard || 0,
+        ranking: data.ranking || 0,
+        rank: data.ranking || 0,
+        skills: formattedSkills
+      };
+    case 'codechef':
+      return {
+        currentRating: data.currentRating || 0,
+        highestRating: data.highestRating || 0,
+        globalRank: data.globalRank || 0,
+        countryRank: data.countryRank || 0,
+        stars: data.stars || 0,
+        rank: data.globalRank || 0,
+        skills: formattedSkills
+      };
+    case 'geeksforgeeks':
+      return {
+        codingScore: data.codingScore || 0,
+        problemsSolved: data.problemsSolved || 0,
+        monthlyCoding: data.monthlyCoding || 0,
+        rank: data.rank || 0,
+        skills: formattedSkills
+      };
+    case 'codeforces':
+      return {
+        rating: data.rating || 0,
+        maxRating: data.maxRating || 0,
+        rank: data.rank || 0,
+        maxRank: data.maxRank || 0,
+        contribution: data.contribution || 0,
+        friendOfCount: data.friendOfCount || 0,
+        skills: formattedSkills
+      };
+    default:
+      return {
+        ...data,
+        skills: formattedSkills
+      };
+  }
+}
+
 export const searchUsers = query({
   args: {
     query: v.string(),
@@ -336,7 +400,14 @@ export const searchUsers = query({
             const skill = userData.skills?.[0];
             if (!skill) return baseUser;
 
-            const skillsData = JSON.parse(skill.skillsData || "[]");
+            let skillsData: string[] = [];
+            try {
+              const parsedData = JSON.parse(skill.skillsData);
+              skillsData = Object.keys(parsedData.skills || {});
+            } catch (e) {
+              console.error('Error parsing skills data:', e);
+              skillsData = [];
+            }
             
             // Apply skill filters
             if (skillFilters) {
@@ -354,7 +425,7 @@ export const searchUsers = query({
 
               if (skillFilters.searchTerms.length > 0) {
                 const hasMatchingSkills = skillFilters.searchTerms.some(term =>
-                  skillsData.some((s: string) => 
+                  skillsData.some(s => 
                     s.toLowerCase().includes(term.toLowerCase())
                   )
                 );
@@ -410,41 +481,122 @@ export const searchUsers = query({
             const profile = userData.profiles?.[0];
             if (!profile) return baseUser;
 
+            // Get user's skills
+            const userSkills = userData.skills || [];
+
+            // Parse platform data
+            let platformData = null;
+            try {
+              const rawData = profile.platformCacheData ? JSON.parse(profile.platformCacheData) : null;
+              if (!rawData) return null;
+
+              // Format platform data based on platform type
+              const platform = profile.platformName.toLowerCase();
+              switch (platform) {
+                case 'leetcode':
+                  platformData = {
+                    totalSolved: rawData.totalSolved || 0,
+                    easySolved: rawData.easySolved || 0,
+                    mediumSolved: rawData.mediumSolved || 0,
+                    hardSolved: rawData.hardSolved || 0,
+                    totalEasy: rawData.totalEasy || 0,
+                    totalMedium: rawData.totalMedium || 0,
+                    totalHard: rawData.totalHard || 0,
+                    ranking: rawData.ranking || 0,
+                    rank: rawData.ranking || 0,
+                    submitStats: rawData.submitStats || {
+                      acSubmissionNum: [],
+                      totalSubmissionNum: []
+                    }
+                  };
+                  break;
+                case 'codechef':
+                  platformData = {
+                    currentRating: rawData.currentRating || 0,
+                    highestRating: rawData.highestRating || 0,
+                    globalRank: rawData.globalRank || 0,
+                    countryRank: rawData.countryRank || 0,
+                    stars: rawData.stars || 0,
+                    rank: rawData.globalRank || 0,
+                    submissionStats: rawData.submissionStats || [],
+                    totalContests: rawData.totalContests || 0,
+                    countryName: rawData.countryName || ''
+                  };
+                  break;
+                case 'geeksforgeeks':
+                  platformData = {
+                    codingScore: rawData.codingScore || 0,
+                    problemsSolved: rawData.problemsSolved || 0,
+                    monthlyCoding: rawData.monthlyCoding || 0,
+                    rank: rawData.rank || 0,
+                    totalProblems: rawData.totalProblems || 0,
+                    schoolProblems: rawData.schoolProblems || 0,
+                    basicProblems: rawData.basicProblems || 0,
+                    easyProblems: rawData.easyProblems || 0,
+                    mediumProblems: rawData.mediumProblems || 0,
+                    hardProblems: rawData.hardProblems || 0
+                  };
+                  break;
+                case 'codeforces':
+                  platformData = {
+                    rating: rawData.rating || 0,
+                    maxRating: rawData.maxRating || 0,
+                    rank: rawData.rank || 0,
+                    maxRank: rawData.maxRank || 0,
+                    contribution: rawData.contribution || 0,
+                    friendOfCount: rawData.friendOfCount || 0
+                  };
+                  break;
+                default:
+                  platformData = rawData;
+              }
+      } catch (e) {
+              console.error('Error parsing platform data:', e);
+              return null;
+            }
+
             // Apply platform filters
             if (platformFilters) {
               const platform = profile.platformName.toLowerCase();
+              
+              // Filter by platform type
+              const { leetcode, codechef, codeforces, geeksforgeeks } = platformFilters;
               const shouldShow = (
-                (!platformFilters.leetcode || platform === "leetcode") &&
-                (!platformFilters.codechef || platform === "codechef") &&
-                (!platformFilters.codeforces || platform === "codeforces") &&
-                (!platformFilters.geeksforgeeks || platform === "geeksforgeeks")
+                (!leetcode && !codechef && !codeforces && !geeksforgeeks) || // Show all if none selected
+                (leetcode && platform === "leetcode") ||
+                (codechef && platform === "codechef") ||
+                (codeforces && platform === "codeforces") ||
+                (geeksforgeeks && platform === "geeksforgeeks")
               );
+              
               if (!shouldShow) return null;
 
-              // Parse platform data for rank filtering
-              let platformData: PlatformData | null = null;
-              try {
-                platformData = profile.platformCacheData ? JSON.parse(profile.platformCacheData) : null;
-                
-                if (platformData?.rank !== undefined) {
-                  if (platformFilters.minRank !== undefined && platformData.rank < platformFilters.minRank) {
-                    return null;
-                  }
-                  if (platformFilters.maxRank !== undefined && platformData.rank > platformFilters.maxRank) {
-                    return null;
-                  }
-                }
-              } catch (e) {
-                console.error('Error parsing platform data:', e);
+              // Filter by rank if specified
+              const { minRank, maxRank } = platformFilters;
+              const rank = platformData?.rank;
+              if (rank !== undefined) {
+                if (minRank !== undefined && rank < minRank) return null;
+                if (maxRank !== undefined && rank > maxRank) return null;
               }
-
-              return {
-                ...baseUser,
-                platform: profile.platformName,
-                platformUsername: profile.platformUsername,
-                platformData
-              };
             }
+
+            // Apply search query
+            if (query) {
+              const searchLower = query.toLowerCase();
+              const matchesUsername = profile.platformUsername.toLowerCase().includes(searchLower);
+              const matchesPlatform = profile.platformName.toLowerCase().includes(searchLower);
+
+              if (!matchesUsername && !matchesPlatform) return null;
+            }
+
+            return {
+              _id: profile._id,
+              _creationTime: profile._creationTime,
+              platform: profile.platformName,
+              platformUsername: profile.platformUsername,
+              platformData,
+              userId: profile.userId
+            };
 
           case "internships":
             const cert = userData.certificates?.[0];
@@ -502,11 +654,11 @@ export const searchUsers = query({
     switch (sortBy) {
       case "stars":
         sortedUsers.sort((a, b) => (b.starCount || 0) - (a.starCount || 0));
-        break;
+          break;
       case "projects":
         sortedUsers.sort((a, b) => (b.projectCount || 0) - (a.projectCount || 0));
-        break;
-      case "skills":
+          break;
+        case "skills":
         sortedUsers.sort((a, b) => (b.skillCount || 0) - (a.skillCount || 0));
         break;
       case "platforms":
@@ -522,7 +674,7 @@ export const searchUsers = query({
         break;
       case "certificates":
         sortedUsers.sort((a, b) => (b.certificateCount || 0) - (a.certificateCount || 0));
-        break;
+          break;
       case "recent":
       default:
         sortedUsers.sort((a, b) => {
@@ -536,6 +688,160 @@ export const searchUsers = query({
     const start = (page - 1) * pageSize;
     const end = start + pageSize;
     const paginatedUsers = sortedUsers.slice(start, end);
+
+    // For platform search
+    if (tab === "platforms") {
+      // Get all platform profiles
+      const platformProfiles = await ctx.db
+        .query("profiles")
+        .collect();
+
+      // Process platform profiles
+      const results = await Promise.all(platformProfiles.map(async profile => {
+        // Get user data
+        const user = await ctx.db.get(profile.userId);
+        if (!user || (verified && !user.isverified)) return null;
+
+        // Parse platform data
+        let platformData = null;
+        try {
+          const rawData = profile.platformCacheData ? JSON.parse(profile.platformCacheData) : null;
+          if (!rawData) return null;
+
+          // Format platform data based on platform type
+          const platform = profile.platformName.toLowerCase();
+          switch (platform) {
+            case 'leetcode':
+              platformData = {
+                totalSolved: rawData.totalSolved || 0,
+                easySolved: rawData.easySolved || 0,
+                mediumSolved: rawData.mediumSolved || 0,
+                hardSolved: rawData.hardSolved || 0,
+                totalEasy: rawData.totalEasy || 0,
+                totalMedium: rawData.totalMedium || 0,
+                totalHard: rawData.totalHard || 0,
+                ranking: rawData.ranking || 0,
+                rank: rawData.ranking || 0,
+                submitStats: rawData.submitStats || {
+                  acSubmissionNum: [],
+                  totalSubmissionNum: []
+                }
+              };
+              break;
+            case 'codechef':
+              platformData = {
+                currentRating: rawData.currentRating || 0,
+                highestRating: rawData.highestRating || 0,
+                globalRank: rawData.globalRank || 0,
+                countryRank: rawData.countryRank || 0,
+                stars: rawData.stars || 0,
+                rank: rawData.globalRank || 0,
+                submissionStats: rawData.submissionStats || [],
+                totalContests: rawData.totalContests || 0,
+                countryName: rawData.countryName || ''
+              };
+              break;
+            case 'geeksforgeeks':
+              platformData = {
+                codingScore: rawData.codingScore || 0,
+                problemsSolved: rawData.problemsSolved || 0,
+                monthlyCoding: rawData.monthlyCoding || 0,
+                rank: rawData.rank || 0,
+                totalProblems: rawData.totalProblems || 0,
+                schoolProblems: rawData.schoolProblems || 0,
+                basicProblems: rawData.basicProblems || 0,
+                easyProblems: rawData.easyProblems || 0,
+                mediumProblems: rawData.mediumProblems || 0,
+                hardProblems: rawData.hardProblems || 0
+              };
+              break;
+            case 'codeforces':
+              platformData = {
+                rating: rawData.rating || 0,
+                maxRating: rawData.maxRating || 0,
+                rank: rawData.rank || 0,
+                maxRank: rawData.maxRank || 0,
+                contribution: rawData.contribution || 0,
+                friendOfCount: rawData.friendOfCount || 0
+              };
+              break;
+            default:
+              platformData = rawData;
+          }
+        } catch (e) {
+          console.error('Error parsing platform data:', e);
+          return null;
+        }
+
+        // Apply platform filters
+        if (platformFilters) {
+          const platform = profile.platformName.toLowerCase();
+          
+          // Filter by platform type
+          const { leetcode, codechef, codeforces, geeksforgeeks } = platformFilters;
+          const shouldShow = (
+            (!leetcode && !codechef && !codeforces && !geeksforgeeks) || // Show all if none selected
+            (leetcode && platform === "leetcode") ||
+            (codechef && platform === "codechef") ||
+            (codeforces && platform === "codeforces") ||
+            (geeksforgeeks && platform === "geeksforgeeks")
+          );
+          
+          if (!shouldShow) return null;
+
+          // Filter by rank if specified
+          const { minRank, maxRank } = platformFilters;
+          const rank = platformData?.rank;
+          if (rank !== undefined) {
+            if (minRank !== undefined && rank < minRank) return null;
+            if (maxRank !== undefined && rank > maxRank) return null;
+          }
+        }
+
+        // Apply search query
+        if (query) {
+          const searchLower = query.toLowerCase();
+          const matchesUsername = profile.platformUsername.toLowerCase().includes(searchLower);
+          const matchesPlatform = profile.platformName.toLowerCase().includes(searchLower);
+
+          if (!matchesUsername && !matchesPlatform) return null;
+        }
+
+    return {
+          _id: profile._id,
+          _creationTime: profile._creationTime,
+          platform: profile.platformName,
+          platformUsername: profile.platformUsername,
+          platformData,
+          userId: profile.userId
+        };
+      }));
+
+      // Filter out null results
+      let filteredResults = results.filter((result): result is NonNullable<typeof result> => result !== null);
+
+      // Sort results
+      if (filters.sortBy === "platforms" && platformFilters?.sortByRank) {
+        filteredResults.sort((a, b) => {
+          const rankA = a.platformData?.rank || 0;
+          const rankB = b.platformData?.rank || 0;
+          return rankA - rankB;
+        });
+      } else {
+        filteredResults.sort((a, b) => b._creationTime - a._creationTime);
+      }
+
+      // Apply pagination
+      const paginatedResults = filteredResults.slice(
+        (page - 1) * pageSize,
+        page * pageSize
+      );
+
+      return {
+        users: paginatedResults,
+        total: filteredResults.length
+      };
+    }
 
     return {
       users: paginatedUsers,
