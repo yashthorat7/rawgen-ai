@@ -413,96 +413,108 @@ export const searchUsers = query({
         // Add tab-specific data
         switch (tab) {
           case "skills":
-            const skill = userData.skills?.[0];
-            if (!skill) return baseUser;
+            // Return all skills instead of just the first one
+            const userSkills = userData.skills || [];
+            if (!userSkills.length) return baseUser;
 
-            let skillsData: string[] = [];
-            try {
-              const parsedData = JSON.parse(skill.skillsData);
-              skillsData = Object.keys(parsedData.skills || {});
-      } catch (e) {
-              console.error('Error parsing skills data:', e);
-              skillsData = [];
-            }
-            
-            // Apply skill filters
-            if (skillFilters) {
-              if (skillFilters.categories?.length && !skillFilters.categories.includes(skill.category)) {
-                return null;
+            // Create an array of skill entries
+            const skillEntries = userSkills.map(skill => {
+              let skillsData: string[] = [];
+              try {
+                const parsedData = JSON.parse(skill.skillsData);
+                skillsData = Object.keys(parsedData.skills || {});
+              } catch (e) {
+                console.error('Error parsing skills data:', e);
+                skillsData = [];
               }
 
-              if (skillFilters.minSkills && skillsData.length < skillFilters.minSkills) {
-                return null;
+              // Apply skill filters
+              if (skillFilters) {
+                if (skillFilters.categories?.length && !skillFilters.categories.includes(skill.category)) {
+                  return null;
+                }
+
+                if (skillFilters.minSkills && skillsData.length < skillFilters.minSkills) {
+                  return null;
+                }
+
+                if (skillFilters.maxSkills && skillsData.length > skillFilters.maxSkills) {
+                  return null;
+                }
+
+                if (skillFilters.searchTerms.length > 0) {
+                  const hasMatchingSkills = skillFilters.searchTerms.some(term =>
+                    skillsData.some(s => 
+                      s.toLowerCase().includes(term.toLowerCase())
+                    )
+                  );
+                  if (!hasMatchingSkills) return null;
+                }
               }
 
-              if (skillFilters.maxSkills && skillsData.length > skillFilters.maxSkills) {
-                return null;
-              }
+              return {
+                ...baseUser,
+                email: user.email,
+                isMarked,
+                skillCategory: skill.category,
+                skills: skillsData
+              };
+            }).filter(Boolean);
 
-              if (skillFilters.searchTerms.length > 0) {
-                const hasMatchingSkills = skillFilters.searchTerms.some(term =>
-                  skillsData.some(s => 
-                    s.toLowerCase().includes(term.toLowerCase())
-                  )
-                );
-                if (!hasMatchingSkills) return null;
-              }
-            }
-
-            return {
-              ...baseUser,
-              email: user.email,
-              isMarked,
-              skillCategory: skill.category,
-              skills: skillsData
-            };
+            return skillEntries;
 
           case "projects":
-            const project = userData.projects?.[0];
-            if (!project) return baseUser;
-            
-            // Apply project filters
-            if (projectFilters) {
-              if (projectFilters.hasDeployment && !project.deployLink) return null;
-              if (projectFilters.hasImage && !project.projectImage) return null;
-              
-              const techStack = JSON.parse(project.techStack || "[]");
-              if (projectFilters.minTechStack && techStack.length < projectFilters.minTechStack) return null;
-              
-              if (projectFilters.techStack?.length) {
-                const hasMatchingTech = projectFilters.techStack.some(tech =>
-                  techStack.some((t: string) => 
-                    t.toLowerCase().includes(tech.toLowerCase())
-                  )
-                );
-                if (!hasMatchingTech) return null;
+            // Return all projects instead of just the first one
+            const userProjects = userData.projects || [];
+            if (!userProjects.length) return baseUser;
+
+            // Create an array of project entries
+            const projectEntries = await Promise.all(userProjects.map(async project => {
+              // Apply project filters
+              if (projectFilters) {
+                if (projectFilters.hasDeployment && !project.deployLink) return null;
+                if (projectFilters.hasImage && !project.projectImage) return null;
+                
+                const techStack = JSON.parse(project.techStack || "[]");
+                if (projectFilters.minTechStack && techStack.length < projectFilters.minTechStack) return null;
+                
+                if (projectFilters.techStack?.length) {
+                  const hasMatchingTech = projectFilters.techStack.some(tech =>
+                    techStack.some((t: string) => 
+                      t.toLowerCase().includes(tech.toLowerCase())
+                    )
+                  );
+                  if (!hasMatchingTech) return null;
+                }
               }
-            }
-            
-            let projectImageUrl;
-            if (project.projectImage) {
-              projectImageUrl = await ctx.storage.getUrl(project.projectImage);
-            }
-            
-            return {
-              ...baseUser,
-              email: user.email,
-              isMarked,
-              projectId: project._id,
-              projectTitle: project.projectName,
-              projectDescription: project.projectDescription,
-              projectLink: project.projectLink,
-              deployLink: project.deployLink,
-              techStack: project.techStack,
-              projectImageUrl
-            };
+              
+              let projectImageUrl;
+              if (project.projectImage) {
+                projectImageUrl = await ctx.storage.getUrl(project.projectImage);
+              }
+              
+              return {
+                ...baseUser,
+                email: user.email,
+                isMarked,
+                projectId: project._id,
+                projectTitle: project.projectName,
+                projectDescription: project.projectDescription,
+                projectLink: project.projectLink,
+                deployLink: project.deployLink,
+                techStack: project.techStack,
+                projectImageUrl
+              };
+            }));
+
+            return projectEntries.filter(Boolean);
 
           case "platforms":
             const profile = userData.profiles?.[0];
             if (!profile) return baseUser;
 
             // Get user's skills
-            const userSkills = userData.skills || [];
+            const platformUserSkills = userData.skills || [];
 
             // Parse platform data
             let platformData = null;
@@ -622,48 +634,54 @@ export const searchUsers = query({
             };
 
           case "internships":
-            const cert = userData.certificates?.[0];
-            if (!cert) return baseUser;
-            
-            // Apply certificate filters
-            if (certificateFilters) {
-              if (certificateFilters.categories?.length && 
-                  !certificateFilters.categories.includes(cert.category)) {
-                return null;
-              }
+            // Return all certificates instead of just the first one
+            const userCerts = userData.certificates || [];
+            if (!userCerts.length) return baseUser;
 
-              if (certificateFilters.hasImage && !cert.certificateImage) {
-                return null;
-              }
-
-              if (certificateFilters.dateRange) {
-                const certDate = new Date(cert._creationTime);
-                if (certificateFilters.dateRange.start && 
-                    certDate < new Date(certificateFilters.dateRange.start)) {
+            // Create an array of certificate entries
+            const certEntries = await Promise.all(userCerts.map(async cert => {
+              // Apply certificate filters
+              if (certificateFilters) {
+                if (certificateFilters.categories?.length && 
+                    !certificateFilters.categories.includes(cert.category)) {
                   return null;
                 }
-                if (certificateFilters.dateRange.end && 
-                    certDate > new Date(certificateFilters.dateRange.end)) {
+
+                if (certificateFilters.hasImage && !cert.certificateImage) {
                   return null;
                 }
+
+                if (certificateFilters.dateRange) {
+                  const certDate = new Date(cert._creationTime);
+                  if (certificateFilters.dateRange.start && 
+                      certDate < new Date(certificateFilters.dateRange.start)) {
+                    return null;
+                  }
+                  if (certificateFilters.dateRange.end && 
+                      certDate > new Date(certificateFilters.dateRange.end)) {
+                    return null;
+                  }
+                }
               }
-            }
-            
-            let certificateImageUrl;
-            if (cert.certificateImage) {
-              certificateImageUrl = await ctx.storage.getUrl(cert.certificateImage);
-            }
-            
-            return {
-              ...baseUser,
-              email: user.email,
-              isMarked,
-              certificateId: cert._id,
-              certificateTitle: cert.certificateTitle,
-              certificateCategory: cert.category,
-              certificateDescription: cert.description,
-              certificateImageUrl
-            };
+              
+              let certificateImageUrl;
+              if (cert.certificateImage) {
+                certificateImageUrl = await ctx.storage.getUrl(cert.certificateImage);
+              }
+              
+              return {
+                ...baseUser,
+                email: user.email,
+                isMarked,
+                certificateId: cert._id,
+                certificateTitle: cert.certificateTitle,
+                certificateCategory: cert.category,
+                certificateDescription: cert.description,
+                certificateImageUrl
+              };
+            }));
+
+            return certEntries.filter(Boolean);
 
           default:
             return baseUser;

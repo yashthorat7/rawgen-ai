@@ -16,7 +16,7 @@ interface UserSettingsDialogProps {
     defaultLastName?: string;
 }
 
-const MAX_PROFILE_IMAGE_SIZE = 50 * 1024; // 50KB
+const MAX_PROFILE_IMAGE_SIZE = 100 * 1024; // 100KB
 const MAX_MARKSHEET_IMAGE_SIZE = 200 * 1024; // 200KB
 const MIN_USERNAME_LENGTH = 6;
 

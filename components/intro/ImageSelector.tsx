@@ -56,7 +56,7 @@ export function ImageSelector({ image: initialImage, onImageChange }: ImageSelec
     fileInputRef.current?.click();
   };
 
-  const MAX_PROFILE_IMAGE_SIZE = 50 * 1024; // 50KB
+  const MAX_PROFILE_IMAGE_SIZE = 100 * 1024; // 100KB
   const MAX_OTHER_IMAGE_SIZE = 200 * 1024; // 200KB
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {

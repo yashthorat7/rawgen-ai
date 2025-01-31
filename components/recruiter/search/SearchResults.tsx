@@ -557,17 +557,58 @@ export function SearchResults({
     }
   };
 
+  // Filter out null values and sort users
+  const filteredUsers = visibleUsers
+    .filter((user): user is any => user !== null)
+    .flatMap(user => Array.isArray(user) ? user : [user]); // Flatten arrays of results
+
+  let sortedUsers = [...filteredUsers];
+
+  // Sort users based on selected option
+  switch (localFilters.sortBy) {
+    case "stars":
+      sortedUsers.sort((a, b) => (b.starCount || 0) - (a.starCount || 0));
+      break;
+    case "projects":
+      sortedUsers.sort((a, b) => (b.projectCount || 0) - (a.projectCount || 0));
+      break;
+    case "skills":
+      sortedUsers.sort((a, b) => (b.skillCount || 0) - (a.skillCount || 0));
+      break;
+    case "platforms":
+      if (localFilters.platformFilters?.sortByRank) {
+        sortedUsers.sort((a, b) => {
+          const rankA = a.platformData?.rank || 0;
+          const rankB = b.platformData?.rank || 0;
+          return rankA - rankB;
+        });
+      } else {
+        sortedUsers.sort((a, b) => (b.platformCount || 0) - (a.platformCount || 0));
+      }
+      break;
+    case "certificates":
+      sortedUsers.sort((a, b) => (b.certificateCount || 0) - (a.certificateCount || 0));
+      break;
+    case "recent":
+    default:
+      sortedUsers.sort((a, b) => {
+        const dateA = new Date(a._creationTime || 0);
+        const dateB = new Date(b._creationTime || 0);
+        return dateB.getTime() - dateA.getTime();
+      });
+  }
+
   return (
     <div className="w-full">
       <div className="mb-4">
         <SearchFilters
           tab={tab}
-          filters={filters}
+          filters={localFilters}
           onFilterChange={onFilterChange}
         />
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {visibleUsers.map((user: any, index: number) => {
+        {sortedUsers.map((user: any, index: number) => {
           const card = renderCard(user, index);
           if (!card) return null;
 

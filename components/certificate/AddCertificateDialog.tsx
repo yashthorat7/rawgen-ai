@@ -23,8 +23,8 @@ interface AddCertificateDialogProps {
   mode?: 'add' | 'edit';
 }
 
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
-const MAX_CERTIFICATE_IMAGE_SIZE = 200 * 1024; // 200KB
+const MAX_FILE_SIZE = 1 * 1024 * 1024; // 10MB
+const MAX_CERTIFICATE_IMAGE_SIZE = 500 * 1024; // 500KB
 const CERTIFICATE_CATEGORIES = [
   "Internship",
   "Competition",
@@ -301,12 +301,12 @@ export function AddCertificateDialog({
               {/* Description Input */}
               <div>
                 <label htmlFor="description" className="block text-sm font-medium text-gray-700">
-                  Description
+                  Description <span className="text-gray-500">({description.length}/500)</span>
                 </label>
                 <textarea
                   id="description"
                   value={description}
-                  onChange={(e) => setDescription(e.target.value)}
+                  onChange={(e) => setDescription(e.target.value.slice(0, 500))}
                   rows={3}
                   className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
                   placeholder="Enter certificate description"

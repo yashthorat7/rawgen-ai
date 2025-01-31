@@ -26,8 +26,8 @@ export function AddSkillDialog({ isOpen, onClose }: AddSkillDialogProps) {
   const handleAddSkill = () => {
     if (!skillInput.trim() || selectedSkills.size >= 16) return;
     
-    // Remove whitespace and convert to lowercase
-    const formattedSkill = skillInput.trim().toLowerCase();
+    // Only trim whitespace, preserve case
+    const formattedSkill = skillInput.trim();
     
     // Add to Set (automatically handles duplicates)
     setSelectedSkills(prev => new Set([...prev, formattedSkill]));
@@ -54,13 +54,13 @@ export function AddSkillDialog({ isOpen, onClose }: AddSkillDialogProps) {
       // Convert Set to Array for API call
       const skillsArray = Array.from(selectedSkills).sort();
       console.log('Adding new category with skills:', {
-        category: category.trim().toLowerCase(),
+        category: category.trim(),
         skills: skillsArray
       });
 
       await addSkills({
         email: userEmail,
-        category: category.trim().toLowerCase().replace(/\s+/g, '_'),
+        category: category.trim(),
         skills: skillsArray
       });
       resetForm();

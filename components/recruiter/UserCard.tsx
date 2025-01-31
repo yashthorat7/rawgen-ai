@@ -196,17 +196,29 @@ export default function UserCard({ username, recruiterEmail }: UserCardProps) {
   // Parse social links from counters
   const socialLinks = counters?.socialLinks ? JSON.parse(counters.socialLinks) : {};
 
+  // Calculate animation duration based on skills length
+  const calculateAnimationDuration = () => {
+    if (!skills) return 20; // default duration
+    
+    // Count total skills
+    const totalSkills = skills.reduce((acc, category) => acc + category.skills.length, 0);
+    
+    // Base duration is 10s, add 2s for every 3 skills
+    const duration = Math.max(10, Math.min(30, 10 + Math.floor(totalSkills / 3) * 2));
+    return duration;
+  };
+
+  const animationDuration = calculateAnimationDuration();
+
   return (
     <div className="w-full h-full">
       <div 
         onClick={handleCardClick}
         className={`flex flex-col sm:flex-row relative bg-white/90 
-                    backdrop-blur-sm w-full overflow-hidden
+                    backdrop-blur-sm w-full h-full overflow-hidden
                     shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out 
-                    cursor-pointer p-4 sm:p-5 rounded-lg border border-gray-200/50 group
-                    min-h-[200px] sm:min-h-[180px] h-full`}
+                    cursor-pointer p-4 sm:p-5 rounded-lg border border-gray-200/50 group`}
       >
-
         {/* Left Section - User Image & Name */}
         <div className="flex-shrink-0 w-full sm:w-[140px] flex flex-col items-center justify-center 
                       bg-gradient-to-br from-blue-50/50 to-purple-50/50 rounded-xl 
@@ -239,190 +251,199 @@ export default function UserCard({ username, recruiterEmail }: UserCardProps) {
 
         {/* Right Section - User Info */}
         <div className="flex-1 flex flex-col min-w-0 sm:pl-5">
-          <div className="min-w-0">
-            <div className="flex items-center gap-2 flex-wrap">
-              <h3 className="text-2xl sm:text-2xl font-bold text-gray-900 truncate">
-                {userData.firstName && userData.lastName 
-                  ? `${userData.firstName} ${userData.lastName}`
-                  : userData.username}
-              </h3>
-              {userData.isverified && (
-                <>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (marksheetUrl) {
-                        window.open(marksheetUrl, '_blank');
-                      }
-                    }}
-                    className="inline-flex items-center gap-1 bg-green-600 text-white px-3 py-1 rounded-lg hover:bg-green-700 transition-colors duration-200"
-                    title="View Marksheet"
-                  >
-                    <BadgeCheck className="w-5 h-5" />
-                    <span className="text-xs font-medium">Verified</span>
-                  </button>
-                  {userData.email && (
+          <div className="flex-1 flex flex-col min-w-0">
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h3 className="text-2xl sm:text-2xl font-bold text-gray-900 truncate">
+                  {userData.firstName && userData.lastName 
+                    ? `${userData.firstName} ${userData.lastName}`
+                    : userData.username}
+                </h3>
+                {userData.isverified && (
+                  <>
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        window.open(`mailto:${userData.email}`, '_blank');
+                        if (marksheetUrl) {
+                          window.open(marksheetUrl, '_blank');
+                        }
                       }}
-                      className="inline-flex items-center gap-1 bg-red-400 text-white px-3 py-1 rounded-lg hover:bg-red-500 transition-colors duration-200"
-                      title="Send Email"
+                      className="inline-flex items-center gap-1 bg-green-600 text-white px-3 py-1 rounded-lg hover:bg-green-700 transition-colors duration-200"
+                      title="View Marksheet"
                     >
-                      <Mail className="w-5 h-5" />
+                      <BadgeCheck className="w-5 h-5" />
+                      <span className="text-xs font-medium">Verified</span>
                     </button>
-                  )}
-                </>
-              )}
-            </div>
-            <div className="flex flex-wrap justify-between items-center mt-2">
-              {/* Stats Section */}
-              <div className="flex items-center gap-3 sm:gap-4 flex-wrap">
-                <motion.div 
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="flex items-center gap-1.5 px-2 py-1 bg-blue-50 rounded-md"
-                  data-tip={`${formatNumber(counters?.profileViews || 0)} Profile Views`}
-                >
-                  <Eye className="w-4 h-4 text-blue-600" />
-                  <span className="text-sm font-medium text-blue-700">
-                    {formatNumber(counters?.profileViews || 0)}
-                  </span>
-                </motion.div>
-
-                <motion.div 
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="flex items-center gap-1.5 px-2 py-1 bg-pink-50 rounded-md"
-                  data-tip={`${formatNumber(counters?.gotStars?.length || 0)} Stars`}
-                >
-                  <Star className="w-4 h-4 text-pink-600" />
-                  <span className="text-sm font-medium text-pink-700">
-                    {formatNumber(counters?.gotStars?.length || 0)}
-                  </span>
-                </motion.div>
-
-                {userData.cgpa && (
+                    {userData.email && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          window.open(`mailto:${userData.email}`, '_blank');
+                        }}
+                        className="inline-flex items-center gap-1 bg-red-400 text-white px-3 py-1 rounded-lg hover:bg-red-500 transition-colors duration-200"
+                        title="Send Email"
+                      >
+                        <Mail className="w-5 h-5" />
+                      </button>
+                    )}
+                  </>
+                )}
+              </div>
+              <div className="flex flex-wrap justify-between items-center mt-2">
+                {/* Stats Section */}
+                <div className="flex items-center gap-3 sm:gap-4 flex-wrap">
                   <motion.div 
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="flex items-center gap-1.5 px-2 py-1 bg-orange-50 rounded-md"
-                    data-tip={`CGPA: ${userData.cgpa.toFixed(1)}`}
+                    className="flex items-center gap-1.5 px-2 py-1 bg-blue-50 rounded-md"
+                    data-tip={`${formatNumber(counters?.profileViews || 0)} Profile Views`}
                   >
-                    <GraduationCap className="w-4 h-4 text-orange-600" />
-                    <span className="text-sm font-medium text-orange-700">
-                      {userData.cgpa.toFixed(1)}
+                    <Eye className="w-4 h-4 text-blue-600" />
+                    <span className="text-sm font-medium text-blue-700">
+                      {formatNumber(counters?.profileViews || 0)}
                     </span>
                   </motion.div>
-                )}
-              </div>
 
-              {/* Social Links */}
-              <div className="flex items-center gap-2 flex-wrap">
-                {Object.entries(socialLinks).map(([platform, username]) => {
-                  const config = socialPlatformConfigs[platform.toLowerCase()];
-                  if (!config || !username || typeof username !== 'string') return null;
-
-                  const Icon = config.icon;
-                  const url = platform === 'website' ? username : `${config.baseUrl}${username}`;
-
-                  return (
-                    <a
-                      key={platform}
-                      href={url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={(e) => e.stopPropagation()}
-                      className={`p-1.5 rounded-lg hover:bg-gray-100/80 transition-colors ${config.color}
-                                group/icon flex items-center gap-1.5`}
-                      data-tip={`${platform}: ${username}`}
-                    >
-                      <Icon className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
-                    </a>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-
-          {/* Skills Strip with Animation */}
-          <div className="mt-4 relative">
-            <div className="flex gap-1.5 sm:gap-2 overflow-x-hidden">
-              <div className="animate-scrolling-skills flex gap-1.5 sm:gap-2">
-                {skills?.map((skillCategory) => (
-                  skillCategory.skills.map((skillName, index) => (
-                    <span
-                      key={`${skillCategory._id}-${index}`}
-                      className="inline-flex items-center px-2 sm:px-3 py-1 rounded-full text-xs font-medium 
-                               bg-blue-50/80 text-blue-700 backdrop-blur-sm border border-blue-100/50
-                               transition-all duration-200 hover:bg-blue-100/80 whitespace-nowrap flex-shrink-0"
-                    >
-                      {skillName}
+                  <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="flex items-center gap-1.5 px-2 py-1 bg-pink-50 rounded-md"
+                    data-tip={`${formatNumber(counters?.gotStars?.length || 0)} Stars`}
+                  >
+                    <Star className="w-4 h-4 text-pink-600" />
+                    <span className="text-sm font-medium text-pink-700">
+                      {formatNumber(counters?.gotStars?.length || 0)}
                     </span>
-                  ))
-                ))}
-                {/* Duplicate skills for seamless loop */}
-                {skills?.map((skillCategory) => (
-                  skillCategory.skills.map((skillName, index) => (
-                    <span
-                      key={`${skillCategory._id}-${index}-duplicate`}
-                      className="inline-flex items-center px-2 sm:px-3 py-1 rounded-full text-xs font-medium 
-                               bg-blue-50/80 text-blue-700 backdrop-blur-sm border border-blue-100/50
-                               transition-all duration-200 hover:bg-blue-100/80 whitespace-nowrap flex-shrink-0"
+                  </motion.div>
+
+                  {userData.cgpa && (
+                    <motion.div 
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="flex items-center gap-1.5 px-2 py-1 bg-orange-50 rounded-md"
+                      data-tip={`CGPA: ${userData.cgpa.toFixed(1)}`}
                     >
-                      {skillName}
-                    </span>
-                  ))
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Project and Certificate Counts */}
-          <div className="mt-4 flex items-center gap-4 text-sm text-gray-600">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="flex items-center gap-2"
-            >
-              <span className="font-medium">Projects:</span>
-              <span className="text-indigo-600 font-semibold">{projects?.length || 0}</span>
-            </motion.div>
-            <span className="text-gray-300">•</span>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="flex items-center gap-2"
-            >
-              <span className="font-medium">Certificates:</span>
-              <span className="text-emerald-600 font-semibold">{certificates?.length || 0}</span>
-            </motion.div>
-          </div>
-
-          {/* Platform Icons */}
-          <div className="mt-auto pt-4">
-            <div className="flex gap-2 sm:gap-3 items-center flex-wrap">
-              {Object.entries(platformGroups).map(([platform, { count, platform: profileData }]) => (
-                <div key={platform} className="flex items-center gap-1.5">
-                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white shadow-md 
-                               ring-1 ring-white overflow-hidden
-                               transition-transform duration-200 hover:scale-110 relative">
-                    <Image
-                      src={platformIcons[platform] || '/globe.png'}
-                      alt={profileData.platformName}
-                      width={42}
-                      height={42}
-                      className="w-full h-full p-1.5 object-contain"
-                    />
-                  </div>
-                  {count > 1 && (
-                    <span className="text-xs font-medium text-gray-600">
-                      ×{count}
-                    </span>
+                      <GraduationCap className="w-4 h-4 text-orange-600" />
+                      <span className="text-sm font-medium text-orange-700">
+                        {userData.cgpa.toFixed(1)}
+                      </span>
+                    </motion.div>
                   )}
                 </div>
-              ))}
+
+                {/* Social Links */}
+                <div className="flex items-center gap-2 flex-wrap">
+                  {Object.entries(socialLinks).map(([platform, username]) => {
+                    const config = socialPlatformConfigs[platform.toLowerCase()];
+                    if (!config || !username || typeof username !== 'string') return null;
+
+                    const Icon = config.icon;
+                    const url = platform === 'website' ? username : `${config.baseUrl}${username}`;
+
+                    return (
+                      <a
+                        key={platform}
+                        href={url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        className={`p-1.5 rounded-lg hover:bg-gray-100/80 transition-colors ${config.color}
+                                  group/icon flex items-center gap-1.5`}
+                        data-tip={`${platform}: ${username}`}
+                      >
+                        <Icon className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
+                      </a>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
+            {/* Skills Strip with Animation - with min-height */}
+            <div className="mt-4 relative min-h-[32px]">
+              <div className="flex gap-1.5 sm:gap-2 overflow-x-hidden">
+                <div 
+                  className="flex gap-1.5 sm:gap-2"
+                  style={{
+                    animation: skills && skills.length > 0 
+                      ? `scroll ${animationDuration}s linear infinite` 
+                      : 'none'
+                  }}
+                >
+                  {skills?.map((skillCategory) => (
+                    skillCategory.skills.map((skillName, index) => (
+                      <span
+                        key={`${skillCategory._id}-${index}`}
+                        className="inline-flex items-center px-2 sm:px-3 py-1 rounded-full text-xs font-medium 
+                                 bg-blue-50/80 text-blue-700 backdrop-blur-sm border border-blue-100/50
+                                 transition-all duration-200 hover:bg-blue-100/80 whitespace-nowrap flex-shrink-0"
+                      >
+                        {skillName}
+                      </span>
+                    ))
+                  ))}
+                  {/* Duplicate skills for seamless loop */}
+                  {skills?.map((skillCategory) => (
+                    skillCategory.skills.map((skillName, index) => (
+                      <span
+                        key={`${skillCategory._id}-${index}-duplicate`}
+                        className="inline-flex items-center px-2 sm:px-3 py-1 rounded-full text-xs font-medium 
+                                 bg-blue-50/80 text-blue-700 backdrop-blur-sm border border-blue-100/50
+                                 transition-all duration-200 hover:bg-blue-100/80 whitespace-nowrap flex-shrink-0"
+                      >
+                        {skillName}
+                      </span>
+                    ))
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Project and Certificate Counts - with min-height */}
+            <div className="mt-4 flex items-center gap-4 text-sm text-gray-600 min-h-[24px]">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex items-center gap-2"
+              >
+                <span className="font-medium">Projects:</span>
+                <span className="text-indigo-600 font-semibold">{projects?.length || 0}</span>
+              </motion.div>
+              <span className="text-gray-300">•</span>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex items-center gap-2"
+              >
+                <span className="font-medium">Certificates:</span>
+                <span className="text-emerald-600 font-semibold">{certificates?.length || 0}</span>
+              </motion.div>
+            </div>
+
+            {/* Platform Icons - always at bottom */}
+            <div className="mt-auto pt-4 min-h-[48px]">
+              <div className="flex gap-2 sm:gap-3 items-center flex-wrap">
+                {Object.entries(platformGroups).map(([platform, { count, platform: profileData }]) => (
+                  <div key={platform} className="flex items-center gap-1.5">
+                    <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white shadow-md 
+                                 ring-1 ring-white overflow-hidden
+                                 transition-transform duration-200 hover:scale-110 relative">
+                      <Image
+                        src={platformIcons[platform] || '/globe.png'}
+                        alt={profileData.platformName}
+                        width={42}
+                        height={42}
+                        className="w-full h-full p-1.5 object-contain"
+                      />
+                    </div>
+                    {count > 1 && (
+                      <span className="text-xs font-medium text-gray-600">
+                        ×{count}
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
@@ -433,11 +454,11 @@ export default function UserCard({ username, recruiterEmail }: UserCardProps) {
 
 export function LoadingSkeleton() {
   return (
-    <div className="w-full">
+    <div className="w-full h-full">
       <div className={`flex flex-col sm:flex-row relative bg-white/90 
                     backdrop-blur-sm w-full overflow-hidden
                     shadow-lg p-4 sm:p-5 rounded-lg border border-gray-200/50
-                    min-h-[200px] sm:min-h-[180px]`}>
+                    min-h-[160px] sm:min-h-[180px]`}>
         {/* Left Section - User Image & Name */}
         <div className="flex-shrink-0 w-full sm:w-[140px] flex flex-col items-center 
                       bg-gradient-to-br from-blue-50/50 to-purple-50/50 rounded-xl 

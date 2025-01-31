@@ -23,7 +23,7 @@ interface AddProjectDialogProps {
   mode?: 'add' | 'edit';
 }
 
-const MAX_PROJECT_IMAGE_SIZE = 200 * 1024; // 200KB
+const MAX_PROJECT_IMAGE_SIZE = 500 * 1024; // 500KB
 
 export function AddProjectDialog({ isOpen, onClose, initialData, mode = 'add' }: AddProjectDialogProps) {
   useScrollLock(isOpen);
@@ -285,11 +285,11 @@ export function AddProjectDialog({ isOpen, onClose, initialData, mode = 'add' }:
 
               <div>
                 <label className="block text-sm font-medium mb-1">
-                  Description <span className="text-gray-500">({description.length}/500)</span>
+                  Description <span className="text-gray-500">({description.length}/700)</span>
                 </label>
                 <textarea
                   value={description}
-                  onChange={(e) => setDescription(e.target.value.slice(0, 500))}
+                  onChange={(e) => setDescription(e.target.value.slice(0, 700))}
                   className="w-full px-3 py-2 border rounded-md focus:outline-primary-500 min-h-[100px]"
                   placeholder="Describe your project..."
                 />
