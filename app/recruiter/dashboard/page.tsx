@@ -58,7 +58,7 @@ export default function RecruiterDashboard() {
                 Find Top Tech Talent
               </h1>
               <p className="text-lg text-gray-600">
-                Search through our pool of verified developers and discover your next team member
+                Explore our pool of talented students and discover skilled, job-ready candidates. Simplify your hiring process and find the perfect addition to your team with ease and confidence.
               </p>
             </div>
 
