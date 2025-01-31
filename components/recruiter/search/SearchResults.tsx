@@ -74,19 +74,23 @@ interface SearchResultsProps {
 
 const ITEMS_PER_BATCH = 9; // Show 9 items per batch (3x3 grid)
 
+interface ProfileCardOverlayProps {
+  username: string;
+  userEmail: string;
+  recruiterEmail?: string;
+  isMarked: boolean;
+  children: React.ReactNode;
+  showRedirect?: boolean;
+}
+
 function ProfileCardOverlay({ 
   username, 
   userEmail,
   recruiterEmail,
   isMarked,
-  children 
-}: { 
-  username: string, 
-  userEmail: string,
-  recruiterEmail?: string,
-  isMarked: boolean,
-  children: React.ReactNode 
-}) {
+  children,
+  showRedirect = true
+}: ProfileCardOverlayProps) {
   const [isBookmarked, setIsBookmarked] = useState(isMarked);
 
   const handleMarkChange = (newState: boolean) => {
@@ -100,15 +104,17 @@ function ProfileCardOverlay({
   };
 
   return (
-    <div className="relative group">
-      <Link 
-        href={`/${username}`}
-        className="absolute inset-0 z-30 bg-transparent hover:bg-black/5 transition-colors pointer-events-auto cursor-pointer"
-      >
-        <span className="absolute top-2 left-2 px-2 py-1 bg-black/50 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity">
-          View Full Profile
-        </span>
-      </Link>
+    <div className="relative group h-full">
+      {showRedirect && (
+        <Link 
+          href={`/${username}`}
+          className="absolute inset-0 z-30 bg-transparent hover:bg-black/5 transition-colors pointer-events-auto cursor-pointer"
+        >
+          <span className="absolute top-2 left-2 px-2 py-1 bg-black/50 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity">
+            View Full Profile
+          </span>
+        </Link>
+      )}
       <div className="absolute top-2 right-2 z-40 pointer-events-auto">
         <BookmarkButton
           recruiterEmail={recruiterEmail}
@@ -117,7 +123,7 @@ function ProfileCardOverlay({
           onMarkChange={handleMarkChange}
         />
       </div>
-      <div className="pointer-events-none select-none">
+      <div className={`pointer-events-none select-none h-full ${!showRedirect ? 'pointer-events-auto' : ''}`}>
         {children}
       </div>
     </div>
@@ -172,7 +178,7 @@ export function SearchResults({
         hasImage: false,
         techStack: []
       } : undefined,
-      certificateFilters: tab === "internships" ? {
+      certificateFilters: tab === "certificates" ? {
         categories: [],
         hasImage: false
       } : undefined,
@@ -203,11 +209,11 @@ export function SearchResults({
     filters: {
       verified: filters.verified,
       sortBy: filters.sortBy,
-      tab: tab === "users" ? undefined : tab,
+      tab: tab === "users" ? "users" : tab,
       platformFilters: tab === "platforms" ? filters.platformFilters : undefined,
       skillFilters: tab === "skills" ? { ...filters.skillFilters, searchTerms: searchSkills } : undefined,
       projectFilters: tab === "projects" ? filters.projectFilters : undefined,
-      certificateFilters: tab === "internships" ? filters.certificateFilters : undefined,
+      certificateFilters: tab === "certificates" ? filters.certificateFilters : undefined,
       userFilters: tab === "users" ? filters.userFilters : undefined
     },
     page,
@@ -311,7 +317,7 @@ export function SearchResults({
         }
 
         return (
-          <ProfileCardOverlay {...overlayProps}>
+          <ProfileCardOverlay {...overlayProps} showRedirect={false}>
             <UserCard
               username={user.username}
               recruiterEmail={recruiterEmail}
@@ -509,7 +515,7 @@ export function SearchResults({
             />
           </ProfileCardOverlay>
         );
-      case "internships":
+      case "certificates":
         if (!user.certificateTitle || !user.certificateCategory) return null;
         
         // Apply certificate-specific filters
@@ -607,7 +613,7 @@ export function SearchResults({
           onFilterChange={onFilterChange}
         />
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5 auto-rows-fr">
         {sortedUsers.map((user: any, index: number) => {
           const card = renderCard(user, index);
           if (!card) return null;
@@ -620,7 +626,7 @@ export function SearchResults({
                 return `${user.username}-${user.skillCategory}-${index}`;
               case "projects":
                 return `${user.username}-${user.projectId || index}`;
-              case "internships":
+              case "certificates":
                 return `${user.username}-${user.certificateId || index}`;
               default:
                 return `${user.username}-${index}`;
@@ -630,10 +636,12 @@ export function SearchResults({
           return (
             <div
               key={uniqueKey}
-              className="animate-fadeIn"
+              className="animate-fadeIn h-full"
               style={{ animationDelay: `${index * 100}ms` }}
             >
-              {card}
+              <div className="h-full">
+                {card}
+              </div>
             </div>
           );
         })}

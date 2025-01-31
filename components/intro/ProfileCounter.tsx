@@ -169,7 +169,7 @@ export function PlatformCounter({ username, isPublicView = false }: PlatformCoun
         onClick={canStar ? handleStarClick : undefined}
         title={!user?.id ? "Login to star this profile" : userInfo.username === user?.username ? "You cannot star your own profile" : hasStarred ? "Click to unstar" : "Click to star"}
       >
-        Stars {hasStarred ? "⭐" : "☆"}
+        Stars {hasStarred ? "⭐" : "★"}
         <span className="bg-white text-pink-700 px-1.5 sm:px-2 py-0.2 rounded-sm font-semibold min-w-[2rem] sm:min-w-[2.5rem] text-center">
           {shouldAnimate ? (
             <CountUp 

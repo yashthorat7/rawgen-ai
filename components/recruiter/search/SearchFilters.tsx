@@ -374,7 +374,7 @@ export function SearchFilters({ tab, filters, onFilterChange }: SearchFiltersPro
           </div>
         );
 
-      case "internships":
+      case "certificates":
         return (
           <div className="space-y-4">
             <div className="font-medium">Certificate Filters</div>
@@ -473,7 +473,7 @@ export function SearchFilters({ tab, filters, onFilterChange }: SearchFiltersPro
         return <Code2 className="w-4 h-4" />;
       case "platforms":
         return <Filter className="w-4 h-4" />;
-      case "internships":
+      case "certificates":
         return <Award className="w-4 h-4" />;
       default:
         return <SlidersHorizontal className="w-4 h-4" />;

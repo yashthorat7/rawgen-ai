@@ -288,13 +288,13 @@ export const searchUsers = query({
         v.literal("platforms"),
         v.literal("certificates")
       ),
-      tab: v.optional(v.union(
+      tab: v.union(
         v.literal("users"),
         v.literal("platforms"),
         v.literal("skills"),
         v.literal("projects"),
-        v.literal("internships")
-      )),
+        v.literal("certificates")
+      ),
       platformFilters: v.optional(v.object({
         leetcode: v.optional(v.boolean()),
         codechef: v.optional(v.boolean()),
@@ -633,7 +633,7 @@ export const searchUsers = query({
               isMarked,
             };
 
-          case "internships":
+          case "certificates":
             // Return all certificates instead of just the first one
             const userCerts = userData.certificates || [];
             if (!userCerts.length) return baseUser;
