@@ -275,6 +275,23 @@ function formatPlatformData(platform: string, data: any, skills: any[]) {
   }
 }
 
+// Update the SearchFilters type
+export type SearchFilters = {
+  verified: boolean;
+  sortBy: "recent" | "stars" | "projects" | "skills" | "platforms" | "certificates";
+  tab: "users" | "platforms" | "skills" | "projects" | "certificates";
+  platforms?: {
+    leetcode: boolean;
+    codechef: boolean;
+    codeforces: boolean;
+    geeksforgeeks: boolean;
+  };
+  searchTerms?: string[];
+  techStack?: string[];
+  hasDeployment?: boolean;
+  categories?: string[];
+};
+
 export const searchUsers = query({
   args: {
     query: v.string(),
@@ -299,10 +316,7 @@ export const searchUsers = query({
         leetcode: v.optional(v.boolean()),
         codechef: v.optional(v.boolean()),
         codeforces: v.optional(v.boolean()),
-        geeksforgeeks: v.optional(v.boolean()),
-        sortByRank: v.optional(v.boolean()),
-        minRank: v.optional(v.number()),
-        maxRank: v.optional(v.number())
+        geeksforgeeks: v.optional(v.boolean())
       })),
       skillFilters: v.optional(v.object({
         searchTerms: v.array(v.string()),
@@ -314,7 +328,8 @@ export const searchUsers = query({
         hasDeployment: v.optional(v.boolean()),
         hasImage: v.optional(v.boolean()),
         techStack: v.optional(v.array(v.string())),
-        minTechStack: v.optional(v.number())
+        minTechStack: v.optional(v.number()),
+        projectNameSearch: v.optional(v.string())
       })),
       certificateFilters: v.optional(v.object({
         categories: v.optional(v.array(v.string())),
@@ -322,7 +337,8 @@ export const searchUsers = query({
         dateRange: v.optional(v.object({
           start: v.optional(v.string()),
           end: v.optional(v.string())
-        }))
+        })),
+        certificateSearch: v.optional(v.string())
       })),
       userFilters: v.optional(v.object({
         hasProfileImage: v.optional(v.boolean()),
@@ -587,6 +603,56 @@ export const searchUsers = query({
               return null;
             }
 
+            // Calculate normalized rank based on platform type
+            let normalizedRank = 0;
+            try {
+              const rawData = profile.platformCacheData ? JSON.parse(profile.platformCacheData) : null;
+              if (!rawData) return null;
+
+              const platform = profile.platformName.toLowerCase();
+              switch (platform) {
+                case 'leetcode':
+                  // Lower ranking is better
+                  normalizedRank = rawData.ranking || Infinity;
+                  platformData = {
+                    ...platformData,
+                    normalizedRank,
+                    displayMetric: `Rank: ${normalizedRank}`
+                  };
+                  break;
+                case 'codechef':
+                  // Higher rating is better, invert for consistent sorting
+                  normalizedRank = -(rawData.currentRating || 0);
+                  platformData = {
+                    ...platformData,
+                    normalizedRank,
+                    displayMetric: `Rating: ${-normalizedRank}`
+                  };
+                  break;
+                case 'codeforces':
+                  // Higher rating is better, invert for consistent sorting
+                  normalizedRank = -(rawData.rating || 0);
+                  platformData = {
+                    ...platformData,
+                    normalizedRank,
+                    displayMetric: `Rating: ${-normalizedRank}`
+                  };
+                  break;
+                case 'geeksforgeeks':
+                  // Higher coding score is better, invert for consistent sorting
+                  normalizedRank = -(rawData.codingScore || 0);
+                  platformData = {
+                    ...platformData,
+                    normalizedRank,
+                    displayMetric: `Score: ${-normalizedRank}`
+                  };
+                  break;
+              }
+            } catch (e) {
+              console.error('Error parsing platform data:', e);
+              return null;
+            }
+
             // Apply platform filters
             if (platformFilters) {
               const platform = profile.platformName.toLowerCase();
@@ -602,14 +668,6 @@ export const searchUsers = query({
               );
               
               if (!shouldShow) return null;
-
-              // Filter by rank if specified
-              const { minRank, maxRank } = platformFilters;
-              const rank = platformData?.rank;
-              if (rank !== undefined) {
-                if (minRank !== undefined && rank < minRank) return null;
-                if (maxRank !== undefined && rank > maxRank) return null;
-              }
             }
 
             // Apply search query
@@ -626,7 +684,10 @@ export const searchUsers = query({
               _creationTime: profile._creationTime,
               platform: profile.platformName,
               platformUsername: profile.platformUsername,
-              platformData,
+              platformData: {
+                ...platformData,
+                normalizedRank
+              },
               userId: profile.userId,
               username: user.username,
               email: user.email,
@@ -697,27 +758,19 @@ export const searchUsers = query({
     switch (sortBy) {
       case "stars":
         sortedUsers.sort((a, b) => (b.starCount || 0) - (a.starCount || 0));
-          break;
+        break;
       case "projects":
         sortedUsers.sort((a, b) => (b.projectCount || 0) - (a.projectCount || 0));
-          break;
-        case "skills":
+        break;
+      case "skills":
         sortedUsers.sort((a, b) => (b.skillCount || 0) - (a.skillCount || 0));
         break;
       case "platforms":
-        if (platformFilters?.sortByRank) {
-          sortedUsers.sort((a, b) => {
-            const rankA = a.platformData?.rank || 0;
-            const rankB = b.platformData?.rank || 0;
-            return rankA - rankB;
-          });
-        } else {
-          sortedUsers.sort((a, b) => (b.platformCount || 0) - (a.platformCount || 0));
-        }
+        sortedUsers.sort((a, b) => (b.platformCount || 0) - (a.platformCount || 0));
         break;
       case "certificates":
         sortedUsers.sort((a, b) => (b.certificateCount || 0) - (a.certificateCount || 0));
-          break;
+        break;
       case "recent":
       default:
         sortedUsers.sort((a, b) => {
@@ -727,12 +780,55 @@ export const searchUsers = query({
         });
     }
 
+    // Update project search logic
+    if (tab === "projects") {
+      const projectNameSearch = args.filters.projectFilters?.projectNameSearch?.toLowerCase();
+      
+      // Filter projects based on project name search
+      if (projectNameSearch) {
+        sortedUsers = sortedUsers.filter(user => {
+          const projectTitle = user.projectTitle?.toLowerCase() || '';
+          return projectTitle.includes(projectNameSearch);
+        });
+      }
+    }
+
+    // Update certificate search logic
+    if (tab === "certificates") {
+      const certificateSearch = args.filters.certificateFilters?.certificateSearch?.toLowerCase();
+      const selectedCategories = args.filters.certificateFilters?.categories || [];
+      
+      // Filter certificates based on search and categories
+      sortedUsers = sortedUsers.filter(user => {
+        // Check if certificate title or description matches search
+        if (certificateSearch) {
+          const title = user.certificateTitle?.toLowerCase() || '';
+          const description = user.certificateDescription?.toLowerCase() || '';
+          const category = user.certificateCategory?.toLowerCase() || '';
+          
+          const matchesSearch = 
+            title.includes(certificateSearch) ||
+            description.includes(certificateSearch) ||
+            category.includes(certificateSearch);
+            
+          if (!matchesSearch) return false;
+        }
+        
+        // Check if certificate category matches selected categories
+        if (selectedCategories.length > 0) {
+          return selectedCategories.includes(user.certificateCategory || '');
+        }
+        
+        return true;
+      });
+    }
+
     // Apply pagination
     const start = (page - 1) * pageSize;
     const end = start + pageSize;
     const paginatedUsers = sortedUsers.slice(start, end);
 
-    // For platform search
+    // Update platform filtering logic
     if (tab === "platforms") {
       // Get all platform profiles
       const platformProfiles = await ctx.db
@@ -834,14 +930,6 @@ export const searchUsers = query({
           );
           
           if (!shouldShow) return null;
-
-          // Filter by rank if specified
-          const { minRank, maxRank } = platformFilters;
-          const rank = platformData?.rank;
-          if (rank !== undefined) {
-            if (minRank !== undefined && rank < minRank) return null;
-            if (maxRank !== undefined && rank > maxRank) return null;
-          }
         }
 
         // Apply search query
@@ -853,7 +941,7 @@ export const searchUsers = query({
           if (!matchesUsername && !matchesPlatform) return null;
         }
 
-    return {
+        return {
           _id: profile._id,
           _creationTime: profile._creationTime,
           platform: profile.platformName,
@@ -862,23 +950,15 @@ export const searchUsers = query({
           userId: profile.userId,
           username: user.username,
           email: user.email,
-          isMarked: isMarked
+          isMarked
         };
       }));
 
       // Filter out null results
       let filteredResults = results.filter((result): result is NonNullable<typeof result> => result !== null);
 
-      // Sort results
-      if (filters.sortBy === "platforms" && platformFilters?.sortByRank) {
-        filteredResults.sort((a, b) => {
-          const rankA = a.platformData?.rank || 0;
-          const rankB = b.platformData?.rank || 0;
-          return rankA - rankB;
-        });
-      } else {
-        filteredResults.sort((a, b) => b._creationTime - a._creationTime);
-      }
+      // Sort by creation time (most recent first)
+      filteredResults.sort((a, b) => b._creationTime - a._creationTime);
 
       // Apply pagination
       const paginatedResults = filteredResults.slice(

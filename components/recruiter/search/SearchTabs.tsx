@@ -3,7 +3,7 @@
 import { ReactNode } from "react";
 import { Star, Briefcase, Code2, Filter, Award } from "lucide-react";
 
-export type TabType = "users" | "projects" | "skills" | "platforms" | "certificates";
+export type TabType = "users" | "platforms" | "skills" | "projects" | "certificates";
 
 interface SearchTabsProps {
   activeTab: TabType;
@@ -20,27 +20,20 @@ const tabs: { id: TabType; label: string; icon: ReactNode }[] = [
 
 export function SearchTabs({ activeTab, onTabChange }: SearchTabsProps) {
   return (
-    <div className="w-full overflow-x-auto">
-      <div className="flex space-x-1 min-w-max md:min-w-0">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => onTabChange(tab.id)}
-            className={`
-              flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg
-              transition-colors duration-200
-              ${
-                activeTab === tab.id
-                  ? "bg-primary-100 text-primary-900"
-                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-              }
-            `}
-          >
-            {tab.icon}
-            <span className="whitespace-nowrap">{tab.label}</span>
-          </button>
-        ))}
-      </div>
+    <div className="flex items-center gap-2 overflow-x-auto pb-2">
+      {["users", "platforms", "skills", "projects", "certificates"].map((tab) => (
+        <button
+          key={tab}
+          onClick={() => onTabChange(tab as TabType)}
+          className={`px-4 py-2 rounded-lg transition-colors ${
+            activeTab === tab
+              ? 'bg-primary-100 text-primary-700 font-medium'
+              : 'text-gray-600 hover:bg-gray-100'
+          }`}
+        >
+          {tab.charAt(0).toUpperCase() + tab.slice(1)}
+        </button>
+      ))}
     </div>
   );
 } 

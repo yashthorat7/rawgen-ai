@@ -2,6 +2,7 @@
 
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
+import type { SearchFilters as ApiSearchFilters } from "@/convex/recruiters";
 import { TabType } from "./SearchTabs";
 import UserCard from "../UserCard";
 import { useEffect, useState, useMemo, useCallback } from "react";
@@ -16,49 +17,18 @@ import BookmarkButton from "@/components/ui/Bookmark";
 export interface FilterState {
   verified: boolean;
   sortBy: "recent" | "stars" | "projects" | "skills" | "platforms" | "certificates";
-  // Platform-specific filters
-  platformFilters?: {
-    leetcode?: boolean;
-    codechef?: boolean;
-    codeforces?: boolean;
-    geeksforgeeks?: boolean;
-    sortByRank?: boolean;
-    minRank?: number;
-    maxRank?: number;
+  platforms?: {
+    leetcode: boolean;
+    codechef: boolean;
+    codeforces: boolean;
+    geeksforgeeks: boolean;
   };
-  // Skill-specific filters
-  skillFilters?: {
-    searchTerms: string[];
-    categories?: string[];
-    minSkills?: number;
-    maxSkills?: number;
-  };
-  // Project-specific filters
-  projectFilters?: {
-    hasDeployment?: boolean;
-    hasImage?: boolean;
-    techStack?: string[];
-    minTechStack?: number;
-  };
-  // Certificate-specific filters
-  certificateFilters?: {
-    categories?: string[];
-    hasImage?: boolean;
-    dateRange?: {
-      start?: string;  // ISO date string
-      end?: string;    // ISO date string
-    };
-  };
-  // User-specific filters
-  userFilters?: {
-    hasProfileImage?: boolean;
-    isVerified?: boolean;
-    minStars?: number;
-    minProjects?: number;
-    minSkills?: number;
-    minPlatforms?: number;
-    minCertificates?: number;
-  };
+  searchTerms?: string[];
+  techStack?: string[];
+  hasDeployment?: boolean;
+  categories?: string[];
+  projectNameSearch?: string;
+  certificateSearch?: string;
 }
 
 interface SearchResultsProps {
@@ -130,7 +100,21 @@ function ProfileCardOverlay({
   );
 }
 
-export function SearchResults({ 
+interface SearchFilters {
+  verified: boolean;
+  sortBy: FilterState["sortBy"];
+  tab: TabType;
+  platforms?: FilterState["platforms"];
+  searchTerms?: string[];
+  techStack?: string[];
+  hasDeployment?: boolean;
+  categories?: string[];
+  sortByRank?: boolean;
+  legendaryGrandmaster?: boolean;
+  sortByStars?: boolean;
+}
+
+const SearchResults = ({ 
   tab, 
   searchQuery, 
   filters,
@@ -139,8 +123,41 @@ export function SearchResults({
   page,
   itemsPerPage,
   onTotalItemsChange
-}: SearchResultsProps) {
+}: SearchResultsProps) => {
   const [localFilters, setLocalFilters] = useState(filters);
+  const [visibleCardCount, setVisibleCardCount] = useState(0);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
+
+  // Reset visible card count when page changes
+  useEffect(() => {
+    setVisibleCardCount(0);
+    setIsInitialLoad(true);
+    
+    // Start progressive rendering
+    const timer = setTimeout(() => {
+      setIsInitialLoad(false);
+      const renderCards = () => {
+        setVisibleCardCount(prev => {
+          const next = Math.min(prev + 1, itemsPerPage);
+          return next;
+        });
+      };
+
+      // Render cards one by one with a delay
+      let currentCard = 0;
+      const interval = setInterval(() => {
+        renderCards();
+        currentCard++;
+        if (currentCard >= itemsPerPage) {
+          clearInterval(interval);
+        }
+      }, 100); // 100ms delay between each card
+
+      return () => clearInterval(interval);
+    }, 300); // Initial delay before starting progressive render
+
+    return () => clearTimeout(timer);
+  }, [page, itemsPerPage]);
 
   // Get recruiter's markstar list
   const recruiterData = useQuery(api.recruiters.getByEmail, { 
@@ -160,42 +177,25 @@ export function SearchResults({
   // Reset filters when tab changes
   useEffect(() => {
     const defaultFilters: FilterState = {
-      verified: filters.verified,
+      verified: false,
       sortBy: "recent",
-      platformFilters: tab === "platforms" ? {
+      platforms: tab === "platforms" ? {
         leetcode: false,
         codechef: false,
         codeforces: false,
-        geeksforgeeks: false,
-        sortByRank: false
+        geeksforgeeks: false
       } : undefined,
-      skillFilters: tab === "skills" ? {
-        searchTerms: [],
-        categories: []
-      } : undefined,
-      projectFilters: tab === "projects" ? {
-        hasDeployment: false,
-        hasImage: false,
-        techStack: []
-      } : undefined,
-      certificateFilters: tab === "certificates" ? {
-        categories: [],
-        hasImage: false
-      } : undefined,
-      userFilters: tab === "users" ? {
-        hasProfileImage: false,
-        isVerified: false,
-        minStars: undefined,
-        minProjects: undefined,
-        minSkills: undefined,
-        minPlatforms: undefined,
-        minCertificates: undefined
-      } : undefined
+      searchTerms: tab === "skills" ? [] : undefined,
+      techStack: tab === "projects" ? [] : undefined,
+      hasDeployment: tab === "projects" ? false : undefined,
+      categories: tab === "certificates" ? [] : undefined,
+      projectNameSearch: tab === "projects" ? "" : undefined,
+      certificateSearch: tab === "certificates" ? "" : undefined
     };
     
     setLocalFilters(defaultFilters);
     onFilterChange(defaultFilters);
-  }, [tab]);
+  }, [tab, onFilterChange]);
 
   // Parse search query for skills
   const searchSkills = useMemo(() => {
@@ -205,16 +205,36 @@ export function SearchResults({
 
   // Get search results based on tab type
   const searchResults = useQuery(api.recruiters.searchUsers, {
-    query: searchQuery || "",
+    query: tab === "projects" 
+      ? (filters.projectNameSearch || "") 
+      : tab === "certificates"
+      ? (filters.certificateSearch || "")
+      : (searchQuery || ""),
     filters: {
       verified: filters.verified,
       sortBy: filters.sortBy,
-      tab: tab === "users" ? "users" : tab,
-      platformFilters: tab === "platforms" ? filters.platformFilters : undefined,
-      skillFilters: tab === "skills" ? { ...filters.skillFilters, searchTerms: searchSkills } : undefined,
-      projectFilters: tab === "projects" ? filters.projectFilters : undefined,
-      certificateFilters: tab === "certificates" ? filters.certificateFilters : undefined,
-      userFilters: tab === "users" ? filters.userFilters : undefined
+      tab,
+      platformFilters: tab === "platforms" ? {
+        leetcode: filters.platforms?.leetcode || false,
+        codechef: filters.platforms?.codechef || false,
+        codeforces: filters.platforms?.codeforces || false,
+        geeksforgeeks: filters.platforms?.geeksforgeeks || false,
+      } : undefined,
+      skillFilters: tab === "skills" ? {
+        searchTerms: filters.searchTerms || [],
+      } : undefined,
+      projectFilters: tab === "projects" ? {
+        hasDeployment: filters.hasDeployment,
+        techStack: filters.techStack,
+        projectNameSearch: filters.projectNameSearch
+      } : undefined,
+      certificateFilters: tab === "certificates" ? {
+        categories: filters.categories || [],
+        certificateSearch: filters.certificateSearch
+      } : undefined,
+      userFilters: tab === "users" ? {
+        isVerified: filters.verified,
+      } : undefined,
     },
     page,
     pageSize: itemsPerPage,
@@ -297,25 +317,9 @@ export function SearchResults({
       case "users":
         if (!user.username) return null;
         
-        // Apply user-specific filters
-        if (filters.userFilters) {
-          const {
-            hasProfileImage,
-            minStars,
-            minProjects,
-            minSkills,
-            minPlatforms,
-            minCertificates
-          } = filters.userFilters;
-
-          if (hasProfileImage && !user.profileImage) return null;
-          if (minStars && user.starCount < minStars) return null;
-          if (minProjects && user.projectCount < minProjects) return null;
-          if (minSkills && user.skillCount < minSkills) return null;
-          if (minPlatforms && user.platformCount < minPlatforms) return null;
-          if (minCertificates && user.certificateCount < minCertificates) return null;
-        }
-
+        // Apply basic filters
+        if (filters.verified && !user.isverified) return null;
+        
         return (
           <ProfileCardOverlay {...overlayProps} showRedirect={false}>
             <UserCard
@@ -329,19 +333,10 @@ export function SearchResults({
         const skillsArray = getStringArray(user.skills);
         if (skillsArray.length === 0) return null;
         
-        // Apply skill-specific filters
-        if (filters.skillFilters) {
-          const { categories, minSkills, maxSkills } = filters.skillFilters;
-          
-          if (categories?.length && !categories.includes(user.skillCategory)) return null;
-          if (minSkills && skillsArray.length < minSkills) return null;
-          if (maxSkills && skillsArray.length > maxSkills) return null;
-        }
-        
-        // Filter skills based on search query
-        const matchingSkills = searchSkills.length > 0 
+        // Filter skills based on search terms
+        const matchingSkills = filters.searchTerms?.length 
           ? skillsArray.filter(skill => 
-              searchSkills.some(search => 
+              filters.searchTerms?.some(search => 
                 skill.toLowerCase().includes(search.toLowerCase())
               )
             )
@@ -366,15 +361,13 @@ export function SearchResults({
         const techStackArray = getStringArray(user.techStack);
         
         // Apply project-specific filters
-        if (filters.projectFilters) {
-          const { hasDeployment, hasImage, techStack, minTechStack } = filters.projectFilters;
+        if (filters.techStack) {
+          const { hasDeployment, techStack } = filters;
           
           if (hasDeployment && !user.deployLink) return null;
-          if (hasImage && !user.projectImageUrl) return null;
           if (techStack?.length && !techStack.some(tech => 
             techStackArray.some(t => t.toLowerCase().includes(tech.toLowerCase()))
           )) return null;
-          if (minTechStack && techStackArray.length < minTechStack) return null;
         }
         
         // Search in project details
@@ -409,15 +402,13 @@ export function SearchResults({
         if (!user.platform || !user.platformUsername || !user.userId) return null;
         
         // Apply platform-specific filters
-        if (filters.platformFilters) {
+        if (filters.platforms) {
           const { 
             leetcode, 
             codechef, 
             codeforces, 
-            geeksforgeeks,
-            minRank,
-            maxRank 
-          } = filters.platformFilters;
+            geeksforgeeks
+          } = filters.platforms;
 
           const platform = user.platform.toLowerCase();
           const shouldShow = (
@@ -429,12 +420,6 @@ export function SearchResults({
           );
           
           if (!shouldShow) return null;
-
-          const rank = user.platformData?.rank;
-          if (rank !== undefined) {
-            if (minRank !== undefined && rank < minRank) return null;
-            if (maxRank !== undefined && rank > maxRank) return null;
-          }
         }
 
         // Search in platform data
@@ -479,26 +464,6 @@ export function SearchResults({
                 submissionStats: user.platformData?.submissionStats || [],
                 totalContests: user.platformData?.totalContests || 0,
                 countryName: user.platformData?.countryName || ''
-              }),
-              ...(platformName === 'geeksforgeeks' && {
-                codingScore: user.platformData?.codingScore || 0,
-                problemsSolved: user.platformData?.problemsSolved || 0,
-                monthlyCoding: user.platformData?.monthlyCoding || 0,
-                rank: user.platformData?.rank || 0,
-                totalProblems: user.platformData?.totalProblems || 0,
-                schoolProblems: user.platformData?.schoolProblems || 0,
-                basicProblems: user.platformData?.basicProblems || 0,
-                easyProblems: user.platformData?.easyProblems || 0,
-                mediumProblems: user.platformData?.mediumProblems || 0,
-                hardProblems: user.platformData?.hardProblems || 0
-              }),
-              ...(platformName === 'codeforces' && {
-                rating: user.platformData?.rating || 0,
-                maxRating: user.platformData?.maxRating || 0,
-                rank: user.platformData?.rank || 0,
-                maxRank: user.platformData?.maxRank || 0,
-                contribution: user.platformData?.contribution || 0,
-                friendOfCount: user.platformData?.friendOfCount || 0
               })
             }
           }
@@ -519,17 +484,10 @@ export function SearchResults({
         if (!user.certificateTitle || !user.certificateCategory) return null;
         
         // Apply certificate-specific filters
-        if (filters.certificateFilters) {
-          const { categories, hasImage, dateRange } = filters.certificateFilters;
+        if (filters.categories) {
+          const { categories } = filters;
           
           if (categories?.length && !categories.includes(user.certificateCategory)) return null;
-          if (hasImage && !user.certificateImageUrl) return null;
-          
-          if (dateRange) {
-            const certDate = new Date(user.certificateDate);
-            if (dateRange.start && certDate < new Date(dateRange.start)) return null;
-            if (dateRange.end && certDate > new Date(dateRange.end)) return null;
-          }
         }
         
         // Search in certificate details
@@ -582,15 +540,7 @@ export function SearchResults({
       sortedUsers.sort((a, b) => (b.skillCount || 0) - (a.skillCount || 0));
       break;
     case "platforms":
-      if (localFilters.platformFilters?.sortByRank) {
-        sortedUsers.sort((a, b) => {
-          const rankA = a.platformData?.rank || 0;
-          const rankB = b.platformData?.rank || 0;
-          return rankA - rankB;
-        });
-      } else {
-        sortedUsers.sort((a, b) => (b.platformCount || 0) - (a.platformCount || 0));
-      }
+      sortedUsers.sort((a, b) => (b.platformCount || 0) - (a.platformCount || 0));
       break;
     case "certificates":
       sortedUsers.sort((a, b) => (b.certificateCount || 0) - (a.certificateCount || 0));
@@ -604,17 +554,11 @@ export function SearchResults({
       });
   }
 
+  // Update the return statement to use progressive rendering
   return (
     <div className="w-full">
-      <div className="mb-4">
-        <SearchFilters
-          tab={tab}
-          filters={localFilters}
-          onFilterChange={onFilterChange}
-        />
-      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5 auto-rows-fr">
-        {sortedUsers.map((user: any, index: number) => {
+        {sortedUsers.slice(0, visibleCardCount).map((user: any, index: number) => {
           const card = renderCard(user, index);
           if (!card) return null;
 
@@ -636,8 +580,12 @@ export function SearchResults({
           return (
             <div
               key={uniqueKey}
-              className="animate-fadeIn h-full"
-              style={{ animationDelay: `${index * 100}ms` }}
+              className={`transition-all duration-300 ease-in-out ${
+                isInitialLoad ? 'opacity-0 translate-y-4' : 'opacity-100 translate-y-0'
+              }`}
+              style={{ 
+                transitionDelay: `${index * 100}ms`,
+              }}
             >
               <div className="h-full">
                 {card}
@@ -645,7 +593,19 @@ export function SearchResults({
             </div>
           );
         })}
+        
+        {/* Loading placeholders */}
+        {visibleCardCount < itemsPerPage && sortedUsers.length > 0 && (
+          Array.from({ length: itemsPerPage - visibleCardCount }).map((_, index) => (
+            <div
+              key={`placeholder-${index}`}
+              className="animate-pulse bg-gray-100 rounded-lg h-[300px]"
+            />
+          ))
+        )}
       </div>
     </div>
   );
-} 
+};
+
+export default SearchResults; 

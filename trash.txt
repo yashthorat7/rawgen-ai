@@ -1,0 +1,50 @@
+please redo the filtering system
+
+for the tab
+
+users:
+    by default they are sorted by no of stars and verified users
+
+    the filters are
+        -filter verified (button)
+        -sort by views (button)
+        -leetcode (checkbox(part of multiples))
+        -codechef (checkbox(part of multiples))
+        -codeforces (checkbox(part of multiples))
+        -geeksforgeeks (checkbox(part of multiples))
+        -skills (a input box)
+        -sort by projects (button)
+        -sort by certificates (button)
+
+
+platforms:
+    by default they are sorted randomly
+
+    the filters are
+        -leetcode (checkbox(part of multiples))
+        -codechef (checkbox(part of multiples))
+        -codeforces (checkbox(part of multiples))
+        -geeksforgeeks (checkbox(part of multiples))
+        -sort by ranks (checkbox only if one platform is selected)
+        -sort by no of questions solved
+        -sort by stars (only for codechef)
+        -legendry grandmaster (only when codeforeces is selected only)
+
+skills:
+    the filters are
+        -search terms (input box)
+
+projects:
+    the filters are
+        -has deployment (checkbox)
+        -tech stack(input box)
+
+certificates:
+    the filters are
+        -categories (checkbox(part of multiples))
+
+make the filteration system work also wherever you see input box..it must work like the input box in addskillsdialog.tsx
+
+refer convex and all files to make it work
+
+plz be resonable and consistent and don't change too much 

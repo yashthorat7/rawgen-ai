@@ -38,9 +38,10 @@ type CategoryOption = {
 };
 
 const categoryOptions: CategoryOption[] = [
-  { value: "Internship", label: "Internship" },
-  { value: "Competition", label: "Competition" },
-  { value: "Course", label: "Course" },
+  { value: "internship", label: "Internship" },
+  { value: "competition", label: "Competition" },
+  { value: "courses", label: "Courses" },
+  { value: "achievement", label: "Achievement" }
 ];
 
 export function AddCertificateDialog({ 

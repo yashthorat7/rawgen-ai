@@ -1,12 +1,13 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { SearchBar } from "./SearchBar";
-import { SearchResults, FilterState } from "./SearchResults";
+import SearchResults from "./SearchResults";
+import type { FilterState } from "./SearchResults";
 import { SearchTabs, TabType } from "./SearchTabs";
 import { ChevronLeft, ChevronRight, MoreHorizontal, Bookmark } from "lucide-react";
 import { BookmarkList } from "../BookmarkList";
 import { Button } from "@/components/ui/button";
+import { SearchFilters } from "./SearchFilters";
 
 interface SearchContainerProps {
   recruiterEmail: string;
@@ -15,22 +16,30 @@ interface SearchContainerProps {
 const ITEMS_PER_PAGE = 6;
 
 export default function SearchContainer({ recruiterEmail }: SearchContainerProps) {
-  const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState<TabType>("users");
+  const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
   const [showBookmarks, setShowBookmarks] = useState(false);
   const [filters, setFilters] = useState<FilterState>({
     verified: false,
-    sortBy: "recent"
+    sortBy: "stars",
+    platforms: {
+      leetcode: false,
+      codechef: false,
+      codeforces: false,
+      geeksforgeeks: false
+    }
   });
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
 
   const handlePageChange = (newPage: number) => {
-    if (newPage < 1 || newPage > totalPages) return;
+    setIsLoadingMore(true);
     setCurrentPage(newPage);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Reset loading state after a short delay to allow for animation
+    setTimeout(() => setIsLoadingMore(false), 300);
   };
 
   // Calculate which page numbers to show
@@ -70,17 +79,7 @@ export default function SearchContainer({ recruiterEmail }: SearchContainerProps
 
   return (
     <div className="w-full space-y-4">
-      <div className="flex items-center justify-between gap-4">
-        <div className="flex-1">
-          <SearchBar 
-            searchQuery={searchQuery} 
-            onSearchChange={(query: string) => {
-              setSearchQuery(query);
-              setCurrentPage(1);
-            }}
-            placeholder={`Search ${activeTab}...`}
-          />
-        </div>
+      <div className="flex justify-end">
         <Button
           variant="outline"
           className="flex items-center gap-2"
@@ -98,14 +97,23 @@ export default function SearchContainer({ recruiterEmail }: SearchContainerProps
           setCurrentPage(1);
         }}
       />
+
+      <SearchFilters
+        tab={activeTab}
+        filters={filters}
+        onFilterChange={setFilters}
+        searchQuery={searchQuery}
+        onSearchChange={(query: string) => {
+          setSearchQuery(query);
+          setCurrentPage(1);
+        }}
+      />
+
       <SearchResults 
         tab={activeTab}
         searchQuery={searchQuery}
         filters={filters}
-        onFilterChange={(newFilters) => {
-          setFilters(newFilters);
-          setCurrentPage(1);
-        }}
+        onFilterChange={setFilters}
         recruiterEmail={recruiterEmail}
         page={currentPage}
         itemsPerPage={ITEMS_PER_PAGE}
