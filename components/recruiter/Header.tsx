@@ -56,7 +56,7 @@ export function Header() {
                         />
                     </div>
                     <span className="text-2xl font-Raleway text-gray-900 font-[900]">
-                        CodeX
+                        CODEX
                     </span>
                 </Link>
 

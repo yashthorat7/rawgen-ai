@@ -49,10 +49,10 @@ export function Hero() {
         <div className="flex items-center justify-between px-6 py-3 mx-auto w-full lg:w-[90%]">
           <Link href="/" className="flex items-center gap-2 hover:scale-105 transition-transform">
             <div className="relative w-8 h-8">
-              <Image src="/logo.svg" alt="Logo" fill className="animate-pulse" />
+              <Image src="/logo.svg" alt="Logo" fill className="" />
             </div>
             <span className="text-2xl bg-clip-text text-transparent bg-gradient-to-r from-primary-600 via-purple-600 to-pink-600 font-Raleway font-[900]" style={{ fontFamily: 'Raleway' }}>
-              CodeX
+              CODEX
             </span>
           </Link>
 
@@ -88,14 +88,14 @@ export function Hero() {
       <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 pt-18 sm:pt-30 lg:pt-40">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-8">
-            <div className="inline-flex items-center px-4 py-1.5 mb-6 rounded-full bg-white/50 backdrop-blur-sm border border-primary-100 shadow-sm hover:shadow-md transition-all hover:scale-105">
+            <div className="inline-flex items-center px-4 py-1.5 mb-6 rounded-full bg-white/50 backdrop-blur-sm border border-primary-100 shadow-sm hover:shadow-md transition-all hover:scale-105 animate-bounce-slow">
               <Star className="w-4 h-4 text-yellow-500 mr-2 animate-spin-slow" fill="currentColor" />
               <span className="text-sm font-medium bg-gradient-to-r from-primary-600 to-purple-600 bg-clip-text text-transparent">
-                The Ultimate CP Portfolio Builder
+                Empowering Tech Talent
               </span>
             </div>
             
-            <h1 className="text-5xl sm:text-6xl lg:text-6xl text-gray-900 mb-6 sm:mb-8 leading-tight font-Raleway font-[800]" style={{ fontFamily: 'Raleway' }}>
+            <h1 className="text-6xl sm:text-7xl text-gray-900 mt-12 sm:mt-0 mb-6 sm:mb-8 leading-tight font-Raleway font-[800]" style={{ fontFamily: 'Raleway' }}>
               Your{" "}
               <span className="relative inline-block">
                 <span className="relative z-10 bg-gradient-to-r from-primary-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
@@ -113,12 +113,11 @@ export function Hero() {
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center mb-16 sm:mb-20">
-              <div className="hover:scale-105 transition-transform">
+              <div className="hover:scale-105 transition-transform group">
                 <Link href="/sign-up">
                   <Button 
                     size="lg" 
-                    variant="outline" 
-                    className="w-full sm:w-[320px] text-base sm:text-lg border-2 border-primary-200 text-primary-700 bg-white/50 backdrop-blur-sm hover:bg-white/80"
+                    className="w-full sm:w-[320px] text-base sm:text-lg bg-gradient-to-r from-purple-600 via-primary-600 to-pink-600 hover:from-purple-700 hover:via-primary-700 hover:to-pink-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
                   >
                     Student Portal
                     <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
@@ -128,7 +127,8 @@ export function Hero() {
               <Link href="/recruiter">
                 <Button 
                   size="lg" 
-                  className="w-full sm:w-[320px] text-base sm:text-lg bg-gradient-to-r from-primary-600 via-purple-600 to-pink-600 hover:from-primary-700 hover:via-purple-700 hover:to-pink-700 shadow-lg hover:shadow-xl transition-all duration-200 group"
+                  variant="outline"
+                  className="w-full sm:w-[320px] text-base sm:text-lg border-2 border-primary-200 text-primary-700 bg-white/50 backdrop-blur-sm hover:bg-white/80 group"
                 >
                   Recruiter Portal
                   <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
@@ -139,16 +139,16 @@ export function Hero() {
             {/* Stats */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-20 max-w-4xl mx-auto">
               {[
-                { number: "10K+", label: "Active Users", icon: Users, color: "from-blue-400 to-primary-600" },
-                { number: "4", label: "Platforms", icon: Code2, color: "from-purple-400 to-pink-600" },
-                { number: "50K+", label: "Profiles Generated", icon: Trophy, color: "from-orange-400 to-red-600" },
+                { number: "15K+", label: "Active Users", icon: Users, color: "from-blue-400 to-primary-600" },
+                { number: "5+", label: "Platforms", icon: Code2, color: "from-purple-400 to-pink-600" },
+                { number: "100K+", label: "Profiles Generated", icon: Trophy, color: "from-orange-400 to-red-600" },
                 { number: "24/7", label: "AI Support", icon: Brain, color: "from-green-400 to-teal-600" },
               ].map((stat, index) => (
                 <div
                   key={index}
-                  className="p-4 rounded-xl bg-white/50 backdrop-blur-sm border border-primary-100 shadow-sm hover:shadow-md transition-all hover:scale-105"
+                  className="p-4 rounded-xl bg-white/50 backdrop-blur-sm border border-primary-100 shadow-sm hover:shadow-md transition-all hover:scale-105 hover:bg-white/70"
                 >
-                  <div className={`w-12 h-12 mx-auto mb-2 rounded-lg bg-gradient-to-br ${stat.color} p-2.5`}>
+                  <div className={`w-12 h-12 mx-auto mb-2 rounded-lg bg-gradient-to-br ${stat.color} p-2.5 animate-pulse`}>
                     <stat.icon className="w-full h-full text-white" />
                   </div>
                   <div className="text-2xl font-bold bg-gradient-to-r from-primary-600 to-purple-600 bg-clip-text text-transparent">
@@ -163,24 +163,27 @@ export function Hero() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
               {[
                 {
-                  name: "Alex Chen",
+                  name: "Arjun Sharma",
                   role: "SDE @ Google",
-                  text: "CodeX helped me showcase my CP journey to recruiters effectively.",
+                  text: "Codex revolutionized how I present my competitive programming achievements to recruiters.",
                 },
                 {
-                  name: "Sarah Miller",
+                  name: "Priya Patel",
                   role: "Tech Lead @ Microsoft",
-                  text: "The AI insights helped me improve my problem-solving approach.",
+                  text: "The AI-powered insights significantly improved my problem-solving strategies and approach.",
                 },
                 {
-                  name: "Raj Patel",
+                  name: "Vikram Mehta",
                   role: "SDE @ Amazon",
-                  text: "Best platform to maintain your competitive programming portfolio.",
+                  text: "The most comprehensive platform for showcasing CP skills. Got multiple interview calls!",
                 },
               ].map((testimonial, index) => (
-                <div key={index} className="p-6 rounded-xl bg-white/60 backdrop-blur-sm border border-primary-100 shadow-sm hover:shadow-md transition-all hover:scale-105">
-                  <div className="flex items-center gap-2 mb-1">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white font-bold">
+                <div 
+                  key={index} 
+                  className="p-6 rounded-xl bg-white/60 backdrop-blur-sm border border-primary-100 shadow-sm hover:shadow-md transition-all hover:scale-105 hover:bg-white/80"
+                >
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white font-bold ring-2 ring-primary-200 ring-offset-2">
                       {testimonial.name[0]}
                     </div>
                     <div>
@@ -188,7 +191,10 @@ export function Hero() {
                       <div className="text-sm text-gray-600">{testimonial.role}</div>
                     </div>
                   </div>
-                  <p className="text-gray-600 mt-4">{testimonial.text}</p>
+                  <div className="relative">
+                    <span className="absolute -top-2 -left-2 text-4xl text-primary-200">"</span>
+                    <p className="text-gray-600 mt-4 pl-4">{testimonial.text}</p>
+                  </div>
                 </div>
               ))}
             </div>
