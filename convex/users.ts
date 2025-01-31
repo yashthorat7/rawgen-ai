@@ -539,3 +539,54 @@ export const searchUsers = query({
     return filteredUsers.slice(0, limit);
   },
 });
+
+export const getMultipleByEmail = query({
+  args: { emails: v.array(v.string()) },
+  handler: async (ctx, args) => {
+    const users = await Promise.all(
+      args.emails.map(async (email) => {
+        const user = await ctx.db
+          .query("users")
+          .filter((q) => q.eq(q.field("email"), email))
+          .first();
+        
+        if (!user) return null;
+
+        // Get user's skills
+        const skills = await ctx.db
+          .query("skills")
+          .filter(q => q.eq(q.field("userId"), user._id))
+          .collect();
+
+        // Get user's projects
+        const projects = await ctx.db
+          .query("projects")
+          .filter(q => q.eq(q.field("userId"), user._id))
+          .collect();
+
+        // Get user's profiles (platforms)
+        const platforms = await ctx.db
+          .query("profiles")
+          .filter(q => q.eq(q.field("userId"), user._id))
+          .collect();
+
+        // Get user's certificates
+        const certificates = await ctx.db
+          .query("certificates")
+          .filter(q => q.eq(q.field("userId"), user._id))
+          .collect();
+
+        return {
+          ...user,
+          skills,
+          projects,
+          platforms,
+          certificates
+        };
+      })
+    );
+
+    // Filter out null values and return
+    return users.filter((user): user is NonNullable<typeof user> => user !== null);
+  },
+});

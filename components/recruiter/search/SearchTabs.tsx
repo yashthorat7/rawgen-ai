@@ -12,9 +12,9 @@ interface SearchTabsProps {
 
 const tabs: { id: TabType; label: string; icon: ReactNode }[] = [
   { id: "users", label: "Users", icon: <Star className="h-4 w-4" /> },
-  { id: "projects", label: "Projects", icon: <Briefcase className="h-4 w-4" /> },
-  { id: "skills", label: "Skills", icon: <Code2 className="h-4 w-4" /> },
   { id: "platforms", label: "Platforms", icon: <Filter className="h-4 w-4" /> },
+  { id: "skills", label: "Skills", icon: <Code2 className="h-4 w-4" /> },
+  { id: "projects", label: "Projects", icon: <Briefcase className="h-4 w-4" /> },
   { id: "internships", label: "Internships", icon: <Award className="h-4 w-4" /> },
 ];
 

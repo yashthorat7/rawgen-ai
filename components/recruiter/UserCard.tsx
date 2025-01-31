@@ -206,13 +206,6 @@ export default function UserCard({ username, recruiterEmail }: UserCardProps) {
                     cursor-pointer p-4 sm:p-5 rounded-lg border border-gray-200/50 group
                     min-h-[200px] sm:min-h-[180px] h-full`}
       >
-        {/* High Priority Action Button */}
-        <BookmarkButton
-          recruiterEmail={recruiterEmail}
-          userEmail={userData?.email}
-          isMarked={isMarked}
-          onMarkChange={setIsMarked}
-        />
 
         {/* Left Section - User Image & Name */}
         <div className="flex-shrink-0 w-full sm:w-[140px] flex flex-col items-center justify-center 

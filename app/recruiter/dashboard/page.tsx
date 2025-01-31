@@ -1,6 +1,6 @@
 "use client";
 
-import { SearchContainer } from "@/components/recruiter/search/SearchContainer";
+import SearchContainer from "@/components/recruiter/search/SearchContainer";
 import { Header } from "@/components/recruiter/Header";
 import { Footer } from "@/components/layout/Footer";
 import { useUser } from "@clerk/nextjs";
@@ -8,11 +8,13 @@ import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Loader2 } from "lucide-react";
 
 export default function RecruiterDashboard() {
   const { user } = useUser();
   const router = useRouter();
   const [recruiterEmail, setRecruiterEmail] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     // Get recruiter email from localStorage
@@ -22,7 +24,16 @@ export default function RecruiterDashboard() {
       return;
     }
     setRecruiterEmail(email);
+    setIsLoading(false);
   }, [router]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary-600" />
+      </div>
+    );
+  }
 
   if (!recruiterEmail) {
     return null;
@@ -53,7 +64,7 @@ export default function RecruiterDashboard() {
 
             {/* Search Section */}
             <div className="w-full">
-              <SearchContainer />
+              <SearchContainer recruiterEmail={recruiterEmail} />
             </div>
           </div>
         </div>

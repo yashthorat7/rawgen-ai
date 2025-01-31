@@ -4,12 +4,14 @@ import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { TabType } from "./SearchTabs";
 import UserCard from "../UserCard";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { SkillCard } from "@/components/skill/SkillCard";
 import { ProjectCard } from "@/components/project/ProjectCard";
 import { ProfileCard } from "@/components/profile/ProfileCard";
 import { CertificateCard } from "@/components/certificate/CertificateCard";
 import { SearchFilters } from "./SearchFilters";
+import Link from "next/link";
+import BookmarkButton from "@/components/ui/Bookmark";
 
 export interface FilterState {
   verified: boolean;
@@ -65,20 +67,89 @@ interface SearchResultsProps {
   filters: FilterState;
   onFilterChange: (filters: FilterState) => void;
   recruiterEmail?: string;
+  page: number;
+  itemsPerPage: number;
+  onTotalItemsChange?: (total: number) => void;
 }
 
 const ITEMS_PER_BATCH = 9; // Show 9 items per batch (3x3 grid)
+
+function ProfileCardOverlay({ 
+  username, 
+  userEmail,
+  recruiterEmail,
+  isMarked,
+  children 
+}: { 
+  username: string, 
+  userEmail: string,
+  recruiterEmail?: string,
+  isMarked: boolean,
+  children: React.ReactNode 
+}) {
+  const [isBookmarked, setIsBookmarked] = useState(isMarked);
+
+  const handleMarkChange = (newState: boolean) => {
+    setIsBookmarked(newState);
+    console.log("Bookmark state changed:", {
+      username,
+      userEmail,
+      recruiterEmail,
+      newState
+    });
+  };
+
+  return (
+    <div className="relative group">
+      <Link 
+        href={`/${username}`}
+        className="absolute inset-0 z-30 bg-transparent hover:bg-black/5 transition-colors pointer-events-auto cursor-pointer"
+      >
+        <span className="absolute top-2 left-2 px-2 py-1 bg-black/50 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity">
+          View Full Profile
+        </span>
+      </Link>
+      <div className="absolute top-2 right-2 z-40 pointer-events-auto">
+        <BookmarkButton
+          recruiterEmail={recruiterEmail}
+          userEmail={userEmail}
+          isMarked={isBookmarked}
+          onMarkChange={handleMarkChange}
+        />
+      </div>
+      <div className="pointer-events-none select-none">
+        {children}
+      </div>
+    </div>
+  );
+}
 
 export function SearchResults({ 
   tab, 
   searchQuery, 
   filters,
   onFilterChange,
-  recruiterEmail 
+  recruiterEmail,
+  page,
+  itemsPerPage,
+  onTotalItemsChange
 }: SearchResultsProps) {
-  const [visibleItems, setVisibleItems] = useState<number>(ITEMS_PER_BATCH);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [localFilters, setLocalFilters] = useState(filters);
+
+  // Get recruiter's markstar list
+  const recruiterData = useQuery(api.recruiters.getByEmail, { 
+    email: recruiterEmail || "" 
+  });
+
+  // Memoize the marked emails list
+  const markedEmails = useMemo(() => {
+    return recruiterData?.markstar || [];
+  }, [recruiterData?.markstar]);
+
+  // Function to check if a user is marked
+  const isUserMarked = useCallback((email: string) => {
+    return markedEmails.includes(email);
+  }, [markedEmails]);
 
   // Reset filters when tab changes
   useEffect(() => {
@@ -139,38 +210,17 @@ export function SearchResults({
       certificateFilters: tab === "internships" ? filters.certificateFilters : undefined,
       userFilters: tab === "users" ? filters.userFilters : undefined
     },
-    page: 1,
-    pageSize: visibleItems
+    page,
+    pageSize: itemsPerPage,
+    recruiterEmail
   });
 
-  // Reset visible items when tab or search changes
+  // Update total items when search results change
   useEffect(() => {
-    setVisibleItems(ITEMS_PER_BATCH);
-  }, [tab, searchQuery, filters]);
-
-  // Intersection Observer for infinite scroll
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const users = searchResults?.users;
-        if (entries[0].isIntersecting && !isLoadingMore && users && users.length >= visibleItems) {
-          setIsLoadingMore(true);
-          setTimeout(() => {
-            setVisibleItems(prev => prev + ITEMS_PER_BATCH);
-            setIsLoadingMore(false);
-          }, 500);
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    const loadMoreTrigger = document.getElementById('load-more-trigger');
-    if (loadMoreTrigger) {
-      observer.observe(loadMoreTrigger);
+    if (searchResults && onTotalItemsChange) {
+      onTotalItemsChange(searchResults.total);
     }
-
-    return () => observer.disconnect();
-  }, [isLoadingMore, searchResults?.users, visibleItems]);
+  }, [searchResults?.total, onTotalItemsChange]);
 
   if (!searchResults) {
     return (
@@ -199,7 +249,9 @@ export function SearchResults({
     );
   }
 
-  const visibleUsers = searchResults.users.slice(0, visibleItems);
+  const startIndex = 0;
+  const endIndex = itemsPerPage;
+  const visibleUsers = searchResults?.users.slice(startIndex, endIndex) || [];
 
   const getStringArray = (value: any): string[] => {
     if (!value) return [];
@@ -227,6 +279,14 @@ export function SearchResults({
   const renderCard = (user: any, index: number) => {
     if (!user) return null;
 
+    // Common props for ProfileCardOverlay
+    const overlayProps = {
+      username: user.username,
+      userEmail: user.email,
+      recruiterEmail,
+      isMarked: isUserMarked(user.email)
+    };
+
     switch (tab) {
       case "users":
         if (!user.username) return null;
@@ -251,10 +311,12 @@ export function SearchResults({
         }
 
         return (
-          <UserCard
-            username={user.username}
-            recruiterEmail={recruiterEmail}
-          />
+          <ProfileCardOverlay {...overlayProps}>
+            <UserCard
+              username={user.username}
+              recruiterEmail={recruiterEmail}
+            />
+          </ProfileCardOverlay>
         );
       case "skills":
         if (!user.skillCategory) return null;
@@ -282,14 +344,16 @@ export function SearchResults({
         if (matchingSkills.length === 0) return null;
         
         return (
-          <SkillCard
-            category={user.skillCategory}
-            skills={matchingSkills}
-            index={index}
-            isPublicView={true}
-            onReorder={undefined}
-            onDelete={undefined}
-          />
+          <ProfileCardOverlay {...overlayProps}>
+            <SkillCard
+              category={user.skillCategory}
+              skills={matchingSkills}
+              index={index}
+              isPublicView={true}
+              onReorder={undefined}
+              onDelete={undefined}
+            />
+          </ProfileCardOverlay>
         );
       case "projects":
         if (!user.projectTitle || !user.projectDescription) return null;
@@ -319,22 +383,24 @@ export function SearchResults({
         }
         
         return (
-          <ProjectCard
-            id={user.projectId}
-            title={user.projectTitle}
-            description={user.projectDescription}
-            projectLink={user.projectLink}
-            deployLink={user.deployLink}
-            techStack={techStackArray}
-            image={user.projectImageUrl}
-            index={index}
-            isPublicView={true}
-            onReorder={undefined}
-            onDelete={undefined}
-          />
+          <ProfileCardOverlay {...overlayProps}>
+            <ProjectCard
+              id={user.projectId}
+              title={user.projectTitle}
+              description={user.projectDescription}
+              projectLink={user.projectLink}
+              deployLink={user.deployLink}
+              techStack={techStackArray}
+              image={user.projectImageUrl}
+              index={index}
+              isPublicView={true}
+              onReorder={undefined}
+              onDelete={undefined}
+            />
+          </ProfileCardOverlay>
         );
       case "platforms":
-        if (!user.platform || !user.platformUsername) return null;
+        if (!user.platform || !user.platformUsername || !user.userId) return null;
         
         // Apply platform-specific filters
         if (filters.platformFilters) {
@@ -433,13 +499,15 @@ export function SearchResults({
         };
         
         return (
-          <ProfileCard
-            platform={user.platform}
-            username={user.platformUsername}
-            index={index}
-            isPublicView={true}
-            platformData={formattedPlatformData}
-          />
+          <ProfileCardOverlay {...overlayProps}>
+            <ProfileCard
+              platform={user.platform}
+              username={user.platformUsername}
+              index={index}
+              isPublicView={true}
+              platformData={formattedPlatformData}
+            />
+          </ProfileCardOverlay>
         );
       case "internships":
         if (!user.certificateTitle || !user.certificateCategory) return null;
@@ -470,17 +538,19 @@ export function SearchResults({
         }
         
         return (
-          <CertificateCard
-            id={user.certificateId}
-            title={user.certificateTitle}
-            category={user.certificateCategory}
-            description={user.certificateDescription}
-            image={user.certificateImageUrl}
-            index={index}
-            isPublicView={true}
-            onReorder={undefined}
-            onDelete={undefined}
-          />
+          <ProfileCardOverlay {...overlayProps}>
+            <CertificateCard
+              id={user.certificateId}
+              title={user.certificateTitle}
+              category={user.certificateCategory}
+              description={user.certificateDescription}
+              image={user.certificateImageUrl}
+              index={index}
+              isPublicView={true}
+              onReorder={undefined}
+              onDelete={undefined}
+            />
+          </ProfileCardOverlay>
         );
       default:
         return null;
@@ -501,9 +571,24 @@ export function SearchResults({
           const card = renderCard(user, index);
           if (!card) return null;
 
+          const uniqueKey = (() => {
+            switch (tab) {
+              case "platforms":
+                return `${user.username}-${user.platform}-${user.platformUsername}`;
+              case "skills":
+                return `${user.username}-${user.skillCategory}-${index}`;
+              case "projects":
+                return `${user.username}-${user.projectId || index}`;
+              case "internships":
+                return `${user.username}-${user.certificateId || index}`;
+              default:
+                return `${user.username}-${index}`;
+            }
+          })();
+
           return (
             <div
-              key={user.username || index}
+              key={uniqueKey}
               className="animate-fadeIn"
               style={{ animationDelay: `${index * 100}ms` }}
             >
@@ -512,15 +597,6 @@ export function SearchResults({
           );
         })}
       </div>
-      
-      {searchResults.users.length > visibleItems && (
-        <div
-          id="load-more-trigger"
-          className="w-full h-20 flex items-center justify-center mt-4"
-        >
-          <div className="animate-pulse text-gray-500">Loading more...</div>
-        </div>
-      )}
     </div>
   );
 } 

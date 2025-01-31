@@ -208,6 +208,7 @@ interface UserWithData {
   certificateCategory?: string;
   certificateDescription?: string;
   certificateImageUrl?: string;
+  isMarked: boolean;
 }
 
 // Helper function to format platform data based on platform type
@@ -331,13 +332,14 @@ export const searchUsers = query({
         minSkills: v.optional(v.number()),
         minPlatforms: v.optional(v.number()),
         minCertificates: v.optional(v.number())
-      }))
+      })),
     }),
     page: v.number(),
     pageSize: v.number(),
+    recruiterEmail: v.optional(v.string())
   },
   handler: async (ctx, args) => {
-    const { query, filters, page, pageSize } = args;
+    const { query, filters, page, pageSize, recruiterEmail } = args;
     const { 
       verified, 
       sortBy, 
@@ -348,6 +350,16 @@ export const searchUsers = query({
       certificateFilters,
       userFilters
     } = filters;
+
+    // Get recruiter's markstar list if recruiterEmail is provided
+    let markedEmails: string[] = [];
+    if (recruiterEmail) {
+      const recruiter = await ctx.db
+        .query("recruiters")
+        .filter(q => q.eq(q.field("email"), recruiterEmail))
+        .first();
+      markedEmails = recruiter?.markstar || [];
+    }
 
     // Get all users first
     let users = await ctx.db
@@ -367,15 +379,19 @@ export const searchUsers = query({
       users = users.filter(user => user.isverified);
     }
 
-    // Get additional data for each user
+    // Get additional data for each user and add isMarked status
     const usersWithData = await Promise.all(
       users.map(async user => {
         const userData = await getAllUserData(ctx, user.username);
         if (!userData) return null;
 
+        // Add isMarked status to user data
+        const isMarked = markedEmails.includes(user.email);
+
         // Base user data
-        const baseUser: UserWithData = {
+        const baseUser = {
           ...user,
+          isMarked: isMarked,
           skillCount: userData.skills?.length || 0,
           projectCount: userData.projects?.length || 0,
           platformCount: userData.profiles?.length || 0,
@@ -404,7 +420,7 @@ export const searchUsers = query({
             try {
               const parsedData = JSON.parse(skill.skillsData);
               skillsData = Object.keys(parsedData.skills || {});
-            } catch (e) {
+      } catch (e) {
               console.error('Error parsing skills data:', e);
               skillsData = [];
             }
@@ -435,6 +451,8 @@ export const searchUsers = query({
 
             return {
               ...baseUser,
+              email: user.email,
+              isMarked,
               skillCategory: skill.category,
               skills: skillsData
             };
@@ -468,6 +486,8 @@ export const searchUsers = query({
             
             return {
               ...baseUser,
+              email: user.email,
+              isMarked,
               projectId: project._id,
               projectTitle: project.projectName,
               projectDescription: project.projectDescription,
@@ -550,7 +570,7 @@ export const searchUsers = query({
                 default:
                   platformData = rawData;
               }
-      } catch (e) {
+            } catch (e) {
               console.error('Error parsing platform data:', e);
               return null;
             }
@@ -595,7 +615,10 @@ export const searchUsers = query({
               platform: profile.platformName,
               platformUsername: profile.platformUsername,
               platformData,
-              userId: profile.userId
+              userId: profile.userId,
+              username: user.username,
+              email: user.email,
+              isMarked,
             };
 
           case "internships":
@@ -633,6 +656,8 @@ export const searchUsers = query({
             
             return {
               ...baseUser,
+              email: user.email,
+              isMarked,
               certificateId: cert._id,
               certificateTitle: cert.certificateTitle,
               certificateCategory: cert.category,
@@ -701,6 +726,9 @@ export const searchUsers = query({
         // Get user data
         const user = await ctx.db.get(profile.userId);
         if (!user || (verified && !user.isverified)) return null;
+
+        // Check if user is marked
+        const isMarked = markedEmails.includes(user.email);
 
         // Parse platform data
         let platformData = null;
@@ -813,7 +841,10 @@ export const searchUsers = query({
           platform: profile.platformName,
           platformUsername: profile.platformUsername,
           platformData,
-          userId: profile.userId
+          userId: profile.userId,
+          username: user.username,
+          email: user.email,
+          isMarked: isMarked
         };
       }));
 
