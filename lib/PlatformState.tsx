@@ -48,7 +48,9 @@ export function usePlatformState(initialPlatformData?: PlatformData) {
       try {
         await createUser({
           email: user.primaryEmailAddress.emailAddress,
-          username: user.username || user.primaryEmailAddress.emailAddress.split('@')[0]
+          username: user.username || user.primaryEmailAddress.emailAddress.split('@')[0],
+          firstName: user.firstName || undefined,
+          lastName: user.lastName || undefined
         });
       } catch (error) {
         console.error("Error creating user:", error);
