@@ -75,7 +75,6 @@ export default defineSchema({
         markstar: v.array(v.string()),
         password: v.string(),
         isPermitted: v.boolean(),
-        recruiterImage: v.optional(v.id("_storage")),
     })
         .index("by_email", ["email"])
         .index("by_email_password", ["email", "password"]),

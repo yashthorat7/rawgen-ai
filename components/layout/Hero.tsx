@@ -95,15 +95,18 @@ export function Hero() {
               </span>
             </div>
             
-            <h1 className="text-6xl sm:text-7xl text-gray-900 mt-12 sm:mt-0 mb-6 sm:mb-8 leading-tight font-Raleway font-[800]" style={{ fontFamily: 'Raleway' }}>
+            <h1
+              className="text-5xl sm:text-6xl md:text-7xl text-gray-900 mt-8 sm:mt-0 mb-4 sm:mb-6 leading-tight font-Raleway font-extrabold"
+              style={{ fontFamily: 'Raleway' }}
+            >
               Your{" "}
               <span className="relative inline-block">
                 <span className="relative z-10 bg-gradient-to-r from-primary-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
                   Competitive Programming
                 </span>
-                <span className="absolute bottom-2 left-0 w-full h-3 bg-gradient-to-r from-primary-200/30 to-purple-200/30 -z-10 rounded" />
+                <span className="absolute bottom-1 sm:bottom-2 left-0 w-full h-2 sm:h-3 bg-gradient-to-r from-primary-200/30 to-purple-200/30 -z-10 rounded" />
               </span>{" "}
-              Portfolio Generator
+              Portfolio
             </h1>
             
             <p className="text-lg sm:text-xl text-gray-600 mb-8 sm:mb-12 leading-relaxed max-w-3xl mx-auto">
@@ -119,7 +122,7 @@ export function Hero() {
                     size="lg" 
                     className="w-full sm:w-[320px] text-base sm:text-lg bg-gradient-to-r from-purple-600 via-primary-600 to-pink-600 hover:from-purple-700 hover:via-primary-700 hover:to-pink-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
                   >
-                    Student Portal
+                    Student Sign up
                     <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
                   </Button>
                 </Link>
@@ -164,7 +167,7 @@ export function Hero() {
               {[
                 {
                   name: "Arjun Sharma",
-                  role: "SDE @ Google",
+                  role: "Final year student",
                   text: "Codex revolutionized how I present my competitive programming achievements to recruiters.",
                 },
                 {

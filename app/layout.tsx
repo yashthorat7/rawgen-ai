@@ -13,7 +13,7 @@ const quicksand = localFont({
 
 export const metadata: Metadata = {
   title: "CodeX",
-  description: "Your Competitive Programming Portfolio Summarizer",
+  description: "Your Competitive Programming Portfolio",
 };
 
 export default function RootLayout({

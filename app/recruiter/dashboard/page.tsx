@@ -8,13 +8,20 @@ import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2 } from "lucide-react";
+import { Loader2, ShieldAlert } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export default function RecruiterDashboard() {
   const { user } = useUser();
   const router = useRouter();
   const [recruiterEmail, setRecruiterEmail] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Get recruiter data to check permission
+  const recruiter = useQuery(
+    api.recruiters.getByEmail,
+    recruiterEmail ? { email: recruiterEmail } : "skip"
+  );
 
   useEffect(() => {
     // Get recruiter email from localStorage
@@ -37,6 +44,45 @@ export default function RecruiterDashboard() {
 
   if (!recruiterEmail) {
     return null;
+  }
+
+  // Show not permitted message if recruiter exists but is not permitted
+  if (recruiter && !recruiter.isPermitted) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <main className="flex-1 flex items-center justify-center">
+          <div className="max-w-md w-full mx-auto p-6 text-center">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-red-100 flex items-center justify-center">
+              <ShieldAlert className="w-8 h-8 text-red-600" />
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Access Restricted</h2>
+            <p className="text-gray-600 mb-6">
+              Your recruiter account has not been approved yet. Please contact the administrator for access.
+            </p>
+            <Button
+              variant="outline"
+              onClick={() => {
+                window.localStorage.removeItem('recruiterEmail');
+                router.push('/recruiter');
+              }}
+            >
+              Back to Login
+            </Button>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  // Show loading state while checking recruiter data
+  if (!recruiter) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary-600" />
+      </div>
+    );
   }
 
   return (
