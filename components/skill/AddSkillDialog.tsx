@@ -53,10 +53,6 @@ export function AddSkillDialog({ isOpen, onClose }: AddSkillDialogProps) {
     try {
       // Convert Set to Array for API call
       const skillsArray = Array.from(selectedSkills).sort();
-      console.log('Adding new category with skills:', {
-        category: category.trim(),
-        skills: skillsArray
-      });
 
       await addSkills({
         email: userEmail,
@@ -66,7 +62,7 @@ export function AddSkillDialog({ isOpen, onClose }: AddSkillDialogProps) {
       resetForm();
       onClose();
     } catch (error) {
-      console.error("Failed to add skills:", error);
+      // Error handling silently
     } finally {
       setIsLoading(false);
     }
@@ -75,7 +71,6 @@ export function AddSkillDialog({ isOpen, onClose }: AddSkillDialogProps) {
   const handleRemoveSkill = (skillToRemove: string) => {
     const newSkills = new Set(selectedSkills);
     newSkills.delete(skillToRemove);
-    console.log('Skills after removal:', Array.from(newSkills));
     setSelectedSkills(newSkills);
   };
 

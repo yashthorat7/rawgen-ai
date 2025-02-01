@@ -30,16 +30,7 @@ export default function BookmarkButton({
     e.preventDefault();
     e.stopPropagation();
     
-    if (!recruiterEmail || !userEmail) {
-      console.log("Missing required props:", { recruiterEmail, userEmail });
-      return;
-    }
-
-    console.log("Toggling bookmark:", {
-      recruiterEmail,
-      userEmail,
-      currentState: isMarked
-    });
+    if (!recruiterEmail || !userEmail) return;
 
     try {
       const result = await toggleMarkstar({
@@ -47,16 +38,13 @@ export default function BookmarkButton({
         userEmail
       });
 
-      console.log("Toggle result:", result);
-
       if (result.success) {
         const newState = result.action === "marked";
         setIsMarked(newState);
         onMarkChange?.(newState);
-        console.log("Bookmark state updated:", newState);
       }
     } catch (error) {
-      console.error('Error toggling bookmark:', error);
+      // Error handling silently
     }
   };
 

@@ -72,8 +72,8 @@ export function BookmarkList({ recruiterEmail, onClose }: BookmarkListProps) {
 
   if (!bookmarkedUsers) {
     return (
-      <div className="fixed inset-0 bg-black/50 z-50 flex items-start justify-center">
-        <div className="bg-white w-full min-h-screen overflow-y-auto">
+      <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
+        <div className="bg-white w-full h-screen overflow-y-auto">
           <div className="animate-pulse text-gray-500 p-6">Loading bookmarks...</div>
         </div>
       </div>
@@ -81,8 +81,8 @@ export function BookmarkList({ recruiterEmail, onClose }: BookmarkListProps) {
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-start justify-center">
-      <div className="bg-white w-full min-h-screen overflow-y-auto">
+    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
+      <div className="bg-white w-full h-screen overflow-y-auto">
         {/* Header */}
         <div className="sticky top-0 bg-white border-b z-10">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -98,7 +98,7 @@ export function BookmarkList({ recruiterEmail, onClose }: BookmarkListProps) {
             </div>
 
             {/* Actions */}
-            <div className="flex items-center justify-between mt-4">
+            <div className="flex items-center justify-between pt-4">
               <div className="flex items-center gap-2">
                 <Checkbox
                   checked={selectedUsers.length === markedEmails.length}

@@ -14,12 +14,6 @@ export const addSkills = mutation({
     skills: v.array(v.string()),
   },
   handler: async (ctx, args) => {
-    console.log('Received update request:', {
-      email: args.email,
-      category: args.category,
-      skills: args.skills
-    });
-
     if (!args.email) {
       throw new Error("Email is required");
     }
@@ -31,13 +25,11 @@ export const addSkills = mutation({
       .first();
 
     if (!user) {
-      console.error(`User ${args.email} not found`);
       throw new Error(`User ${args.email} not found`);
     }
 
     // Validate skills array
     if (args.skills.length > 16) {
-      console.error("Maximum 16 skills allowed per category");
       throw new Error("Maximum 16 skills allowed per category");
     }
 
@@ -69,12 +61,9 @@ export const addSkills = mutation({
       )
       .first();
 
-    console.log('Existing category:', existingCategory);
-
     try {
       if (args.skills.length === 0) {
         if (existingCategory) {
-          console.log('Deleting category due to empty skills');
           await ctx.db.delete(existingCategory._id);
           // Reorder remaining skills
           const remainingSkills = await ctx.db
@@ -91,11 +80,9 @@ export const addSkills = mutation({
       }
 
       if (existingCategory) {
-        console.log('Updating existing category with new skills');
         await ctx.db.patch(existingCategory._id, { skillsData });
         return { success: true, updated: true };
       } else {
-        console.log('Creating new category with skills');
         await ctx.db.insert("skills", {
           userId: user._id,
           category: args.category,
@@ -105,7 +92,6 @@ export const addSkills = mutation({
         return { success: true, created: true };
       }
     } catch (error) {
-      console.error('Error updating skills:', error);
       throw error;
     }
   },
@@ -206,11 +192,6 @@ export const deleteSkillCategory = mutation({
       throw new Error(`User ${args.username} not found`);
     }
 
-    console.log('Deleting category:', {
-      username: args.username,
-      category: args.category
-    });
-
     const existingCategory = await ctx.db
       .query("skills")
       .withIndex("by_user_category", (q) => 
@@ -218,12 +199,6 @@ export const deleteSkillCategory = mutation({
          .eq("category", args.category)
       )
       .first();
-
-    if (existingCategory) {
-      console.log('Found category to delete:', existingCategory);
-      await ctx.db.delete(existingCategory._id);
-      return { success: true, deleted: true };
-    }
 
     return { success: false, reason: "Category not found" };
   },

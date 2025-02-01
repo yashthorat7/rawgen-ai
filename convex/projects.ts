@@ -95,20 +95,13 @@ export const get = query({
     username: v.string(),
   },
   handler: async (ctx, args) => {
-    console.log('Getting projects for username:', args.username);
-
     // Get user by username
     const user = await ctx.db
       .query("users")
       .withIndex("by_username", (q) => q.eq("username", args.username))
       .first();
 
-    if (!user) {
-      console.log('User not found');
-      return [];
-    }
-
-    console.log('Found user:', user._id);
+    if (!user) return [];
 
     // Get all projects for the user
     const projects = await ctx.db
@@ -116,18 +109,14 @@ export const get = query({
       .withIndex("by_user", (q) => q.eq("userId", user._id))
       .collect();
 
-    console.log('Found projects:', projects);
-
     // Sort projects by order before returning
     const projectsWithUrls = await Promise.all(
       projects
         .sort((a, b) => a.order - b.order)
         .map(async (project) => {
           let imageUrl;
-          console.log('Project image data:', project.projectImage);
           if (project.projectImage) {
             imageUrl = await ctx.storage.getUrl(project.projectImage);
-            console.log('Generated image URL:', imageUrl);
           }
 
           return {
@@ -143,7 +132,6 @@ export const get = query({
         })
     );
 
-    console.log('Projects with URLs:', projectsWithUrls);
     return projectsWithUrls;
   },
 });
@@ -159,20 +147,13 @@ export const add = mutation({
     projectImage: v.optional(v.id("_storage")),
   },
   handler: async (ctx, args) => {
-    console.log('Adding project:', args);
-
     // Get user by email
     const user = await ctx.db
       .query("users")
       .withIndex("by_email", (q) => q.eq("email", args.email))
       .first();
 
-    if (!user) {
-      console.log('User not found:', args.email);
-      throw new Error("User not found");
-    }
-
-    console.log('Found user:', user._id);
+    if (!user) throw new Error("User not found");
 
     // Get current highest order
     const projects = await ctx.db
@@ -193,8 +174,6 @@ export const add = mutation({
       techStack: JSON.stringify(args.techStack),
       projectImage: args.projectImage,
     });
-
-    console.log('Project added:', projectId);
 
     // Get the URL for the image if it exists
     let imageUrl;

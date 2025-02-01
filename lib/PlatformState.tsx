@@ -48,12 +48,10 @@ export function usePlatformState(initialPlatformData?: PlatformData) {
       try {
         await createUser({
           email: user.primaryEmailAddress.emailAddress,
-          username: user.username || user.primaryEmailAddress.emailAddress.split('@')[0],
-          firstName: user.firstName || undefined,
-          lastName: user.lastName || undefined
+          username: user.username || user.primaryEmailAddress.emailAddress.split('@')[0]
         });
       } catch (error) {
-        console.error("Error creating user:", error);
+        // Error handling silently
       }
     };
 
@@ -112,7 +110,6 @@ export function usePlatformState(initialPlatformData?: PlatformData) {
       }
       return data;
     } catch (error) {
-      console.error("Error fetching platform data:", error);
       return null;
     }
   }, [user?.primaryEmailAddress?.emailAddress, updateProfileData]);

@@ -106,11 +106,6 @@ export function PlatformCounter({ username, isPublicView = false }: PlatformCoun
     // Only proceed if we have the required user info and the viewer is logged in
     if (!userInfo?._id || !loggedInUserData?._id) return;
 
-    // Don't allow starring your own profile
-    if (userInfo.username === user?.username) {
-      console.log("You cannot star your own profile");
-      return;
-    }
 
     try {
       const result = await toggleStar({
@@ -119,10 +114,7 @@ export function PlatformCounter({ username, isPublicView = false }: PlatformCoun
       });
 
       if (result.success) {
-        console.log(`Successfully ${result.action} the profile!`);
         setHasStarred(result.action === "starred");
-      } else {
-        console.log('Could not toggle star:', result.reason);
       }
     } catch (error) {
       console.error('Error toggling star:', error);

@@ -65,12 +65,6 @@ function ProfileCardOverlay({
 
   const handleMarkChange = (newState: boolean) => {
     setIsBookmarked(newState);
-    console.log("Bookmark state changed:", {
-      username,
-      userEmail,
-      recruiterEmail,
-      newState
-    });
   };
 
   return (

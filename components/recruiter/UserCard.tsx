@@ -131,10 +131,6 @@ export default function UserCard({ username, recruiterEmail }: UserCardProps) {
     }
   }, [recruiterData?.markstar, userData?.email]);
 
-  // Add debug log for recruiter email
-  useEffect(() => {
-    console.log("UserCard received recruiterEmail:", recruiterEmail);
-  }, [recruiterEmail]);
 
   const handleMarkClick = async (e: React.MouseEvent) => {
     e.stopPropagation();

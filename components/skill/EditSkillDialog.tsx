@@ -67,65 +67,39 @@ export function EditSkillDialog({ isOpen, onClose, category, initialSkills, onUp
   const handleRemoveSkill = (skillToRemove: string) => {
     const newSkills = new Set(selectedSkills);
     newSkills.delete(skillToRemove);
-    console.log('Skills after removal:', Array.from(newSkills));
     setSelectedSkills(newSkills);
   };
 
   const handleSubmit = async () => {
     // Wait for user data to be loaded
-    if (!isUserLoaded || !userData) {
-      console.log('Waiting for user data to load...', { isUserLoaded, userData });
-      return;
-    }
+    if (!isUserLoaded || !userData) return;
 
     // Check for required user data
-    if (!userEmail || !username) {
-      console.error('Missing user data:', { 
-        email: userEmail, 
-        username,
-        isLoaded: isUserLoaded,
-        userData
-      });
-      return;
-    }
+    if (!userEmail || !username) return;
 
     setIsLoading(true);
     try {
       // Convert Set to Array for API call
       const skillsArray = Array.from(selectedSkills).sort();
-      console.log('Current skills state:', {
-        category: categoryName,
-        skillsArray,
-        initialSkills,
-        email: userEmail,
-        username
-      });
       
       if (skillsArray.length === 0) {
-        console.log('Deleting category due to empty skills:', categoryName);
         await deleteCategory({
           username,
           category: categoryName
         });
       } else {
-        console.log('Updating skills:', {
-          category: categoryName,
-          skills: skillsArray
-        });
-        const result = await updateSkills({
+        await updateSkills({
           email: userEmail,
           oldCategory: category,
           newCategory: categoryName.trim(),
           skills: skillsArray
         });
-        console.log('Update result:', result);
       }
       
       // Call onUpdate after successful operation
       onUpdate?.();
       onClose();
     } catch (error) {
-      console.error("Failed to update skills:", error);
       // Keep the dialog open on error
       setIsLoading(false);
       return;
@@ -137,21 +111,10 @@ export function EditSkillDialog({ isOpen, onClose, category, initialSkills, onUp
 
   const handleDelete = async () => {
     // Wait for user data to be loaded
-    if (!isUserLoaded || !userData) {
-      console.log('Waiting for user data to load...', { isUserLoaded, userData });
-      return;
-    }
+    if (!isUserLoaded || !userData) return;
 
     // Check for required user data
-    if (!userEmail || !username) {
-      console.error('Missing user data:', { 
-        email: userEmail, 
-        username,
-        isLoaded: isUserLoaded,
-        userData
-      });
-      return;
-    }
+    if (!userEmail || !username) return;
 
     setIsLoading(true);
     try {
@@ -162,7 +125,7 @@ export function EditSkillDialog({ isOpen, onClose, category, initialSkills, onUp
       onUpdate?.();
       onClose();
     } catch (error) {
-      console.error("Failed to delete category:", error);
+      // Error handling silently
     } finally {
       setIsLoading(false);
     }

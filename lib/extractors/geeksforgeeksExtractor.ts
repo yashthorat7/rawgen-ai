@@ -7,7 +7,6 @@ interface GFGProblem {
 
 export async function extractGeeksForGeeksData(username: string): Promise<GeeksForGeeksData | null> {
   try {
-    
     const response = await fetch(`${process.env.NEXT_PUBLIC_CODEFETCH_API_URL}/geeksforgeeks/${username}`, {
       headers: {
         'Accept': 'application/json'
@@ -15,34 +14,20 @@ export async function extractGeeksForGeeksData(username: string): Promise<GeeksF
     });
 
     // Check if response is OK
-    if (!response.ok) {
-      console.error('GeeksForGeeks API error:', {
-        status: response.status,
-        statusText: response.statusText
-      });
-      return null;
-    }
+    if (!response.ok) return null;
 
     // Check content type
     const contentType = response.headers.get('content-type');
-    if (!contentType || !contentType.includes('application/json')) {
-      console.error('Invalid content type:', contentType);
-      return null;
-    }
+    if (!contentType || !contentType.includes('application/json')) return null;
 
     const result = await response.json();
 
-    if (!result || !result.success || !result.data || !result.data.data) {
-      console.error('Invalid GeeksForGeeks data structure:', result);
-      return null;
-    }
+    if (!result || !result.success || !result.data || !result.data.data) return null;
 
     const data = result.data.data;
     const profile = data.profile;
     const stats = data.stats;
     const problems = data.problems || { school: [], basic: [], easy: [], medium: [], hard: [] };
-
-    console.log('Problems data:', problems);
 
     // Get problem counts from problemsSolved object
     const problemCounts = {
@@ -98,7 +83,6 @@ export async function extractGeeksForGeeksData(username: string): Promise<GeeksF
     return extractedData;
 
   } catch (error) {
-    console.error('Error fetching GeeksForGeeks data:', error);
     return null;
   }
 }
