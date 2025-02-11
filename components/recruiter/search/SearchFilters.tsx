@@ -176,36 +176,12 @@ export function SearchFilters({
                 Verified Users
               </label>
             </div>
-            <Button
-              variant={filters.sortBy === "stars" ? "default" : "outline"}
-              onClick={() => onFilterChange({ ...filters, sortBy: "stars" })}
-              size="sm"
-              className="w-full sm:w-auto"
-            >
-              Sort by Stars
-            </Button>
-            <Button
-              variant={filters.sortBy === "projects" ? "default" : "outline"}
-              onClick={() => onFilterChange({ ...filters, sortBy: "projects" })}
-              size="sm"
-              className="w-full sm:w-auto"
-            >
-              Sort by Projects
-            </Button>
           </>
         )}
 
-        {/* Skills Tab Filters */}
+        {/* Skills Tab Filters
         {tab === "skills" && (
-          <Button
-            variant={filters.sortBy === "skills" ? "default" : "outline"}
-            onClick={() => onFilterChange({ ...filters, sortBy: "skills" })}
-            size="sm"
-            className="w-full sm:w-auto"
-          >
-            Sort by Number of Skills
-          </Button>
-        )}
+        )} */}
 
         {/* Platforms Tab Filters */}
         {tab === "platforms" && (

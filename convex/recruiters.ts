@@ -429,43 +429,18 @@ export const searchUsers = query({
         // Add tab-specific data
         switch (tab) {
           case "skills":
-            // Return all skills instead of just the first one
+            // Return all skills for the user
             const userSkills = userData.skills || [];
-            if (!userSkills.length) return baseUser;
+            if (!userSkills.length) return null;
 
-            // Create an array of skill entries
+            // Create an array of skill entries with ALL skills
             const skillEntries = userSkills.map(skill => {
               let skillsData: string[] = [];
               try {
                 const parsedData = JSON.parse(skill.skillsData);
                 skillsData = Object.keys(parsedData.skills || {});
               } catch (e) {
-                console.error('Error parsing skills data:', e);
                 skillsData = [];
-              }
-
-              // Apply skill filters
-              if (skillFilters) {
-                if (skillFilters.categories?.length && !skillFilters.categories.includes(skill.category)) {
-                  return null;
-                }
-
-                if (skillFilters.minSkills && skillsData.length < skillFilters.minSkills) {
-                  return null;
-                }
-
-                if (skillFilters.maxSkills && skillsData.length > skillFilters.maxSkills) {
-                  return null;
-                }
-
-                if (skillFilters.searchTerms.length > 0) {
-                  const hasMatchingSkills = skillFilters.searchTerms.some(term =>
-                    skillsData.some(s => 
-                      s.toLowerCase().includes(term.toLowerCase())
-                    )
-                  );
-                  if (!hasMatchingSkills) return null;
-                }
               }
 
               return {
@@ -475,35 +450,17 @@ export const searchUsers = query({
                 skillCategory: skill.category,
                 skills: skillsData
               };
-            }).filter(Boolean);
+            });
 
             return skillEntries;
 
           case "projects":
-            // Return all projects instead of just the first one
+            // Return all projects for the user
             const userProjects = userData.projects || [];
-            if (!userProjects.length) return baseUser;
+            if (!userProjects.length) return null;
 
-            // Create an array of project entries
+            // Create an array of project entries with ALL projects
             const projectEntries = await Promise.all(userProjects.map(async project => {
-              // Apply project filters
-              if (projectFilters) {
-                if (projectFilters.hasDeployment && !project.deployLink) return null;
-                if (projectFilters.hasImage && !project.projectImage) return null;
-                
-                const techStack = JSON.parse(project.techStack || "[]");
-                if (projectFilters.minTechStack && techStack.length < projectFilters.minTechStack) return null;
-                
-                if (projectFilters.techStack?.length) {
-                  const hasMatchingTech = projectFilters.techStack.some(tech =>
-                    techStack.some((t: string) => 
-                      t.toLowerCase().includes(tech.toLowerCase())
-                    )
-                  );
-                  if (!hasMatchingTech) return null;
-                }
-              }
-              
               let projectImageUrl;
               if (project.projectImage) {
                 projectImageUrl = await ctx.storage.getUrl(project.projectImage);
@@ -523,7 +480,33 @@ export const searchUsers = query({
               };
             }));
 
-            return projectEntries.filter(Boolean);
+            return projectEntries;
+
+          case "certificates":
+            // Return all certificates for the user
+            const userCerts = userData.certificates || [];
+            if (!userCerts.length) return null;
+
+            // Create an array of certificate entries with ALL certificates
+            const certEntries = await Promise.all(userCerts.map(async cert => {
+              let certificateImageUrl;
+              if (cert.certificateImage) {
+                certificateImageUrl = await ctx.storage.getUrl(cert.certificateImage);
+              }
+              
+              return {
+                ...baseUser,
+                email: user.email,
+                isMarked,
+                certificateId: cert._id,
+                certificateTitle: cert.certificateTitle,
+                certificateCategory: cert.category,
+                certificateDescription: cert.description,
+                certificateImageUrl
+              };
+            }));
+
+            return certEntries;
 
           case "platforms":
             const profile = userData.profiles?.[0];
@@ -694,56 +677,6 @@ export const searchUsers = query({
               isMarked,
             };
 
-          case "certificates":
-            // Return all certificates instead of just the first one
-            const userCerts = userData.certificates || [];
-            if (!userCerts.length) return baseUser;
-
-            // Create an array of certificate entries
-            const certEntries = await Promise.all(userCerts.map(async cert => {
-              // Apply certificate filters
-              if (certificateFilters) {
-                if (certificateFilters.categories?.length && 
-                    !certificateFilters.categories.includes(cert.category)) {
-                  return null;
-                }
-
-                if (certificateFilters.hasImage && !cert.certificateImage) {
-                  return null;
-                }
-
-                if (certificateFilters.dateRange) {
-                  const certDate = new Date(cert._creationTime);
-                  if (certificateFilters.dateRange.start && 
-                      certDate < new Date(certificateFilters.dateRange.start)) {
-                    return null;
-                  }
-                  if (certificateFilters.dateRange.end && 
-                      certDate > new Date(certificateFilters.dateRange.end)) {
-                    return null;
-                  }
-                }
-              }
-              
-              let certificateImageUrl;
-              if (cert.certificateImage) {
-                certificateImageUrl = await ctx.storage.getUrl(cert.certificateImage);
-              }
-              
-              return {
-                ...baseUser,
-                email: user.email,
-                isMarked,
-                certificateId: cert._id,
-                certificateTitle: cert.certificateTitle,
-                certificateCategory: cert.category,
-                certificateDescription: cert.description,
-                certificateImageUrl
-              };
-            }));
-
-            return certEntries.filter(Boolean);
-
           default:
             return baseUser;
         }
@@ -780,53 +713,164 @@ export const searchUsers = query({
         });
     }
 
-    // Update project search logic
+    // Handle different tabs
+    if (tab === "skills") {
+      // Get all skills from all users
+      const allSkills = await ctx.db
+        .query("skills")
+        .collect();
+
+      // Process all skills
+      const results = await Promise.all(allSkills.map(async skill => {
+        // Get user data
+        const user = await ctx.db.get(skill.userId);
+        if (!user || (verified && !user.isverified)) return null;
+
+        // Check if user is marked
+        const isMarked = markedEmails.includes(user.email);
+
+        let skillsData: string[] = [];
+        try {
+          const parsedData = JSON.parse(skill.skillsData);
+          skillsData = Object.keys(parsedData.skills || {});
+        } catch (e) {
+          skillsData = [];
+        }
+
+        return {
+          _id: skill._id,
+          _creationTime: skill._creationTime,
+          email: user.email,
+          username: user.username,
+          isMarked,
+          skillCategory: skill.category,
+          skills: skillsData
+        };
+      }));
+
+      // Filter out null results
+      let filteredResults = results.filter((result): result is NonNullable<typeof result> => result !== null);
+
+      // Sort by creation time (most recent first)
+      filteredResults.sort((a, b) => b._creationTime - a._creationTime);
+
+      // Apply pagination
+      const paginatedResults = filteredResults.slice(
+        (page - 1) * pageSize,
+        page * pageSize
+      );
+
+      return {
+        users: paginatedResults,
+        total: filteredResults.length
+      };
+    }
+
     if (tab === "projects") {
-      const projectNameSearch = args.filters.projectFilters?.projectNameSearch?.toLowerCase();
-      
-      // Filter projects based on project name search
-      if (projectNameSearch) {
-        sortedUsers = sortedUsers.filter(user => {
-          const projectTitle = user.projectTitle?.toLowerCase() || '';
-          return projectTitle.includes(projectNameSearch);
-        });
-      }
+      // Get all projects from all users
+      const allProjects = await ctx.db
+        .query("projects")
+        .collect();
+
+      // Process all projects
+      const results = await Promise.all(allProjects.map(async project => {
+        // Get user data
+        const user = await ctx.db.get(project.userId);
+        if (!user || (verified && !user.isverified)) return null;
+
+        // Check if user is marked
+        const isMarked = markedEmails.includes(user.email);
+
+        let projectImageUrl;
+        if (project.projectImage) {
+          projectImageUrl = await ctx.storage.getUrl(project.projectImage);
+        }
+
+        return {
+          _id: project._id,
+          _creationTime: project._creationTime,
+          email: user.email,
+          username: user.username,
+          isMarked,
+          projectId: project._id,
+          projectTitle: project.projectName,
+          projectDescription: project.projectDescription,
+          projectLink: project.projectLink,
+          deployLink: project.deployLink,
+          techStack: project.techStack,
+          projectImageUrl
+        };
+      }));
+
+      // Filter out null results
+      let filteredResults = results.filter((result): result is NonNullable<typeof result> => result !== null);
+
+      // Sort by creation time (most recent first)
+      filteredResults.sort((a, b) => b._creationTime - a._creationTime);
+
+      // Apply pagination
+      const paginatedResults = filteredResults.slice(
+        (page - 1) * pageSize,
+        page * pageSize
+      );
+
+      return {
+        users: paginatedResults,
+        total: filteredResults.length
+      };
     }
 
-    // Update certificate search logic
     if (tab === "certificates") {
-      const certificateSearch = args.filters.certificateFilters?.certificateSearch?.toLowerCase();
-      const selectedCategories = args.filters.certificateFilters?.categories || [];
-      
-      // Filter certificates based on search and categories
-      sortedUsers = sortedUsers.filter(user => {
-        // Check if certificate title or description matches search
-        if (certificateSearch) {
-          const title = user.certificateTitle?.toLowerCase() || '';
-          const description = user.certificateDescription?.toLowerCase() || '';
-          const category = user.certificateCategory?.toLowerCase() || '';
-          
-          const matchesSearch = 
-            title.includes(certificateSearch) ||
-            description.includes(certificateSearch) ||
-            category.includes(certificateSearch);
-            
-          if (!matchesSearch) return false;
-        }
-        
-        // Check if certificate category matches selected categories
-        if (selectedCategories.length > 0) {
-          return selectedCategories.includes(user.certificateCategory || '');
-        }
-        
-        return true;
-      });
-    }
+      // Get all certificates from all users
+      const allCertificates = await ctx.db
+        .query("certificates")
+        .collect();
 
-    // Apply pagination
-    const start = (page - 1) * pageSize;
-    const end = start + pageSize;
-    const paginatedUsers = sortedUsers.slice(start, end);
+      // Process all certificates
+      const results = await Promise.all(allCertificates.map(async cert => {
+        // Get user data
+        const user = await ctx.db.get(cert.userId);
+        if (!user || (verified && !user.isverified)) return null;
+
+        // Check if user is marked
+        const isMarked = markedEmails.includes(user.email);
+
+        let certificateImageUrl;
+        if (cert.certificateImage) {
+          certificateImageUrl = await ctx.storage.getUrl(cert.certificateImage);
+        }
+
+        return {
+          _id: cert._id,
+          _creationTime: cert._creationTime,
+          email: user.email,
+          username: user.username,
+          isMarked,
+          certificateId: cert._id,
+          certificateTitle: cert.certificateTitle,
+          certificateCategory: cert.category,
+          certificateDescription: cert.description,
+          certificateImageUrl
+        };
+      }));
+
+      // Filter out null results
+      let filteredResults = results.filter((result): result is NonNullable<typeof result> => result !== null);
+
+      // Sort by creation time (most recent first)
+      filteredResults.sort((a, b) => b._creationTime - a._creationTime);
+
+      // Apply pagination
+      const paginatedResults = filteredResults.slice(
+        (page - 1) * pageSize,
+        page * pageSize
+      );
+
+      return {
+        users: paginatedResults,
+        total: filteredResults.length
+      };
+    }
 
     // Update platform filtering logic
     if (tab === "platforms") {
@@ -911,7 +955,6 @@ export const searchUsers = query({
               platformData = rawData;
           }
         } catch (e) {
-          console.error('Error parsing platform data:', e);
           return null;
         }
 
@@ -972,8 +1015,9 @@ export const searchUsers = query({
       };
     }
 
+    // For users tab, use the existing logic
     return {
-      users: paginatedUsers,
+      users: sortedUsers.slice((page - 1) * pageSize, page * pageSize),
       total: sortedUsers.length
     };
   }

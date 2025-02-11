@@ -88,7 +88,7 @@ export function Hero() {
       <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 pt-18 sm:pt-30 lg:pt-40">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-8">
-            <div className="inline-flex items-center px-4 py-1.5 mb-6 rounded-full bg-white/50 backdrop-blur-sm border border-primary-100 shadow-sm hover:shadow-md transition-all hover:scale-105 animate-bounce-slow">
+            <div className="inline-flex items-center px-4 py-1.5 mb-6 rounded-full bg-white/50 border border-primary-100 shadow-sm hover:shadow-md transition-all hover:scale-105 animate-bounce-slow">
               <Star className="w-4 h-4 text-yellow-500 mr-2 animate-spin-slow" fill="currentColor" />
               <span className="text-sm font-medium bg-gradient-to-r from-primary-600 to-purple-600 bg-clip-text text-transparent">
                 Empowering Tech Talent
@@ -149,7 +149,7 @@ export function Hero() {
               ].map((stat, index) => (
                 <div
                   key={index}
-                  className="p-4 rounded-xl bg-white/50 backdrop-blur-sm border border-primary-100 shadow-sm hover:shadow-md transition-all hover:scale-105 hover:bg-white/70"
+                  className="p-4 rounded-xl bg-white/50  border border-primary-100 shadow-sm hover:shadow-md transition-all hover:scale-105 hover:bg-white/70"
                 >
                   <div className={`w-12 h-12 mx-auto mb-2 rounded-lg bg-gradient-to-br ${stat.color} p-2.5 animate-pulse`}>
                     <stat.icon className="w-full h-full text-white" />
@@ -183,7 +183,7 @@ export function Hero() {
               ].map((testimonial, index) => (
                 <div 
                   key={index} 
-                  className="p-6 rounded-xl bg-white/60 backdrop-blur-sm border border-primary-100 shadow-sm hover:shadow-md transition-all hover:scale-105 hover:bg-white/80"
+                  className="p-6 rounded-xl bg-white/60  border border-primary-100 shadow-sm hover:shadow-md transition-all hover:scale-105 hover:bg-white/80"
                 >
                   <div className="flex items-center gap-3 mb-2">
                     <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white font-bold ring-2 ring-primary-200 ring-offset-2">
