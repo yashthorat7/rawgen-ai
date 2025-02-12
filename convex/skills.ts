@@ -200,7 +200,24 @@ export const deleteSkillCategory = mutation({
       )
       .first();
 
-    return { success: false, reason: "Category not found" };
+    if (!existingCategory) {
+      return { success: false, reason: "Category not found" };
+    }
+
+    // Delete the category
+    await ctx.db.delete(existingCategory._id);
+
+    // Reorder remaining skills
+    const remainingSkills = await ctx.db
+      .query("skills")
+      .withIndex("by_user", (q) => q.eq("userId", user._id))
+      .collect();
+    
+    for (let i = 0; i < remainingSkills.length; i++) {
+      await ctx.db.patch(remainingSkills[i]._id, { order: i });
+    }
+
+    return { success: true };
   },
 });
 
