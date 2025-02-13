@@ -48,6 +48,14 @@ export const update = mutation({
       throw new Error("Unauthorized to update this project");
     }
 
+    // Handle image deletion/update
+    if (args.projectImage !== undefined && project.projectImage) {
+      // If new image is null or different from existing image, delete the old one
+      if (!args.projectImage || args.projectImage !== project.projectImage) {
+        await ctx.storage.delete(project.projectImage);
+      }
+    }
+
     // Prepare update data
     const updateData: any = {
       projectName: args.title,

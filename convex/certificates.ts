@@ -179,6 +179,18 @@ export const remove = mutation({
     certificateId: v.id("certificates"),
   },
   handler: async (ctx, args) => {
+    // Get the certificate first
+    const certificate = await ctx.db.get(args.certificateId);
+    if (!certificate) {
+      throw new Error("Certificate not found");
+    }
+
+    // If certificate has an image, delete it from storage
+    if (certificate.certificateImage) {
+      await ctx.storage.delete(certificate.certificateImage);
+    }
+
+    // Delete the certificate
     await ctx.db.delete(args.certificateId);
     return { success: true };
   },
