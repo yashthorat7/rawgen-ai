@@ -327,22 +327,20 @@ const SearchResults = ({
         const skillsArray = getStringArray(user.skills);
         if (skillsArray.length === 0) return null;
         
-        // Filter skills based on search terms
-        const matchingSkills = filters.searchTerms?.length 
-          ? skillsArray.filter(skill => 
-              filters.searchTerms?.some(search => 
-                skill.toLowerCase().includes(search.toLowerCase())
-              )
-            )
-          : skillsArray;
+        // Check if any skill matches the search terms
+        const hasMatchingSkills = !filters.searchTerms?.length || skillsArray.some(skill => 
+          filters.searchTerms?.some(search => 
+            skill.toLowerCase().includes(search.toLowerCase())
+          )
+        );
         
-        if (matchingSkills.length === 0) return null;
+        if (!hasMatchingSkills) return null;
         
         return (
           <ProfileCardOverlay {...overlayProps}>
             <SkillCard
               category={user.skillCategory}
-              skills={matchingSkills}
+              skills={skillsArray}  // Pass all skills instead of just matching ones
               index={index}
               isPublicView={true}
               onReorder={undefined}
