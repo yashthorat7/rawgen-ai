@@ -1,5 +1,6 @@
-import { auth } from "@clerk/nextjs/server";
-import { redirect } from "next/navigation";
+"use client";
+
+import { useUser } from "@clerk/nextjs";
 import { Header } from "@/components/layout/Header";
 import { AiIntro } from "@/components/intro/AiIntro";
 import { PlatformProvider } from "@/lib/PlatformContext";
@@ -10,12 +11,48 @@ import { SkillGrid } from "@/components/skill/SkillGrid";
 import { ProjectGrid } from "@/components/project/ProjectGrid";
 import { CertificateGrid } from "@/components/certificate/CertificateGrid";
 import { Footer } from "@/components/layout/Footer";
+import { FeaturesDialog } from "@/components/dashboard/FeaturesDialog";
+import { useState, useEffect } from "react";
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { usePathname } from "next/navigation";
 
-export default async function DashboardPage() {
-  const { userId } = await auth();
+export default function DashboardPage() {
+  const { user, isLoaded } = useUser();
+  const email = user?.primaryEmailAddress?.emailAddress;
+  const [showFeatures, setShowFeatures] = useState(false);
+  const pathname = usePathname();
+  
+  // Fetch user data from Convex to check haslearned status
+  const userData = useQuery(api.users.getUser, 
+    email ? { email } : "skip"
+  );
 
-  if (!userId) {
-    redirect("/sign-in");
+  useEffect(() => {
+    // Only run this effect when:
+    // 1. User data is loaded and we have userData from Convex
+    // 2. We are on the dashboard page (not viewing someone else's profile)
+    if (!isLoaded || !email || userData === undefined) return;
+    
+    // Check if we're viewing our own dashboard (not someone else's profile)
+    // The dashboard route is specifically /dashboard
+    const isOwnDashboard = pathname === "/dashboard";
+    if (!isOwnDashboard) return;
+
+    // Check if the user has already gone through the features dialog
+    // haslearned will be undefined (not set) for new users or false if explicitly set to false
+    const hasLearned = userData?.haslearned === true;
+    
+    // Show features dialog if user hasn't learned yet
+    setShowFeatures(!hasLearned);
+  }, [isLoaded, email, userData, pathname]);
+
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-pulse">Loading...</div>
+      </div>
+    );
   }
 
   return (
@@ -38,6 +75,14 @@ export default async function DashboardPage() {
           </div>
         </main>
         <Footer />
+
+        {/* Features Dialog */}
+        {showFeatures && email && (
+          <FeaturesDialog 
+            onClose={() => setShowFeatures(false)} 
+            userEmail={email} 
+          />
+        )}
       </div>
     </PlatformProvider>
   );

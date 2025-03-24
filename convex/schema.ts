@@ -12,6 +12,7 @@ export default defineSchema({
         profileImage: v.optional(v.id("_storage")),
         marksheetImage: v.optional(v.id("_storage")),
         madeStars: v.optional(v.array(v.string())),
+        haslearned: v.optional(v.boolean()),
     })
         .index("by_email", ["email"])
         .index("by_username", ["username"]),

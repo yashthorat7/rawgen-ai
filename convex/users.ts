@@ -594,3 +594,25 @@ export const getMultipleByEmail = query({
     return users.filter((user): user is NonNullable<typeof user> => user !== null);
   },
 });
+
+// Update haslearned status for a user
+export const updateHasLearned = mutation({
+  args: {
+    email: v.string(),
+  },
+  handler: async (ctx, { email }) => {
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_email", q => q.eq("email", email))
+      .first();
+
+    if (!user) {
+      throw new Error(`User with email ${email} not found`);
+    }
+
+    // Update the user with haslearned set to true
+    await ctx.db.patch(user._id, { haslearned: true });
+    
+    return true;
+  }
+});

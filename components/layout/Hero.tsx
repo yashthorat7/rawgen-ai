@@ -7,6 +7,7 @@ import { Star, Code2, Trophy, Brain, Target, Users, ArrowRight } from "lucide-re
 import { useState, useEffect } from "react";
 import { useUser } from "@clerk/nextjs";
 import { UserButton } from "@clerk/nextjs";
+import { FaqAccordion } from "@/components/ui/Faq";
 
 export function Hero() {
   const [isVisible, setIsVisible] = useState(true);
@@ -204,6 +205,13 @@ export function Hero() {
           </div>
         </div>
       </div>
+
+      {/* FAQ Section */}
+      <section className="relative z-10 bg-gradient-to-b from-white/0 to-white/80 pb-20">
+        <div className="container mx-auto">
+          <FaqAccordion />
+        </div>
+      </section>
     </div>
   );
 } 
