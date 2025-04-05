@@ -53,13 +53,14 @@ export const saveProfileImage = mutation({
   }
 });
 
-// Add a platform
+// Add a platform and its data
 export const addPlatform = mutation({
   args: {
     email: v.string(),
     platformName: v.string(),
     platformUsername: v.string(),
-    platformCacheData: v.string(),
+    statsData: v.string(),
+    fullData: v.optional(v.string()), // Complete platform data (optional)
   },
   handler: async (ctx, args) => {
     try {
@@ -73,37 +74,50 @@ export const addPlatform = mutation({
         throw new Error(`User ${args.email} not found`);
       }
 
-      // Check if this exact platform+username combination exists
-      const existing = await ctx.db
+      // Check if platform already exists
+      const existingPlatform = await ctx.db
         .query("profiles")
-        .withIndex("by_platform", (q) =>
-          q.eq("platformName", args.platformName)
-            .eq("platformUsername", args.platformUsername)
+        .filter((q) =>
+          q.and(
+            q.eq(q.field("userId"), user._id),
+            q.eq(q.field("platformName"), args.platformName),
+            q.eq(q.field("platformUsername"), args.platformUsername)
+          )
         )
         .first();
 
-      if (existing) {
-        throw new Error(`Username ${args.platformUsername} already exists for platform ${args.platformName}`);
+      if (existingPlatform) {
+        throw new Error(`Platform ${args.platformName} with username ${args.platformUsername} already exists for user ${args.email}`);
       }
 
-      // Get the current highest order for this user
-      const userProfiles = await ctx.db
+      // Find current max order
+      const platformsCount = await ctx.db
         .query("profiles")
-        .withIndex("by_user", (q) => q.eq("userId", user._id))
+        .filter((q) => q.eq(q.field("userId"), user._id))
         .collect();
-      
-      const order = userProfiles.length;
 
-      // Insert the new profile with data
-      const result = await ctx.db.insert("profiles", {
+      const order = platformsCount.length;
+
+      // Insert new platform profile
+      const profileId = await ctx.db.insert("profiles", {
         userId: user._id,
         platformName: args.platformName,
         platformUsername: args.platformUsername,
-        platformCacheData: args.platformCacheData,
+        statsData: args.statsData,
         order,
       });
 
-      return result;
+      // If full data is provided, store it in platformdata table
+      if (args.fullData) {
+        await ctx.db.insert("platformdata", {
+          profileId,
+          userId: user._id,
+          fullData: args.fullData,
+          lastUpdated: Date.now(),
+        });
+      }
+
+      return profileId;
     } catch (error) {
       console.error("Mutation: Error in addPlatform:", error);
       throw error;
@@ -111,7 +125,20 @@ export const addPlatform = mutation({
   },
 });
 
-// Delete a platform
+// Get platform data for a specific profile
+export const getPlatformData = query({
+  args: {
+    profileId: v.id("profiles"),
+  },
+  handler: async (ctx, args) => {
+    return await ctx.db
+      .query("platformdata")
+      .withIndex("by_profile", (q) => q.eq("profileId", args.profileId))
+      .first();
+  },
+});
+
+// Delete a platform and its associated data
 export const deletePlatform = mutation({
   args: {
     email: v.string(),
@@ -141,6 +168,17 @@ export const deletePlatform = mutation({
       .first();
 
     if (profile) {
+      // Delete associated platform data
+      const platformData = await ctx.db
+        .query("platformdata")
+        .withIndex("by_profile", (q) => q.eq("profileId", profile._id))
+        .first();
+      
+      if (platformData) {
+        await ctx.db.delete(platformData._id);
+      }
+      
+      // Delete the profile itself
       await ctx.db.delete(profile._id);
     }
   },
@@ -199,11 +237,12 @@ export const updateProfileData = mutation({
     email: v.string(),
     platformName: v.string(),
     platformUsername: v.string(),
-    platformCacheData: v.string(),
+    statsData: v.string(),
+    fullData: v.optional(v.string()), // Complete platform data (optional)
     order: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    // Get user by email instead of username
+    // Get user by email
     const user = await ctx.db
       .query("users")
       .withIndex("by_email", (q) => q.eq("email", args.email))
@@ -225,11 +264,34 @@ export const updateProfileData = mutation({
       .first();
 
     if (profile) {
-      const updates: any = { platformCacheData: args.platformCacheData };
+      // Update profile with statsData
+      const updates: any = { statsData: args.statsData };
       if (args.order !== undefined) {
         updates.order = args.order;
       }
       await ctx.db.patch(profile._id, updates);
+
+      // Update or create platformdata entry if fullData is provided
+      if (args.fullData) {
+        const existingPlatformData = await ctx.db
+          .query("platformdata")
+          .withIndex("by_profile", (q) => q.eq("profileId", profile._id))
+          .first();
+
+        if (existingPlatformData) {
+          await ctx.db.patch(existingPlatformData._id, {
+            fullData: args.fullData,
+            lastUpdated: Date.now(),
+          });
+        } else {
+          const platformDataId = await ctx.db.insert("platformdata", {
+            profileId: profile._id,
+            userId: user._id,
+            fullData: args.fullData,
+            lastUpdated: Date.now(),
+          });
+        }
+      }
     }
   },
 });
@@ -615,4 +677,170 @@ export const updateHasLearned = mutation({
     
     return true;
   }
+});
+
+// Get full platform data for a specific username
+export const getFullPlatformDataByUsername = query({
+  args: { username: v.string() },
+  handler: async (ctx, args) => {
+    // Get user by username
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_username", q => q.eq("username", args.username))
+      .first();
+    
+    if (!user) {
+      return null;
+    }
+
+    // Get all profiles for this user
+    const profiles = await ctx.db
+      .query("profiles")
+      .withIndex("by_user", q => q.eq("userId", user._id))
+      .collect();
+
+    if (profiles.length === 0) {
+      return null;
+    }
+
+    // Get full data for each profile
+    const fullDataArray = await Promise.all(
+      profiles.map(async profile => {
+        const platformData = await ctx.db
+          .query("platformdata")
+          .withIndex("by_profile", q => q.eq("profileId", profile._id))
+          .first();
+
+        if (!platformData) {
+          return null;
+        }
+
+        return {
+          platformName: profile.platformName,
+          platformUsername: profile.platformUsername,
+          fullData: platformData.fullData,
+        };
+      })
+    );
+
+    // Filter out null values and convert to object
+    const result: {
+      leetcode: Record<string, any>;
+      codechef: Record<string, any>;
+      geeksforgeeks: Record<string, any>;
+      codeforces: Record<string, any>;
+    } = {
+      leetcode: {},
+      codechef: {},
+      geeksforgeeks: {},
+      codeforces: {},
+    };
+
+    for (const item of fullDataArray) {
+      if (item === null) continue;
+      
+      try {
+        const data = JSON.parse(item.fullData);
+        
+        switch (item.platformName) {
+          case 'leetcode':
+            result.leetcode[item.platformUsername] = data;
+            break;
+          case 'codechef':
+            result.codechef[item.platformUsername] = data;
+            break;
+          case 'geeksforgeeks':
+            result.geeksforgeeks[item.platformUsername] = data;
+            break;
+          case 'codeforces':
+            result.codeforces[item.platformUsername] = data;
+            break;
+        }
+      } catch (error) {
+        console.error(`Error parsing fullData for ${item.platformName}/${item.platformUsername}:`, error);
+      }
+    }
+
+    return result;
+  }
+});
+
+// Get all platform data for a user
+export const getAllPlatformData = query({
+  args: { email: v.string() },
+  handler: async (ctx, args) => {
+    // Get user by email
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_email", (q) => q.eq("email", args.email))
+      .first();
+
+    if (!user) {
+      return [];
+    }
+
+    // Get all profiles for this user
+    const profiles = await ctx.db
+      .query("profiles")
+      .withIndex("by_user", (q) => q.eq("userId", user._id))
+      .collect();
+
+    if (profiles.length === 0) {
+      return [];
+    }
+
+    // Get platform data for all profiles
+    const platformDataPromises = profiles.map(async (profile) => {
+      const platformData = await ctx.db
+        .query("platformdata")
+        .withIndex("by_profile", (q) => q.eq("profileId", profile._id))
+        .first();
+      
+      if (!platformData) {
+        return null;
+      }
+      
+      return platformData;
+    });
+
+    // Wait for all promises and filter out nulls
+    const allPlatformData = await Promise.all(platformDataPromises);
+    return allPlatformData.filter(data => data !== null);
+  }
+});
+
+// Get platform data by userId
+export const getPlatformDataByUserId = query({
+  args: {
+    userId: v.id("users"),
+  },
+  handler: async (ctx, args) => {
+    return await ctx.db
+      .query("platformdata")
+      .withIndex("by_user", (q) => q.eq("userId", args.userId))
+      .collect();
+  },
+});
+
+// Get platform data by email
+export const getPlatformDataByEmail = query({
+  args: {
+    email: v.string(),
+  },
+  handler: async (ctx, args) => {
+    // Get user by email
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_email", (q) => q.eq("email", args.email))
+      .first();
+
+    if (!user) {
+      return [];
+    }
+
+    return await ctx.db
+      .query("platformdata")
+      .withIndex("by_user", (q) => q.eq("userId", user._id))
+      .collect();
+  },
 });

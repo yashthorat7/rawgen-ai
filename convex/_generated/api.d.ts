@@ -15,6 +15,7 @@ import type {
 } from "convex/server";
 import type * as certificates from "../certificates.js";
 import type * as counters from "../counters.js";
+import type * as migrate from "../migrate.js";
 import type * as projects from "../projects.js";
 import type * as recruiters from "../recruiters.js";
 import type * as skills from "../skills.js";
@@ -32,6 +33,7 @@ import type * as users from "../users.js";
 declare const fullApi: ApiFromModules<{
   certificates: typeof certificates;
   counters: typeof counters;
+  migrate: typeof migrate;
   projects: typeof projects;
   recruiters: typeof recruiters;
   skills: typeof skills;

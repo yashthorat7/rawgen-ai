@@ -26,19 +26,28 @@ export default defineSchema({
         .index("by_user", ["userId"]),
 
     profiles: defineTable({
-        userId: v.id("users"),  // Reference to users table by ID
+        userId: v.id("users"),
         platformName: v.string(),
         platformUsername: v.string(),
-        platformCacheData: v.optional(v.string()), // JSON data stored as string
         order: v.number(),
+        statsData: v.optional(v.string()),
     })
         .index("by_user", ["userId"])
         .index("by_platform", ["platformName", "platformUsername"]),
 
+    platformdata: defineTable({
+        profileId: v.id("profiles"),
+        userId: v.id("users"),
+        fullData: v.string(),
+        lastUpdated: v.number(),
+    })
+        .index("by_profile", ["profileId"])
+        .index("by_user", ["userId"]),
+
     skills: defineTable({
         userId: v.id("users"),
         category: v.string(),
-        skillsData: v.string(), // JSON string containing skills data
+        skillsData: v.string(),
         order: v.number(),
     })
         .index("by_user", ["userId"])
@@ -52,7 +61,7 @@ export default defineSchema({
         projectDescription: v.string(),
         projectLink: v.string(),
         deployLink: v.optional(v.string()),
-        techStack: v.string(), // JSON stringified array
+        techStack: v.string(),
         projectImage: v.optional(v.id("_storage")),
     })
         .index("by_user", ["userId"])

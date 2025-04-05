@@ -212,8 +212,19 @@ interface UserWithData {
 }
 
 // Helper function to format platform data based on platform type
-function formatPlatformData(platform: string, data: any, skills: any[]) {
-  if (!data) return null;
+function formatPlatformData(platform: string, profile: any, skills: any[]) {
+  if (!profile) return null;
+
+  // Parse statsData (small JSON containing only essential metrics)
+  let stats: Record<string, any> = {};
+  try {
+    if (profile.statsData) {
+      stats = JSON.parse(profile.statsData);
+    }
+  } catch (e) {
+    console.error('Error parsing statsData:', e);
+    return null;
+  }
 
   // Format skills array
   const formattedSkills = skills.reduce((acc: string[], skill: any) => {
@@ -228,48 +239,54 @@ function formatPlatformData(platform: string, data: any, skills: any[]) {
   switch (platform.toLowerCase()) {
     case 'leetcode':
       return {
-        totalSolved: data.totalSolved || 0,
-        easySolved: data.easySolved || 0,
-        mediumSolved: data.mediumSolved || 0,
-        hardSolved: data.hardSolved || 0,
-        totalEasy: data.totalEasy || 0,
-        totalMedium: data.totalMedium || 0,
-        totalHard: data.totalHard || 0,
-        ranking: data.ranking || 0,
-        rank: data.ranking || 0,
+        totalSolved: stats.totalSolved || 0,
+        easySolved: stats.easySolved || 0,
+        mediumSolved: stats.mediumSolved || 0,
+        hardSolved: stats.hardSolved || 0,
+        totalEasy: stats.totalEasy || 0,
+        totalMedium: stats.totalMedium || 0,
+        totalHard: stats.totalHard || 0,
+        ranking: stats.ranking || 0,
+        rank: stats.ranking || 0,
         skills: formattedSkills
       };
     case 'codechef':
       return {
-        currentRating: data.currentRating || 0,
-        highestRating: data.highestRating || 0,
-        globalRank: data.globalRank || 0,
-        countryRank: data.countryRank || 0,
-        stars: data.stars || 0,
-        rank: data.globalRank || 0,
+        currentRating: stats.currentRating || 0,
+        highestRating: stats.highestRating || 0,
+        globalRank: stats.globalRank || 0,
+        countryRank: stats.countryRank || 0,
+        stars: stats.stars || 0,
+        rank: stats.globalRank || 0,
+        countryName: stats.countryName || '',
+        totalContests: stats.totalContests || 0,
         skills: formattedSkills
       };
     case 'geeksforgeeks':
       return {
-        codingScore: data.codingScore || 0,
-        problemsSolved: data.problemsSolved || 0,
-        monthlyCoding: data.monthlyCoding || 0,
-        rank: data.rank || 0,
+        codingScore: stats.codingScore || 0,
+        problemsSolved: stats.problemsSolved || 0,
+        monthlyCoding: stats.currentStreak || 0,
+        currentStreak: stats.currentStreak || 0,
+        rank: stats.rank || 0,
+        easyProblems: stats.easyProblems || 0,
+        mediumProblems: stats.mediumProblems || 0,
+        hardProblems: stats.hardProblems || 0,
         skills: formattedSkills
       };
     case 'codeforces':
       return {
-        rating: data.rating || 0,
-        maxRating: data.maxRating || 0,
-        rank: data.rank || 0,
-        maxRank: data.maxRank || 0,
-        contribution: data.contribution || 0,
-        friendOfCount: data.friendOfCount || 0,
+        rating: stats.rating || 0,
+        maxRating: stats.maxRating || 0,
+        rank: stats.rank || 0,
+        maxRank: stats.maxRank || 0,
+        contribution: stats.contribution || 0,
+        friendOfCount: stats.friendOfCount || 0,
         skills: formattedSkills
       };
     default:
       return {
-        ...data,
+        ...stats,
         skills: formattedSkills
       };
   }
@@ -518,69 +535,7 @@ export const searchUsers = query({
             // Parse platform data
             let platformData = null;
             try {
-              const rawData = profile.platformCacheData ? JSON.parse(profile.platformCacheData) : null;
-              if (!rawData) return null;
-
-              // Format platform data based on platform type
-              const platform = profile.platformName.toLowerCase();
-              switch (platform) {
-                case 'leetcode':
-                  platformData = {
-                    totalSolved: rawData.totalSolved || 0,
-                    easySolved: rawData.easySolved || 0,
-                    mediumSolved: rawData.mediumSolved || 0,
-                    hardSolved: rawData.hardSolved || 0,
-                    totalEasy: rawData.totalEasy || 0,
-                    totalMedium: rawData.totalMedium || 0,
-                    totalHard: rawData.totalHard || 0,
-                    ranking: rawData.ranking || 0,
-                    rank: rawData.ranking || 0,
-                    submitStats: rawData.submitStats || {
-                      acSubmissionNum: [],
-                      totalSubmissionNum: []
-                    }
-                  };
-                  break;
-                case 'codechef':
-                  platformData = {
-                    currentRating: rawData.currentRating || 0,
-                    highestRating: rawData.highestRating || 0,
-                    globalRank: rawData.globalRank || 0,
-                    countryRank: rawData.countryRank || 0,
-                    stars: rawData.stars || 0,
-                    rank: rawData.globalRank || 0,
-                    submissionStats: rawData.submissionStats || [],
-                    totalContests: rawData.totalContests || 0,
-                    countryName: rawData.countryName || ''
-                  };
-                  break;
-                case 'geeksforgeeks':
-                  platformData = {
-                    codingScore: rawData.codingScore || 0,
-                    problemsSolved: rawData.problemsSolved || 0,
-                    monthlyCoding: rawData.monthlyCoding || 0,
-                    rank: rawData.rank || 0,
-                    totalProblems: rawData.totalProblems || 0,
-                    schoolProblems: rawData.schoolProblems || 0,
-                    basicProblems: rawData.basicProblems || 0,
-                    easyProblems: rawData.easyProblems || 0,
-                    mediumProblems: rawData.mediumProblems || 0,
-                    hardProblems: rawData.hardProblems || 0
-                  };
-                  break;
-                case 'codeforces':
-                  platformData = {
-                    rating: rawData.rating || 0,
-                    maxRating: rawData.maxRating || 0,
-                    rank: rawData.rank || 0,
-                    maxRank: rawData.maxRank || 0,
-                    contribution: rawData.contribution || 0,
-                    friendOfCount: rawData.friendOfCount || 0
-                  };
-                  break;
-                default:
-                  platformData = rawData;
-              }
+              platformData = formatPlatformData(profile.platformName.toLowerCase(), profile, []);
             } catch (e) {
               console.error('Error parsing platform data:', e);
               return null;
@@ -589,14 +544,23 @@ export const searchUsers = query({
             // Calculate normalized rank based on platform type
             let normalizedRank = 0;
             try {
-              const rawData = profile.platformCacheData ? JSON.parse(profile.platformCacheData) : null;
-              if (!rawData) return null;
-
               const platform = profile.platformName.toLowerCase();
+              
+              // Parse statsData
+              let stats: Record<string, any> = {};
+              try {
+                if (profile.statsData) {
+                  stats = JSON.parse(profile.statsData);
+                }
+              } catch (e) {
+                console.error('Error parsing statsData for rank calculation:', e);
+                return null;
+              }
+              
               switch (platform) {
                 case 'leetcode':
                   // Lower ranking is better
-                  normalizedRank = rawData.ranking || Infinity;
+                  normalizedRank = stats.ranking || Infinity;
                   platformData = {
                     ...platformData,
                     normalizedRank,
@@ -605,7 +569,7 @@ export const searchUsers = query({
                   break;
                 case 'codechef':
                   // Higher rating is better, invert for consistent sorting
-                  normalizedRank = -(rawData.currentRating || 0);
+                  normalizedRank = -(stats.currentRating || 0);
                   platformData = {
                     ...platformData,
                     normalizedRank,
@@ -614,7 +578,7 @@ export const searchUsers = query({
                   break;
                 case 'codeforces':
                   // Higher rating is better, invert for consistent sorting
-                  normalizedRank = -(rawData.rating || 0);
+                  normalizedRank = -(stats.rating || 0);
                   platformData = {
                     ...platformData,
                     normalizedRank,
@@ -623,7 +587,7 @@ export const searchUsers = query({
                   break;
                 case 'geeksforgeeks':
                   // Higher coding score is better, invert for consistent sorting
-                  normalizedRank = -(rawData.codingScore || 0);
+                  normalizedRank = -(stats.codingScore || 0);
                   platformData = {
                     ...platformData,
                     normalizedRank,
@@ -632,7 +596,7 @@ export const searchUsers = query({
                   break;
               }
             } catch (e) {
-              console.error('Error parsing platform data:', e);
+              console.error('Error calculating normalized rank:', e);
               return null;
             }
 
@@ -891,69 +855,7 @@ export const searchUsers = query({
         // Parse platform data
         let platformData = null;
         try {
-          const rawData = profile.platformCacheData ? JSON.parse(profile.platformCacheData) : null;
-          if (!rawData) return null;
-
-          // Format platform data based on platform type
-          const platform = profile.platformName.toLowerCase();
-          switch (platform) {
-            case 'leetcode':
-              platformData = {
-                totalSolved: rawData.totalSolved || 0,
-                easySolved: rawData.easySolved || 0,
-                mediumSolved: rawData.mediumSolved || 0,
-                hardSolved: rawData.hardSolved || 0,
-                totalEasy: rawData.totalEasy || 0,
-                totalMedium: rawData.totalMedium || 0,
-                totalHard: rawData.totalHard || 0,
-                ranking: rawData.ranking || 0,
-                rank: rawData.ranking || 0,
-                submitStats: rawData.submitStats || {
-                  acSubmissionNum: [],
-                  totalSubmissionNum: []
-                }
-              };
-              break;
-            case 'codechef':
-              platformData = {
-                currentRating: rawData.currentRating || 0,
-                highestRating: rawData.highestRating || 0,
-                globalRank: rawData.globalRank || 0,
-                countryRank: rawData.countryRank || 0,
-                stars: rawData.stars || 0,
-                rank: rawData.globalRank || 0,
-                submissionStats: rawData.submissionStats || [],
-                totalContests: rawData.totalContests || 0,
-                countryName: rawData.countryName || ''
-              };
-              break;
-            case 'geeksforgeeks':
-              platformData = {
-                codingScore: rawData.codingScore || 0,
-                problemsSolved: rawData.problemsSolved || 0,
-                monthlyCoding: rawData.monthlyCoding || 0,
-                rank: rawData.rank || 0,
-                totalProblems: rawData.totalProblems || 0,
-                schoolProblems: rawData.schoolProblems || 0,
-                basicProblems: rawData.basicProblems || 0,
-                easyProblems: rawData.easyProblems || 0,
-                mediumProblems: rawData.mediumProblems || 0,
-                hardProblems: rawData.hardProblems || 0
-              };
-              break;
-            case 'codeforces':
-              platformData = {
-                rating: rawData.rating || 0,
-                maxRating: rawData.maxRating || 0,
-                rank: rawData.rank || 0,
-                maxRank: rawData.maxRank || 0,
-                contribution: rawData.contribution || 0,
-                friendOfCount: rawData.friendOfCount || 0
-              };
-              break;
-            default:
-              platformData = rawData;
-          }
+          platformData = formatPlatformData(profile.platformName.toLowerCase(), profile, []);
         } catch (e) {
           return null;
         }
