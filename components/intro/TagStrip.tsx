@@ -3,6 +3,10 @@
 import { usePlatforms } from "@/lib/PlatformContext";
 import { useEffect, useState, useCallback } from "react";
 import Groq from "groq-sdk";
+import { ConvexHttpClient } from "convex/browser";
+import { api } from "@/convex/_generated/api";
+import { useUser } from "@clerk/nextjs";
+import { LeetCodeData, CodeChefData, GeeksForGeeksData, CodeforcesData } from "@/lib/types";
 
 // Initialize Groq only if API key is available
 const groq = process.env.NEXT_PUBLIC_GROQ_API_KEY ? new Groq({
@@ -10,10 +14,19 @@ const groq = process.env.NEXT_PUBLIC_GROQ_API_KEY ? new Groq({
   dangerouslyAllowBrowser: true,
 }) : null;
 
+const convexHttp = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
+
 type Tag = {
   text: string;
   id: number;
 };
+
+interface DirectDataType {
+  leetcode: Record<string, LeetCodeData>;
+  codechef: Record<string, CodeChefData>;
+  geeksforgeeks: Record<string, GeeksForGeeksData>;
+  codeforces: Record<string, CodeforcesData>;
+}
 
 export interface TagStripProps {
   username?: string;
@@ -22,22 +35,98 @@ export interface TagStripProps {
 
 export function TagStrip({ username, isPublicView = false }: TagStripProps) {
   const { platformData, platforms } = usePlatforms();
+  const { user } = useUser();
   const [tags, setTags] = useState<Tag[]>([]);
   const [hasFetchedTags, setHasFetchedTags] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [directData, setDirectData] = useState<DirectDataType>({
+    leetcode: {},
+    codechef: {},
+    geeksforgeeks: {},
+    codeforces: {}
+  });
 
   useEffect(() => {
     setHasFetchedTags(false);
   }, [platforms.length]);
 
+  // Directly fetch platform data using the userId index
+  useEffect(() => {
+    if (isPublicView || hasFetchedTags || !user?.primaryEmailAddress?.emailAddress) {
+      return;
+    }
+
+    const fetchDirectData = async () => {
+      try {
+        const email = user?.primaryEmailAddress?.emailAddress;
+        if (!email) return;
+        
+        const data = await convexHttp.query(api.users.getPlatformDataByEmail, { email });
+
+        if (!data || !Array.isArray(data) || data.length === 0) {
+          return;
+        }
+
+        const newData: DirectDataType = {
+          leetcode: {},
+          codechef: {},
+          geeksforgeeks: {},
+          codeforces: {}
+        };
+
+        for (const item of data) {
+          try {
+            const parsedData = JSON.parse(item.fullData);
+            // Get the profile to know what platform this is for
+            const profiles = await convexHttp.query(api.users.getProfiles, { email });
+            const profile = profiles.find(p => p._id === item.profileId);
+
+            if (!profile) continue;
+
+            switch (profile.platformName) {
+              case 'leetcode':
+                newData.leetcode[profile.platformUsername] = parsedData as LeetCodeData;
+                break;
+              case 'codechef':
+                newData.codechef[profile.platformUsername] = parsedData as CodeChefData;
+                break;
+              case 'geeksforgeeks':
+                newData.geeksforgeeks[profile.platformUsername] = parsedData as GeeksForGeeksData;
+                break;
+              case 'codeforces':
+                newData.codeforces[profile.platformUsername] = parsedData as CodeforcesData;
+                break;
+            }
+          } catch (error) {
+            console.error("Error parsing platform data:", error);
+          }
+        }
+
+        setDirectData(newData);
+      } catch (error) {
+        console.error("Error fetching direct platform data:", error);
+      }
+    };
+
+    fetchDirectData();
+  }, [user?.primaryEmailAddress?.emailAddress, isPublicView, hasFetchedTags]);
+
   const generateTags = useCallback(async () => {
     if (hasFetchedTags || !groq) return;
 
     try {
-      const leetcodeUsers = platformData?.leetcode ? Object.values(platformData.leetcode) : [];
-      const codechefUsers = platformData?.codechef ? Object.values(platformData.codechef) : [];
-      const gfgUsers = platformData?.geeksforgeeks ? Object.values(platformData.geeksforgeeks) : [];
-      const codeforcesUsers = platformData?.codeforces ? Object.values(platformData.codeforces) : [];
+      // Prepare platform data - prefer direct data if available, fall back to context data
+      const mergedData = {
+        leetcode: { ...platformData?.leetcode, ...directData.leetcode },
+        codechef: { ...platformData?.codechef, ...directData.codechef },
+        geeksforgeeks: { ...platformData?.geeksforgeeks, ...directData.geeksforgeeks },
+        codeforces: { ...platformData?.codeforces, ...directData.codeforces }
+      };
+      
+      const leetcodeUsers = Object.values(mergedData.leetcode || {});
+      const codechefUsers = Object.values(mergedData.codechef || {});
+      const gfgUsers = Object.values(mergedData.geeksforgeeks || {});
+      const codeforcesUsers = Object.values(mergedData.codeforces || {});
 
       if (leetcodeUsers.length === 0 && codechefUsers.length === 0 &&
         gfgUsers.length === 0 && codeforcesUsers.length === 0) {
@@ -58,7 +147,7 @@ export function TagStrip({ username, isPublicView = false }: TagStripProps) {
               - Ranking: ${user.ranking}
               - Contest Rating: ${user.contestStats?.rating || 'N/A'}
               - Contest Rank: Top ${user.contestStats?.topPercentage || 'N/A'}%
-              - Contests Participated: ${user.contestStats?.attendedContestsCount || user.contests.length}
+              - Contests Participated: ${user.contestStats?.attendedContestsCount || user.contests?.length || 0}
             ` : '').join('\n')}
             
             ${codechefUsers.map(user => user ? `
@@ -88,7 +177,7 @@ export function TagStrip({ username, isPublicView = false }: TagStripProps) {
             
             Generate a list of 15 to 40 concise and meaningful tags that summarize the user's coding activity and achievements based on their data from coding platforms. The tags should be short (one to three words each) and highlight key aspects such as platform-specific performance (e.g., "LeetCode Expert," "CodeChef 5-Star"), problem-solving metrics by difficulty (e.g., "1000 Easy Solved," "50 Hard Problems"), contest performance (e.g., "1500 Contest Rating," "Top 5% Rank"), coding patterns (e.g., "Dynamic Programming," "Backtracking," "Divide and Conquer"), data structures (e.g., "Graph Algorithms," "Binary Trees," "HashMap Solutions"), achievements and scores (e.g., "Top Coder," "95% Accuracy"), and areas of skill specialization (e.g., "Bit Manipulation Expert," "Algorithmic Thinking"). Avoid tags with values of 0, "None," or irrelevant/unhelpful information. Focus on meaningful insights only.
 
-            Output the tags as an array of strings, where each tag is separated by commas. Ensure the tags are descriptive, concise, and formatted with spaces between words (e.g., "Greedy Algorithm," not "GreedyAlgorithm"). Avoid duplicates and ensure the tags provide a diverse and compact summary of the user’s coding achievements and skills.
+            Output the tags as an array of strings, where each tag is separated by commas. Ensure the tags are descriptive, concise, and formatted with spaces between words (e.g., "Greedy Algorithm," not "GreedyAlgorithm"). Avoid duplicates and ensure the tags provide a diverse and compact summary of the user's coding achievements and skills.
 
             Example output: ["Dynamic Programming", "Top 5% Rank", "Graph Algorithms", "HashMap Solutions", "LeetCode Medium Expert", "Contest Champion", "Bit Manipulation", "Divide and Conquer", "Trie Applications"]`,
           },
@@ -124,7 +213,7 @@ export function TagStrip({ username, isPublicView = false }: TagStripProps) {
       setError('Failed to generate tags');
       setTags([]);
     }
-  }, [platformData, hasFetchedTags]);
+  }, [platformData, directData, hasFetchedTags]);
 
   useEffect(() => {
     generateTags();

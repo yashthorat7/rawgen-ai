@@ -3,26 +3,107 @@
 import { useState, useEffect, useCallback } from "react";
 import { usePlatforms } from "@/lib/PlatformContext";
 import Groq from "groq-sdk";
+import { ConvexHttpClient } from "convex/browser";
+import { api } from "@/convex/_generated/api";
+import { useUser } from "@clerk/nextjs";
+import { LeetCodeData, CodeChefData, GeeksForGeeksData, CodeforcesData } from "@/lib/types";
 
 const groq = new Groq({
   apiKey: process.env.NEXT_PUBLIC_GROQ_API_KEY!,
   dangerouslyAllowBrowser: true,
 });
 
+const convexHttp = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
+
 export interface AiIntroProps {
   username?: string;
   isPublicView?: boolean;
 }
 
+interface DirectDataType {
+  leetcode: Record<string, LeetCodeData>;
+  codechef: Record<string, CodeChefData>;
+  geeksforgeeks: Record<string, GeeksForGeeksData>;
+  codeforces: Record<string, CodeforcesData>;
+}
+
 export function AiIntro({ username, isPublicView = false }: AiIntroProps) {
   const { platformData, platforms, isInitialLoading } = usePlatforms();
+  const { user } = useUser();
   const [advice, setAdvice] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [hasFetchedAdvice, setHasFetchedAdvice] = useState(false);
+  const [directData, setDirectData] = useState<DirectDataType>({
+    leetcode: {},
+    codechef: {},
+    geeksforgeeks: {},
+    codeforces: {}
+  });
 
   useEffect(() => {
     setHasFetchedAdvice(false);
   }, [platforms.length]);
+
+  // Directly fetch platform data using the userId index
+  useEffect(() => {
+    if (isPublicView || hasFetchedAdvice || !user?.primaryEmailAddress?.emailAddress) {
+      return;
+    }
+
+    const fetchDirectData = async () => {
+      try {
+        const email = user?.primaryEmailAddress?.emailAddress;
+        if (!email) return;
+        
+        const data = await convexHttp.query(api.users.getPlatformDataByEmail, { email });
+
+        if (!data || !Array.isArray(data) || data.length === 0) {
+          return;
+        }
+
+        const newData: DirectDataType = {
+          leetcode: {},
+          codechef: {},
+          geeksforgeeks: {},
+          codeforces: {}
+        };
+
+        for (const item of data) {
+          try {
+            const parsedData = JSON.parse(item.fullData);
+            // Get the profile to know what platform this is for
+            const profiles = await convexHttp.query(api.users.getProfiles, { email });
+            const profile = profiles.find(p => p._id === item.profileId);
+
+            if (!profile) continue;
+
+            switch (profile.platformName) {
+              case 'leetcode':
+                newData.leetcode[profile.platformUsername] = parsedData as LeetCodeData;
+                break;
+              case 'codechef':
+                newData.codechef[profile.platformUsername] = parsedData as CodeChefData;
+                break;
+              case 'geeksforgeeks':
+                newData.geeksforgeeks[profile.platformUsername] = parsedData as GeeksForGeeksData;
+                break;
+              case 'codeforces':
+                newData.codeforces[profile.platformUsername] = parsedData as CodeforcesData;
+                break;
+            }
+          } catch (error) {
+            console.error("Error parsing platform data:", error);
+          }
+        }
+
+        setDirectData(newData);
+      } catch (error) {
+        console.error("Error fetching direct platform data:", error);
+      }
+    };
+
+    fetchDirectData();
+  }, [user?.primaryEmailAddress?.emailAddress, isPublicView, hasFetchedAdvice]);
 
   const generateAdvice = useCallback(async () => {
     if (hasFetchedAdvice) return;
@@ -30,11 +111,18 @@ export function AiIntro({ username, isPublicView = false }: AiIntroProps) {
     setAdvice("");
 
     try {
-      // Prepare platform data for the AI
-      const leetcodeUsers = platformData?.leetcode ? Object.values(platformData.leetcode) : [];
-      const codechefUsers = platformData?.codechef ? Object.values(platformData.codechef) : [];
-      const gfgUsers = platformData?.geeksforgeeks ? Object.values(platformData.geeksforgeeks) : [];
-      const codeforcesUsers = platformData?.codeforces ? Object.values(platformData.codeforces) : [];
+      // Prepare platform data - prefer direct data if available, fall back to context data
+      const mergedData = {
+        leetcode: { ...platformData?.leetcode, ...directData.leetcode },
+        codechef: { ...platformData?.codechef, ...directData.codechef },
+        geeksforgeeks: { ...platformData?.geeksforgeeks, ...directData.geeksforgeeks },
+        codeforces: { ...platformData?.codeforces, ...directData.codeforces }
+      };
+      
+      const leetcodeUsers = Object.values(mergedData.leetcode || {});
+      const codechefUsers = Object.values(mergedData.codechef || {});
+      const gfgUsers = Object.values(mergedData.geeksforgeeks || {});
+      const codeforcesUsers = Object.values(mergedData.codeforces || {});
 
       // If no platform data is available, show a message
       if (leetcodeUsers.length === 0 && codechefUsers.length === 0 &&
@@ -61,7 +149,7 @@ export function AiIntro({ username, isPublicView = false }: AiIntroProps) {
               CodeChef:
               - Rating: ${user.currentRating} (${user.stars})
               - Global Rank: ${user.globalRank}
-              - Contests Participated: ${user.contests}
+              - Contests Participated: ${user.totalContests}
             ` : '').join('\n')}
             
             ${gfgUsers.map(user => user ? `
@@ -97,7 +185,7 @@ export function AiIntro({ username, isPublicView = false }: AiIntroProps) {
     } finally {
       setIsLoading(false);
     }
-  }, [platformData, hasFetchedAdvice]);
+  }, [platformData, directData, hasFetchedAdvice]);
 
   useEffect(() => {
     generateAdvice();

@@ -206,7 +206,6 @@ export function AddCertificateDialog({
 
       handleClose();
     } catch (error) {
-      console.error(`Failed to ${mode} certificate:`, error);
       setIsLoading(false);
     }
   };
