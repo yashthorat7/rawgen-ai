@@ -182,4 +182,18 @@ export async function extractLeetCodeData(username: string): Promise<LeetCodeDat
     console.error('Error fetching LeetCode data:', error);
     return null;
   }
+}
+
+// New function to extract only essential data for platform cards
+export function extractEssentialLeetCodeData(data: LeetCodeData): Record<string, any> {
+  return {
+    ranking: data.ranking || 0,
+    totalSolved: data.totalSolved || 0,
+    easySolved: data.easySolved || 0,
+    mediumSolved: data.mediumSolved || 0,
+    hardSolved: data.hardSolved || 0,
+    totalEasy: data.totalEasy || 0,
+    totalMedium: data.totalMedium || 0,
+    totalHard: data.totalHard || 0,
+  };
 } 

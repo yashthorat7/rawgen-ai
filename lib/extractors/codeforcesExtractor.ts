@@ -91,4 +91,16 @@ export async function extractCodeforcesData(username: string): Promise<Codeforce
     console.error('Error fetching Codeforces data:', error);
     return null;
   }
+}
+
+// New function to extract only essential data for platform cards
+export function extractEssentialCodeforcesData(data: CodeforcesData): Record<string, any> {
+  return {
+    rank: data.rank || '',
+    rating: data.rating || 0,
+    maxRating: data.maxRating || 0,
+    maxRank: data.maxRank || '',
+    contribution: data.contribution || 0,
+    friendOfCount: data.friendOfCount || 0,
+  };
 } 

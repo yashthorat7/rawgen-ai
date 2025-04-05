@@ -111,4 +111,17 @@ export async function extractCodeChefData(username: string): Promise<CodeChefDat
     console.error('Error fetching CodeChef data:', error);
     return null;
   }
+}
+
+// New function to extract only essential data for platform cards
+export function extractEssentialCodeChefData(data: CodeChefData): Record<string, any> {
+  return {
+    stars: data.stars || 0,
+    currentRating: data.currentRating || 0,
+    highestRating: data.highestRating || 0,
+    globalRank: data.globalRank || 0,
+    countryRank: data.countryRank || 0,
+    countryName: data.countryName || '',
+    totalContests: data.totalContests || 0,
+  };
 } 

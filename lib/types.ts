@@ -300,6 +300,7 @@ export type PlatformContextType = {
   addPlatform: (platform: string, username: string) => void;
   removePlatform: (platform: string, username: string) => void;
   reorderPlatforms: (fromIndex: number, toIndex: number) => void;
+  forceRefreshAllPlatforms: () => Promise<void>;
 };
 
 export type SocialLinks = {

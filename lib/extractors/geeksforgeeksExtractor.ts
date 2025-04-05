@@ -86,3 +86,16 @@ export async function extractGeeksForGeeksData(username: string): Promise<GeeksF
     return null;
   }
 }
+
+// New function to extract only essential data for platform cards
+export function extractEssentialGeeksForGeeksData(data: GeeksForGeeksData): Record<string, any> {
+  return {
+    codingScore: data.codingScore || 0,
+    problemsSolved: data.problemsSolved || 0,
+    easyProblems: data.easyProblems || 0,
+    mediumProblems: data.mediumProblems || 0,
+    hardProblems: data.hardProblems || 0,
+    currentStreak: data.currentStreak || 0,
+    rank: data.institutionRank || 0,
+  };
+}
