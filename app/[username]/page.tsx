@@ -14,10 +14,15 @@ import { Footer } from "@/components/layout/Footer";
 
 const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 
-export default async function ProfilePage({ params }: { params: { username: string } }) {
+interface PageProps {
+  params: Promise<{ username: string }>;
+}
+
+export default async function ProfilePage({ params }: PageProps) {
   try {
-    // Extract and decode username once at the beginning
-    const decodedUsername = decodeURIComponent(params.username);
+    // Await params before using them
+    const resolvedParams = await params;
+    const decodedUsername = decodeURIComponent(resolvedParams.username);
     
     // This will be a public view of a user's profile
     // We'll fetch the user's data using their username
