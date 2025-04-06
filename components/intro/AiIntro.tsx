@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { usePlatforms } from "@/lib/PlatformContext";
 import Groq from "groq-sdk";
 import { ConvexHttpClient } from "convex/browser";
@@ -33,12 +33,14 @@ export function AiIntro({ username, isPublicView = false }: AiIntroProps) {
   const [advice, setAdvice] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [hasFetchedAdvice, setHasFetchedAdvice] = useState(false);
+  const [isFetchingData, setIsFetchingData] = useState(false);
   const [directData, setDirectData] = useState<DirectDataType>({
     leetcode: {},
     codechef: {},
     geeksforgeeks: {},
     codeforces: {}
   });
+  const generateRequestInProgress = useRef(false);
 
   useEffect(() => {
     setHasFetchedAdvice(false);
@@ -46,18 +48,25 @@ export function AiIntro({ username, isPublicView = false }: AiIntroProps) {
 
   // Directly fetch platform data using the userId index
   useEffect(() => {
-    if (isPublicView || hasFetchedAdvice || !user?.primaryEmailAddress?.emailAddress) {
+    if (hasFetchedAdvice || (isPublicView && Object.keys(platformData || {}).length > 0)) {
       return;
     }
 
     const fetchDirectData = async () => {
+      if (isFetchingData) return;
+      setIsFetchingData(true);
+      
       try {
         const email = user?.primaryEmailAddress?.emailAddress;
-        if (!email) return;
+        if (!email && !isPublicView) return;
         
-        const data = await convexHttp.query(api.users.getPlatformDataByEmail, { email });
+        // For public view, use the username parameter if provided
+        const data = isPublicView && username 
+          ? await convexHttp.query(api.users.getFullPlatformDataByUsername, { username })
+          : await convexHttp.query(api.users.getPlatformDataByEmail, { email: email || '' });
 
         if (!data || !Array.isArray(data) || data.length === 0) {
+          setIsFetchingData(false);
           return;
         }
 
@@ -72,8 +81,22 @@ export function AiIntro({ username, isPublicView = false }: AiIntroProps) {
           try {
             const parsedData = JSON.parse(item.fullData);
             // Get the profile to know what platform this is for
-            const profiles = await convexHttp.query(api.users.getProfiles, { email });
-            const profile = profiles.find(p => p._id === item.profileId);
+            const profilesResult = isPublicView && username
+              ? await convexHttp.query(api.users.getUserByUsername, { username })
+              : await convexHttp.query(api.users.getProfiles, { email: email || '' });
+            
+            // For public view, we get a user object with profiles property
+            // For private view, we get an array of profiles directly
+            let profilesList: any[] = [];
+            if (isPublicView && username && profilesResult) {
+              if (profilesResult && typeof profilesResult === 'object' && 'profiles' in profilesResult) {
+                profilesList = profilesResult.profiles;
+              }
+            } else if (Array.isArray(profilesResult)) {
+              profilesList = profilesResult;
+            }
+            
+            const profile = profilesList.find((p: { _id: string }) => p._id === item.profileId);
 
             if (!profile) continue;
 
@@ -99,17 +122,19 @@ export function AiIntro({ username, isPublicView = false }: AiIntroProps) {
         setDirectData(newData);
       } catch (error) {
         console.error("Error fetching direct platform data:", error);
+      } finally {
+        setIsFetchingData(false);
       }
     };
 
     fetchDirectData();
-  }, [user?.primaryEmailAddress?.emailAddress, isPublicView, hasFetchedAdvice]);
+  }, [user?.primaryEmailAddress?.emailAddress, username, isPublicView, platformData, hasFetchedAdvice, isFetchingData]);
 
   const generateAdvice = useCallback(async () => {
-    if (hasFetchedAdvice) return;
+    if (hasFetchedAdvice || generateRequestInProgress.current) return;
+    generateRequestInProgress.current = true;
     setIsLoading(true);
-    setAdvice("");
-
+    
     try {
       // Prepare platform data - prefer direct data if available, fall back to context data
       const mergedData = {
@@ -130,6 +155,7 @@ export function AiIntro({ username, isPublicView = false }: AiIntroProps) {
         setAdvice("Nothing has been added yet!");
         setIsLoading(false);
         setHasFetchedAdvice(true);
+        generateRequestInProgress.current = false;
         return;
       }
 
@@ -184,12 +210,18 @@ export function AiIntro({ username, isPublicView = false }: AiIntroProps) {
       setAdvice("I couldn't generate summary at this moment. Please try again later.");
     } finally {
       setIsLoading(false);
+      generateRequestInProgress.current = false;
     }
   }, [platformData, directData, hasFetchedAdvice]);
 
   useEffect(() => {
-    generateAdvice();
-  }, [generateAdvice]);
+    // Only generate advice when we have data from either source and not already fetching
+    if ((!isInitialLoading && !isFetchingData) && 
+        (Object.values(directData).some(platform => Object.keys(platform).length > 0) || 
+        Object.values(platformData || {}).some(platform => Object.keys(platform || {}).length > 0))) {
+      generateAdvice();
+    }
+  }, [generateAdvice, directData, platformData, isInitialLoading, isFetchingData]);
 
   return (
     <div className="mt-5 mb-4">
@@ -199,7 +231,7 @@ export function AiIntro({ username, isPublicView = false }: AiIntroProps) {
                      before:animate-[gradient_4s_linear_infinite]
                      after:absolute after:inset-[2px] after:rounded-lg after:bg-[#f7f7fd] sm:after:bg-[#f8f8fc] after:z-[2]"
            style={{ "--gradient-angle": "0deg" } as React.CSSProperties}>
-        {isInitialLoading || isLoading ? (
+        {isInitialLoading || isLoading || isFetchingData ? (
           <div className="relative z-[3] w-full">
             <div className="h-4 bg-gray-200 rounded animate-pulse mb-2"></div>
             <div className="h-4 bg-gray-200 rounded animate-pulse w-3/4"></div>

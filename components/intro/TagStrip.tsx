@@ -1,7 +1,7 @@
 "use client";
 
 import { usePlatforms } from "@/lib/PlatformContext";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import Groq from "groq-sdk";
 import { ConvexHttpClient } from "convex/browser";
 import { api } from "@/convex/_generated/api";
@@ -38,6 +38,7 @@ export function TagStrip({ username, isPublicView = false }: TagStripProps) {
   const { user } = useUser();
   const [tags, setTags] = useState<Tag[]>([]);
   const [hasFetchedTags, setHasFetchedTags] = useState(false);
+  const [isFetchingData, setIsFetchingData] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [directData, setDirectData] = useState<DirectDataType>({
     leetcode: {},
@@ -45,6 +46,7 @@ export function TagStrip({ username, isPublicView = false }: TagStripProps) {
     geeksforgeeks: {},
     codeforces: {}
   });
+  const generateRequestInProgress = useRef(false);
 
   useEffect(() => {
     setHasFetchedTags(false);
@@ -52,18 +54,24 @@ export function TagStrip({ username, isPublicView = false }: TagStripProps) {
 
   // Directly fetch platform data using the userId index
   useEffect(() => {
-    if (isPublicView || hasFetchedTags || !user?.primaryEmailAddress?.emailAddress) {
+    if (hasFetchedTags || (isPublicView && Object.keys(platformData || {}).length > 0)) {
       return;
     }
 
     const fetchDirectData = async () => {
+      if (isFetchingData) return;
+      setIsFetchingData(true);
+      
       try {
         const email = user?.primaryEmailAddress?.emailAddress;
-        if (!email) return;
+        if (!email && !isPublicView) return;
         
-        const data = await convexHttp.query(api.users.getPlatformDataByEmail, { email });
+        const data = isPublicView && username 
+          ? await convexHttp.query(api.users.getFullPlatformDataByUsername, { username })
+          : await convexHttp.query(api.users.getPlatformDataByEmail, { email: email || '' });
 
         if (!data || !Array.isArray(data) || data.length === 0) {
+          setIsFetchingData(false);
           return;
         }
 
@@ -78,8 +86,22 @@ export function TagStrip({ username, isPublicView = false }: TagStripProps) {
           try {
             const parsedData = JSON.parse(item.fullData);
             // Get the profile to know what platform this is for
-            const profiles = await convexHttp.query(api.users.getProfiles, { email });
-            const profile = profiles.find(p => p._id === item.profileId);
+            const profilesResult = isPublicView && username
+              ? await convexHttp.query(api.users.getUserByUsername, { username })
+              : await convexHttp.query(api.users.getProfiles, { email: email || '' });
+            
+            // For public view, we get a user object with profiles property
+            // For private view, we get an array of profiles directly  
+            let profilesList: any[] = [];
+            if (isPublicView && username && profilesResult) {
+              if (profilesResult && typeof profilesResult === 'object' && 'profiles' in profilesResult) {
+                profilesList = profilesResult.profiles;
+              }
+            } else if (Array.isArray(profilesResult)) {
+              profilesList = profilesResult;
+            }
+            
+            const profile = profilesList.find((p: { _id: string }) => p._id === item.profileId);
 
             if (!profile) continue;
 
@@ -105,14 +127,17 @@ export function TagStrip({ username, isPublicView = false }: TagStripProps) {
         setDirectData(newData);
       } catch (error) {
         console.error("Error fetching direct platform data:", error);
+      } finally {
+        setIsFetchingData(false);
       }
     };
 
     fetchDirectData();
-  }, [user?.primaryEmailAddress?.emailAddress, isPublicView, hasFetchedTags]);
+  }, [user?.primaryEmailAddress?.emailAddress, username, isPublicView, platformData, hasFetchedTags, isFetchingData]);
 
   const generateTags = useCallback(async () => {
-    if (hasFetchedTags || !groq) return;
+    if (hasFetchedTags || !groq || generateRequestInProgress.current) return;
+    generateRequestInProgress.current = true;
 
     try {
       // Prepare platform data - prefer direct data if available, fall back to context data
@@ -132,6 +157,7 @@ export function TagStrip({ username, isPublicView = false }: TagStripProps) {
         gfgUsers.length === 0 && codeforcesUsers.length === 0) {
         setTags([]);
         setHasFetchedTags(true);
+        generateRequestInProgress.current = false;
         return;
       }
 
@@ -212,12 +238,19 @@ export function TagStrip({ username, isPublicView = false }: TagStripProps) {
       console.error('Tag generation error:', error);
       setError('Failed to generate tags');
       setTags([]);
+    } finally {
+      generateRequestInProgress.current = false;
     }
   }, [platformData, directData, hasFetchedTags]);
 
   useEffect(() => {
-    generateTags();
-  }, [generateTags]);
+    // Only generate tags when we have data from either source and not currently fetching
+    if (!isFetchingData && 
+        (Object.values(directData).some(platform => Object.keys(platform).length > 0) || 
+        Object.values(platformData || {}).some(platform => Object.keys(platform || {}).length > 0))) {
+      generateTags();
+    }
+  }, [generateTags, directData, platformData, isFetchingData]);
 
   // Show error message if API key is missing
   if (!groq) {
@@ -225,8 +258,8 @@ export function TagStrip({ username, isPublicView = false }: TagStripProps) {
     return null;
   }
 
-  // Don't render anything if there are no tags and no error
-  if (tags.length === 0 && !error) return null;
+  // Don't render anything if there are no tags and no error, or if we're loading
+  if ((tags.length === 0 && !error) || isFetchingData) return null;
 
   return (
     <div className="w-full overflow-hidden mb-2 relative">
