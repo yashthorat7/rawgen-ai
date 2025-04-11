@@ -197,7 +197,7 @@ export function AiIntro({ username, isPublicView = false }: AiIntroProps) {
               - Contribution: ${user.contribution}
             ` : '').join('\n')}
             
-            Act like this is your profile and provide a brief (35 to 45 words stay in that range) personalized coding summary. Focus on areas of improvement, and maintain an encouraging tone. Speak directly to the recruiter and be specific. dont't add quotes on the ends. be concise and to the point. explain in detail yet be concise. dont't say here is the summary or greetingsdirectly give me the summary. just give me the summary. If Codeforces data is present, emphasize competitive programming achievements and contest performance. don't add fluff. stick to the facts`,
+            Act like this is your profile and provide a brief (35 to 45 words) personalized coding summary. Focus on areas of improvement and maintain an encouraging tone. Speak directly to the recruiter and be specific. Do not add quotation marks, greetings, or fluff. Be concise yet detailed. If Codeforces data is available, emphasize competitive programming achievements and contest performance. Just give the summary.`,
           },
         ],
         model: "llama3-8b-8192",
