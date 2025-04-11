@@ -89,13 +89,14 @@ export function FeaturesDialog({ onClose, userEmail }: FeaturesDialogProps) {
             src={features[currentIndex].image}
             alt={`Feature ${currentIndex + 1}`}
             fill
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 80vw, 1200px"
             className="object-contain"
             priority
           />
         </div>
 
         {/* Navigation */}
-        <div className="p-6 flex items-center justify-between">
+        <div className="p-2 flex items-center justify-between">
           <Button
             variant="outline"
             onClick={handlePrevious}
