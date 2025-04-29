@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { 
-  Star, Code2, Trophy, Brain, Target, Users, ArrowRight, 
+  Share2, Star, Code2, Trophy, Brain, Target, Users, ArrowRight, 
   Zap, Sparkles, BarChart, Search, Briefcase, FileText, 
   CheckCircle, ChevronRight, MousePointerClick, 
   Terminal, Database, Cpu, LineChart, BarChart2, 
@@ -406,39 +406,19 @@ export function Landing() {
                 transition={{ duration: 0.7, delay: 0.4 }}
                 className="relative w-full max-w-4xl mx-auto rounded-xl overflow-hidden shadow-2xl border border-primary-100 group"
               >
-                <div className="aspect-video relative">
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary-50 to-purple-50 flex items-center justify-center">
-                    <div className="text-center p-8">
-                      <Terminal className="w-16 h-16 text-primary-400 mx-auto mb-4" />
-                      <p className="text-gray-500">Dashboard Preview</p>
-                    </div>
+                <div className="aspect-video relative overflow-hidden">
+
+                  {/* Hover reveal with dashboard.png */}
+                  <div>
+                    <img 
+                      src="/dashboard.png" 
+                      alt="Dashboard Preview" 
+                      className="w-full h-full object-cover" 
+                    />
                   </div>
-                  <motion.div
-                    className="absolute inset-0 bg-gradient-to-br from-primary-600 to-purple-600"
-                    initial={{ clipPath: "circle(0% at 50% 50%)" }}
-                    whileHover={{ clipPath: "circle(100% at 50% 50%)" }}
-                    transition={{ duration: 0.5 }}
-                  >
-                    <div className="w-full h-full p-8 flex flex-col items-center justify-center">
-                      <BarChart2 className="w-20 h-20 text-white mb-6" />
-                      <div className="w-3/4 h-2 bg-white/30 rounded-full mb-4" />
-                      <div className="w-2/3 h-2 bg-white/30 rounded-full mb-4" />
-                      <div className="w-1/2 h-2 bg-white/30 rounded-full mb-4" />
-                      <div className="flex justify-center gap-4 mt-6">
-                        <div className="w-24 h-24 bg-white/20 rounded-lg flex items-center justify-center">
-                          <Trophy className="w-12 h-12 text-white" />
-                        </div>
-                        <div className="w-24 h-24 bg-white/20 rounded-lg flex items-center justify-center">
-                          <BarChart className="w-12 h-12 text-white" />
-                        </div>
-                        <div className="w-24 h-24 bg-white/20 rounded-lg flex items-center justify-center">
-                          <LineChart className="w-12 h-12 text-white" />
-                        </div>
-                      </div>
-                    </div>
-                  </motion.div>
                 </div>
               </motion.div>
+
             </div>
           </div>
         </div>
@@ -461,16 +441,17 @@ export function Landing() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              <FeatureCard 
-                icon={Zap} 
-                title="AI-Powered Data Extraction" 
-                description="Automatically fetch and analyze your data from multiple competitive programming platforms."
+            <FeatureCard 
+                icon={Share2} 
+                title="Share with Friends" 
+                description="Easily share your achievements and progress on social media platforms and inspire your friends to join." 
                 index={0}
               />
+
               <FeatureCard 
                 icon={BarChart} 
                 title="Beautiful Analytics" 
-                description="Visualize your progress with interactive charts and performance metrics."
+                description="Visualize your progress with interactive charts and performance metrics to help you track your progress."
                 index={1}
               />
               <FeatureCard 
