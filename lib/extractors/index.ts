@@ -14,7 +14,6 @@ export {
   extractEssentialLeetCodeData,
 };
 
-// Get the essential data extractor function based on platform
 export function getEssentialDataExtractor(platformName: string) {
   switch (platformName.toLowerCase()) {
     case 'leetcode':
@@ -30,7 +29,6 @@ export function getEssentialDataExtractor(platformName: string) {
   }
 }
 
-// Extract data from platform and return essential data only
 export async function extractEssentialPlatformData(platform: string, username: string) {
   try {
     let data = null;

@@ -10,7 +10,6 @@ interface SummaryProps {
 export function Summary({ data }: SummaryProps) {
   const gfgProfileUrl = `https://auth.geeksforgeeks.org/user/${data.username}`;
 
-  // Convert "starstarstar" to array of stars
   const starCount = (data.stars?.match(/star/g) || []).length;
 
   return (

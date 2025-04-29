@@ -5,7 +5,6 @@ export const validateProfile = async (
   username: string,
   signal?: AbortSignal
 ): Promise<boolean> => {
-  // CodeChef specific username validation
   if (platform === 'codechef') {
     const validUsernamePattern = /^[a-zA-Z0-9_]+$/;
     if (!validUsernamePattern.test(username)) {
@@ -32,7 +31,6 @@ export const validateProfile = async (
   }
 };
 
-// Optional: Export platform-specific functions for easier usage
 export const validateLeetCodeProfile = (username: string) => 
   validateProfile('leetcode', username);
 

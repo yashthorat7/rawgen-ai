@@ -19,7 +19,6 @@ const distributeSkills = (skills: string[]) => {
   const total = skills.length;
   if (total === 0) return [];
 
-  // Predefined patterns for 1-16 items
   const patterns: { [key: number]: number[] } = {
     1: [1],
     2: [2],
@@ -39,12 +38,10 @@ const distributeSkills = (skills: string[]) => {
     16: [4, 4, 4, 4]
   };
 
-  // If we have a predefined pattern, use it
   if (patterns[total]) {
     return patterns[total];
   }
 
-  // For more than 16 items, use a 4-based distribution
   const distribution = [];
   let remaining = total;
 
@@ -101,33 +98,27 @@ export function SkillCard({
     [shuffledSkills]
   );
 
-  // Calculate offset for neighboring items with reduced range
   const getOffset = (currentRow: number, currentCol: number) => {
     if (!hoveredPosition) return { x: 0, y: 0 };
     
     const rowDiff = currentRow - hoveredPosition.row;
     const colDiff = currentCol - hoveredPosition.col;
     
-    // If it's the same item, no offset
     if (rowDiff === 0 && colDiff === 0) return { x: 0, y: 0 };
     
-    // Calculate distance from hovered item
     const distance = Math.sqrt(rowDiff * rowDiff + colDiff * colDiff);
     
-    // Only affect immediate neighbors (distance <= 1.5)
     if (distance > 1.5) return { x: 0, y: 0 };
     
-    // Calculate reduced offset with distance falloff
-    const strength = 1 - (distance / 1.5); // 1 for immediate neighbors, decreasing with distance
-    const xOffset = colDiff * 12 * strength; // reduced from 20 to 12
-    const yOffset = rowDiff * 6 * strength;  // reduced from 10 to 6
+    const strength = 1 - (distance / 1.5);
+    const xOffset = colDiff * 12 * strength;
+    const yOffset = rowDiff * 6 * strength; 
     
     return { x: xOffset, y: yOffset };
   };
 
   let currentIndex = 0;
 
-  // Add drag handlers
   const handleDragStart = (e: React.DragEvent) => {
     setIsDragging(true);
     e.dataTransfer.setData('text/plain', index.toString());
@@ -232,7 +223,6 @@ export function SkillCard({
             </div>
           </div>
 
-          {/* Category Name */}
           <div className="flex justify-center items-center relative mb-0 w-full px-3 py-1">
             <div className="text-black text-lg sm:text-xl title font-bold truncate">
               {category}

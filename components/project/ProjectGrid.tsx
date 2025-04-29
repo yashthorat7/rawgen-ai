@@ -31,13 +31,11 @@ export function ProjectGrid({ username, isPublicView = false }: ProjectGridProps
   const removeProject = useMutation(api.projects.remove);
   const reorderProjects = useMutation(api.projects.reorder);
 
-  // First get user data from email (for private view)
   const privateUserData = useQuery(
     api.users.getUser,
     !isPublicView && email ? { email } : "skip"
   );
 
-  // Get projects either from username (public) or user data (private)
   const projects = useQuery(
     api.projects.get,
     isPublicView 
@@ -48,10 +46,8 @@ export function ProjectGrid({ username, isPublicView = false }: ProjectGridProps
   const handleDelete = async (projectId: Id<"projects">) => {
     try {
       await removeProject({ projectId });
-      // Optionally show success message
     } catch (error) {
       console.error("Failed to delete project:", error);
-      // Optionally show error message to user
       alert("Failed to delete project. Please try again.");
     }
   };
@@ -59,12 +55,10 @@ export function ProjectGrid({ username, isPublicView = false }: ProjectGridProps
   const handleReorder = async (fromIndex: number, toIndex: number) => {
     if (!email || !projects || !privateUserData?.username) return;
 
-    // Create updates array with new order
     const newProjects = [...projects];
     const [movedItem] = newProjects.splice(fromIndex, 1);
     newProjects.splice(toIndex, 0, movedItem);
 
-    // Update order in database
     const updates = newProjects.map((project, i) => ({
       projectId: project.id,
       order: i,
@@ -76,7 +70,6 @@ export function ProjectGrid({ username, isPublicView = false }: ProjectGridProps
     });
   };
 
-  // Show loading state while data is loading
   if ((!isLoaded && !isPublicView) || (!isPublicView && !privateUserData) || projects === undefined) {
     return (
       <>
@@ -90,7 +83,6 @@ export function ProjectGrid({ username, isPublicView = false }: ProjectGridProps
     );
   }
 
-  // Show message if no user is logged in and not in public view
   if (!isPublicView && !email) {
     return (
       <>
@@ -102,7 +94,6 @@ export function ProjectGrid({ username, isPublicView = false }: ProjectGridProps
     );
   }
 
-  // Show message if no projects found
   if (!projects || projects.length === 0) {
     if (isPublicView) {
       return null;

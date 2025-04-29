@@ -26,7 +26,6 @@ interface Profile {
   order: number;
 }
 
-// Add social platform configurations
 const socialPlatformConfigs: { [key: string]: { 
   icon: any, 
   baseUrl: string,
@@ -70,23 +69,19 @@ export default function UserCard({ username, recruiterEmail }: UserCardProps) {
   const [hasStarred, setHasStarred] = useState(false);
   const [isMarked, setIsMarked] = useState(false);
   
-  // Get user data first
   const userData = useQuery(api.users.getUserByUsername, { 
     username: username 
   });
 
-  // Get marksheet URL
   const marksheetUrl = useQuery(api.recruiters.getMarksheetImageUrl, { 
     username: username 
   });
 
-  // Get recruiter data if recruiterEmail is provided
   const recruiterData = useQuery(
     api.recruiters.getByEmail,
     recruiterEmail ? { email: recruiterEmail } : "skip"
   );
 
-  // Then get all dependent data
   const profileImageUrl = useQuery(
     api.users.getProfileImageUrl,
     userData?.profileImage ? { storageId: userData.profileImage } : "skip"
@@ -114,7 +109,6 @@ export default function UserCard({ username, recruiterEmail }: UserCardProps) {
     username: username 
   });
 
-  // Get the logged-in user's data
   const loggedInUserData = useQuery(
     api.users.getUser,
     user?.primaryEmailAddress?.emailAddress
@@ -124,7 +118,6 @@ export default function UserCard({ username, recruiterEmail }: UserCardProps) {
 
   const toggleMarkstar = useMutation(api.recruiters.toggleMarkstar);
 
-  // Check if profile is marked by recruiter
   useEffect(() => {
     if (recruiterData?.markstar && userData?.email) {
       setIsMarked(recruiterData.markstar.includes(userData.email));
@@ -151,7 +144,6 @@ export default function UserCard({ username, recruiterEmail }: UserCardProps) {
     }
   };
 
-  // Return loading skeleton if no user data
   if (!userData) {
     return <LoadingSkeleton />;
   }
@@ -167,7 +159,6 @@ export default function UserCard({ username, recruiterEmail }: UserCardProps) {
     router.push(`/${username}?recruiter=true`);
   };
 
-  // Group platforms by type and count
   const platformGroups = profiles?.reduce((acc, profile) => {
     const name = profile.platformName.toLowerCase();
     if (!acc[name]) {
@@ -178,28 +169,22 @@ export default function UserCard({ username, recruiterEmail }: UserCardProps) {
     return acc;
   }, {} as { [key: string]: { count: number, platform: Profile } }) || {};
 
-  // Format number helper
   const formatNumber = (num: number): string => {
     if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
     if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
     return num.toString();
   };
 
-  // Get the first platform for display
   const primaryPlatform = profiles?.[0];
   const totalPlatforms = profiles?.length || 0;
 
-  // Parse social links from counters
   const socialLinks = counters?.socialLinks ? JSON.parse(counters.socialLinks) : {};
 
-  // Calculate animation duration based on skills length
   const calculateAnimationDuration = () => {
-    if (!skills) return 20; // default duration
+    if (!skills) return 20;
     
-    // Count total skills
     const totalSkills = skills.reduce((acc, category) => acc + category.skills.length, 0);
     
-    // Base duration is 10s, add 2s for every 3 skills
     const duration = Math.max(10, Math.min(30, 10 + Math.floor(totalSkills / 3) * 2));
     return duration;
   };
@@ -215,7 +200,6 @@ export default function UserCard({ username, recruiterEmail }: UserCardProps) {
                     shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out 
                     cursor-pointer p-4 sm:p-5 rounded-lg border border-gray-200/50 group`}
       >
-        {/* Left Section - User Image & Name */}
         <div className="flex-shrink-0 w-full sm:w-[140px] flex flex-col items-center justify-center 
                       bg-gradient-to-br from-blue-50/50 to-purple-50/50 rounded-xl 
                       transition-all duration-300 group-hover:from-blue-100/50 group-hover:to-purple-100/50
@@ -245,7 +229,6 @@ export default function UserCard({ username, recruiterEmail }: UserCardProps) {
           </div>
         </div>
 
-        {/* Right Section - User Info */}
         <div className="flex-1 flex flex-col min-w-0 sm:pl-5">
           <div className="flex-1 flex flex-col min-w-0">
             <div className="min-w-0">
@@ -355,7 +338,7 @@ export default function UserCard({ username, recruiterEmail }: UserCardProps) {
               </div>
             </div>
 
-            {/* Skills Strip with Animation - with min-height */}
+            {/* Skills Strip */}
             <div className="mt-4 relative min-h-[32px]">
               <div className="flex gap-1.5 sm:gap-2 overflow-x-hidden">
                 <div 
@@ -378,7 +361,6 @@ export default function UserCard({ username, recruiterEmail }: UserCardProps) {
                       </span>
                     ))
                   ))}
-                  {/* Duplicate skills for seamless loop */}
                   {skills?.map((skillCategory) => (
                     skillCategory.skills.map((skillName, index) => (
                       <span
@@ -395,7 +377,6 @@ export default function UserCard({ username, recruiterEmail }: UserCardProps) {
               </div>
             </div>
 
-            {/* Project and Certificate Counts - with min-height */}
             <div className="mt-4 flex items-center gap-4 text-sm text-gray-600 min-h-[24px]">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -416,7 +397,6 @@ export default function UserCard({ username, recruiterEmail }: UserCardProps) {
               </motion.div>
             </div>
 
-            {/* Platform Icons - always at bottom */}
             <div className="mt-auto pt-4 min-h-[48px]">
               <div className="flex gap-2 sm:gap-3 items-center flex-wrap">
                 {Object.entries(platformGroups).map(([platform, { count, platform: profileData }]) => (
@@ -455,7 +435,6 @@ export function LoadingSkeleton() {
                     backdrop-blur-sm w-full overflow-hidden
                     shadow-lg p-4 sm:p-5 rounded-lg border border-gray-200/50
                     min-h-[160px] sm:min-h-[180px]`}>
-        {/* Left Section - User Image & Name */}
         <div className="flex-shrink-0 w-full sm:w-[140px] flex flex-col items-center 
                       bg-gradient-to-br from-blue-50/50 to-purple-50/50 rounded-xl 
                       p-4 relative mb-4 sm:mb-0">
@@ -464,7 +443,6 @@ export function LoadingSkeleton() {
           </div>
         </div>
 
-        {/* Right Section - User Info */}
         <div className="flex-1 flex flex-col min-w-0 sm:pl-5">
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
@@ -484,14 +462,12 @@ export function LoadingSkeleton() {
             </div>
           </div>
 
-          {/* Skills Strip */}
           <div className="mt-4 flex flex-wrap gap-1.5 sm:gap-2">
             {[...Array(3)].map((_, i) => (
               <div key={i} className="w-16 sm:w-20 h-6 bg-gray-200 rounded-full animate-pulse" />
             ))}
           </div>
 
-          {/* Project and Certificate Counts Skeleton */}
           <div className="mt-4 flex items-center gap-4">
             <div className="w-24 h-5 bg-gray-200 rounded animate-pulse" />
             <div className="w-1 h-1 bg-gray-200 rounded-full animate-pulse" />

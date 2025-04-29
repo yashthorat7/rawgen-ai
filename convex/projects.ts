@@ -28,7 +28,6 @@ export const update = mutation({
     projectImage: v.optional(v.union(v.id("_storage"), v.null())),
   },
   handler: async (ctx, args) => {
-    // Get user by email
     const user = await ctx.db
       .query("users")
       .withIndex("by_email", (q) => q.eq("email", args.email))
@@ -38,7 +37,6 @@ export const update = mutation({
       throw new Error("User not found");
     }
 
-    // Get the existing project and verify ownership
     const project = await ctx.db.get(args.projectId);
     if (!project) {
       throw new Error("Project not found");
@@ -48,15 +46,12 @@ export const update = mutation({
       throw new Error("Unauthorized to update this project");
     }
 
-    // Handle image deletion/update
     if (args.projectImage !== undefined && project.projectImage) {
-      // If new image is null or different from existing image, delete the old one
       if (!args.projectImage || args.projectImage !== project.projectImage) {
         await ctx.storage.delete(project.projectImage);
       }
     }
 
-    // Prepare update data
     const updateData: any = {
       projectName: args.title,
       projectDescription: args.description,
@@ -65,27 +60,22 @@ export const update = mutation({
       techStack: args.techStack,
     };
 
-    // Only update image if a new one is provided or explicitly set to null
     if (args.projectImage !== undefined) {
       updateData.projectImage = args.projectImage;
     }
 
-    // Update the project with new data
     await ctx.db.patch(args.projectId, updateData);
 
-    // Get the updated project
     const updatedProject = await ctx.db.get(args.projectId);
     if (!updatedProject) {
       throw new Error("Failed to get updated project");
     }
 
-    // Get the image URL if it exists
     let imageUrl;
     if (updatedProject.projectImage) {
       imageUrl = await ctx.storage.getUrl(updatedProject.projectImage);
     }
 
-    // Return the updated project data
     return {
       id: updatedProject._id,
       title: updatedProject.projectName,
@@ -103,7 +93,6 @@ export const get = query({
     username: v.string(),
   },
   handler: async (ctx, args) => {
-    // Get user by username
     const user = await ctx.db
       .query("users")
       .withIndex("by_username", (q) => q.eq("username", args.username))
@@ -111,13 +100,11 @@ export const get = query({
 
     if (!user) return [];
 
-    // Get all projects for the user
     const projects = await ctx.db
       .query("projects")
       .withIndex("by_user", (q) => q.eq("userId", user._id))
       .collect();
 
-    // Sort projects by order before returning
     const projectsWithUrls = await Promise.all(
       projects
         .sort((a, b) => a.order - b.order)
@@ -155,7 +142,6 @@ export const add = mutation({
     projectImage: v.optional(v.id("_storage")),
   },
   handler: async (ctx, args) => {
-    // Get user by email
     const user = await ctx.db
       .query("users")
       .withIndex("by_email", (q) => q.eq("email", args.email))
@@ -163,7 +149,6 @@ export const add = mutation({
 
     if (!user) throw new Error("User not found");
 
-    // Get current highest order
     const projects = await ctx.db
       .query("projects")
       .withIndex("by_user", (q) => q.eq("userId", user._id))
@@ -171,7 +156,6 @@ export const add = mutation({
     
     const order = projects.length;
 
-    // Insert new project
     const projectId = await ctx.db.insert("projects", {
       userId: user._id,
       order,
@@ -183,7 +167,6 @@ export const add = mutation({
       projectImage: args.projectImage,
     });
 
-    // Get the URL for the image if it exists
     let imageUrl;
     if (args.projectImage) {
       imageUrl = await ctx.storage.getUrl(args.projectImage);
@@ -207,18 +190,15 @@ export const remove = mutation({
     projectId: v.id("projects"),
   },
   handler: async (ctx, args) => {
-    // Get the project first
     const project = await ctx.db.get(args.projectId);
     if (!project) {
       throw new Error("Project not found");
     }
 
-    // If project has an image, delete it from storage
     if (project.projectImage) {
       await ctx.storage.delete(project.projectImage);
     }
 
-    // Delete the project
     await ctx.db.delete(args.projectId);
 
     return { success: true };
@@ -243,7 +223,6 @@ export const reorder = mutation({
       throw new Error("User not found");
     }
 
-    // Update all projects in a single transaction
     await Promise.all(
       args.updates.map(update => 
         ctx.db.patch(update.projectId, { order: update.order })

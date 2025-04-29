@@ -81,7 +81,6 @@ export function CertificateCard({
     }
   };
 
-  // Function to truncate description to first sentence
   const truncateDescription = (text: string) => {
     const sentence = text.split(/[.!?]/)[0];
     return sentence + (text.length > sentence.length ? '...' : '');

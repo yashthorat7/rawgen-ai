@@ -19,12 +19,10 @@ interface ContestItemProps {
 }
 
 export function SolvedQuestionList({ data }: SolvedQuestionListProps) {
-  // Get last 15 contests with problems
   const recentContests = [...data.ratingHistory]
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
     .slice(0, 15)
     .map(contest => {
-      // Find matching contest details
       const details = data.contestDetails?.find(
         detail => detail.name === contest.name
       );

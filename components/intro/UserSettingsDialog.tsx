@@ -40,26 +40,22 @@ export function UserSettingsDialog({ isOpen, onClose, defaultFirstName = "", def
     const generateMarksheetUrl = useMutation(api.users.generateMarksheetUploadUrl);
     const saveMarksheet = useMutation(api.users.saveMarksheetImage);
 
-    // Get user data from database
     const userEmail = user?.primaryEmailAddress?.emailAddress;
     const userInfo = useQuery(
         api.users.getUser,
         userEmail ? { email: userEmail } : "skip"
     );
 
-    // Get counters data
     const counters = useQuery(
         api.counters.get,
         userInfo?._id ? { userId: userInfo._id } : "skip"
     );
 
-    // Get marksheet image URL if it exists
     const marksheetImageUrl = useQuery(
         api.users.getMarksheetImageUrl,
         userInfo?.marksheetImage ? { storageId: userInfo.marksheetImage } : "skip"
     );
 
-    // Initialize data from database when dialog opens
     useEffect(() => {
         if (!isOpen) return;
 
@@ -70,7 +66,6 @@ export function UserSettingsDialog({ isOpen, onClose, defaultFirstName = "", def
             setCgpa(userInfo.cgpa?.toString() || "");
             setIsUsernameValid(!!userInfo.username);
             
-            // Parse social links from counters
             if (counters?.socialLinks) {
                 try {
                     setSocialLinks(JSON.parse(counters.socialLinks));
@@ -87,23 +82,20 @@ export function UserSettingsDialog({ isOpen, onClose, defaultFirstName = "", def
         }
     }, [userInfo, counters, isOpen, defaultFirstName, defaultLastName]);
 
-    // Check if we need to auto-open the dialog
     useEffect(() => {
-        if (userInfo === undefined) return; // Still loading
+        if (userInfo === undefined) return;
         if (userEmail && !userInfo) {
-            // No user data found, auto-open dialog
             setShouldAutoOpen(true);
-            handleClose(); // Reset the dialog state
+            handleClose();
         }
     }, [userInfo, userEmail]);
 
-    // Auto-open the dialog if needed
     useEffect(() => {
         if (shouldAutoOpen) {
-            handleClose(); // Reset any existing state
+            handleClose();
             setTimeout(() => {
                 setShouldAutoOpen(false);
-                onClose(true); // Force open the dialog
+                onClose(true);
             }, 100);
         }
     }, [shouldAutoOpen]);
@@ -120,21 +112,18 @@ export function UserSettingsDialog({ isOpen, onClose, defaultFirstName = "", def
             return;
         }
 
-        // If the username hasn't changed from what's in the database, it's valid
         if (userInfo && username === userInfo.username) {
             setIsUsernameValid(true);
             setIsValidatingUsername(false);
             return;
         }
 
-        // if the username is dashboard, the it is invalid
         if (username === "dashboard" || username === "recruiter") {
             setIsUsernameValid(false);
             setIsValidatingUsername(false);
             return;
         }
 
-        // Check username length first
         if (username && username.length < MIN_USERNAME_LENGTH) {
             setIsUsernameValid(false);
             setIsValidatingUsername(false);
@@ -152,7 +141,6 @@ export function UserSettingsDialog({ isOpen, onClose, defaultFirstName = "", def
     const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
         setUsername(value);
-        // Only validate if the username is different from both email and current username
         if (value !== userEmail && (!userInfo || value !== userInfo.username)) {
             setIsValidatingUsername(true);
         }
@@ -162,7 +150,6 @@ export function UserSettingsDialog({ isOpen, onClose, defaultFirstName = "", def
         const file = e.target.files?.[0];
         if (!file || !userEmail) return;
 
-        // Check file size
         if (file.size > MAX_MARKSHEET_IMAGE_SIZE) {
             alert(`Marksheet file size must be less than ${MAX_MARKSHEET_IMAGE_SIZE / 1024}KB`);
             return;
@@ -171,10 +158,8 @@ export function UserSettingsDialog({ isOpen, onClose, defaultFirstName = "", def
         try {
             setIsUploadingMarksheet(true);
 
-            // Get upload URL
             const uploadUrl = await generateMarksheetUrl();
 
-            // Upload the file
             const result = await fetch(uploadUrl, {
                 method: "POST",
                 headers: { "Content-Type": file.type },
@@ -187,7 +172,6 @@ export function UserSettingsDialog({ isOpen, onClose, defaultFirstName = "", def
 
             const { storageId } = await result.json();
 
-            // Save the marksheet image reference
             await saveMarksheet({
                 email: userEmail,
                 storageId
@@ -202,7 +186,6 @@ export function UserSettingsDialog({ isOpen, onClose, defaultFirstName = "", def
     };
 
     const handleImageChange = (newImage: string) => {
-        // Convert base64 to blob to check size
         fetch(newImage)
             .then(res => res.blob())
             .then(blob => {
@@ -224,7 +207,6 @@ export function UserSettingsDialog({ isOpen, onClose, defaultFirstName = "", def
 
         setIsLoading(true);
         try {
-            // First update user info and get the userId
             const userId = await updateSettings({
                 email: userEmail,
                 username,
@@ -233,7 +215,6 @@ export function UserSettingsDialog({ isOpen, onClose, defaultFirstName = "", def
                 cgpa: cgpa ? parseFloat(cgpa) : undefined,
             });
 
-            // Then update counters with the userId
             await updateCounters({
                 userId,
                 socialLinks: JSON.stringify(socialLinks),
@@ -247,15 +228,13 @@ export function UserSettingsDialog({ isOpen, onClose, defaultFirstName = "", def
         }
     };
 
-    // Add handler for social link updates
     const handleSocialLinkChange = (platform: keyof SocialLinks, value: string) => {
         setSocialLinks(prev => ({
             ...prev,
-            [platform]: value || undefined // Remove empty values
+            [platform]: value || undefined
         }));
     };
 
-    // Handle click events for closing
     const handleClose = (e?: React.MouseEvent) => {
         if (e) e.preventDefault();
         onClose();

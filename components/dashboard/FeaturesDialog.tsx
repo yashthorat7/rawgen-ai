@@ -48,14 +48,12 @@ export function FeaturesDialog({ onClose, userEmail }: FeaturesDialogProps) {
   const handleCompleteDialog = async () => {
     if (userEmail) {
       try {
-        // Update user's haslearned status in the database
         await updateHasLearned({ email: userEmail });
       } catch (error) {
         console.error("Failed to update haslearned status:", error);
       }
     }
-    
-    // Close the dialog
+  
     onClose();
   };
 

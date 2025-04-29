@@ -18,7 +18,7 @@ export interface UserDoc extends Doc<"users"> {
   marksheetImage?: Id<"_storage">;
   isverified?: boolean;
   profileViews?: number;
-  stars?: string[]; // Array of user emails who starred
+  stars?: string[];
   cgpa?: number;
 }
 
@@ -67,5 +67,3 @@ export interface CertificateDoc extends Doc<"certificates"> {
   description: string;
   certificateImage?: Id<"_storage">;
 }
-
-// Rest of the code...

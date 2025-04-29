@@ -64,7 +64,6 @@ export function PlatformForm({
     if (!selectedPlatform || !username || !isValidated) return;
 
     try {
-      // Only check for duplicate within the same platform
       const existingInSamePlatform = existingPlatforms?.find(
         p => p.platform === selectedPlatform.value && p.username === username
       );
@@ -74,7 +73,6 @@ export function PlatformForm({
         return;
       }
 
-      // Check if profile exists in database
       if (existingProfile?.exists) {
         setError(`${username} on ${selectedPlatform.label} already in use by ${existingProfile.username}`);
         return;

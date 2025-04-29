@@ -6,7 +6,6 @@ interface SkillData {
   updatedAt: number;
 }
 
-// Add or update skills for a category
 export const addSkills = mutation({
   args: {
     email: v.string(),
@@ -18,7 +17,6 @@ export const addSkills = mutation({
       throw new Error("Email is required");
     }
 
-    // Get user by email
     const user = await ctx.db
       .query("users")
       .withIndex("by_email", (q) => q.eq("email", args.email))
@@ -28,12 +26,10 @@ export const addSkills = mutation({
       throw new Error(`User ${args.email} not found`);
     }
 
-    // Validate skills array
     if (args.skills.length > 16) {
       throw new Error("Maximum 16 skills allowed per category");
     }
 
-    // Get current highest order
     const existingSkills = await ctx.db
       .query("skills")
       .withIndex("by_user", (q) => q.eq("userId", user._id))
@@ -41,7 +37,6 @@ export const addSkills = mutation({
     
     const order = existingSkills.length;
 
-    // Convert array to object format
     const skillsObject = {
       skills: args.skills.reduce((acc, skill) => {
         acc[skill.trim()] = true;
@@ -52,7 +47,6 @@ export const addSkills = mutation({
 
     const skillsData = JSON.stringify(skillsObject);
 
-    // Check if category exists
     const existingCategory = await ctx.db
       .query("skills")
       .withIndex("by_user_category", (q) => 
@@ -65,7 +59,6 @@ export const addSkills = mutation({
       if (args.skills.length === 0) {
         if (existingCategory) {
           await ctx.db.delete(existingCategory._id);
-          // Reorder remaining skills
           const remainingSkills = await ctx.db
             .query("skills")
             .withIndex("by_user", (q) => q.eq("userId", user._id))
@@ -97,7 +90,6 @@ export const addSkills = mutation({
   },
 });
 
-// Add new mutation for reordering skills
 export const reorderSkills = mutation({
   args: {
     email: v.string(),
@@ -132,7 +124,6 @@ export const reorderSkills = mutation({
   },
 });
 
-// Get all skills for a user
 export const getUserSkills = query({
   args: {
     username: v.string(),
@@ -152,7 +143,6 @@ export const getUserSkills = query({
       .withIndex("by_user", (q) => q.eq("userId", user._id))
       .collect();
 
-    // Sort by order before mapping
     return categories
       .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
       .map(category => {
@@ -171,7 +161,6 @@ export const getUserSkills = query({
   },
 });
 
-// Delete a skill category
 export const deleteSkillCategory = mutation({
   args: {
     username: v.string(),
@@ -182,7 +171,6 @@ export const deleteSkillCategory = mutation({
       throw new Error("Username is required");
     }
 
-    // First, get the user's ID from their username
     const user = await ctx.db
       .query("users")
       .withIndex("by_username", (q) => q.eq("username", args.username))
@@ -204,10 +192,8 @@ export const deleteSkillCategory = mutation({
       return { success: false, reason: "Category not found" };
     }
 
-    // Delete the category
     await ctx.db.delete(existingCategory._id);
 
-    // Reorder remaining skills
     const remainingSkills = await ctx.db
       .query("skills")
       .withIndex("by_user", (q) => q.eq("userId", user._id))
@@ -229,7 +215,6 @@ export const update = mutation({
     skills: v.array(v.string()),
   },
   handler: async (ctx, args) => {
-    // Get user by email
     const user = await ctx.db
       .query("users")
       .withIndex("by_email", (q) => q.eq("email", args.email))
@@ -239,7 +224,6 @@ export const update = mutation({
       throw new Error("User not found");
     }
 
-    // Get the existing skill category
     const existingSkill = await ctx.db
       .query("skills")
       .withIndex("by_user_category", (q) => 
@@ -251,7 +235,6 @@ export const update = mutation({
       throw new Error("Skill category not found");
     }
 
-    // Convert array to object format
     const skillsObject = {
       skills: args.skills.reduce((acc, skill) => {
         acc[skill.trim()] = true;
@@ -260,10 +243,8 @@ export const update = mutation({
       updatedAt: Date.now()
     };
 
-    // Store as JSON string
     const skillsData = JSON.stringify(skillsObject);
 
-    // Update the skill category
     await ctx.db.patch(existingSkill._id, {
       category: args.newCategory,
       skillsData
@@ -285,7 +266,6 @@ export const getAllSkills = query({
       .query("skills")
       .collect();
 
-    // Extract all unique skills from all categories
     const uniqueSkills = new Set<string>();
     skillCategories.forEach(category => {
       try {
@@ -294,10 +274,9 @@ export const getAllSkills = query({
           skills.forEach(skill => uniqueSkills.add(skill));
         }
       } catch {
-        // Skip invalid JSON
       }
     });
 
     return Array.from(uniqueSkills).sort();
   }
-}); 
+});

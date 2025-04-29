@@ -32,7 +32,6 @@ export function LoadingSkeleton() {
   );
 }
 
-// Add new skeleton for project cards
 export function ProjectCardSkeleton() {
   return (
     <div className="bg-white rounded-lg shadow-sm animate-pulse">

@@ -26,13 +26,11 @@ export function CertificateGrid({ username, isPublicView = false }: CertificateG
   const { user, isLoaded } = useUser();
   const email = user?.primaryEmailAddress?.emailAddress;
 
-  // First get user data from email (for private view)
   const privateUserData = useQuery(
     api.users.getUser,
     !isPublicView && email ? { email } : "skip"
   );
 
-  // Get certificates either from username (public) or user data (private)
   const certificates = useQuery(
     api.certificates.get,
     isPublicView 
@@ -54,12 +52,10 @@ export function CertificateGrid({ username, isPublicView = false }: CertificateG
   const handleReorder = async (fromIndex: number, toIndex: number) => {
     if (!email || !certificates || !privateUserData?.username) return;
 
-    // Create updates array with new order
     const newCertificates = [...certificates];
     const [movedItem] = newCertificates.splice(fromIndex, 1);
     newCertificates.splice(toIndex, 0, movedItem);
 
-    // Update order in database
     const updates = newCertificates.map((cert, i) => ({
       certificateId: cert.id,
       order: i,
@@ -71,7 +67,6 @@ export function CertificateGrid({ username, isPublicView = false }: CertificateG
     });
   };
 
-  // Show loading state while data is loading
   if ((!isLoaded && !isPublicView) || (!isPublicView && !privateUserData) || certificates === undefined) {
     return (
       <>
@@ -79,7 +74,6 @@ export function CertificateGrid({ username, isPublicView = false }: CertificateG
         <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5 mt-2">
           {[...Array(4)].map((_, i) => (
             <div key={i} className="bg-white rounded-lg shadow-sm animate-pulse">
-              {/* Image placeholder */}
               <div className="aspect-video p-4 pb-1">
                 <div className="w-full h-full bg-gray-200 rounded-lg" />
               </div>
@@ -97,7 +91,6 @@ export function CertificateGrid({ username, isPublicView = false }: CertificateG
     );
   }
 
-  // Show message if no certificates found
   if (!certificates || certificates.length === 0) {
     if (isPublicView) {
       return null;

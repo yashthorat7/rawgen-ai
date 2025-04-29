@@ -26,7 +26,6 @@ export default function RecruiterLoginPage() {
     const verifyRecruiter = useMutation((api as any).recruiters.verify);
 
     useEffect(() => {
-        // Check if already logged in
         const storedEmail = window.localStorage.getItem('recruiterEmail');
         if (storedEmail) {
             router.push('/recruiter/dashboard');
@@ -42,7 +41,6 @@ export default function RecruiterLoginPage() {
 
         try {
             if (isLogin) {
-                // Login
                 const result = await verifyRecruiter({
                     email: formData.email,
                     password: formData.password,
@@ -55,7 +53,6 @@ export default function RecruiterLoginPage() {
                     setError(result.message);
                 }
             } else {
-                // Register
                 const result = await createRecruiter({
                     email: formData.email,
                     firstName: formData.firstName,

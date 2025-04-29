@@ -52,8 +52,8 @@ export function Skills({ data, hasBadges }: SkillsProps) {
                 <div className={cn(
                   "grid gap-2",
                   hasBadges 
-                    ? "grid-cols-2" // Always 2 columns when badges are present
-                    : "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5" // More columns when full width
+                    ? "grid-cols-2"
+                    : "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
                 )}>
                   {sortedTags.map((tag) => (
                     <div 

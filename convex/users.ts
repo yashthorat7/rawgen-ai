@@ -1,20 +1,18 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 
-// Get profiles for a specific user
 export const getProfiles = query({
   args: {
     email: v.string()
   },
   handler: async (ctx, args) => {
-    // Get user by email
     const user = await ctx.db
       .query("users")
       .withIndex("by_email", (q) => q.eq("email", args.email))
       .first();
 
     if (!user) {
-      return []; // Return empty array if user not found
+      return [];
     }
 
     return await ctx.db
@@ -24,26 +22,22 @@ export const getProfiles = query({
   },
 });
 
-// Generate upload URL for profile image
 export const generateUploadUrl = mutation(async (ctx) => {
   return await ctx.storage.generateUploadUrl();
 });
 
-// Save profile image
 export const saveProfileImage = mutation({
   args: {
     email: v.string(),
     storageId: v.id("_storage")
   },
   handler: async (ctx, { email, storageId }) => {
-    // Update user with the new profile image
     const existingUser = await ctx.db
       .query("users")
       .withIndex("by_email", q => q.eq("email", email))
       .first();
 
     if (existingUser) {
-      // If old image exists, delete it
       if (existingUser.profileImage) {
         await ctx.storage.delete(existingUser.profileImage);
       }
@@ -53,18 +47,16 @@ export const saveProfileImage = mutation({
   }
 });
 
-// Add a platform and its data
 export const addPlatform = mutation({
   args: {
     email: v.string(),
     platformName: v.string(),
     platformUsername: v.string(),
     statsData: v.string(),
-    fullData: v.optional(v.string()), // Complete platform data (optional)
+    fullData: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     try {
-      // Get user by email
       const user = await ctx.db
         .query("users")
         .withIndex("by_email", (q) => q.eq("email", args.email))
@@ -74,7 +66,6 @@ export const addPlatform = mutation({
         throw new Error(`User ${args.email} not found`);
       }
 
-      // Check if platform already exists
       const existingPlatform = await ctx.db
         .query("profiles")
         .filter((q) =>
@@ -90,7 +81,6 @@ export const addPlatform = mutation({
         throw new Error(`Platform ${args.platformName} with username ${args.platformUsername} already exists for user ${args.email}`);
       }
 
-      // Find current max order
       const platformsCount = await ctx.db
         .query("profiles")
         .filter((q) => q.eq(q.field("userId"), user._id))
@@ -98,7 +88,6 @@ export const addPlatform = mutation({
 
       const order = platformsCount.length;
 
-      // Insert new platform profile
       const profileId = await ctx.db.insert("profiles", {
         userId: user._id,
         platformName: args.platformName,
@@ -107,7 +96,6 @@ export const addPlatform = mutation({
         order,
       });
 
-      // If full data is provided, store it in platformdata table
       if (args.fullData) {
         await ctx.db.insert("platformdata", {
           profileId,
@@ -125,7 +113,6 @@ export const addPlatform = mutation({
   },
 });
 
-// Get platform data for a specific profile
 export const getPlatformData = query({
   args: {
     profileId: v.id("profiles"),
@@ -138,7 +125,6 @@ export const getPlatformData = query({
   },
 });
 
-// Delete a platform and its associated data
 export const deletePlatform = mutation({
   args: {
     email: v.string(),
@@ -146,7 +132,6 @@ export const deletePlatform = mutation({
     platformUsername: v.string(),
   },
   handler: async (ctx, args) => {
-    // Get user by email
     const user = await ctx.db
       .query("users")
       .withIndex("by_email", (q) => q.eq("email", args.email))
@@ -168,7 +153,6 @@ export const deletePlatform = mutation({
       .first();
 
     if (profile) {
-      // Delete associated platform data
       const platformData = await ctx.db
         .query("platformdata")
         .withIndex("by_profile", (q) => q.eq("profileId", profile._id))
@@ -178,13 +162,11 @@ export const deletePlatform = mutation({
         await ctx.db.delete(platformData._id);
       }
       
-      // Delete the profile itself
       await ctx.db.delete(profile._id);
     }
   },
 });
 
-// Get user profile image
 export const getUserProfileImage = query({
   args: { email: v.string() },
   handler: async (ctx, { email }) => {
@@ -194,7 +176,6 @@ export const getUserProfileImage = query({
       .first();
 
     if (user?.profileImage) {
-      // Get the URL for the image
       const url = await ctx.storage.getUrl(user.profileImage);
       return url;
     }
@@ -202,7 +183,6 @@ export const getUserProfileImage = query({
   }
 });
 
-// Check if a profile exists for any user
 export const checkProfileExists = query({
   args: {
     platformName: v.string(),
@@ -221,7 +201,6 @@ export const checkProfileExists = query({
       return { exists: false, username: null };
     }
 
-    // Get the username from the user record
     const user = await ctx.db.get(profile.userId);
     if (!user) {
       return { exists: false, username: null };
@@ -231,18 +210,16 @@ export const checkProfileExists = query({
   },
 });
 
-// Update profile data
 export const updateProfileData = mutation({
   args: {
     email: v.string(),
     platformName: v.string(),
     platformUsername: v.string(),
     statsData: v.string(),
-    fullData: v.optional(v.string()), // Complete platform data (optional)
+    fullData: v.optional(v.string()),
     order: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    // Get user by email
     const user = await ctx.db
       .query("users")
       .withIndex("by_email", (q) => q.eq("email", args.email))
@@ -264,14 +241,12 @@ export const updateProfileData = mutation({
       .first();
 
     if (profile) {
-      // Update profile with statsData
       const updates: any = { statsData: args.statsData };
       if (args.order !== undefined) {
         updates.order = args.order;
       }
       await ctx.db.patch(profile._id, updates);
 
-      // Update or create platformdata entry if fullData is provided
       if (args.fullData) {
         const existingPlatformData = await ctx.db
           .query("platformdata")
@@ -296,7 +271,6 @@ export const updateProfileData = mutation({
   },
 });
 
-// Get user info
 export const getUser = query({
   args: { email: v.string() },
   handler: async (ctx, { email }) => {
@@ -309,7 +283,6 @@ export const getUser = query({
   }
 });
 
-// Check if username is available
 export const checkUsernameAvailable = query({
   args: { username: v.string() },
   handler: async (ctx, { username }) => {
@@ -318,19 +291,16 @@ export const checkUsernameAvailable = query({
       .withIndex("by_username", q => q.eq("username", username))
       .first();
 
-    // If no one has this username, it's available
     return !existingUser;
   },
 });
 
-// Generate upload URL for marksheet
 export const generateMarksheetUploadUrl = mutation({
   handler: async (ctx) => {
     return await ctx.storage.generateUploadUrl();
   },
 });
 
-// Save marksheet image
 export const saveMarksheetImage = mutation({
   args: {
     email: v.string(),
@@ -343,19 +313,17 @@ export const saveMarksheetImage = mutation({
       .first();
 
     if (user) {
-      // If there's an existing marksheet, delete it
       if (user.marksheetImage) {
         await ctx.storage.delete(user.marksheetImage);
       }
       await ctx.db.patch(user._id, {
         marksheetImage: args.storageId,
-        isverified: false // Reset verification when new marksheet is uploaded
+        isverified: false
       });
     }
   },
 });
 
-// Get marksheet image URL
 export const getMarksheetImage = query({
   args: { email: v.string() },
   handler: async (ctx, { email }) => {
@@ -372,7 +340,6 @@ export const getMarksheetImage = query({
   }
 });
 
-// Update user info
 export const updateUser = mutation({
   args: {
     email: v.string(),
@@ -418,7 +385,6 @@ export const updateUser = mutation({
   },
 });
 
-// Update platform order
 export const updateOrder = mutation({
   args: {
     email: v.string(),
@@ -429,7 +395,6 @@ export const updateOrder = mutation({
     })),
   },
   handler: async (ctx, args) => {
-    // Get user by email
     const user = await ctx.db
       .query("users")
       .withIndex("by_email", (q) => q.eq("email", args.email))
@@ -458,7 +423,6 @@ export const updateOrder = mutation({
   },
 });
 
-// Add this query for getting marksheet image URL
 export const getMarksheetImageUrl = query({
   args: { storageId: v.id("_storage") },
   handler: async (ctx, args) => {
@@ -466,7 +430,6 @@ export const getMarksheetImageUrl = query({
   },
 });
 
-// Add this query if it doesn't exist
 export const getProfileImageUrl = query({
   args: { storageId: v.id("_storage") },
   handler: async (ctx, args) => {
@@ -474,7 +437,6 @@ export const getProfileImageUrl = query({
   },
 });
 
-// Create user if not exists
 export const createUser = mutation({
   args: {
     email: v.string(),
@@ -483,7 +445,6 @@ export const createUser = mutation({
     lastName: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    // Check if user already exists
     const existingUser = await ctx.db
       .query("users")
       .withIndex("by_email", q => q.eq("email", args.email))
@@ -493,7 +454,6 @@ export const createUser = mutation({
       return existingUser._id;
     }
 
-    // Create new user
     const userId = await ctx.db.insert("users", {
       email: args.email,
       username: args.username,
@@ -506,7 +466,6 @@ export const createUser = mutation({
   }
 });
 
-// Get user by username
 export const getUserByUsername = query({
   args: { username: v.string() },
   handler: async (ctx, { username }) => {
@@ -519,7 +478,6 @@ export const getUserByUsername = query({
       return null;
     }
 
-    // Get all profiles for this user
     const profiles = await ctx.db
       .query("profiles")
       .withIndex("by_user", (q) => q.eq("userId", user._id))
@@ -588,7 +546,6 @@ export const searchUsers = query({
       .query("users")
       .collect();
 
-    // Filter users in memory
     const filteredUsers = users.filter(user => {
       const searchFields = [
         user.email?.toLowerCase(),
@@ -618,25 +575,21 @@ export const getMultipleByEmail = query({
         
         if (!user) return null;
 
-        // Get user's skills
         const skills = await ctx.db
           .query("skills")
           .filter(q => q.eq(q.field("userId"), user._id))
           .collect();
 
-        // Get user's projects
         const projects = await ctx.db
           .query("projects")
           .filter(q => q.eq(q.field("userId"), user._id))
           .collect();
 
-        // Get user's profiles (platforms)
         const platforms = await ctx.db
           .query("profiles")
           .filter(q => q.eq(q.field("userId"), user._id))
           .collect();
 
-        // Get user's certificates
         const certificates = await ctx.db
           .query("certificates")
           .filter(q => q.eq(q.field("userId"), user._id))
@@ -652,12 +605,10 @@ export const getMultipleByEmail = query({
       })
     );
 
-    // Filter out null values and return
     return users.filter((user): user is NonNullable<typeof user> => user !== null);
   },
 });
 
-// Update haslearned status for a user
 export const updateHasLearned = mutation({
   args: {
     email: v.string(),
@@ -672,18 +623,15 @@ export const updateHasLearned = mutation({
       throw new Error(`User with email ${email} not found`);
     }
 
-    // Update the user with haslearned set to true
     await ctx.db.patch(user._id, { haslearned: true });
     
     return true;
   }
 });
 
-// Get full platform data for a specific username
 export const getFullPlatformDataByUsername = query({
   args: { username: v.string() },
   handler: async (ctx, args) => {
-    // Get user by username
     const user = await ctx.db
       .query("users")
       .withIndex("by_username", q => q.eq("username", args.username))
@@ -693,7 +641,6 @@ export const getFullPlatformDataByUsername = query({
       return null;
     }
 
-    // Get all profiles for this user
     const profiles = await ctx.db
       .query("profiles")
       .withIndex("by_user", q => q.eq("userId", user._id))
@@ -703,7 +650,6 @@ export const getFullPlatformDataByUsername = query({
       return null;
     }
 
-    // Get full data for each profile
     const fullDataArray = await Promise.all(
       profiles.map(async profile => {
         const platformData = await ctx.db
@@ -723,7 +669,6 @@ export const getFullPlatformDataByUsername = query({
       })
     );
 
-    // Filter out null values and convert to object
     const result: {
       leetcode: Record<string, any>;
       codechef: Record<string, any>;
@@ -765,11 +710,9 @@ export const getFullPlatformDataByUsername = query({
   }
 });
 
-// Get all platform data for a user
 export const getAllPlatformData = query({
   args: { email: v.string() },
   handler: async (ctx, args) => {
-    // Get user by email
     const user = await ctx.db
       .query("users")
       .withIndex("by_email", (q) => q.eq("email", args.email))
@@ -779,7 +722,6 @@ export const getAllPlatformData = query({
       return [];
     }
 
-    // Get all profiles for this user
     const profiles = await ctx.db
       .query("profiles")
       .withIndex("by_user", (q) => q.eq("userId", user._id))
@@ -789,7 +731,6 @@ export const getAllPlatformData = query({
       return [];
     }
 
-    // Get platform data for all profiles
     const platformDataPromises = profiles.map(async (profile) => {
       const platformData = await ctx.db
         .query("platformdata")
@@ -803,13 +744,11 @@ export const getAllPlatformData = query({
       return platformData;
     });
 
-    // Wait for all promises and filter out nulls
     const allPlatformData = await Promise.all(platformDataPromises);
     return allPlatformData.filter(data => data !== null);
   }
 });
 
-// Get platform data by userId
 export const getPlatformDataByUserId = query({
   args: {
     userId: v.id("users"),
@@ -822,13 +761,11 @@ export const getPlatformDataByUserId = query({
   },
 });
 
-// Get platform data by email
 export const getPlatformDataByEmail = query({
   args: {
     email: v.string(),
   },
   handler: async (ctx, args) => {
-    // Get user by email
     const user = await ctx.db
       .query("users")
       .withIndex("by_email", (q) => q.eq("email", args.email))

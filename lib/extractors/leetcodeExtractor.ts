@@ -8,7 +8,6 @@ export async function extractLeetCodeData(username: string): Promise<LeetCodeDat
       }
     });
 
-    // Check if response is OK and is JSON
     if (!response.ok) {
       console.error('LeetCode API error:', {
         status: response.status,
@@ -17,7 +16,6 @@ export async function extractLeetCodeData(username: string): Promise<LeetCodeDat
       return null;
     }
 
-    // Check content type
     const contentType = response.headers.get('content-type');
     if (!contentType || !contentType.includes('application/json')) {
       console.error('Invalid content type:', contentType);
@@ -30,8 +28,6 @@ export async function extractLeetCodeData(username: string): Promise<LeetCodeDat
       console.error('Invalid LeetCode data structure:', data);
       return null;
     }
-
-    // Validate required data exists
     if (!data.user.submitStats || !data.user.profile) {
       console.error('Missing required LeetCode data:', {
         hasSubmitStats: !!data.user.submitStats,
@@ -41,7 +37,6 @@ export async function extractLeetCodeData(username: string): Promise<LeetCodeDat
     }
 
     return {
-      // Basic Info
       username: data.user.username,
       realName: data.user.profile.realName,
       avatar: data.user.profile.userAvatar,
@@ -53,7 +48,6 @@ export async function extractLeetCodeData(username: string): Promise<LeetCodeDat
       websites: data.user.profile.websites || [],
       skills: data.user.profile.skillTags || [],
 
-      // Stats
       ranking: data.user.profile.ranking,
       starRating: data.user.profile.starRating,
       reputation: data.user.profile.reputation,
@@ -74,7 +68,6 @@ export async function extractLeetCodeData(username: string): Promise<LeetCodeDat
         diff: data.user.profile.postViewCountDiff || 0,
       },
 
-      // Submission Stats
       totalSolved: data.user.submitStats.acSubmissionNum?.[0]?.count || 0,
       totalQuestions: data.stats?.totalQuestions?.[0]?.count || 0,
       easySolved: data.user.submitStats.acSubmissionNum?.[1]?.count || 0,
@@ -92,14 +85,12 @@ export async function extractLeetCodeData(username: string): Promise<LeetCodeDat
         totalSubmissionNum: data.user.submitStats.totalSubmissionNum || [],
       },
 
-      // Calendar & Streak
       calendar: {
         streak: data.calendar?.streak || 0,
         totalActiveDays: data.calendar?.totalActiveDays || 0,
         submissionCalendar: data.calendar?.submissionCalendar || "{}",
       },
 
-      // Contests
       contests: (data.contests?.history || data.user.contestHistory || []).map((contest: any) => ({
         title: contest.contest?.title || contest.contestName || 'Unknown Contest',
         rating: contest.rating || 0,
@@ -120,7 +111,6 @@ export async function extractLeetCodeData(username: string): Promise<LeetCodeDat
         badge: data.contests.badge || null
       } : undefined,
 
-      // Recent Submissions
       recentlySolved: (data.user.recentSubmissions || []).map((sub: any) => ({
         id: sub.id || '',
         title: sub.title || 'Unknown Problem',
@@ -130,7 +120,6 @@ export async function extractLeetCodeData(username: string): Promise<LeetCodeDat
         difficulty: sub.difficulty || 'Unknown'
       })),
 
-      // Badges
       badges: (data.badges?.all || data.badges || []).map((badge: any) => ({
         id: badge.id || '',
         name: badge.name || '',
@@ -146,13 +135,11 @@ export async function extractLeetCodeData(username: string): Promise<LeetCodeDat
       activeBadge: data.badges?.active || data.activeBadge || null,
       upcomingBadges: data.badges?.upcoming || data.upcomingBadges || [],
 
-      // Language Stats
       languageStats: (data.user.languageProblemCount || []).map((lang: any) => ({
         name: lang.languageName || 'Unknown',
         solved: lang.problemsSolved || 0,
       })),
 
-      // Topic Stats
       topicStats: {
         advanced: (data.user.tagProblemCounts?.advanced || []).map((tag: any) => ({
           name: tag.tagName || '',
@@ -171,7 +158,6 @@ export async function extractLeetCodeData(username: string): Promise<LeetCodeDat
         })),
       },
 
-      // Social Links
       social: {
         github: data.user.githubUrl || null,
         linkedin: data.user.linkedinUrl || null,
@@ -184,7 +170,6 @@ export async function extractLeetCodeData(username: string): Promise<LeetCodeDat
   }
 }
 
-// New function to extract only essential data for platform cards
 export function extractEssentialLeetCodeData(data: LeetCodeData): Record<string, any> {
   return {
     ranking: data.ranking || 0,

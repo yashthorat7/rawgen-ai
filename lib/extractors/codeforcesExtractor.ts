@@ -37,8 +37,7 @@ export async function extractCodeforcesData(username: string): Promise<Codeforce
     const profile = data.profile;
     const ratingHistory = (data.ratingHistory || []) as ContestHistory[];
 
-    // Calculate recent performance metrics
-    const recentContests = ratingHistory.slice(-10); // Last 10 contests
+    const recentContests = ratingHistory.slice(-10);
     const recentRanks = recentContests.map((c: ContestHistory) => c.rank);
     const recentRatingChanges = recentContests.map((c: ContestHistory) => c.newRating - c.oldRating);
 
@@ -51,7 +50,6 @@ export async function extractCodeforcesData(username: string): Promise<Codeforce
       : 0;
 
     return {
-      // Basic Info
       username: profile.handle || '',
       rank: profile.rank || '',
       rating: profile.rating || 0,
@@ -65,7 +63,6 @@ export async function extractCodeforcesData(username: string): Promise<Codeforce
       lastOnline: profile.lastOnline,
       registrationTime: profile.registrationTime,
 
-      // Rating History
       ratingHistory: ratingHistory.map((contest: ContestHistory) => ({
         contestId: contest.contestId,
         contestName: contest.contestName,
@@ -76,7 +73,6 @@ export async function extractCodeforcesData(username: string): Promise<Codeforce
         timestamp: contest.ratingUpdateTimeSeconds
       })),
 
-      // Stats
       contestCount: ratingHistory.length,
       recentPerformance: {
         averageRank,
@@ -93,7 +89,6 @@ export async function extractCodeforcesData(username: string): Promise<Codeforce
   }
 }
 
-// New function to extract only essential data for platform cards
 export function extractEssentialCodeforcesData(data: CodeforcesData): Record<string, any> {
   return {
     rank: data.rank || '',

@@ -42,7 +42,7 @@ interface SearchResultsProps {
   onTotalItemsChange?: (total: number) => void;
 }
 
-const ITEMS_PER_BATCH = 9; // Show 9 items per batch (3x3 grid)
+const ITEMS_PER_BATCH = 9;
 
 interface ProfileCardOverlayProps {
   username: string;
@@ -122,12 +122,10 @@ const SearchResults = ({
   const [visibleCardCount, setVisibleCardCount] = useState(0);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
 
-  // Reset visible card count when page changes
   useEffect(() => {
     setVisibleCardCount(0);
     setIsInitialLoad(true);
     
-    // Start progressive rendering
     const timer = setTimeout(() => {
       setIsInitialLoad(false);
       const renderCards = () => {
@@ -137,7 +135,6 @@ const SearchResults = ({
         });
       };
 
-      // Render cards one by one with a delay
       let currentCard = 0;
       const interval = setInterval(() => {
         renderCards();
@@ -145,30 +142,26 @@ const SearchResults = ({
         if (currentCard >= itemsPerPage) {
           clearInterval(interval);
         }
-      }, 100); // 100ms delay between each card
+      }, 100);
 
       return () => clearInterval(interval);
-    }, 300); // Initial delay before starting progressive render
+    }, 300);
 
     return () => clearTimeout(timer);
   }, [page, itemsPerPage]);
 
-  // Get recruiter's markstar list
   const recruiterData = useQuery(api.recruiters.getByEmail, { 
     email: recruiterEmail || "" 
   });
 
-  // Memoize the marked emails list
   const markedEmails = useMemo(() => {
     return recruiterData?.markstar || [];
   }, [recruiterData?.markstar]);
 
-  // Function to check if a user is marked
   const isUserMarked = useCallback((email: string) => {
     return markedEmails.includes(email);
   }, [markedEmails]);
 
-  // Reset filters when tab changes
   useEffect(() => {
     const defaultFilters: FilterState = {
       verified: false,
@@ -191,13 +184,11 @@ const SearchResults = ({
     onFilterChange(defaultFilters);
   }, [tab, onFilterChange]);
 
-  // Parse search query for skills
   const searchSkills = useMemo(() => {
     if (tab !== "skills" || !searchQuery) return [];
     return searchQuery.split(',').map(s => s.trim()).filter(Boolean);
   }, [searchQuery, tab]);
 
-  // Get search results based on tab type
   const searchResults = useQuery(api.recruiters.searchUsers, {
     query: tab === "projects" 
       ? (filters.projectNameSearch || "") 
@@ -235,7 +226,6 @@ const SearchResults = ({
     recruiterEmail
   });
 
-  // Update total items when search results change
   useEffect(() => {
     if (searchResults && onTotalItemsChange) {
       onTotalItemsChange(searchResults.total);
@@ -285,11 +275,9 @@ const SearchResults = ({
         }
         return [];
       } catch {
-        // If it's a comma-separated string, split it
         if (value.includes(',')) {
           return value.split(',').map(s => s.trim()).filter(Boolean);
         }
-        // If it's a single value, return it as a one-item array
         return value.trim() ? [value.trim()] : [];
       }
     }
@@ -299,7 +287,6 @@ const SearchResults = ({
   const renderCard = (user: any, index: number) => {
     if (!user) return null;
 
-    // Common props for ProfileCardOverlay
     const overlayProps = {
       username: user.username,
       userEmail: user.email,
@@ -311,7 +298,6 @@ const SearchResults = ({
       case "users":
         if (!user.username) return null;
         
-        // Apply basic filters
         if (filters.verified && !user.isverified) return null;
         
         return (
@@ -327,7 +313,6 @@ const SearchResults = ({
         const skillsArray = getStringArray(user.skills);
         if (skillsArray.length === 0) return null;
         
-        // Check if any skill matches the search terms
         const hasMatchingSkills = !filters.searchTerms?.length || skillsArray.some(skill => 
           filters.searchTerms?.some(search => 
             skill.toLowerCase().includes(search.toLowerCase())
@@ -340,7 +325,7 @@ const SearchResults = ({
           <ProfileCardOverlay {...overlayProps}>
             <SkillCard
               category={user.skillCategory}
-              skills={skillsArray}  // Pass all skills instead of just matching ones
+              skills={skillsArray}
               index={index}
               isPublicView={true}
               onReorder={undefined}
@@ -352,7 +337,6 @@ const SearchResults = ({
         if (!user.projectTitle || !user.projectDescription) return null;
         const techStackArray = getStringArray(user.techStack);
         
-        // Apply project-specific filters
         if (filters.techStack) {
           const { hasDeployment, techStack } = filters;
           
@@ -362,7 +346,6 @@ const SearchResults = ({
           )) return null;
         }
         
-        // Search in project details
         if (searchQuery) {
           const searchLower = searchQuery.toLowerCase();
           const matchesSearch = 
@@ -393,7 +376,6 @@ const SearchResults = ({
       case "platforms":
         if (!user.platform || !user.platformUsername || !user.userId) return null;
         
-        // Apply platform-specific filters
         if (filters.platforms) {
           const { 
             leetcode, 
@@ -404,7 +386,7 @@ const SearchResults = ({
 
           const platform = user.platform.toLowerCase();
           const shouldShow = (
-            (!leetcode && !codechef && !codeforces && !geeksforgeeks) || // Show all if none selected
+            (!leetcode && !codechef && !codeforces && !geeksforgeeks) || 
             (leetcode && platform === "leetcode") ||
             (codechef && platform === "codechef") ||
             (codeforces && platform === "codeforces") ||
@@ -414,7 +396,6 @@ const SearchResults = ({
           if (!shouldShow) return null;
         }
 
-        // Search in platform data
         if (searchQuery) {
           const searchLower = searchQuery.toLowerCase();
           const matchesUsername = user.platformUsername.toLowerCase().includes(searchLower);
@@ -426,13 +407,11 @@ const SearchResults = ({
           if (!matchesUsername && !matchesPlatform && !matchesSkills) return null;
         }
 
-        // Format platform data
         const platformName = user.platform.toLowerCase();
         const formattedPlatformData = {
           [platformName]: {
             [user.platformUsername]: {
               ...user.platformData,
-              // Add specific platform data based on platform type
               ...(platformName === 'leetcode' && {
                 totalSolved: user.platformData?.totalSolved || 0,
                 easySolved: user.platformData?.easySolved || 0,
@@ -475,14 +454,12 @@ const SearchResults = ({
       case "certificates":
         if (!user.certificateTitle || !user.certificateCategory) return null;
         
-        // Apply certificate-specific filters
         if (filters.categories) {
           const { categories } = filters;
           
           if (categories?.length && !categories.includes(user.certificateCategory)) return null;
         }
         
-        // Search in certificate details
         if (searchQuery) {
           const searchLower = searchQuery.toLowerCase();
           const matchesSearch = 
@@ -513,14 +490,12 @@ const SearchResults = ({
     }
   };
 
-  // Filter out null values and sort users
   const filteredUsers = visibleUsers
     .filter((user): user is any => user !== null)
-    .flatMap(user => Array.isArray(user) ? user : [user]); // Flatten arrays of results
+    .flatMap(user => Array.isArray(user) ? user : [user]);
 
   let sortedUsers = [...filteredUsers];
 
-  // Sort users based on selected option
   switch (localFilters.sortBy) {
     case "stars":
       sortedUsers.sort((a, b) => (b.starCount || 0) - (a.starCount || 0));
@@ -546,7 +521,6 @@ const SearchResults = ({
       });
   }
 
-  // Update the return statement to use progressive rendering
   return (
     <div className="w-full">
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5 auto-rows-fr">
@@ -586,7 +560,6 @@ const SearchResults = ({
           );
         })}
         
-        {/* Loading placeholders */}
         {visibleCardCount < itemsPerPage && sortedUsers.length > 0 && (
           Array.from({ length: itemsPerPage - visibleCardCount }).map((_, index) => (
             <div

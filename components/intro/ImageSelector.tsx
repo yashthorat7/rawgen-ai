@@ -27,13 +27,11 @@ export function ImageSelector({ image: initialImage, onImageChange }: ImageSelec
   const generateUploadUrl = useMutation(api.users.generateUploadUrl);
   const saveProfileImage = useMutation(api.users.saveProfileImage);
   
-  // Fetch profile image
   const profileImage = useQuery(
     api.users.getUserProfileImage, 
     userEmail ? { email: userEmail } : "skip"
   );
 
-  // Update image when profile image is loaded
   useEffect(() => {
     if (profileImage) {
       setCurrentImage(profileImage);
@@ -56,14 +54,13 @@ export function ImageSelector({ image: initialImage, onImageChange }: ImageSelec
     fileInputRef.current?.click();
   };
 
-  const MAX_PROFILE_IMAGE_SIZE = 100 * 1024; // 100KB
+  const MAX_PROFILE_IMAGE_SIZE = 200 * 1024; // 200KB
   const MAX_OTHER_IMAGE_SIZE = 200 * 1024; // 200KB
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-        // Check file size
-        const isProfileImage = !currentImage; // Assuming currentImage is null for profile image
+        const isProfileImage = !currentImage;
         const maxSize = isProfileImage ? MAX_PROFILE_IMAGE_SIZE : MAX_OTHER_IMAGE_SIZE;
 
         if (file.size > maxSize) {
@@ -89,14 +86,11 @@ export function ImageSelector({ image: initialImage, onImageChange }: ImageSelec
     try {
       setIsUploading(true);
       
-      // Convert base64 to blob
       const response = await fetch(base64Image);
       const blob = await response.blob();
 
-      // Get upload URL from Convex
       const uploadUrl = await generateUploadUrl();
 
-      // Upload the file
       const result = await fetch(uploadUrl, {
         method: "POST",
         headers: { "Content-Type": "image/jpeg" },
@@ -107,16 +101,13 @@ export function ImageSelector({ image: initialImage, onImageChange }: ImageSelec
         throw new Error(`Upload failed: ${result.statusText}`);
       }
 
-      // Get the storage ID from the upload response
       const { storageId } = await result.json();
 
-      // Save the profile image reference
       await saveProfileImage({
         email: userEmail,
         storageId: storageId
       });
 
-      // Update the UI
       setCurrentImage(base64Image);
       onImageChange(base64Image);
     } catch (error) {

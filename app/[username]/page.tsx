@@ -20,25 +20,20 @@ interface PageProps {
 
 export default async function ProfilePage({ params }: PageProps) {
   try {
-    // Await params before using them
     const resolvedParams = await params;
     const decodedUsername = decodeURIComponent(resolvedParams.username);
     
-    // This will be a public view of a user's profile
-    // We'll fetch the user's data using their username
     const user = await convex.query(api.users.getUserByUsername, { username: decodedUsername });
     
     if (!user) {
       notFound();
     }
   
-    // Get full platform data for the user
     const platformData = await convex.query(api.users.getFullPlatformDataByUsername, { username: decodedUsername });
   
     return (
       <PlatformProvider platformData={platformData || undefined}>
         <div className="min-h-screen flex flex-col relative">
-          {/* Fixed Gradient Background */}
           <div className="fixed inset-0 bg-gradient-to-b from-transparent to-primary-100/50 pointer-events-none" />
           
           {/* Content */}

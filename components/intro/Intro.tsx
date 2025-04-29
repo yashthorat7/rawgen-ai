@@ -35,7 +35,6 @@ export function Intro({ username, isPublicView = false }: IntroProps) {
   const { user } = useUser();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
-  // Get user data - either from username (public) or email (private)
   const publicUserData = useQuery(
     api.users.getUserByUsername,
     username ? { username } : "skip"
@@ -50,31 +49,26 @@ export function Intro({ username, isPublicView = false }: IntroProps) {
 
   const userInfo = isPublicView ? publicUserData : privateUserData;
 
-  // Get profile image URL if it exists
   const profileImageUrl = useQuery(
     api.users.getProfileImageUrl,
     userInfo?.profileImage ? { storageId: userInfo.profileImage } : "skip"
   );
 
-  // Get counters data
   const counters = useQuery(
     api.counters.get,
     userInfo?._id ? { userId: userInfo._id } : "skip"
   );
 
-  // Parse social links from JSON string
   const socialLinks: SocialLinks | null = counters?.socialLinks 
     ? JSON.parse(counters.socialLinks)
     : null;
 
-  // Get default name from Clerk user data or public data
   const defaultName = isPublicView
     ? { firstName: "", lastName: "" }
     : { firstName: user?.firstName || "", lastName: user?.lastName || "" };
 
-  // Only show name after database is fetched
   const displayName = userInfo === undefined
-    ? null  // Loading state
+    ? null
     : userInfo
       ? `${userInfo.firstName || defaultName.firstName} ${userInfo.lastName || defaultName.lastName}`.trim()
       : `${defaultName.firstName} ${defaultName.lastName}`.trim();
@@ -93,7 +87,6 @@ export function Intro({ username, isPublicView = false }: IntroProps) {
           )}
         </h1>
         <PlatformCounter username={username} isPublicView={isPublicView} />
-        {/* Only render SocialMedia if we have social links or email */}
         {(socialLinks || (!isPublicView && user?.primaryEmailAddress?.emailAddress)) && (
           <SocialMedia
             github={socialLinks?.github}

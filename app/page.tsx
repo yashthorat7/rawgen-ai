@@ -1,6 +1,6 @@
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import { Hero } from "@/components/layout/Hero";
+import { Landing } from "@/components/landing/Landing";
 import { Footer } from "@/components/layout/Footer";
 
 export default async function Home() {
@@ -12,7 +12,7 @@ export default async function Home() {
 
   return (
     <>
-      <Hero />
+      <Landing />
       <Footer />
     </>
   );

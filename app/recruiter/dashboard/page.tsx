@@ -17,14 +17,12 @@ export default function RecruiterDashboard() {
   const [recruiterEmail, setRecruiterEmail] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Get recruiter data to check permission
   const recruiter = useQuery(
     api.recruiters.getByEmail,
     recruiterEmail ? { email: recruiterEmail } : "skip"
   );
 
   useEffect(() => {
-    // Get recruiter email from localStorage
     const email = window.localStorage.getItem('recruiterEmail');
     if (!email) {
       router.push('/recruiter');
@@ -46,7 +44,6 @@ export default function RecruiterDashboard() {
     return null;
   }
 
-  // Show not permitted message if recruiter exists but is not permitted
   if (recruiter && !recruiter.isPermitted) {
     return (
       <div className="min-h-screen flex flex-col">
@@ -76,7 +73,6 @@ export default function RecruiterDashboard() {
     );
   }
 
-  // Show loading state while checking recruiter data
   if (!recruiter) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -87,13 +83,11 @@ export default function RecruiterDashboard() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Fixed Gradient Background */}
       <div className="fixed inset-0 bg-gradient-to-b from-transparent to-primary-100/50 pointer-events-none" />
       
       {/* Dotted Background */}
       <div className="fixed inset-0 dotted-background pointer-events-none" />
       
-      {/* Content */}
       <Header />
       <main className="flex-1 relative">
         <div className="mx-auto px-4 w-full sm:w-[90%]">

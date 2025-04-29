@@ -23,27 +23,17 @@ export default function DashboardPage() {
   const [showFeatures, setShowFeatures] = useState(false);
   const pathname = usePathname();
   
-  // Fetch user data from Convex to check haslearned status
   const userData = useQuery(api.users.getUser, 
     email ? { email } : "skip"
   );
 
   useEffect(() => {
-    // Only run this effect when:
-    // 1. User data is loaded and we have userData from Convex
-    // 2. We are on the dashboard page (not viewing someone else's profile)
     if (!isLoaded || !email || userData === undefined) return;
     
-    // Check if we're viewing our own dashboard (not someone else's profile)
-    // The dashboard route is specifically /dashboard
     const isOwnDashboard = pathname === "/dashboard";
     if (!isOwnDashboard) return;
 
-    // Check if the user has already gone through the features dialog
-    // haslearned will be undefined (not set) for new users or false if explicitly set to false
     const hasLearned = userData?.haslearned === true;
-    
-    // Show features dialog if user hasn't learned yet
     setShowFeatures(!hasLearned);
   }, [isLoaded, email, userData, pathname]);
 
@@ -58,7 +48,6 @@ export default function DashboardPage() {
   return (
     <PlatformProvider>
       <div className="min-h-screen flex flex-col relative">
-        {/* Fixed Gradient Background */}
         <div className="fixed inset-0 bg-gradient-to-b from-transparent to-primary-100/50 pointer-events-none" />
         
         {/* Content */}

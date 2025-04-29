@@ -33,7 +33,6 @@ export function SocialMedia({
   iconClassName,
   isLoading = false
 }: SocialMediaProps) {
-  // If loading, show skeleton animation
   if (isLoading) {
     return (
       <div className={cn("flex items-center mt-0 sm:mt-4 gap-8", className)}>
@@ -47,7 +46,6 @@ export function SocialMedia({
     );
   }
 
-  // Create base social links without email
   const baseLinks = [
     github && {
       url: `https://github.com/${github}`,
@@ -75,7 +73,6 @@ export function SocialMedia({
     }
   ].filter((link): link is SocialLink => Boolean(link));
 
-  // Add email only if we have other social links
   const socialLinks = [
     ...baseLinks,
     baseLinks.length > 0 && email && {

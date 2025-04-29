@@ -13,10 +13,7 @@ export async function extractGeeksForGeeksData(username: string): Promise<GeeksF
       }
     });
 
-    // Check if response is OK
     if (!response.ok) return null;
-
-    // Check content type
     const contentType = response.headers.get('content-type');
     if (!contentType || !contentType.includes('application/json')) return null;
 
@@ -29,7 +26,6 @@ export async function extractGeeksForGeeksData(username: string): Promise<GeeksF
     const stats = data.stats;
     const problems = data.problems || { school: [], basic: [], easy: [], medium: [], hard: [] };
 
-    // Get problem counts from problemsSolved object
     const problemCounts = {
       total: stats.problemsSolved?.total || 0,
       school: stats.problemsSolved?.byDifficulty?.school || 0,
@@ -40,26 +36,21 @@ export async function extractGeeksForGeeksData(username: string): Promise<GeeksF
     };
 
     const extractedData = {
-      // Basic Info
       username: profile.username || '',
       profileImage: profile.userImage || '',
       stars: profile.stars || '',
       institution: profile.institution || '',
       organization: profile.organization || '',
       
-      // Stats
       codingScore: stats.coding_score || 0,
       problemsSolved: stats.problem_solved || 0,
       contestRating: stats.contest_rating || 0,
       
-      // Streaks
       currentStreak: profile.streak || 0,
       totalStreak: profile.globalStreak || 0,
       
-      // Rankings
       institutionRank: profile.instituteRank || 0,
       
-      // Problem Counts
       totalProblems: problemCounts.total,
       schoolProblems: problemCounts.school,
       basicProblems: problemCounts.basic,
@@ -67,10 +58,8 @@ export async function extractGeeksForGeeksData(username: string): Promise<GeeksF
       mediumProblems: problemCounts.medium,
       hardProblems: problemCounts.hard,
       
-      // Languages
       languages: profile.languages || [],
 
-      // Problems by Difficulty
       problems: {
         school: problems.school || [],
         basic: problems.basic || [],
@@ -87,7 +76,6 @@ export async function extractGeeksForGeeksData(username: string): Promise<GeeksF
   }
 }
 
-// New function to extract only essential data for platform cards
 export function extractEssentialGeeksForGeeksData(data: GeeksForGeeksData): Record<string, any> {
   return {
     codingScore: data.codingScore || 0,

@@ -6,7 +6,6 @@ import { getUserByUsername } from "./users";
 import { QueryCtx } from "./_generated/server";
 import { FilterBuilder } from "convex/server";
 
-// Password validation function
 function isValidPassword(password: string) {
     const minLength = 8;
     const hasUpperCase = /[A-Z]/.test(password);
@@ -36,7 +35,6 @@ export const verify = mutation({
         password: v.string(),
     },
     handler: async (ctx, args) => {
-        // First check if email exists
         const recruiter = await ctx.db
             .query("recruiters")
             .filter((q) => q.eq(q.field("email"), args.email))
@@ -46,7 +44,6 @@ export const verify = mutation({
             return { success: false, message: "Email not found" };
         }
 
-        // Then check password
         if (recruiter.password !== args.password) {
             return { success: false, message: "Incorrect password" };
         }
@@ -81,19 +78,16 @@ export const create = mutation({
         recruiterImage: v.optional(v.union(v.string(), v.null())),
     },
     handler: async (ctx, args) => {
-        // Validate email format
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(args.email)) {
             return { success: false, message: "Invalid email format" };
         }
 
-        // Validate password
         const passwordValidation = isValidPassword(args.password);
         if (!passwordValidation.isValid) {
             return { success: false, message: passwordValidation.message };
         }
 
-        // Check if recruiter already exists
         const existing = await ctx.db
             .query("recruiters")
             .filter((q) => q.eq(q.field("email"), args.email))
@@ -104,7 +98,6 @@ export const create = mutation({
         }
 
         try {
-            // Create new recruiter
             const recruiterId = await ctx.db.insert("recruiters", {
                 email: args.email,
                 firstName: args.firstName,
@@ -129,38 +122,32 @@ export const create = mutation({
     },
 });
 
-// Helper function to get all user data
 async function getAllUserData(ctx: QueryCtx, username: string) {
   const user = await getUserByUsername(ctx, { username });
   if (!user) return null;
 
   const userId = user._id;
 
-  // Get skills
   const skills = await ctx.db
     .query("skills")
     .filter(q => q.eq(q.field("userId"), userId))
     .collect();
 
-  // Get projects
   const projects = await ctx.db
     .query("projects")
     .filter(q => q.eq(q.field("userId"), userId))
     .collect();
 
-  // Get profiles
   const profiles = await ctx.db
     .query("profiles")
     .filter(q => q.eq(q.field("userId"), userId))
     .collect();
 
-  // Get certificates
   const certificates = await ctx.db
     .query("certificates")
     .filter(q => q.eq(q.field("userId"), userId))
     .collect();
 
-  // Get stars
   const stars = user.madeStars?.length || 0;
 
   return {
@@ -190,7 +177,6 @@ interface UserWithData {
   platformCount: number;
   certificateCount: number;
   starCount: number;
-  // Tab-specific data
   skillCategory?: string;
   skills?: any[];
   projectId?: Id<"projects">;
@@ -211,11 +197,11 @@ interface UserWithData {
   isMarked: boolean;
 }
 
-// Helper function to format platform data based on platform type
+
 function formatPlatformData(platform: string, profile: any, skills: any[]) {
   if (!profile) return null;
 
-  // Parse statsData (small JSON containing only essential metrics)
+  
   let stats: Record<string, any> = {};
   try {
     if (profile.statsData) {
@@ -226,7 +212,7 @@ function formatPlatformData(platform: string, profile: any, skills: any[]) {
     return null;
   }
 
-  // Format skills array
+  
   const formattedSkills = skills.reduce((acc: string[], skill: any) => {
     try {
       const skillData = JSON.parse(skill.skillsData);
@@ -292,7 +278,7 @@ function formatPlatformData(platform: string, profile: any, skills: any[]) {
   }
 }
 
-// Update the SearchFilters type
+
 export type SearchFilters = {
   verified: boolean;
   sortBy: "recent" | "stars" | "projects" | "skills" | "platforms" | "certificates";
@@ -384,7 +370,7 @@ export const searchUsers = query({
       userFilters
     } = filters;
 
-    // Get recruiter's markstar list if recruiterEmail is provided
+    
     let markedEmails: string[] = [];
     if (recruiterEmail) {
       const recruiter = await ctx.db
@@ -394,12 +380,12 @@ export const searchUsers = query({
       markedEmails = recruiter?.markstar || [];
     }
 
-    // Get all users first
+    
     let users = await ctx.db
       .query("users")
       .collect();
 
-    // Filter by search query if provided
+    
     if (query) {
       users = users.filter(user => {
         const searchStr = `${user.username} ${user.firstName || ''} ${user.lastName || ''}`.toLowerCase();
@@ -407,21 +393,21 @@ export const searchUsers = query({
       });
     }
 
-    // Filter by verified status if required
+    
     if (verified) {
       users = users.filter(user => user.isverified);
     }
 
-    // Get additional data for each user and add isMarked status
+    
     const usersWithData = await Promise.all(
       users.map(async user => {
         const userData = await getAllUserData(ctx, user.username);
         if (!userData) return null;
 
-        // Add isMarked status to user data
+        
         const isMarked = markedEmails.includes(user.email);
 
-        // Base user data
+        
         const baseUser = {
           ...user,
           isMarked: isMarked,
@@ -432,7 +418,7 @@ export const searchUsers = query({
           starCount: userData.stars || 0
         };
 
-        // Apply user-specific filters
+        
         if (tab === "users" && userFilters) {
           if (userFilters.hasProfileImage && !user.profileImage) return null;
           if (userFilters.isVerified && !user.isverified) return null;
@@ -443,14 +429,14 @@ export const searchUsers = query({
           if (userFilters.minCertificates && baseUser.certificateCount < userFilters.minCertificates) return null;
         }
 
-        // Add tab-specific data
+        
         switch (tab) {
           case "skills":
-            // Return all skills for the user
+            
             const userSkills = userData.skills || [];
             if (!userSkills.length) return null;
 
-            // Create an array of skill entries with ALL skills
+            
             const skillEntries = userSkills.map(skill => {
               let skillsData: string[] = [];
               try {
@@ -472,11 +458,11 @@ export const searchUsers = query({
             return skillEntries;
 
           case "projects":
-            // Return all projects for the user
+            
             const userProjects = userData.projects || [];
             if (!userProjects.length) return null;
 
-            // Create an array of project entries with ALL projects
+            
             const projectEntries = await Promise.all(userProjects.map(async project => {
               let projectImageUrl;
               if (project.projectImage) {
@@ -500,11 +486,11 @@ export const searchUsers = query({
             return projectEntries;
 
           case "certificates":
-            // Return all certificates for the user
+            
             const userCerts = userData.certificates || [];
             if (!userCerts.length) return null;
 
-            // Create an array of certificate entries with ALL certificates
+            
             const certEntries = await Promise.all(userCerts.map(async cert => {
               let certificateImageUrl;
               if (cert.certificateImage) {
@@ -529,10 +515,10 @@ export const searchUsers = query({
             const profile = userData.profiles?.[0];
             if (!profile) return baseUser;
 
-            // Get user's skills
+            
             const platformUserSkills = userData.skills || [];
 
-            // Parse platform data
+            
             let platformData = null;
             try {
               platformData = formatPlatformData(profile.platformName.toLowerCase(), profile, []);
@@ -541,12 +527,12 @@ export const searchUsers = query({
               return null;
             }
 
-            // Calculate normalized rank based on platform type
+            
             let normalizedRank = 0;
             try {
               const platform = profile.platformName.toLowerCase();
               
-              // Parse statsData
+              
               let stats: Record<string, any> = {};
               try {
                 if (profile.statsData) {
@@ -559,7 +545,7 @@ export const searchUsers = query({
               
               switch (platform) {
                 case 'leetcode':
-                  // Lower ranking is better
+                  
                   normalizedRank = stats.ranking || Infinity;
                   platformData = {
                     ...platformData,
@@ -568,7 +554,7 @@ export const searchUsers = query({
                   };
                   break;
                 case 'codechef':
-                  // Higher rating is better, invert for consistent sorting
+                  
                   normalizedRank = -(stats.currentRating || 0);
                   platformData = {
                     ...platformData,
@@ -577,7 +563,7 @@ export const searchUsers = query({
                   };
                   break;
                 case 'codeforces':
-                  // Higher rating is better, invert for consistent sorting
+                  
                   normalizedRank = -(stats.rating || 0);
                   platformData = {
                     ...platformData,
@@ -586,7 +572,7 @@ export const searchUsers = query({
                   };
                   break;
                 case 'geeksforgeeks':
-                  // Higher coding score is better, invert for consistent sorting
+                  
                   normalizedRank = -(stats.codingScore || 0);
                   platformData = {
                     ...platformData,
@@ -600,14 +586,14 @@ export const searchUsers = query({
               return null;
             }
 
-            // Apply platform filters
+            
             if (platformFilters) {
               const platform = profile.platformName.toLowerCase();
               
-              // Filter by platform type
+              
               const { leetcode, codechef, codeforces, geeksforgeeks } = platformFilters;
               const shouldShow = (
-                (!leetcode && !codechef && !codeforces && !geeksforgeeks) || // Show all if none selected
+                (!leetcode && !codechef && !codeforces && !geeksforgeeks) || 
                 (leetcode && platform === "leetcode") ||
                 (codechef && platform === "codechef") ||
                 (codeforces && platform === "codeforces") ||
@@ -617,7 +603,7 @@ export const searchUsers = query({
               if (!shouldShow) return null;
             }
 
-            // Apply search query
+            
             if (query) {
               const searchLower = query.toLowerCase();
               const matchesUsername = profile.platformUsername.toLowerCase().includes(searchLower);
@@ -647,11 +633,11 @@ export const searchUsers = query({
       })
     );
 
-    // Filter out null values and sort users
+    
     const filteredUsers = usersWithData.filter((user): user is UserWithData => user !== null);
     let sortedUsers = [...filteredUsers];
 
-    // Sort users based on selected option
+    
     switch (sortBy) {
       case "stars":
         sortedUsers.sort((a, b) => (b.starCount || 0) - (a.starCount || 0));
@@ -677,20 +663,20 @@ export const searchUsers = query({
         });
     }
 
-    // Handle different tabs
+    
     if (tab === "skills") {
-      // Get all skills from all users
+      
       const allSkills = await ctx.db
         .query("skills")
         .collect();
 
-      // Process all skills
+      
       const results = await Promise.all(allSkills.map(async skill => {
-        // Get user data
+        
         const user = await ctx.db.get(skill.userId);
         if (!user || (verified && !user.isverified)) return null;
 
-        // Check if user is marked
+        
         const isMarked = markedEmails.includes(user.email);
 
         let skillsData: string[] = [];
@@ -712,13 +698,13 @@ export const searchUsers = query({
         };
       }));
 
-      // Filter out null results
+      
       let filteredResults = results.filter((result): result is NonNullable<typeof result> => result !== null);
 
-      // Sort by creation time (most recent first)
+      
       filteredResults.sort((a, b) => b._creationTime - a._creationTime);
 
-      // Apply pagination
+      
       const paginatedResults = filteredResults.slice(
         (page - 1) * pageSize,
         page * pageSize
@@ -731,18 +717,18 @@ export const searchUsers = query({
     }
 
     if (tab === "projects") {
-      // Get all projects from all users
+      
       const allProjects = await ctx.db
         .query("projects")
         .collect();
 
-      // Process all projects
+      
       const results = await Promise.all(allProjects.map(async project => {
-        // Get user data
+        
         const user = await ctx.db.get(project.userId);
         if (!user || (verified && !user.isverified)) return null;
 
-        // Check if user is marked
+        
         const isMarked = markedEmails.includes(user.email);
 
         let projectImageUrl;
@@ -766,13 +752,13 @@ export const searchUsers = query({
         };
       }));
 
-      // Filter out null results
+      
       let filteredResults = results.filter((result): result is NonNullable<typeof result> => result !== null);
 
-      // Sort by creation time (most recent first)
+      
       filteredResults.sort((a, b) => b._creationTime - a._creationTime);
 
-      // Apply pagination
+      
       const paginatedResults = filteredResults.slice(
         (page - 1) * pageSize,
         page * pageSize
@@ -785,18 +771,18 @@ export const searchUsers = query({
     }
 
     if (tab === "certificates") {
-      // Get all certificates from all users
+      
       const allCertificates = await ctx.db
         .query("certificates")
         .collect();
 
-      // Process all certificates
+      
       const results = await Promise.all(allCertificates.map(async cert => {
-        // Get user data
+        
         const user = await ctx.db.get(cert.userId);
         if (!user || (verified && !user.isverified)) return null;
 
-        // Check if user is marked
+        
         const isMarked = markedEmails.includes(user.email);
 
         let certificateImageUrl;
@@ -818,13 +804,13 @@ export const searchUsers = query({
         };
       }));
 
-      // Filter out null results
+      
       let filteredResults = results.filter((result): result is NonNullable<typeof result> => result !== null);
 
-      // Sort by creation time (most recent first)
+      
       filteredResults.sort((a, b) => b._creationTime - a._creationTime);
 
-      // Apply pagination
+      
       const paginatedResults = filteredResults.slice(
         (page - 1) * pageSize,
         page * pageSize
@@ -836,23 +822,23 @@ export const searchUsers = query({
       };
     }
 
-    // Update platform filtering logic
+    
     if (tab === "platforms") {
-      // Get all platform profiles
+      
       const platformProfiles = await ctx.db
         .query("profiles")
         .collect();
 
-      // Process platform profiles
+      
       const results = await Promise.all(platformProfiles.map(async profile => {
-        // Get user data
+        
         const user = await ctx.db.get(profile.userId);
         if (!user || (verified && !user.isverified)) return null;
 
-        // Check if user is marked
+        
         const isMarked = markedEmails.includes(user.email);
 
-        // Parse platform data
+        
         let platformData = null;
         try {
           platformData = formatPlatformData(profile.platformName.toLowerCase(), profile, []);
@@ -860,14 +846,14 @@ export const searchUsers = query({
           return null;
         }
 
-        // Apply platform filters
+        
         if (platformFilters) {
           const platform = profile.platformName.toLowerCase();
           
-          // Filter by platform type
+          
           const { leetcode, codechef, codeforces, geeksforgeeks } = platformFilters;
           const shouldShow = (
-            (!leetcode && !codechef && !codeforces && !geeksforgeeks) || // Show all if none selected
+            (!leetcode && !codechef && !codeforces && !geeksforgeeks) || 
             (leetcode && platform === "leetcode") ||
             (codechef && platform === "codechef") ||
             (codeforces && platform === "codeforces") ||
@@ -877,7 +863,7 @@ export const searchUsers = query({
           if (!shouldShow) return null;
         }
 
-        // Apply search query
+        
         if (query) {
           const searchLower = query.toLowerCase();
           const matchesUsername = profile.platformUsername.toLowerCase().includes(searchLower);
@@ -899,13 +885,13 @@ export const searchUsers = query({
         };
       }));
 
-      // Filter out null results
+      
       let filteredResults = results.filter((result): result is NonNullable<typeof result> => result !== null);
 
-      // Sort by creation time (most recent first)
+      
       filteredResults.sort((a, b) => b._creationTime - a._creationTime);
 
-      // Apply pagination
+      
       const paginatedResults = filteredResults.slice(
         (page - 1) * pageSize,
         page * pageSize
@@ -917,7 +903,7 @@ export const searchUsers = query({
       };
     }
 
-    // For users tab, use the existing logic
+    
     return {
       users: sortedUsers.slice((page - 1) * pageSize, page * pageSize),
       total: sortedUsers.length
@@ -927,7 +913,7 @@ export const searchUsers = query({
 
 export const getAvailableFilters = query({
   handler: async (ctx) => {
-    // Get all skills from the skills table
+    
     const skillsData = await ctx.db.query("skills").collect();
     
     const filters = {
@@ -935,19 +921,19 @@ export const getAvailableFilters = query({
       maxExperience: 0
     };
 
-    // Extract unique skills from skillsData
+    
     skillsData.forEach(skill => {
       try {
         const data = JSON.parse(skill.skillsData);
         data.forEach((s: any) => filters.skills.add(s.name));
       } catch (e) {
-        // Skip invalid JSON
+        
       }
     });
 
     return {
       skills: Array.from(filters.skills),
-      maxExperience: 10 // Default max experience
+      maxExperience: 10 
     };
   }
 });
@@ -958,7 +944,7 @@ export const toggleMarkstar = mutation({
     userEmail: v.string(),
   },
   handler: async (ctx, args) => {
-    // Get recruiter
+    
     const recruiter = await ctx.db
       .query("recruiters")
       .filter((q) => q.eq(q.field("email"), args.recruiterEmail))
@@ -968,13 +954,13 @@ export const toggleMarkstar = mutation({
       return { success: false, message: "Recruiter not found" };
     }
 
-    // Get current markstar array
+    
     const currentMarkstar = recruiter.markstar || [];
     
-    // Check if user is already marked
+    
     const isMarked = currentMarkstar.includes(args.userEmail);
     
-    // Toggle the mark
+    
     let newMarkstar;
     if (isMarked) {
       newMarkstar = currentMarkstar.filter(email => email !== args.userEmail);
@@ -982,7 +968,7 @@ export const toggleMarkstar = mutation({
       newMarkstar = [...currentMarkstar, args.userEmail];
     }
 
-    // Update recruiter
+    
     await ctx.db.patch(recruiter._id, {
       markstar: newMarkstar
     });
@@ -998,7 +984,7 @@ export const toggleMarkstar = mutation({
 export const getMarksheetImageUrl = query({
   args: { username: v.string() },
   handler: async (ctx, args) => {
-    // Get user by username
+    
     const user = await ctx.db
       .query("users")
       .withIndex("by_username", (q) => q.eq("username", args.username))
@@ -1008,8 +994,10 @@ export const getMarksheetImageUrl = query({
       return null;
     }
 
-    // Get the URL for the marksheet image
+    
     const url = await ctx.storage.getUrl(user.marksheetImage);
     return url;
   },
 }); 
+
+

@@ -37,13 +37,11 @@ export function HeaderMenu() {
     }
   }, [usernames]);
 
-  // Check if username exists as user types
   const usernameExists = useQuery(
     api.users.checkUsernameExists,
     searchQuery.trim().length > 0 ? { username: searchQuery.trim() } : "skip"
   );
 
-  // Update search status when username check result changes
   useEffect(() => {
     if (searchQuery.trim().length === 0) {
       setSearchStatus("idle");

@@ -16,7 +16,7 @@ interface CustomTooltipProps {
 }
 
 export function ContestRank({ data }: ContestRankProps) {
-  const [timeRange, setTimeRange] = useState(12); // months
+  const [timeRange, setTimeRange] = useState(12);
   const [startIndex, setStartIndex] = useState(0);
 
   const allChartData = useMemo(() => {

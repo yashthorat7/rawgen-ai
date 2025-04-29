@@ -45,7 +45,6 @@ export function UpdateCardIcon({
     try {
       await onDelete();
     } catch (error) {
-      // Error is already handled by PlatformState
       console.error("Error during deletion:", error);
     } finally {
       setIsDeleting(false);

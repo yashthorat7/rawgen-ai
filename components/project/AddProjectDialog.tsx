@@ -85,7 +85,6 @@ export function AddProjectDialog({ isOpen, onClose, initialData, mode = 'add' }:
 
   const handleImageChange = (file: File | null) => {
     if (file) {
-      // Check file size
       if (file.size > MAX_PROJECT_IMAGE_SIZE) {
         alert(`File size must be less than ${MAX_PROJECT_IMAGE_SIZE / 1024}KB`);
         return;
@@ -112,7 +111,6 @@ export function AddProjectDialog({ isOpen, onClose, initialData, mode = 'add' }:
     setIsDragging(false);
     const file = e.dataTransfer.files[0];
     if (file && file.type.startsWith('image/')) {
-      // Check file size
       if (file.size > MAX_PROJECT_IMAGE_SIZE) {
         alert(`File size must be less than ${MAX_PROJECT_IMAGE_SIZE / 1024}KB`);
         return;
@@ -155,10 +153,8 @@ export function AddProjectDialog({ isOpen, onClose, initialData, mode = 'add' }:
       let imageId = undefined;
 
       if (image) {
-        // Get upload URL
         const uploadUrl = await generateUploadUrl();
         
-        // Upload the image
         const result = await fetch(uploadUrl, {
           method: "POST",
           headers: { "Content-Type": image.type },
@@ -172,14 +168,12 @@ export function AddProjectDialog({ isOpen, onClose, initialData, mode = 'add' }:
         const { storageId } = await result.json();
         imageId = storageId;
 
-        // Save the image reference
         await saveImage({
           storageId: imageId
         });
       }
 
       if (mode === 'edit' && initialData?.id) {
-        // Update existing project
         await updateProject({
           projectId: initialData.id,
           email,
@@ -188,10 +182,9 @@ export function AddProjectDialog({ isOpen, onClose, initialData, mode = 'add' }:
           projectLink,
           deployLink: deployLink || undefined,
           techStack: JSON.stringify(Array.from(techStack)),
-          projectImage: image ? imageId : undefined, // Only send imageId if new image uploaded
+          projectImage: image ? imageId : undefined, 
         });
       } else {
-        // Create new project
         await addProject({
           email,
           title,
@@ -217,7 +210,7 @@ export function AddProjectDialog({ isOpen, onClose, initialData, mode = 'add' }:
     title.trim() !== "" && 
     description.trim() !== "" && 
     projectLink.trim() !== "" && 
-    (image !== null || (initialData && previewUrl)) && // Allow existing image in edit mode
+    (image !== null || (initialData && previewUrl)) &&
     techStack.size >= 1 && 
     techStack.size <= 12;
 

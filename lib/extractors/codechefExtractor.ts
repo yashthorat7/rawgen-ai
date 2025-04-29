@@ -8,7 +8,6 @@ export async function extractCodeChefData(username: string): Promise<CodeChefDat
       }
     });
 
-    // Check if response is OK
     if (!response.ok) {
       console.error('CodeChef API error:', {
         status: response.status,
@@ -17,7 +16,6 @@ export async function extractCodeChefData(username: string): Promise<CodeChefDat
       return null;
     }
 
-    // Check content type
     const contentType = response.headers.get('content-type');
     if (!contentType || !contentType.includes('application/json')) {
       console.error('Invalid content type:', contentType);
@@ -26,13 +24,11 @@ export async function extractCodeChefData(username: string): Promise<CodeChefDat
 
     const data = await response.json();
 
-    // Validate data structure
     if (!data || !data.success || !data.data) {
       console.error('Invalid CodeChef data structure:', data);
       return null;
     }
 
-    // Validate required data exists
     const profileData = data.data.profile;
     const statsData = data.data.stats;
     const activityData = data.data.activity;
@@ -47,20 +43,17 @@ export async function extractCodeChefData(username: string): Promise<CodeChefDat
     }
 
     return {
-      // Basic Info
       username: profileData.username || '',
       name: profileData.name || '',
       stars: profileData.stars || 0,
       institution: profileData.institution || '',
       countryName: profileData.country || '',
       
-      // Ratings
       currentRating: profileData.rating || 0,
       highestRating: profileData.highestRating || 0,
       globalRank: profileData.globalRank || 0,
       countryRank: profileData.countryRank || 0,
 
-      // Badges
       badges: (profileData.badges || []).map((badge: any) => ({
         title: badge.title || '',
         description: badge.description || '',
@@ -69,13 +62,11 @@ export async function extractCodeChefData(username: string): Promise<CodeChefDat
         alt: badge.alt || ''
       })),
 
-      // Stats
       totalContests: statsData.contests?.total || 0,
       totalProblemsSolved: statsData.totalProblemsSolved || '0',
       practiceProblems: statsData.paths?.practice?.count || 0,
       learningProblems: statsData.paths?.learning?.count || 0,
 
-      // Rating History
       ratingHistory: (activityData.ratingHistory || []).map((contest: any) => ({
         name: contest.name || '',
         code: contest.code || '',
@@ -88,19 +79,16 @@ export async function extractCodeChefData(username: string): Promise<CodeChefDat
         endDate: contest.end_date || ''
       })),
 
-      // Submission Activity
       submissionStats: (activityData.submissionStats || []).map((stat: any) => ({
         date: stat.date || '',
         submissions: parseInt(stat.value) || 0
       })),
 
-      // Contest Details
       contests: (statsData.contests?.details || []).map((contest: any) => ({
         name: contest.name || '',
         problemCount: Array.isArray(contest.problems) ? contest.problems.length : 0
       })).slice(0, 10),
 
-      // Contest Details with Problems
       contestDetails: (statsData.contests?.details || []).map((contest: any) => ({
         name: contest.name || '',
         problems: Array.isArray(contest.problems) ? contest.problems : []
@@ -113,7 +101,6 @@ export async function extractCodeChefData(username: string): Promise<CodeChefDat
   }
 }
 
-// New function to extract only essential data for platform cards
 export function extractEssentialCodeChefData(data: CodeChefData): Record<string, any> {
   return {
     stars: data.stars || 0,

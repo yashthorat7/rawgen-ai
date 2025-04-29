@@ -22,13 +22,11 @@ export function SkillGrid({ username, isPublicView = false }: SkillGridProps) {
   const email = user?.primaryEmailAddress?.emailAddress;
   const reorderSkills = useMutation(api.skills.reorderSkills);
 
-  // First get user data from email (for private view)
   const privateUserData = useQuery(
     api.users.getUser,
     !isPublicView && email ? { email } : "skip"
   );
 
-  // Get skills either from username (public) or user data (private)
   const skills = useQuery(
     api.skills.getUserSkills,
     isPublicView 
@@ -37,8 +35,6 @@ export function SkillGrid({ username, isPublicView = false }: SkillGridProps) {
   );
 
   const deleteSkillCategory = useMutation(api.skills.deleteSkillCategory);
-
-  // Show loading state while data is loading
   if ((!isLoaded && !isPublicView) || (!isPublicView && !privateUserData) || skills === undefined) {
     return (
       <>
@@ -55,7 +51,6 @@ export function SkillGrid({ username, isPublicView = false }: SkillGridProps) {
               </div>
             </div>
             
-            {/* Category at the bottom */}
             <div className="p-3 flex justify-center items-center border-t border-gray-100">
               <div className="h-6 bg-gray-200 rounded w-32" />
               </div>
@@ -66,7 +61,6 @@ export function SkillGrid({ username, isPublicView = false }: SkillGridProps) {
     );
   }
 
-  // Show message if no skills found
   if (!skills || skills.length === 0) {
     if (isPublicView) {
       return null;
@@ -84,12 +78,10 @@ export function SkillGrid({ username, isPublicView = false }: SkillGridProps) {
   const handleReorder = async (fromIndex: number, toIndex: number) => {
     if (!email || !skills || !privateUserData?.username) return;
 
-    // Create updates array with new order
     const newSkills = [...skills];
     const [movedItem] = newSkills.splice(fromIndex, 1);
     newSkills.splice(toIndex, 0, movedItem);
 
-    // Update order in database
     const updates = newSkills.map((skill, i) => ({
       category: skill.category,
       order: i,

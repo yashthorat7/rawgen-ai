@@ -24,11 +24,9 @@ export function EditSkillDialog({ isOpen, onClose, category, initialSkills, onUp
   const [categoryName, setCategoryName] = useState(category)
 
   const userEmail = user?.primaryEmailAddress?.emailAddress
-  // Get username from email using Convex query
   const userData = useQuery(api.users.getUser, userEmail ? { email: userEmail } : "skip")
   const username = userData?.username
 
-  // Reset selected skills when dialog opens with new initialSkills
   useEffect(() => {
     if (isOpen) {
       setSelectedSkills(new Set(initialSkills.map(s => s.toLowerCase().trim())));
@@ -44,10 +42,8 @@ export function EditSkillDialog({ isOpen, onClose, category, initialSkills, onUp
   const handleAddSkill = () => {
     if (!skillInput.trim() || selectedSkills.size >= 16) return;
     
-    // Remove whitespace and convert to lowercase
     const formattedSkill = skillInput.trim().toLowerCase();
     
-    // Add to Set (automatically handles duplicates)
     setSelectedSkills(prev => new Set([...prev, formattedSkill]));
     setSkillInput('');
   };
@@ -71,15 +67,12 @@ export function EditSkillDialog({ isOpen, onClose, category, initialSkills, onUp
   };
 
   const handleSubmit = async () => {
-    // Wait for user data to be loaded
     if (!isUserLoaded || !userData) return;
 
-    // Check for required user data
     if (!userEmail || !username) return;
 
     setIsLoading(true);
     try {
-      // Convert Set to Array for API call
       const skillsArray = Array.from(selectedSkills).sort();
       
       if (skillsArray.length === 0) {
@@ -96,24 +89,19 @@ export function EditSkillDialog({ isOpen, onClose, category, initialSkills, onUp
         });
       }
       
-      // Call onUpdate after successful operation
       onUpdate?.();
       onClose();
     } catch (error) {
-      // Keep the dialog open on error
       setIsLoading(false);
       return;
     }
     
-    // Only reset loading state and close if successful
     setIsLoading(false);
   };
 
   const handleDelete = async () => {
-    // Wait for user data to be loaded
     if (!isUserLoaded || !userData) return;
 
-    // Check for required user data
     if (!userEmail || !username) return;
 
     setIsLoading(true);
@@ -125,7 +113,6 @@ export function EditSkillDialog({ isOpen, onClose, category, initialSkills, onUp
       onUpdate?.();
       onClose();
     } catch (error) {
-      // Error handling silently
     } finally {
       setIsLoading(false);
     }
@@ -147,7 +134,6 @@ export function EditSkillDialog({ isOpen, onClose, category, initialSkills, onUp
 
   const skillsArray = Array.from(selectedSkills);
 
-  // Disable all interactions if user data isn't loaded
   const isDisabled = !isUserLoaded || !userData || isLoading;
 
   return (

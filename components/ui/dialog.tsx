@@ -33,7 +33,6 @@ export function Dialog({ open, onClose, children }: DialogProps) {
 
         {/* Dialog position wrapper */}
         <div className="fixed inset-0 flex items-center justify-center p-4">
-          {/* Dialog content */}
           <DialogPrimitive.Transition.Child
             as={React.Fragment}
             enter="ease-out duration-300"

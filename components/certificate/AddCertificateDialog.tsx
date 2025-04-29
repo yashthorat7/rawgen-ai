@@ -31,7 +31,6 @@ const CERTIFICATE_CATEGORIES = [
   "Course",
 ] as const;
 
-// Add this type for categories
 type CategoryOption = {
   value: string;
   label: string;
@@ -110,7 +109,6 @@ export function AddCertificateDialog({
 
   const handleImageChange = (file: File | null) => {
     if (file) {
-      // Check file size
       if (file.size > MAX_CERTIFICATE_IMAGE_SIZE) {
         alert(`File size must be less than ${MAX_CERTIFICATE_IMAGE_SIZE / 1024}KB`);
         return;
@@ -137,7 +135,6 @@ export function AddCertificateDialog({
     setIsDragging(false);
     const file = e.dataTransfer.files[0];
     if (file && file.type.startsWith('image/')) {
-      // Check file size
       if (file.size > MAX_CERTIFICATE_IMAGE_SIZE) {
         alert(`File size must be less than ${MAX_CERTIFICATE_IMAGE_SIZE / 1024}KB`);
         return;
@@ -150,7 +147,7 @@ export function AddCertificateDialog({
     title.trim() !== "" && 
     category.trim() !== "" && 
     description.trim() !== "" && 
-    (image !== null || (initialData && previewUrl)); // Allow existing image in edit mode
+    (image !== null || (initialData && previewUrl));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -162,10 +159,8 @@ export function AddCertificateDialog({
       let imageId = undefined;
 
       if (image) {
-        // Get upload URL
         const uploadUrl = await generateUploadUrl();
         
-        // Upload the image
         const result = await fetch(uploadUrl, {
           method: "POST",
           headers: { "Content-Type": image.type },
@@ -179,7 +174,6 @@ export function AddCertificateDialog({
         const { storageId } = await result.json();
         imageId = storageId;
 
-        // Save the image reference
         await saveImage({
           storageId: imageId
         });

@@ -78,7 +78,6 @@ function BadgeCard({ badge }: BadgeCardProps) {
   return (
     <div className="relative group w-full max-w-[140px]">
       <div className="aspect-square relative rounded-lg overflow-hidden bg-white">
-        {/* Hover Description Overlay */}
         <div className="absolute inset-0 bg-white/95 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center p-4 z-10">
           <p className="text-xs text-gray-700 text-center">
             {badge.description}

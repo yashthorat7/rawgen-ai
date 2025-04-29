@@ -42,16 +42,13 @@ export function debounce<T extends (...args: any[]) => void>(
   };
 };
 
-// Function to prepare platform profile data for saving
 export async function preparePlatformProfileData(
   platform: string, 
   username: string
 ): Promise<{ statsData: string }> {
   try {
-    // Extract only the essential data needed for platform cards
     const essentialData = await extractEssentialPlatformData(platform, username);
     
-    // If extraction failed, provide an empty object as default
     if (!essentialData) {
       console.error(`Failed to extract essential ${platform} data for ${username}`);
       return {
@@ -59,20 +56,17 @@ export async function preparePlatformProfileData(
       };
     }
     
-    // Convert to JSON string for storage
     return {
       statsData: JSON.stringify(essentialData)
     };
   } catch (error) {
     console.error(`Error preparing ${platform} profile data:`, error);
-    // Return empty object as default in case of error
     return {
       statsData: JSON.stringify({})
     };
   }
 }
 
-// Function to get default statsData for a platform if none exists
 export function getDefaultStatsData(platformName: string): string {
   switch (platformName.toLowerCase()) {
     case 'leetcode':

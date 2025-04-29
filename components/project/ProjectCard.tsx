@@ -38,7 +38,6 @@ export function ProjectCard({
   const [showInfo, setShowInfo] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
 
-  // Function to truncate description to first sentence
   const truncateDescription = (text: string) => {
     const sentence = text.split(/[.!?]/)[0];
     return sentence + (text.length > sentence.length ? '...' : '');

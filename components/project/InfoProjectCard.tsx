@@ -42,7 +42,6 @@ export function InfoProjectCard({
             </button>
           </div>
 
-          {/* Content */}
           <div className="p-4 sm:p-6 overflow-y-auto">
             {image && (
               <div className="aspect-video mb-4 sm:mb-6 overflow-hidden rounded-lg border border-gray-200">
@@ -54,7 +53,6 @@ export function InfoProjectCard({
               </div>
             )}
 
-            {/* Tech Stack with less rounded tags */}
             <div className="flex flex-wrap gap-2 mb-4 sm:mb-6">
               {techStack.map((tech, index) => (
                 <span
@@ -66,13 +64,11 @@ export function InfoProjectCard({
               ))}
             </div>
 
-            {/* Description */}
             <p className="text-gray-600 whitespace-pre-wrap mb-4 sm:mb-6 text-sm sm:text-base">
               {description}
             </p>
           </div>
 
-          {/* Footer with Actions */}
           <div className="p-4 sm:p-6 border-t flex flex-col sm:flex-row justify-between gap-3 sm:gap-4">
             <a
               href={projectLink}

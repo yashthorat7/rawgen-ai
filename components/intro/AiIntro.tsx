@@ -46,7 +46,6 @@ export function AiIntro({ username, isPublicView = false }: AiIntroProps) {
     setHasFetchedAdvice(false);
   }, [platforms.length]);
 
-  // Directly fetch platform data using the userId index
   useEffect(() => {
     if (hasFetchedAdvice || (isPublicView && Object.keys(platformData || {}).length > 0)) {
       return;
@@ -60,7 +59,6 @@ export function AiIntro({ username, isPublicView = false }: AiIntroProps) {
         const email = user?.primaryEmailAddress?.emailAddress;
         if (!email && !isPublicView) return;
         
-        // For public view, use the username parameter if provided
         const data = isPublicView && username 
           ? await convexHttp.query(api.users.getFullPlatformDataByUsername, { username })
           : await convexHttp.query(api.users.getPlatformDataByEmail, { email: email || '' });
@@ -80,13 +78,10 @@ export function AiIntro({ username, isPublicView = false }: AiIntroProps) {
         for (const item of data) {
           try {
             const parsedData = JSON.parse(item.fullData);
-            // Get the profile to know what platform this is for
             const profilesResult = isPublicView && username
               ? await convexHttp.query(api.users.getUserByUsername, { username })
               : await convexHttp.query(api.users.getProfiles, { email: email || '' });
             
-            // For public view, we get a user object with profiles property
-            // For private view, we get an array of profiles directly
             let profilesList: any[] = [];
             if (isPublicView && username && profilesResult) {
               if (profilesResult && typeof profilesResult === 'object' && 'profiles' in profilesResult) {
@@ -136,7 +131,6 @@ export function AiIntro({ username, isPublicView = false }: AiIntroProps) {
     setIsLoading(true);
     
     try {
-      // Prepare platform data - prefer direct data if available, fall back to context data
       const mergedData = {
         leetcode: { ...platformData?.leetcode, ...directData.leetcode },
         codechef: { ...platformData?.codechef, ...directData.codechef },
@@ -149,7 +143,6 @@ export function AiIntro({ username, isPublicView = false }: AiIntroProps) {
       const gfgUsers = Object.values(mergedData.geeksforgeeks || {});
       const codeforcesUsers = Object.values(mergedData.codeforces || {});
 
-      // If no platform data is available, show a message
       if (leetcodeUsers.length === 0 && codechefUsers.length === 0 &&
           gfgUsers.length === 0 && codeforcesUsers.length === 0) {
         setAdvice("Nothing has been added yet!");
@@ -215,7 +208,6 @@ export function AiIntro({ username, isPublicView = false }: AiIntroProps) {
   }, [platformData, directData, hasFetchedAdvice]);
 
   useEffect(() => {
-    // Only generate advice when we have data from either source and not already fetching
     if ((!isInitialLoading && !isFetchingData) && 
         (Object.values(directData).some(platform => Object.keys(platform).length > 0) || 
         Object.values(platformData || {}).some(platform => Object.keys(platform || {}).length > 0))) {

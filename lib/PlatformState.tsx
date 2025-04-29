@@ -18,7 +18,6 @@ import {
 import type { Platform, PlatformData, LeetCodeData, CodeChefData, GeeksForGeeksData, CodeforcesData } from "./types";
 import { preparePlatformProfileData } from "./utils";
 
-// Create HTTP client for direct queries
 const convexHttp = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 
 export function usePlatformState(initialPlatformData?: PlatformData) {
@@ -32,7 +31,6 @@ export function usePlatformState(initialPlatformData?: PlatformData) {
   });
   const [isInitialLoading, setIsInitialLoading] = useState(!initialPlatformData);
 
-  // If we have initial platform data, we're in public view mode
   const isPublicView = !!initialPlatformData;
 
   const addPlatform = useMutation(api.users.addPlatform);
@@ -41,7 +39,6 @@ export function usePlatformState(initialPlatformData?: PlatformData) {
   const updateOrder = useMutation(api.users.updateOrder);
   const createUser = useMutation(api.users.createUser);
 
-  // Get profiles from database only if not in public view
   const profiles = useQuery(
     api.users.getProfiles,
     !isPublicView && user?.primaryEmailAddress?.emailAddress
@@ -49,7 +46,6 @@ export function usePlatformState(initialPlatformData?: PlatformData) {
       : "skip"
   );
 
-  // Create user if not exists and not in public view
   useEffect(() => {
     if (isPublicView) return;
 
@@ -62,21 +58,18 @@ export function usePlatformState(initialPlatformData?: PlatformData) {
           username: user.username || user.primaryEmailAddress.emailAddress.split('@')[0]
         });
       } catch (error) {
-        // Error handling silently
       }
     };
 
     initUser();
   }, [isUserLoaded, user, createUser, isPublicView]);
 
-  // Fetch platform data and update database with both stats and full data
   const fetchAndStorePlatformData = useCallback(async (platformName: string, platformUsername: string) => {
     if (!user?.primaryEmailAddress?.emailAddress) return null;
     const email = user.primaryEmailAddress.emailAddress;
     
 
     try {
-      // Fetch full platform data
       let data: LeetCodeData | CodeChefData | GeeksForGeeksData | CodeforcesData | null = null;
       
       switch (platformName) {
@@ -95,9 +88,6 @@ export function usePlatformState(initialPlatformData?: PlatformData) {
       }
 
       if (data) {
-        // Extract essential stats data directly to avoid additional API calls
-        
-        // Type-safe extraction of stats data
         let statsData = JSON.stringify({});
         
         switch(platformName) {
@@ -115,7 +105,6 @@ export function usePlatformState(initialPlatformData?: PlatformData) {
             break;
         }
         
-        // Update both stats and full data in database
         await updateProfileData({
           email,
           platformName,
@@ -124,7 +113,6 @@ export function usePlatformState(initialPlatformData?: PlatformData) {
           fullData: JSON.stringify(data)
         });
 
-        // Update local state
         setPlatformData(prev => {
           const newData = { ...prev };
           switch (platformName) {
@@ -150,7 +138,6 @@ export function usePlatformState(initialPlatformData?: PlatformData) {
     }
   }, [user?.primaryEmailAddress?.emailAddress, updateProfileData]);
 
-  // Process profiles and update state
   useEffect(() => {
     if (!user?.primaryEmailAddress?.emailAddress) {
       return;
@@ -169,7 +156,6 @@ export function usePlatformState(initialPlatformData?: PlatformData) {
         return;
       }
 
-      // Initialize platform data
       const newPlatformData: PlatformData = {
         leetcode: {},
         codechef: {},
@@ -177,7 +163,6 @@ export function usePlatformState(initialPlatformData?: PlatformData) {
         codeforces: {}
       };
 
-      // Sort profiles by order
       const sortedProfiles = [...profiles].sort((a, b) => a.order - b.order);
       setPlatforms(sortedProfiles.map(p => ({
         platform: p.platformName,
@@ -185,16 +170,13 @@ export function usePlatformState(initialPlatformData?: PlatformData) {
         order: p.order
       })));
 
-      // First try to load from cache
       try {
-        // Get all platform data for this user
         const email = user?.primaryEmailAddress?.emailAddress;
         if (!email) return;
         
         const allPlatformData = await convexHttp.query(api.users.getAllPlatformData, { email });
         
         if (allPlatformData && Array.isArray(allPlatformData) && allPlatformData.length > 0) {
-          // Map profileId to data for quick lookup
           const platformDataMap = new Map();
           allPlatformData.forEach(item => {
             if (item && item.profileId && item.fullData) {
@@ -202,7 +184,6 @@ export function usePlatformState(initialPlatformData?: PlatformData) {
             }
           });
           
-          // Process each profile
           for (const profile of sortedProfiles) {
             const cachedData = platformDataMap.get(profile._id);
             
@@ -210,7 +191,6 @@ export function usePlatformState(initialPlatformData?: PlatformData) {
               try {
                 const parsedData = JSON.parse(cachedData.fullData);
                 
-                // Update platform data with cached data
                 switch (profile.platformName) {
                   case 'leetcode':
                     newPlatformData.leetcode[profile.platformUsername] = parsedData;
@@ -226,12 +206,10 @@ export function usePlatformState(initialPlatformData?: PlatformData) {
                     break;
                 }
                 
-                // Check if data is stale and queue background refresh
                 const timeSinceUpdate = Date.now() - cachedData.lastUpdated;
                 const isStale = timeSinceUpdate > 12 * 60 * 60 * 1000;
                 
                 if (isStale) {
-                  // Queue background refresh without awaiting
                   setTimeout(() => {
                     fetchAndStorePlatformData(profile.platformName, profile.platformUsername)
                       .then(data => {
@@ -244,7 +222,6 @@ export function usePlatformState(initialPlatformData?: PlatformData) {
               } catch (error) {
               }
             } else {
-              // No cached data, fetch fresh data
               try {
                 const data = await fetchAndStorePlatformData(profile.platformName, profile.platformUsername);
                 if (data) {
@@ -268,7 +245,6 @@ export function usePlatformState(initialPlatformData?: PlatformData) {
             }
           }
         } else {
-          // No cached data found, fetch all fresh
           await Promise.all(sortedProfiles.map(async (profile) => {
             try {
               const data = await fetchAndStorePlatformData(profile.platformName, profile.platformUsername);
@@ -295,7 +271,6 @@ export function usePlatformState(initialPlatformData?: PlatformData) {
       } catch (error) {
       }
       
-      // Update platform data and finish loading
       setPlatformData(newPlatformData);
       setIsInitialLoading(false);
     };
@@ -303,23 +278,19 @@ export function usePlatformState(initialPlatformData?: PlatformData) {
     processProfiles();
   }, [profiles, user?.primaryEmailAddress?.emailAddress, fetchAndStorePlatformData]);
 
-  // Add a new platform
   const handleAddPlatform = async (platformName: string, platformUsername: string) => {
     if (!user?.primaryEmailAddress?.emailAddress) return;
 
-    // Fetch full platform data
     const data = await fetchAndStorePlatformData(platformName, platformUsername);
     if (!data) {
       throw new Error("Failed to fetch platform data");
     }
     
-    // Prepare essential platform data for stats
     const profileData = await preparePlatformProfileData(platformName, platformUsername);
     if (!profileData) {
       throw new Error("Failed to prepare platform data");
     }
 
-    // Add platform with both minimal stats and full data
     await addPlatform({
       email: user.primaryEmailAddress.emailAddress,
       platformName,
@@ -332,11 +303,9 @@ export function usePlatformState(initialPlatformData?: PlatformData) {
   const handleDeletePlatform = async (platformName: string, platformUsername: string) => {
     if (!user?.primaryEmailAddress?.emailAddress) return;
 
-    // Store current state for rollback
     const previousPlatforms = [...platforms];
     const previousPlatformData = { ...platformData };
 
-    // Optimistically update UI
     setPlatforms(prev => prev.filter(p => !(p.platform === platformName && p.username === platformUsername)));
     setPlatformData(prev => {
       const newData = { ...prev };
@@ -358,14 +327,12 @@ export function usePlatformState(initialPlatformData?: PlatformData) {
     });
 
     try {
-      // Run deletion in background
       await deletePlatform({
         email: user.primaryEmailAddress.emailAddress,
         platformName,
         platformUsername
       });
     } catch (error) {
-      // Rollback on error
       setPlatforms(previousPlatforms);
       setPlatformData(previousPlatformData);
       throw error;
@@ -375,38 +342,31 @@ export function usePlatformState(initialPlatformData?: PlatformData) {
   const handleUpdateOrder = async (fromIndex: number, toIndex: number) => {
     if (!user?.primaryEmailAddress?.emailAddress) return;
 
-    // Create new array with updated order
     const newPlatforms = [...platforms];
     const [movedItem] = newPlatforms.splice(fromIndex, 1);
     newPlatforms.splice(toIndex, 0, movedItem);
 
-    // Create updates array for database
     const updates = newPlatforms.map((p, i) => ({
       platformName: p.platform,
       platformUsername: p.username,
       order: i
     }));
 
-    // Update platforms state optimistically
     setPlatforms(newPlatforms.map((p, i) => ({ ...p, order: i })));
 
-    // Update order in database
     await updateOrder({
       email: user.primaryEmailAddress.emailAddress,
       updates
     });
   };
 
-  // Force refresh all profiles
   const forceRefreshAllPlatforms = useCallback(async () => {
     if (!user?.primaryEmailAddress?.emailAddress || !profiles || profiles.length === 0) {
       return;
     }
 
-    // Sort profiles by order
     const sortedProfiles = [...profiles].sort((a, b) => a.order - b.order);
     
-    // Queue refreshes in the background
     sortedProfiles.forEach((profile, index) => {
       setTimeout(() => {
         fetchAndStorePlatformData(profile.platformName, profile.platformUsername)
@@ -415,7 +375,7 @@ export function usePlatformState(initialPlatformData?: PlatformData) {
           .catch(error => {
             console.error(`[FORCE_REFRESH] Error refreshing ${profile.platformName}/${profile.platformUsername}:`, error);
           });
-      }, index * 300); // Stagger by 300ms per profile
+      }, index * 300);
     });
     
   }, [user?.primaryEmailAddress?.emailAddress, profiles, fetchAndStorePlatformData]);

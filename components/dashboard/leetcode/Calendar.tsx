@@ -19,7 +19,6 @@ export function Calendar({ data }: CalendarProps) {
   const currentYear = new Date().getFullYear();
   const [selectedYear, setSelectedYear] = useState(currentYear);
 
-  // Parse submission calendar - it comes as a stringified JSON
   const submissionCalendar = typeof data.calendar.submissionCalendar === 'string' 
     ? JSON.parse(data.calendar.submissionCalendar)
     : data.calendar.submissionCalendar;

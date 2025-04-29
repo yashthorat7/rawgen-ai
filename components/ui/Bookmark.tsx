@@ -21,7 +21,6 @@ export default function BookmarkButton({
   const [isMarked, setIsMarked] = useState(initialIsMarked);
   const toggleMarkstar = useMutation(api.recruiters.toggleMarkstar);
 
-  // Update local state when prop changes
   useEffect(() => {
     setIsMarked(initialIsMarked);
   }, [initialIsMarked]);
@@ -44,7 +43,6 @@ export default function BookmarkButton({
         onMarkChange?.(newState);
       }
     } catch (error) {
-      // Error handling silently
     }
   };
 

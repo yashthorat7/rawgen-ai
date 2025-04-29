@@ -38,31 +38,24 @@ export default function SearchContainer({ recruiterEmail }: SearchContainerProps
   const handlePageChange = (newPage: number) => {
     setIsLoadingMore(true);
     setCurrentPage(newPage);
-    // Reset loading state after a short delay to allow for animation
     setTimeout(() => setIsLoadingMore(false), 300);
   };
 
-  // Calculate which page numbers to show
   const pageNumbers = useMemo(() => {
     const pages: (number | 'ellipsis')[] = [];
     
     if (totalPages <= 7) {
-      // Show all pages if total pages are 7 or less
       for (let i = 1; i <= totalPages; i++) {
         pages.push(i);
       }
     } else {
-      // Always show first page
       pages.push(1);
       
       if (currentPage <= 3) {
-        // If current page is near the start
         pages.push(2, 3, 4, 'ellipsis', totalPages - 1, totalPages);
       } else if (currentPage >= totalPages - 2) {
-        // If current page is near the end
         pages.push('ellipsis', totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
       } else {
-        // If current page is in the middle
         pages.push(
           'ellipsis',
           currentPage - 1,

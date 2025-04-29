@@ -15,12 +15,8 @@ export function ProgressBar({ solved, total, color }: ProgressBarProps) {
     let progress: number;
 
     if (total) {
-      // If total is provided, use non-linear exaggerated progress
       progress = Math.pow(solved / total, 0.6) * 100;
-      // progress = solved / total * 100;
-      // progress = Math.sqrt(solved / total) * 100;
     } else {
-      // If no total, use adaptive ranges
       let effectiveTotal: number;
       
       if (solved <= 100) {
@@ -30,8 +26,6 @@ export function ProgressBar({ solved, total, color }: ProgressBarProps) {
       } else {
         effectiveTotal = 300;
       }
-
-      // Use linear progress for adaptive ranges
       progress = (solved / effectiveTotal) * 100;
     }
 

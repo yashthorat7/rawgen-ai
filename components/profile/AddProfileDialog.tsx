@@ -48,7 +48,6 @@ export function AddPlatformDialog({
   const [error, setError] = useState<string | null>(null)
   const abortControllerRef = useRef<AbortController | null>(null)
 
-  // Add this to check for existing profiles
   const existingProfile = useQuery(
     api.users.checkProfileExists,
     selectedPlatform && username ? {
@@ -94,7 +93,6 @@ export function AddPlatformDialog({
       return;
     }
 
-    // Check if profile exists in database
     if (existingProfile?.exists) {
       setValidationMessage(`${username} on ${selectedPlatform.label} already in use by ${existingProfile.username}`);
       setIsValidated(false);
@@ -139,7 +137,6 @@ export function AddPlatformDialog({
     if (!selectedPlatform || !username || !isValidated) return;
 
     try {
-      // Only check for duplicate within the same platform
       const existingInSamePlatform = existingPlatforms?.find(
         p => p.platform === selectedPlatform.value && p.username === username
       );
@@ -151,7 +148,6 @@ export function AddPlatformDialog({
 
       await onSubmit(selectedPlatform.value, username);
       setSuccessMessage(`Successfully added ${username} to ${selectedPlatform.label}`);
-      // Close dialog after 1.5 seconds
       setTimeout(() => {
         handleClose();
       }, 1500);

@@ -19,7 +19,6 @@ interface ProgressCircleProps {
 }
 
 export function QuestionsSolved({ data }: QuestionsSolvedProps) {
-  // Calculate acceptance rates for each difficulty
   const easySubmissions = data.submitStats?.totalSubmissionNum?.find(s => s.difficulty === 'Easy')?.submissions || data.totalSubmissions || 0;
   const mediumSubmissions = data.submitStats?.totalSubmissionNum?.find(s => s.difficulty === 'Medium')?.submissions || data.totalSubmissions || 0;
   const hardSubmissions = data.submitStats?.totalSubmissionNum?.find(s => s.difficulty === 'Hard')?.submissions || data.totalSubmissions || 0;

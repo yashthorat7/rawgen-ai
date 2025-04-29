@@ -18,7 +18,6 @@ interface SearchFiltersProps {
   onSearchChange: (query: string) => void;
 }
 
-// Helper function to ensure all platform values are boolean
 const updatePlatforms = (
   currentPlatforms: Partial<FilterState['platforms']> | undefined,
   platform: string,
@@ -43,7 +42,6 @@ export function SearchFilters({
   const [inputValue, setInputValue] = useState("");
   const [projectNameSearch, setProjectNameSearch] = useState("");
 
-  // Handle input submission for skills/tech stack
   const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && inputValue.trim()) {
       const newTerm = inputValue.trim();
@@ -60,7 +58,6 @@ export function SearchFilters({
     }
   };
 
-  // Remove search term
   const removeSearchTerm = (term: string) => {
     const updatedTerms = localSearchTerms.filter(t => t !== term);
     setLocalSearchTerms(updatedTerms);
@@ -75,9 +72,7 @@ export function SearchFilters({
 
   return (
     <div className="space-y-4">
-      {/* Search Bars Section */}
       <div className="grid gap-4">
-        {/* Project Search - Two Search Bars */}
         {tab === "projects" && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="relative">
@@ -112,7 +107,6 @@ export function SearchFilters({
             </div>
           </div>
         )}
-        {/* Regular Search Bar for Other Tabs */}
         {tab !== "projects" && (
           <div className="relative">
             <Input
@@ -142,7 +136,6 @@ export function SearchFilters({
         )}
       </div>
 
-      {/* Tags Display */}
       {showTagInput && localSearchTerms.length > 0 && (
         <div className="flex flex-wrap gap-2">
           {localSearchTerms.map((term) => (
@@ -178,10 +171,6 @@ export function SearchFilters({
             </div>
           </>
         )}
-
-        {/* Skills Tab Filters
-        {tab === "skills" && (
-        )} */}
 
         {/* Platforms Tab Filters */}
         {tab === "platforms" && (

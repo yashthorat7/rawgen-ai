@@ -58,12 +58,10 @@ export function ProfileCard({
     const fromIndex = parseInt(e.dataTransfer.getData('text/plain'));
     if (fromIndex === index) return;
 
-    // Create updates array with new order
     const newPlatforms = [...platforms];
     const [movedItem] = newPlatforms.splice(fromIndex, 1);
     newPlatforms.splice(index, 0, movedItem);
 
-    // Update order in database
     const updates = newPlatforms.map((p, i) => ({
       platform: p.platform,
       username: p.username,

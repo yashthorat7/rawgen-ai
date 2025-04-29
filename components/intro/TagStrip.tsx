@@ -7,8 +7,6 @@ import { ConvexHttpClient } from "convex/browser";
 import { api } from "@/convex/_generated/api";
 import { useUser } from "@clerk/nextjs";
 import { LeetCodeData, CodeChefData, GeeksForGeeksData, CodeforcesData } from "@/lib/types";
-
-// Initialize Groq only if API key is available
 const groq = process.env.NEXT_PUBLIC_GROQ_API_KEY ? new Groq({
   apiKey: process.env.NEXT_PUBLIC_GROQ_API_KEY,
   dangerouslyAllowBrowser: true,
@@ -52,7 +50,6 @@ export function TagStrip({ username, isPublicView = false }: TagStripProps) {
     setHasFetchedTags(false);
   }, [platforms.length]);
 
-  // Directly fetch platform data using the userId index
   useEffect(() => {
     if (hasFetchedTags || (isPublicView && Object.keys(platformData || {}).length > 0)) {
       return;
@@ -85,13 +82,10 @@ export function TagStrip({ username, isPublicView = false }: TagStripProps) {
         for (const item of data) {
           try {
             const parsedData = JSON.parse(item.fullData);
-            // Get the profile to know what platform this is for
             const profilesResult = isPublicView && username
               ? await convexHttp.query(api.users.getUserByUsername, { username })
               : await convexHttp.query(api.users.getProfiles, { email: email || '' });
             
-            // For public view, we get a user object with profiles property
-            // For private view, we get an array of profiles directly  
             let profilesList: any[] = [];
             if (isPublicView && username && profilesResult) {
               if (profilesResult && typeof profilesResult === 'object' && 'profiles' in profilesResult) {
@@ -140,7 +134,6 @@ export function TagStrip({ username, isPublicView = false }: TagStripProps) {
     generateRequestInProgress.current = true;
 
     try {
-      // Prepare platform data - prefer direct data if available, fall back to context data
       const mergedData = {
         leetcode: { ...platformData?.leetcode, ...directData.leetcode },
         codechef: { ...platformData?.codechef, ...directData.codechef },
@@ -212,12 +205,10 @@ export function TagStrip({ username, isPublicView = false }: TagStripProps) {
       let tagList: string[] = [];
       const content = response.choices[0]?.message?.content || '';
       try {
-        // Try parsing as JSON array first
         tagList = JSON.parse(content.replace(/'/g, '"'));
       } catch {
-        // If not JSON, try splitting by commas
         tagList = content
-          .replace(/[\[\]"']/g, '') // Remove brackets and quotes
+          .replace(/[\[\]"']/g, '')
           .split(',')
           .map(tag => tag.trim())
           .filter(tag => tag && !tag.toLowerCase().includes('here') && !tag.toLowerCase().includes('tags'));
@@ -240,7 +231,6 @@ export function TagStrip({ username, isPublicView = false }: TagStripProps) {
   }, [platformData, directData, hasFetchedTags]);
 
   useEffect(() => {
-    // Only generate tags when we have data from either source and not currently fetching
     if (!isFetchingData && 
         (Object.values(directData).some(platform => Object.keys(platform).length > 0) || 
         Object.values(platformData || {}).some(platform => Object.keys(platform || {}).length > 0))) {
@@ -248,13 +238,11 @@ export function TagStrip({ username, isPublicView = false }: TagStripProps) {
     }
   }, [generateTags, directData, platformData, isFetchingData]);
 
-  // Show error message if API key is missing
   if (!groq) {
     console.warn('NEXT_PUBLIC_GROQ_API_KEY is not configured');
     return null;
   }
 
-  // Don't render anything if there are no tags and no error, or if we're loading
   if ((tags.length === 0 && !error) || isFetchingData) return null;
 
   return (

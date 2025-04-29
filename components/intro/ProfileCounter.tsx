@@ -33,7 +33,6 @@ export function PlatformCounter({ username, isPublicView = false }: PlatformCoun
     return num.toString();
   };
 
-  // Get user data - either from username (public) or email (private)
   const publicUserData = useQuery(
     api.users.getUserByUsername,
     username ? { username } : "skip"
@@ -53,7 +52,6 @@ export function PlatformCounter({ username, isPublicView = false }: PlatformCoun
     userInfo?._id ? { userId: userInfo._id } : "skip"
   );
 
-  // Get the logged-in user's Convex ID if they're authenticated
   const loggedInUserData = useQuery(
     api.users.getUser,
     user?.primaryEmailAddress?.emailAddress
@@ -70,14 +68,10 @@ export function PlatformCounter({ username, isPublicView = false }: PlatformCoun
     }
   }, [counters]);
 
-  // Add view increment effect
   useEffect(() => {
     const handleViewIncrement = async () => {
       if (!userInfo?._id) return;
 
-      // Don't increment if:
-      // 1. It's dashboard view (not public view) OR
-      // 2. Viewer is viewing their own profile (logged in user viewing their profile in any mode)
       const isSelfView = user?.username === userInfo.username;
       const shouldIncrement = isPublicView && !isSelfView;
 
@@ -92,7 +86,6 @@ export function PlatformCounter({ username, isPublicView = false }: PlatformCoun
       }
     };
 
-    // Call view increment when component mounts
     handleViewIncrement();
   }, [userInfo?._id, isPublicView, user?.username, userInfo?.username]);
 
@@ -103,7 +96,6 @@ export function PlatformCounter({ username, isPublicView = false }: PlatformCoun
   }, [userInfo?.madeStars, user?.username]);
 
   const handleStarClick = async () => {
-    // Only proceed if we have the required user info and the viewer is logged in
     if (!userInfo?._id || !loggedInUserData?._id) return;
 
 
@@ -128,7 +120,6 @@ export function PlatformCounter({ username, isPublicView = false }: PlatformCoun
 
   if (!userInfo || counters === undefined) return null;
 
-  // Determine if star button should be clickable
   const canStar = Boolean(user?.id && userInfo.username !== user.username);
 
   return (

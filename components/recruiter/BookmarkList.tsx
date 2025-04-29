@@ -16,11 +16,9 @@ interface BookmarkListProps {
 export function BookmarkList({ recruiterEmail, onClose }: BookmarkListProps) {
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
 
-  // Get recruiter's bookmarked users
   const recruiter = useQuery(api.recruiters.getByEmail, { email: recruiterEmail });
   const markedEmails = recruiter?.markstar || [];
 
-  // Get user details for each bookmarked email
   const bookmarkedUsers = useQuery(api.users.getMultipleByEmail, { emails: markedEmails });
 
   const handleSelectUser = (email: string) => {
@@ -44,7 +42,6 @@ export function BookmarkList({ recruiterEmail, onClose }: BookmarkListProps) {
   const exportSelectedData = () => {
     if (!bookmarkedUsers || selectedUsers.length === 0) return;
 
-    // Filter and format user data for export
     const exportData = bookmarkedUsers
       .filter(user => selectedUsers.includes(user.email))
       .map(user => ({
@@ -54,7 +51,6 @@ export function BookmarkList({ recruiterEmail, onClose }: BookmarkListProps) {
         lastName: user.lastName || ""
       }));
 
-    // Create and download CSV
     const csvContent = "data:text/csv;charset=utf-8," + 
       "Username,Email,First Name,Last Name\n" +
       exportData.map(user => 

@@ -20,7 +20,6 @@ interface ContestItemProps {
 }
 
 export function SolvedQuestionList({ data }: SolvedQuestionListProps) {
-  // Get last 10 contests
   const recentContests = [...data.ratingHistory]
     .sort((a, b) => b.timestamp - a.timestamp)
     .slice(0, 15);
@@ -69,7 +68,7 @@ function ContestItem({ contest }: ContestItemProps) {
   return (
     <div className="py-3 first:pt-0 last:pb-0">
       <div className="flex items-center justify-between gap-4">
-        <div className="flex items-center flex gap-3 min-w-0 flex-1">
+        <div className="flex items-center gap-3 min-w-0 flex-1">
         <a
           href={`https://codeforces.com/contest/${contest.contestId}`}
           target="_blank"

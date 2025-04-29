@@ -8,7 +8,6 @@ import { Footer } from "@/components/layout/Footer";
 export default function NotFound() {
   return (
     <div className="min-h-screen flex flex-col relative">
-      {/* Fixed Gradient Background */}
       <div className="fixed inset-0 bg-gradient-to-b from-transparent to-primary-100/50 pointer-events-none" />
       
       {/* Content */}

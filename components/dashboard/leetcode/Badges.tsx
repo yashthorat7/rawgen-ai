@@ -32,13 +32,9 @@ export function Badges({ data }: BadgesProps) {
       setIsMobile(window.innerWidth < 640);
     };
 
-    // Initial check
     checkMobile();
-
-    // Add event listener
     window.addEventListener('resize', checkMobile);
 
-    // Cleanup
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 

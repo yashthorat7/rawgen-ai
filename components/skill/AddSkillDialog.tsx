@@ -25,11 +25,8 @@ export function AddSkillDialog({ isOpen, onClose }: AddSkillDialogProps) {
 
   const handleAddSkill = () => {
     if (!skillInput.trim() || selectedSkills.size >= 16) return;
-    
-    // Only trim whitespace, preserve case
     const formattedSkill = skillInput.trim();
     
-    // Add to Set (automatically handles duplicates)
     setSelectedSkills(prev => new Set([...prev, formattedSkill]));
     setSkillInput('');
   };
@@ -51,7 +48,6 @@ export function AddSkillDialog({ isOpen, onClose }: AddSkillDialogProps) {
 
     setIsLoading(true);
     try {
-      // Convert Set to Array for API call
       const skillsArray = Array.from(selectedSkills).sort();
 
       await addSkills({
@@ -62,7 +58,6 @@ export function AddSkillDialog({ isOpen, onClose }: AddSkillDialogProps) {
       resetForm();
       onClose();
     } catch (error) {
-      // Error handling silently
     } finally {
       setIsLoading(false);
     }

@@ -23,13 +23,11 @@ export function ProfileGrid({ username, isPublicView = false, platformData }: Pr
   const [isRefreshing, setIsRefreshing] = useState(false);
   const hasRefreshedRef = useRef(false);
 
-  // Get user data - either from username (public view) or email (private view)
   const publicUserData = useQuery(
     api.users.getUserByUsername,
     username ? { username } : "skip"
   );
 
-  // Only use PlatformContext for private view
   const platformContext = isPublicView ? null : usePlatforms();
   const { platforms, platformData: privatePlatformData, forceRefreshAllPlatforms } = platformContext || {};
 
@@ -47,16 +45,14 @@ export function ProfileGrid({ username, isPublicView = false, platformData }: Pr
       })) as Platform[]
     : platforms;
 
-  // Auto-refresh on load - only once
   useEffect(() => {
     const refreshOnce = async () => {
-      // Skip if already refreshed, or if missing dependencies
       if (hasRefreshedRef.current || isRefreshing || isPublicView || 
           !forceRefreshAllPlatforms || !userPlatforms || userPlatforms.length === 0) {
         return;
       }
 
-      hasRefreshedRef.current = true; // Mark as refreshed
+      hasRefreshedRef.current = true;
       setIsRefreshing(true);
       
       try {
@@ -68,13 +64,11 @@ export function ProfileGrid({ username, isPublicView = false, platformData }: Pr
       }
     };
 
-    // Wait for platforms to be loaded before refreshing
     if (userPlatforms && userPlatforms.length > 0) {
       refreshOnce();
     }
   }, [userPlatforms, isPublicView, forceRefreshAllPlatforms, isRefreshing]);
 
-  // Show loading state while data is loading
   if ((!isLoaded && !isPublicView) || !userData || userPlatforms === undefined) {
     return (
       <>
@@ -88,7 +82,6 @@ export function ProfileGrid({ username, isPublicView = false, platformData }: Pr
     );
   }
 
-  // Show message if no user is logged in and not in public view
   if (!isPublicView && !email) {
     return (
       <>
@@ -100,7 +93,6 @@ export function ProfileGrid({ username, isPublicView = false, platformData }: Pr
     );
   }
 
-  // Show message if no platforms found
   if (!userPlatforms || userPlatforms.length === 0) {
     if (isPublicView) {
       return null;

@@ -232,7 +232,6 @@ export interface GeeksForGeeksData {
   // Languages
   languages: string[];
 
-  // Problems by Difficulty - Updated to match API structure
   problems: {
     school: Array<{ title: string; url: string; }>;
     basic: Array<{ title: string; url: string; }>;
@@ -275,7 +274,7 @@ export interface CodeforcesData {
     averageRatingChange: number;
     bestRank: number;
     worstRank: number;
-    lastContests: number; // number of contests considered for averages
+    lastContests: number;
   };
 }
 
@@ -308,5 +307,5 @@ export type SocialLinks = {
   linkedin?: string;
   twitter?: string;
   websites?: string[];
-  [key: string]: string | string[] | undefined; // Allow for future social media platforms
+  [key: string]: string | string[] | undefined;
 }; 
