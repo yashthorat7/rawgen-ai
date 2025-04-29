@@ -42,10 +42,8 @@ export function GeeksForGeeksDashboard({ data, onClose, isLoading }: GeeksForGee
 
       {/* Scrollable container */}
       <div className="h-full overflow-y-auto">
-        {/* Main content */}
         <div className="max-w-7xl mx-auto px-4 sm:px-7 lg:px-9 py-5 sm:py-7 lg:py-9">
           <div className="space-y-4">
-            {/* Profile Summary - Always show */}
             <div className="transform transition-all duration-200 hover:scale-[1.01]">
               <Summary data={data} />
             </div>

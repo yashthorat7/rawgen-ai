@@ -7,6 +7,8 @@ import { AddCertificateCard } from "./AddCertificateCard";
 import { CertificateCard } from "./CertificateCard";
 import { Id } from "@/convex/_generated/dataModel";
 import { Title } from "../ui/Title";
+import { useMemo } from "react";
+import { CertificateCardSkeleton } from "../platform-stats/LoadingSkeleton";
 
 interface Certificate {
   id: Id<"certificates">;
@@ -38,6 +40,12 @@ export function CertificateGrid({ username, isPublicView = false }: CertificateG
       : privateUserData?.username ? { username: privateUserData.username } : "skip"
   );
 
+  // Ensure certificates are sorted by order
+  const sortedCertificates = useMemo(() => {
+    if (!certificates) return undefined;
+    return [...certificates].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+  }, [certificates]);
+
   const removeCertificate = useMutation(api.certificates.remove);
   const reorderCertificates = useMutation(api.certificates.reorder);
 
@@ -67,37 +75,37 @@ export function CertificateGrid({ username, isPublicView = false }: CertificateG
     });
   };
 
-  if ((!isLoaded && !isPublicView) || (!isPublicView && !privateUserData) || certificates === undefined) {
+  if ((!isLoaded && !isPublicView) || (!isPublicView && !privateUserData) || !sortedCertificates) {
     return (
       <>
-        <Title title="Certificates" />
+      <Title title="Certificates" />
         <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5 mt-2">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="bg-white rounded-lg shadow-sm animate-pulse">
-              <div className="aspect-video p-4 pb-1">
-                <div className="w-full h-full bg-gray-200 rounded-lg" />
-              </div>
-              
-              {/* Content */}
-              <div className="p-4 pt-0">
-                <div className="h-6 bg-gray-200 rounded w-3/4 mb-3" />
-                <div className="h-5 bg-gray-200 rounded w-1/4 mb-3" />
-                <div className="h-4 bg-gray-200 rounded w-full" />
-              </div>
-            </div>
+            <CertificateCardSkeleton key={i} />
           ))}
         </div>
       </>
     );
   }
 
-  if (!certificates || certificates.length === 0) {
+  if (!isPublicView && !email) {
+    return (
+      <>
+      <Title title="Certificates" />
+        <div className="text-center text-gray-500 mt-2">
+          Please log in to view certificates
+        </div>
+      </>
+    );
+  }
+
+  if (!sortedCertificates || sortedCertificates.length === 0) {
     if (isPublicView) {
       return null;
     }
     return (
       <>
-        <Title title="Certificates" />
+      <Title title="Certificates" />
         <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5 mt-2">
           <AddCertificateCard />
         </div>
@@ -109,7 +117,7 @@ export function CertificateGrid({ username, isPublicView = false }: CertificateG
     <>
     <Title title="Certificates" />
       <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5 mt-2">
-        {certificates.map((certificate: Certificate, index) => (
+        {sortedCertificates.map((certificate: Certificate, index) => (
           <CertificateCard
             key={certificate.id}
             id={certificate.id}

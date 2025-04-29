@@ -39,7 +39,6 @@ export function QuestionsSolved({ data }: QuestionsSolvedProps) {
       <div className="flex-1 flex flex-col">
         {/* Circles Container */}
         <div className="flex-1 flex flex-col justify-center items-center gap-6 max-h-[500px] sm:gap-8">
-          {/* First row - 3 circles */}
           <div className="w-full flex justify-center">
             <div className="flex gap-6 sm:gap-8 sm:transform-none sm:scale-100 transform scale-[0.85] origin-center">
               <ProgressCircle
@@ -88,7 +87,6 @@ export function QuestionsSolved({ data }: QuestionsSolvedProps) {
                       stroke="#eee"
                       strokeWidth="3"
                     />
-                    {/* School segment */}
                     <path
                       d="M18 2.0845
                         a 15.9155 15.9155 0 0 1 0 31.831
@@ -98,7 +96,6 @@ export function QuestionsSolved({ data }: QuestionsSolvedProps) {
                       strokeWidth="3"
                       strokeDasharray={`${totalProgress.school}, 100`}
                     />
-                    {/* Basic segment */}
                     <path
                       d="M18 2.0845
                         a 15.9155 15.9155 0 0 1 0 31.831
@@ -109,7 +106,6 @@ export function QuestionsSolved({ data }: QuestionsSolvedProps) {
                       strokeDasharray={`${totalProgress.basic}, 100`}
                       transform={`rotate(${totalProgress.school * 3.6}, 18, 18)`}
                     />
-                    {/* Easy segment */}
                     <path
                       d="M18 2.0845
                         a 15.9155 15.9155 0 0 1 0 31.831
@@ -120,7 +116,6 @@ export function QuestionsSolved({ data }: QuestionsSolvedProps) {
                       strokeDasharray={`${totalProgress.easy}, 100`}
                       transform={`rotate(${(totalProgress.school + totalProgress.basic) * 3.6}, 18, 18)`}
                     />
-                    {/* Medium segment */}
                     <path
                       d="M18 2.0845
                         a 15.9155 15.9155 0 0 1 0 31.831
@@ -131,7 +126,6 @@ export function QuestionsSolved({ data }: QuestionsSolvedProps) {
                       strokeDasharray={`${totalProgress.medium}, 100`}
                       transform={`rotate(${(totalProgress.school + totalProgress.basic + totalProgress.easy) * 3.6}, 18, 18)`}
                     />
-                    {/* Hard segment */}
                     <path
                       d="M18 2.0845
                         a 15.9155 15.9155 0 0 1 0 31.831
@@ -149,7 +143,6 @@ export function QuestionsSolved({ data }: QuestionsSolvedProps) {
                     <span className="text-[#ffc01e]">Medium</span>
                     <span className="text-[#ff375f]">Hard</span>
                   </div>
-                  {/* Hover Text Labels */}
                   <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 text-xs sm:text-sm font-medium opacity-0 hover:none sm:group-hover:opacity-100 transition-all duration-300">
                     <span className="text-[#00b8a3]">{totalProgress.easy.toFixed(1)}%</span>
                     <span className="text-[#ffc01e]">{totalProgress.medium.toFixed(1)}%</span>

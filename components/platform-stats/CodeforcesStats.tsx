@@ -16,7 +16,6 @@ export function CodeforcesStats({ data, isLoading }: CodeforcesStatsProps) {
     <div className="h-full flex flex-col">
       {/* Center content */}
       <div className="flex-1 flex flex-col justify-center mb-3">
-        {/* Rank at top */}
         <div className="text-sm font-bold text-gray-600 mb-3 capitalize flex items-center gap-1">
           <Star size={14} className="text-yellow-500" fill="currentColor" />
           {data.rank || 'Unrated'}

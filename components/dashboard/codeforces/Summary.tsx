@@ -43,7 +43,6 @@ export function Summary({ data }: SummaryProps) {
 
           {/* Info Section */}
           <div className="flex-1 min-w-0 text-center sm:text-left space-y-2 sm:space-y-1">
-            {/* Name and Location */}
             <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 sm:gap-3">
               <div className="flex flex-col items-center sm:items-start">
                 <div className="flex items-center gap-2">
@@ -95,7 +94,6 @@ export function Summary({ data }: SummaryProps) {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 gap-3 sm:gap-4">
-        {/* Current Rating */}
         <div className="bg-white p-2.5 sm:p-4 rounded-lg shadow-sm flex flex-col items-center justify-center text-center select-none">
           <Award className="w-6 h-6 sm:w-8 sm:h-8 text-yellow-500 mb-1 sm:mb-2" />
           <div>

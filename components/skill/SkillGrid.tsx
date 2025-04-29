@@ -2,9 +2,11 @@
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { AddSkillCard } from "./AddSkillCard";
-import SkillCard from "./SkillCard";
+import { SkillCard } from "./SkillCard";
 import { useUser } from "@clerk/nextjs";
 import { Title } from "../ui/Title";
+import { useMemo } from "react";
+import { SkillCardSkeleton } from "../platform-stats/LoadingSkeleton";
 
 interface CategorySkills {
   _id: string;
@@ -29,32 +31,25 @@ export function SkillGrid({ username, isPublicView = false }: SkillGridProps) {
 
   const skills = useQuery(
     api.skills.getUserSkills,
-    isPublicView 
+    isPublicView
       ? username ? { username } : "skip"
       : privateUserData?.username ? { username: privateUserData.username } : "skip"
   );
 
+  // Ensure skills are sorted by order
+  const sortedSkills = useMemo(() => {
+    if (!skills) return undefined;
+    return [...skills].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+  }, [skills]);
+
   const deleteSkillCategory = useMutation(api.skills.deleteSkillCategory);
-  if ((!isLoaded && !isPublicView) || (!isPublicView && !privateUserData) || skills === undefined) {
+  if ((!isLoaded && !isPublicView) || (!isPublicView && !privateUserData) || !sortedSkills) {
     return (
       <>
         <Title title="Skills" />
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 mt-2 gap-4 sm:gap-5">
-          {[...Array(4)].map((_, i) => (
-            <div key={i} className="bg-white rounded-lg shadow-sm animate-pulse min-h-[225px] flex flex-col">
-            {/* Skills at the top */}
-            <div className="flex-1 p-4">
-              <div className="flex flex-wrap gap-2 justify-center">
-                {[...Array(6)].map((_, j) => (
-                  <div key={j} className="h-7 bg-gray-200 rounded-md w-16" />
-                ))}
-              </div>
-            </div>
-            
-            <div className="p-3 flex justify-center items-center border-t border-gray-100">
-              <div className="h-6 bg-gray-200 rounded w-32" />
-              </div>
-            </div>
+        <div className="mt-2 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-5">
+          {[...Array(3)].map((_, i) => (
+            <SkillCardSkeleton key={i} />
           ))}
         </div>
       </>
@@ -97,7 +92,7 @@ export function SkillGrid({ username, isPublicView = false }: SkillGridProps) {
     <>
       <Title title="Skills" />
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 mt-2 gap-4 sm:gap-5">
-        {skills.map((categorySkills, index) => (
+        {sortedSkills.map((categorySkills, index) => (
           <SkillCard
             key={categorySkills._id || `skill-${categorySkills.category}-${index}`}
             category={categorySkills.category}

@@ -264,7 +264,6 @@ export function TagStrip({ username, isPublicView = false }: TagStripProps) {
                   {tag.text}
                 </div>
               ))}
-              {/* Duplicate strip for seamless loop */}
               {tags.map((tag) => (
                 <div
                   key={`dup-${tag.id}`}

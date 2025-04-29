@@ -20,7 +20,6 @@ export function CodeChefStats({ data, isLoading }: CodeChefStatsProps) {
 
   return (
     <div className="h-full flex flex-col">
-      {/* Center content */}
       <div className="flex-1 flex flex-col justify-center">
         {/* Stars and Rating */}
         <div className="flex items-center justify-between mb-3">

@@ -47,10 +47,8 @@ export function LeetCodeDashboard({ data, onClose, isLoading }: LeetCodeDashboar
 
       {/* Scrollable container */}
       <div className="h-full overflow-y-auto">
-        {/* Main content */}
         <div className="max-w-7xl mx-auto px-4 sm:px-7 lg:px-9 py-5 sm:py-7 lg:py-9">
           <div className="space-y-4">
-            {/* Profile Summary - Always show */}
             <div className="transform transition-all duration-200 hover:scale-[1.01]">
               <Summary data={data} />
             </div>
@@ -74,7 +72,6 @@ export function LeetCodeDashboard({ data, onClose, isLoading }: LeetCodeDashboar
               </div>
             </div>
 
-            {/* Calendar - Show if submission calendar exists */}
             {data.calendar && (
               <div className="transform transition-all duration-200 hover:scale-[1.01] mx-0 sm:mx-0">
                 <Calendar data={data} />
@@ -88,16 +85,13 @@ export function LeetCodeDashboard({ data, onClose, isLoading }: LeetCodeDashboar
               </div>
             )}
 
-            {/* Skills and Badges side by side */}
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
-              {/* Badges - 60% width */}
               {data.badges && data.badges.length > 0 ? (
                 <div className="lg:col-span-3 transform transition-all duration-200 hover:scale-[1.01]">
                   <Badges data={data} />
                 </div>
               ) : null}
               
-              {/* Skills - 40% width or full width if no badges */}
               {data.topicStats && (
                 <div className={cn(
                   "transform transition-all duration-200 hover:scale-[1.01]",

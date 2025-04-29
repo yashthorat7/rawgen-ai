@@ -42,7 +42,7 @@ export function ProfileGrid({ username, isPublicView = false, platformData }: Pr
         platform: p.platformName,
         username: p.platformUsername,
         order: p.order
-      })) as Platform[]
+      })).sort((a, b) => (a.order ?? 0) - (b.order ?? 0)) as Platform[]
     : platforms;
 
   useEffect(() => {

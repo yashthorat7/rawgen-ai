@@ -15,7 +15,6 @@ export function Summary({ data }: SummaryProps) {
       {/* Profile Info */}
       <div className="bg-white p-4 rounded-lg shadow-sm select-none">
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 sm:gap-4">
-          {/* Avatar Section */}
           <div className="relative flex-shrink-0">
             <a 
               href={codechefProfileUrl}
@@ -92,7 +91,6 @@ export function Summary({ data }: SummaryProps) {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 gap-4">
-        {/* Rating */}
         <div className="bg-white p-3 sm:p-4 rounded-lg shadow-sm flex items-center sm:flex-col sm:items-center justify-start sm:justify-center text-left sm:text-center select-none">
           <Award className="w-6 h-6 sm:w-8 sm:h-8 text-yellow-500 mb-0 sm:mb-2 mr-3 sm:mr-0" />
           <div>

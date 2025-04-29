@@ -62,7 +62,6 @@ export function Badges({ data }: BadgesProps) {
         </div>
       </div>
       
-      {/* Center section with recent badge */}
       <div className={cn(
         "flex items-center justify-center transition-all duration-300",
         showAll ? "mb-6" : "mb-8"
@@ -74,7 +73,6 @@ export function Badges({ data }: BadgesProps) {
         )}
       </div>
 
-      {/* Bottom section with horizontal badges */}
       <div className="transition-all duration-500">
         <div className={cn(
           "grid gap-4",

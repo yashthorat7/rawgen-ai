@@ -8,6 +8,7 @@ import { ProjectCard } from "./ProjectCard";
 import { Id } from "@/convex/_generated/dataModel";
 import { ProjectCardSkeleton } from "../platform-stats/LoadingSkeleton";
 import { Title } from "../ui/Title";
+import { useMemo } from "react";
 
 interface Project {
   id: Id<"projects">;
@@ -43,6 +44,12 @@ export function ProjectGrid({ username, isPublicView = false }: ProjectGridProps
       : privateUserData?.username ? { username: privateUserData.username } : "skip"
   );
 
+  // Ensure projects are sorted by order
+  const sortedProjects = useMemo(() => {
+    if (!projects) return undefined;
+    return [...projects].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+  }, [projects]);
+
   const handleDelete = async (projectId: Id<"projects">) => {
     try {
       await removeProject({ projectId });
@@ -70,7 +77,7 @@ export function ProjectGrid({ username, isPublicView = false }: ProjectGridProps
     });
   };
 
-  if ((!isLoaded && !isPublicView) || (!isPublicView && !privateUserData) || projects === undefined) {
+  if ((!isLoaded && !isPublicView) || (!isPublicView && !privateUserData) || !sortedProjects) {
     return (
       <>
         <Title title="Projects" />
@@ -94,7 +101,7 @@ export function ProjectGrid({ username, isPublicView = false }: ProjectGridProps
     );
   }
 
-  if (!projects || projects.length === 0) {
+  if (!sortedProjects || sortedProjects.length === 0) {
     if (isPublicView) {
       return null;
     }
@@ -112,7 +119,7 @@ export function ProjectGrid({ username, isPublicView = false }: ProjectGridProps
     <>
       <Title title="Projects" />
       <div className="mt-2 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5">
-        {projects.map((project: Project, index) => (
+        {sortedProjects.map((project: Project, index) => (
           <ProjectCard
             key={project.id}
             id={project.id}

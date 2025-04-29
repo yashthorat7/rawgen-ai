@@ -328,13 +328,10 @@ export function Landing() {
       <GradientBlob className="bottom-1/3 right-10 w-72 h-72" color1="#ec4899" color2="#8b5cf6" delay={2.5} />
       
       
-      {/* Grid background - only in hero section */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:linear-gradient(to_bottom,transparent,black_20%,black_80%,transparent)]" />
       
-      {/* Mouse follower effect */}
       <MouseFollower />
       
-      {/* Header */}
       <Header />
 
       {/* Hero Section */}
@@ -408,7 +405,6 @@ export function Landing() {
               >
                 <div className="aspect-video relative overflow-hidden">
 
-                  {/* Hover reveal with dashboard.png */}
                   <div>
                     <img 
                       src="/dashboard.png" 
@@ -451,7 +447,7 @@ export function Landing() {
               <FeatureCard 
                 icon={BarChart} 
                 title="Beautiful Analytics" 
-                description="Visualize your progress with interactive charts and performance metrics to help you track your progress."
+                description="Visualize your progress with interactive charts and performance metrics to track your progress."
                 index={1}
               />
               <FeatureCard 
@@ -469,7 +465,7 @@ export function Landing() {
               <FeatureCard 
                 icon={Search} 
                 title="Recruiter Matching" 
-                description="Connect with recruiters looking for candidates with your specific skills."
+                description="Connect with recruiters looking for candidates with your specific skills and get discovered."
                 index={4}
               />
               <FeatureCard 

@@ -173,7 +173,7 @@ export default function SearchContainer({ recruiterEmail }: SearchContainerProps
         </div>
       )}
 
-      {/* Bookmark List Modal */}
+      {/* Bookmark List Model */}
       {showBookmarks && (
         <BookmarkList
           recruiterEmail={recruiterEmail}
