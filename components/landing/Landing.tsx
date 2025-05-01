@@ -20,18 +20,31 @@ import { Header } from "../layout/Header";
 const MouseFollower = () => {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [isMounted, setIsMounted] = useState(false);
+  const [isLargeScreen, setIsLargeScreen] = useState(false);
   
   useEffect(() => {
     setIsMounted(true);
+    
+    const checkScreenSize = () => {
+      setIsLargeScreen(window.innerWidth >= 1024);
+    };
+    
+    checkScreenSize();
+    
     const handleMouseMove = (e: MouseEvent) => {
       setMousePosition({ x: e.clientX, y: e.clientY });
     };
     
     window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
+    window.addEventListener("resize", checkScreenSize);
+    
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("resize", checkScreenSize);
+    };
   }, []);
   
-  if (!isMounted) return null;
+  if (!isMounted || !isLargeScreen) return null;
 
   return (
     <>
@@ -111,13 +124,11 @@ const InteractiveCard = ({ children, className = "" }: { children: React.ReactNo
 };
 
 const FeatureCard = ({ 
-  icon: Icon, 
   title, 
   description, 
   index,
   image 
-}: { 
-  icon: any, 
+}: {
   title: string, 
   description: string, 
   index: number,
@@ -148,8 +159,7 @@ const FeatureCard = ({
         <div className="relative h-48 mb-4 overflow-hidden rounded-lg">
           <div className={`w-full h-full ${gradients[index % gradients.length]} p-2.5 flex items-center justify-center group-hover:scale-105 transition-transform duration-300`}>
             <div className="relative z-10">
-              <Icon className="w-16 h-16 text-white mb-4" />
-              <div className="text-white text-xl font-medium">{title}</div>
+              
             </div>
             <div className="absolute inset-0 opacity-20">
               <div className="absolute top-0 left-0 w-20 h-20 bg-white/20 rounded-full -translate-x-1/2 -translate-y-1/2" />
@@ -215,53 +225,62 @@ const Step = ({
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
   
+  const gradients = [
+    "from-blue-500 to-cyan-400",
+    "from-purple-500 to-pink-400",
+    "from-orange-500 to-amber-400",
+    "from-emerald-500 to-teal-400"
+  ];
+  
+  const iconColors = [
+    "text-blue-600",
+    "text-purple-600",
+    "text-orange-600",
+    "text-emerald-600"
+  ];
+  
   return (
     <motion.div
-    ref={ref}
-    initial={{ opacity: 0, scale: 0.8 }}
-    animate={isInView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.8 }}
-    transition={{ duration: 0.5, delay: index * 0.2 }}
-    className="relative flex flex-col items-center"
-    onMouseEnter={() => setIsHovered(true)}
-    onMouseLeave={() => setIsHovered(false)}
-    onClick={() => setIsHovered(prev => !prev)}
-  >
-    <motion.div
-      className="w-32 h-32 rounded-full bg-gradient-to-br from-primary-400 to-purple-400 flex items-center justify-center cursor-pointer"
-      whileHover={{ scale: 1.1 }}
-      whileTap={{ scale: 1.05 }}
+      ref={ref}
+      initial={{ opacity: 0, y: 30 }}
+      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+      transition={{ duration: 0.5, delay: index * 0.2 }}
+      className="relative flex flex-col items-center mx-auto"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="w-24 h-24 rounded-full bg-white flex items-center justify-center">
-        <Icon className="w-12 h-12 text-primary-600" />
+      <div className="flex flex-col items-center w-full">
+        <motion.div
+          className={`w-24 h-24 rounded-full bg-gradient-to-br ${gradients[index % gradients.length]} flex items-center justify-center shadow-lg cursor-pointer relative z-10`}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          <div className="w-20 h-20 rounded-full bg-white flex items-center justify-center">
+            <Icon className={`w-10 h-10 ${iconColors[index % iconColors.length]}`} />
+          </div>
+          <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-white text-gray-900 flex items-center justify-center font-bold text-lg shadow-md border-2 border-gray-100">
+            {number}
+          </div>
+        </motion.div>
+        
+        <motion.div
+          initial={{ opacity: 0, y: 10, scale: 0.9 }}
+          animate={isHovered ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: 10, scale: 0.9 }}
+          className={`absolute top-28 w-64 p-5 bg-white rounded-xl shadow-xl z-20 border border-gray-100 hidden lg:block`}
+          style={{ 
+            boxShadow: `0 15px 30px -5px rgba(0, 0, 0, 0.1), 0 10px 15px -5px ${index % 4 === 0 ? 'rgba(59, 130, 246, 0.1)' : index % 4 === 1 ? 'rgba(168, 85, 247, 0.1)' : index % 4 === 2 ? 'rgba(249, 115, 22, 0.1)' : 'rgba(16, 185, 129, 0.1)'}`
+          }}
+        >
+          <h3 className={`text-xl font-bold mb-2 ${iconColors[index % iconColors.length]}`}>{title}</h3>
+          <p className="text-gray-600">{description}</p>
+        </motion.div>
+        
+        <div className="mt-5 text-center px-4 w-full lg:hidden">
+          <h3 className={`text-xl font-bold mb-2 ${iconColors[index % iconColors.length]}`}>{title}</h3>
+          <p className="text-gray-600">{description}</p>
+        </div>
       </div>
-      <span className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-primary-600 text-white flex items-center justify-center font-bold">
-        {number}
-      </span>
     </motion.div>
-    
-    {/* Desktop Tooltip */}
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={isHovered ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-      className="absolute top-40 left-1/2 -translate-x-1/2 w-64 p-4 bg-white rounded-xl shadow-lg hidden sm:block"
-    >
-      <h3 className="text-lg font-bold text-gray-900 mb-2">{title}</h3>
-      <p className="text-sm text-gray-600">{description}</p>
-    </motion.div>
-  
-    {/* Mobile Static Card */}
-    {isHovered && (
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="mt-4 w-64 p-4 bg-white rounded-xl shadow-lg block sm:hidden"
-      >
-        <h3 className="text-lg font-bold text-gray-900 mb-2">{title}</h3>
-        <p className="text-sm text-gray-600">{description}</p>
-      </motion.div>
-    )}
-  </motion.div>
-  
   );
 };
 
@@ -396,12 +415,12 @@ export function Landing() {
                 </Link>
               </motion.div>
 
-              {/* Hero Image with Radial Reveal */}
+              {/* Hero Imag */}
               <motion.div
                 initial={{ opacity: 0, y: 50 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, delay: 0.4 }}
-                className="relative w-full max-w-4xl mx-auto rounded-xl overflow-hidden shadow-2xl border border-primary-100 group"
+                className="relative w-full max-w-[900px] mx-auto rounded-xl overflow-hidden shadow-2xl border border-primary-100 group"
               >
                 <div className="aspect-video relative overflow-hidden">
 
@@ -438,38 +457,32 @@ export function Landing() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <FeatureCard 
-                icon={Share2} 
                 title="Share with Friends" 
                 description="Easily share your achievements and progress on social media platforms and inspire your friends to join." 
                 index={0}
               />
 
               <FeatureCard 
-                icon={BarChart} 
                 title="Beautiful Analytics" 
                 description="Visualize your progress with interactive charts and performance metrics to track your progress."
                 index={1}
               />
               <FeatureCard 
-                icon={Brain} 
                 title="AI Insights" 
                 description="Get personalized insights and recommendations to improve your coding skills."
                 index={2}
               />
               <FeatureCard 
-                icon={Briefcase} 
                 title="Portfolio Builder" 
                 description="Create a professional portfolio showcasing your skills, projects, and certificates."
                 index={3}
               />
               <FeatureCard 
-                icon={Search} 
                 title="Recruiter Matching" 
                 description="Connect with recruiters looking for candidates with your specific skills and get discovered."
                 index={4}
               />
               <FeatureCard 
-                icon={FileText} 
                 title="AI Summarization" 
                 description="Get concise summaries of your achievements and progress across platforms."
                 index={5}
@@ -526,51 +539,55 @@ export function Landing() {
       </section>
 
 
-      {/* How It Works Section */}
-      <section id="how-it-works" className="py-20 bg-gradient-to-b from-primary-50/30 to-white">
+      {/* How It Works */}
+      <section id="how-it-works" className="py-20 bg-gradient-to-b from-primary-50/30 to-white overflow-visible">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-5xl mx-auto">
-            <div className="text-center mb-4">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-12">
               <motion.h2 
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
                 viewport={{ once: true }}
-                className="text-3xl sm:text-4xl font-bold text-gray-900 mb-8"
+                className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4"
               >
                 It is Simple
               </motion.h2>
             </div>
 
-            <div className="flex flex-wrap justify-center items-center gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 place-items-center">
               <Step 
                 number={1} 
                 title="Sign Up & Connect Platforms" 
-                description="Create your account and connect your competitive programming platform profiles."
-                icon={Terminal}
+                description="Create your account and link your competitive programming profiles from various platforms."
+                icon={Users}
                 index={0}
               />
               <Step 
                 number={2} 
                 title="AI Data Extraction" 
-                description="Our AI agents automatically fetch and analyze your data from all connected platforms."
-                icon={Database}
+                description="Our smart AI automatically analyzes your performance data across all connected platforms."
+                icon={Cpu}
                 index={1}
               />
               <Step 
                 number={3} 
                 title="Build Your Portfolio" 
-                description="Add your skills, projects, and certificates to create a comprehensive portfolio."
+                description="Add skills, projects, and certificates to showcase your complete coding journey."
                 icon={FileText}
                 index={2}
               />
               <Step 
                 number={4} 
                 title="Get Discovered" 
-                description="Share your profile with recruiters or let them find you through our platform."
-                icon={Search}
+                description="Share your profile with recruiters and stand out with your programming achievements."
+                icon={Sparkles}
                 index={3}
               />
+            </div>
+
+            <div className="hidden lg:block relative h-1 w-3/4 mx-auto mt-8">
+              <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-400 via-purple-400 to-orange-400"></div>
             </div>
           </div>
         </div>

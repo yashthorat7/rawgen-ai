@@ -31,12 +31,11 @@ export function SkillGrid({ username, isPublicView = false }: SkillGridProps) {
 
   const skills = useQuery(
     api.skills.getUserSkills,
-    isPublicView
+    isPublicView 
       ? username ? { username } : "skip"
       : privateUserData?.username ? { username: privateUserData.username } : "skip"
   );
 
-  // Ensure skills are sorted by order
   const sortedSkills = useMemo(() => {
     if (!skills) return undefined;
     return [...skills].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
