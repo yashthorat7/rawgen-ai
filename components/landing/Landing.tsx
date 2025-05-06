@@ -148,9 +148,9 @@ const FeatureCard = ({
       transition={{ duration: 0.5, delay: index * 0.1 }}
       className="group relative"
     >
-      <div className="absolute inset-0 bg-gradient-to-r from-primary-400/20 to-purple-400/20 rounded-xl blur-xl group-hover:blur-2xl transition-all duration-300" />
-      <InteractiveCard className="p-6 bg-white/80 backdrop-blur-sm border border-primary-100/50">
-        <div className="relative h-48 mb-4 overflow-hidden rounded-lg">
+      <div className="absolute inset-0 bg-gradient-to-r from-primary-400/20 to-purple-400/20 rounded-xl blur-xl group-hover:blur-2xl transition-all duration-300 max-h-full" />
+      <InteractiveCard className="p-2 lg:p-6 bg-white/80 backdrop-blur-sm border border-primary-100/50">
+        <div className="relative h-full mb-4 overflow-hidden rounded-lg">
           {image ? (
             <div className="w-full h-full overflow-hidden">
               <img 
@@ -459,7 +459,7 @@ export function Landing() {
               </motion.h2>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-2 gap-2 lg:gap-8 md:grid-cols-2 lg:grid-cols-3">
             <FeatureCard 
                 title="Share with Friends" 
                 description="Easily share your achievements and progress on social media platforms and inspire your friends to join." 
