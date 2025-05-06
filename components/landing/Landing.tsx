@@ -1,19 +1,13 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { 
-  Share2, Star, Code2, Trophy, Brain, Target, Users, ArrowRight, 
-  Zap, Sparkles, BarChart, Search, Briefcase, FileText, 
-  CheckCircle, ChevronRight, MousePointerClick, 
-  Terminal, Database, Cpu, LineChart, BarChart2, 
-  MessageSquare, Award, Shield, ZapIcon
+  Users, ArrowRight, Cpu, FileText, Sparkles
 } from "lucide-react";
 import { useUser } from "@clerk/nextjs";
-import { UserButton } from "@clerk/nextjs";
-import { motion, useScroll, useTransform, useSpring, useInView } from "framer-motion";
+import { motion, useScroll, useSpring, useInView } from "framer-motion";
 import { FaqAccordion } from "@/components/ui/Faq";
 import { Header } from "../layout/Header";
 
@@ -157,16 +151,26 @@ const FeatureCard = ({
       <div className="absolute inset-0 bg-gradient-to-r from-primary-400/20 to-purple-400/20 rounded-xl blur-xl group-hover:blur-2xl transition-all duration-300" />
       <InteractiveCard className="p-6 bg-white/80 backdrop-blur-sm border border-primary-100/50">
         <div className="relative h-48 mb-4 overflow-hidden rounded-lg">
-          <div className={`w-full h-full ${gradients[index % gradients.length]} p-2.5 flex items-center justify-center group-hover:scale-105 transition-transform duration-300`}>
-            <div className="relative z-10">
-              
+          {image ? (
+            <div className="w-full h-full overflow-hidden">
+              <img 
+                src={image} 
+                alt={title} 
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              />
             </div>
-            <div className="absolute inset-0 opacity-20">
-              <div className="absolute top-0 left-0 w-20 h-20 bg-white/20 rounded-full -translate-x-1/2 -translate-y-1/2" />
-              <div className="absolute bottom-0 right-0 w-32 h-32 bg-white/10 rounded-full translate-x-1/4 translate-y-1/4" />
-              <div className="absolute top-1/2 left-1/3 w-12 h-12 bg-white/20 rounded-full" />
+          ) : (
+            <div className={`w-full h-full ${gradients[index % gradients.length]} p-2.5 flex items-center justify-center group-hover:scale-105 transition-transform duration-300`}>
+              <div className="relative z-10">
+                
+              </div>
+              <div className="absolute inset-0 opacity-20">
+                <div className="absolute top-0 left-0 w-20 h-20 bg-white/20 rounded-full -translate-x-1/2 -translate-y-1/2" />
+                <div className="absolute bottom-0 right-0 w-32 h-32 bg-white/10 rounded-full translate-x-1/4 translate-y-1/4" />
+                <div className="absolute top-1/2 left-1/3 w-12 h-12 bg-white/20 rounded-full" />
+              </div>
             </div>
-          </div>
+          )}
         </div>
         <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-primary-600 transition-colors">{title}</h3>
         <p className="text-gray-600">{description}</p>
@@ -288,19 +292,27 @@ const Testimonial = ({
   name, 
   role, 
   text, 
-  index 
+  index,
+  image
 }: { 
   name: string, 
   role: string, 
   text: string, 
-  index: number 
+  index: number,
+  image?: string
 }) => {
   return (
     <div className="p-6 rounded-xl bg-white/60 backdrop-blur-sm border border-primary-100/50 min-w-[300px]">
       <div className="flex items-center gap-3 mb-4">
-        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary-400 to-purple-400 flex items-center justify-center text-white font-bold">
-          {name[0]}
-        </div>
+        {image ? (
+          <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-primary-200">
+            <img src={image} alt={name} className="w-full h-full object-cover" />
+          </div>
+        ) : (
+          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary-400 to-purple-400 flex items-center justify-center text-white font-bold">
+            {name[0]}
+          </div>
+        )}
         <div>
           <div className="font-semibold text-gray-900">{name}</div>
           <div className="text-sm text-gray-600">{role}</div>
@@ -315,13 +327,8 @@ const Testimonial = ({
 export function Landing() {
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
-  const { user, isLoaded } = useUser();
+  const { isLoaded } = useUser();
   const { scrollYProgress } = useScroll();
-  const scaleX = useSpring(scrollYProgress, {
-    stiffness: 100,
-    damping: 30,
-    restDelta: 0.001
-  });
 
   useEffect(() => {
     const controlHeader = () => {
@@ -420,17 +427,14 @@ export function Landing() {
                 initial={{ opacity: 0, y: 50 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, delay: 0.4 }}
-                className="relative w-full max-w-[900px] mx-auto rounded-xl overflow-hidden shadow-2xl border border-primary-100 group"
+                className="relative max-w-full w-[1000px] mx-auto rounded-xl overflow-hidden shadow-2xl border border-primary-100 group"
               >
                 <div className="aspect-video relative overflow-hidden">
-
-                  <div>
-                    <img 
-                      src="/dashboard.png" 
-                      alt="Dashboard Preview" 
-                      className="w-full h-full object-cover" 
-                    />
-                  </div>
+                  <img 
+                    src="/dashboard.png" 
+                    alt="Dashboard Preview" 
+                    className="w-full h-full object-cover" 
+                  />
                 </div>
               </motion.div>
 
@@ -451,7 +455,7 @@ export function Landing() {
                 viewport={{ once: true }}
                 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2"
               >
-                Insane Features For Programmars
+                Insane Features For Programmers
               </motion.h2>
             </div>
 
@@ -460,78 +464,38 @@ export function Landing() {
                 title="Share with Friends" 
                 description="Easily share your achievements and progress on social media platforms and inspire your friends to join." 
                 index={0}
+                image="/intro/pic1.png"
               />
 
               <FeatureCard 
                 title="Beautiful Analytics" 
                 description="Visualize your progress with interactive charts and performance metrics to track your progress."
                 index={1}
+                image="/intro/pic2.png"
               />
               <FeatureCard 
                 title="AI Insights" 
                 description="Get personalized insights and recommendations to improve your coding skills."
                 index={2}
+                image="/intro/pic3.png"
               />
               <FeatureCard 
                 title="Portfolio Builder" 
                 description="Create a professional portfolio showcasing your skills, projects, and certificates."
                 index={3}
+                image="/intro/pic4.png"
               />
               <FeatureCard 
                 title="Recruiter Matching" 
                 description="Connect with recruiters looking for candidates with your specific skills and get discovered."
                 index={4}
+                image="/intro/pic5.png"
               />
               <FeatureCard 
                 title="AI Summarization" 
                 description="Get concise summaries of your achievements and progress across platforms."
                 index={5}
-              />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Platforms Section */}
-      <section id="platforms" className="py-20">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-5xl mx-auto">
-            <div className="text-center mb-8">
-              <motion.h2 
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-                viewport={{ once: true }}
-                className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4"
-              >
-                Supported Platforms
-              </motion.h2>
-            </div>
-
-            <div className="flex flex-wrap justify-center gap-6">
-              <PlatformCard 
-                name="LeetCode" 
-                logo="/leetcode.png"
-                description="Track your problem-solving progress and contest performance."
-                index={0}
-              />
-              <PlatformCard 
-                name="CodeChef" 
-                logo="/codechef.png"
-                description="Showcase your ratings, rankings, and contest achievements."
-                index={1}
-              />
-              <PlatformCard 
-                name="GeeksForGeeks" 
-                logo="/geeksforgeeks.png"
-                description="Display your coding score and problem-solving statistics."
-                index={2}
-              />
-              <PlatformCard 
-                name="Codeforces" 
-                logo="/codeforces.png"
-                description="Highlight your rating history and contest participation."
-                index={3}
+                image="/intro/pic6.png"
               />
             </div>
           </div>
@@ -593,6 +557,7 @@ export function Landing() {
         </div>
       </section>
 
+
       {/* Testimonials Section */}
       <section id="testimonials" className="py-20 bg-gradient-to-b from-white to-primary-50/30 overflow-hidden z-10">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -619,46 +584,135 @@ export function Landing() {
                   x: {
                     repeat: Infinity,
                     repeatType: "loop",
-                    duration: 20,
+                    duration: 30,
                     ease: "linear",
                   },
                 }}
               >
                 {[
                   {
-                    name: "Arjun Sharma",
+                    name: "Baburao Apte",
                     role: "Final year student",
-                    text: "Codex revolutionized how I present my competitive programming achievements to recruiters. The AI-powered insights helped me identify areas for improvement, and I landed my dream job!"
+                    text: "Codex revolutionized how I present my competitive programming achievements to recruiters. The AI-powered insights helped me identify areas for improvement, and I landed my dream job!",
+                    image: "/users/pic1.png"
                   },
                   {
-                    name: "Priya Patel",
+                    name: "Raju",
                     role: "Tech Lead @ Microsoft",
-                    text: "As a recruiter, Codex has been invaluable for finding talented developers. The platform's comprehensive profiles and AI matching make it easy to identify candidates with the right skills."
+                    text: "As a recruiter, Codex has been invaluable for finding talented developers. The platform's comprehensive profiles and AI matching make it easy to identify candidates with the right skills.",
+                    image: "/users/pic2.png"
                   },
                   {
-                    name: "Vikram Mehta",
+                    name: "Shaam",
                     role: "SDE @ Amazon",
-                    text: "The most comprehensive platform for showcasing CP skills. The beautiful dashboards and analytics helped me track my progress, and I got multiple interview calls!"
+                    text: "The most comprehensive platform for showcasing CP skills. The beautiful dashboards and analytics helped me track my progress, and I got multiple interview calls!",
+                    image: "/users/pic3.png"
                   },
                   {
-                    name: "Arjun Sharma",
+                    name: "Rajpal Yadav",
                     role: "Final year student",
-                    text: "Codex revolutionized how I present my competitive programming achievements to recruiters. The AI-powered insights helped me identify areas for improvement, and I landed my dream job!"
+                    text: "Codex revolutionized how I present my competitive programming achievements to recruiters. The AI-powered insights helped me identify areas for improvement, and I landed my dream job!",
+                    image: "/users/pic4.png"
                   },
                   {
-                    name: "Priya Patel",
+                    name: "Totla Seth",
+                    role: "Tech Lead @ Amazon",
+                    text: "As a recruiter, Codex has been invaluable for finding talented developers. The platform's comprehensive profiles and AI matching make it easy to identify candidates with the right skills.",
+                    image: "/users/pic5.png"
+                  },
+                  {
+                    name: "Kachra Seth",
+                    role: "SDE @ Google",
+                    text: "The most comprehensive platform for showcasing CP skills. The beautiful dashboards and analytics helped me track my progress, and I got multiple interview calls!",
+                    image: "/users/pic6.png"
+                  },
+                  {
+                    name: "Baburao Apte",
+                    role: "Final year student",
+                    text: "Codex revolutionized how I present my competitive programming achievements to recruiters. The AI-powered insights helped me identify areas for improvement, and I landed my dream job!",
+                    image: "/users/pic1.png"
+                  },
+                  {
+                    name: "Raju",
                     role: "Tech Lead @ Microsoft",
-                    text: "As a recruiter, Codex has been invaluable for finding talented developers. The platform's comprehensive profiles and AI matching make it easy to identify candidates with the right skills."
+                    text: "As a recruiter, Codex has been invaluable for finding talented developers. The platform's comprehensive profiles and AI matching make it easy to identify candidates with the right skills.",
+                    image: "/users/pic2.png"
                   },
                   {
-                    name: "Vikram Mehta",
+                    name: "Shaam",
                     role: "SDE @ Amazon",
-                    text: "The most comprehensive platform for showcasing CP skills. The beautiful dashboards and analytics helped me track my progress, and I got multiple interview calls!"
+                    text: "The most comprehensive platform for showcasing CP skills. The beautiful dashboards and analytics helped me track my progress, and I got multiple interview calls!",
+                    image: "/users/pic3.png"
+                  },
+                  {
+                    name: "Rajpal Yadav",
+                    role: "Final year student",
+                    text: "Codex revolutionized how I present my competitive programming achievements to recruiters. The AI-powered insights helped me identify areas for improvement, and I landed my dream job!",
+                    image: "/users/pic4.png"
+                  },
+                  {
+                    name: "Totla Seth",
+                    role: "Tech Lead @ Amazon",
+                    text: "As a recruiter, Codex has been invaluable for finding talented developers. The platform's comprehensive profiles and AI matching make it easy to identify candidates with the right skills.",
+                    image: "/users/pic5.png"
+                  },
+                  {
+                    name: "Kachra Seth",
+                    role: "SDE @ Google",
+                    text: "The most comprehensive platform for showcasing CP skills. The beautiful dashboards and analytics helped me track my progress, and I got multiple interview calls!",
+                    image: "/users/pic6.png"
                   },
                 ].map((testimonial, index) => (
                   <Testimonial key={index} {...testimonial} index={index} />
                 ))}
               </motion.div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      {/* Platforms Section */}
+      <section id="platforms" className="py-20">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-5xl mx-auto">
+            <div className="text-center mb-8">
+              <motion.h2 
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                viewport={{ once: true }}
+                className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4"
+              >
+                Supported Platforms
+              </motion.h2>
+            </div>
+
+            <div className="flex flex-wrap justify-center gap-6">
+              <PlatformCard 
+                name="LeetCode" 
+                logo="/leetcode.png"
+                description="Track your problem-solving progress and contest performance."
+                index={0}
+              />
+              <PlatformCard 
+                name="CodeChef" 
+                logo="/codechef.png"
+                description="Showcase your ratings, rankings, and contest achievements."
+                index={1}
+              />
+              <PlatformCard 
+                name="GeeksForGeeks" 
+                logo="/geeksforgeeks.png"
+                description="Display your coding score and problem-solving statistics."
+                index={2}
+              />
+              <PlatformCard 
+                name="Codeforces" 
+                logo="/codeforces.png"
+                description="Highlight your rating history and contest participation."
+                index={3}
+              />
             </div>
           </div>
         </div>
@@ -676,7 +730,7 @@ export function Landing() {
                 viewport={{ once: true }}
                 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4"
               >
-                Frequently Asked Questions
+                FAQs
               </motion.h2>
             </div>
 
@@ -705,7 +759,7 @@ export function Landing() {
               className="text-center"
             >
               <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-16">
-                Ready to Showcase Your Skills?
+                Let's Start Your Showcasing Journey
               </h2>
               <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center z-100">
               <Link href="/sign-up">

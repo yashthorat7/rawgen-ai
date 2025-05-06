@@ -370,7 +370,7 @@ export const searchUsers = query({
       userFilters
     } = filters;
 
-    
+    // Get marked emails for recruiter
     let markedEmails: string[] = [];
     if (recruiterEmail) {
       const recruiter = await ctx.db
@@ -380,305 +380,36 @@ export const searchUsers = query({
       markedEmails = recruiter?.markstar || [];
     }
 
-    
-    let users = await ctx.db
-      .query("users")
-      .collect();
-
-    
-    if (query) {
-      users = users.filter(user => {
-        const searchStr = `${user.username} ${user.firstName || ''} ${user.lastName || ''}`.toLowerCase();
-        return searchStr.includes(query.toLowerCase());
-      });
-    }
-
-    
-    if (verified) {
-      users = users.filter(user => user.isverified);
-    }
-
-    
-    const usersWithData = await Promise.all(
-      users.map(async user => {
-        const userData = await getAllUserData(ctx, user.username);
-        if (!userData) return null;
-
-        
-        const isMarked = markedEmails.includes(user.email);
-
-        
-        const baseUser = {
-          ...user,
-          isMarked: isMarked,
-          skillCount: userData.skills?.length || 0,
-          projectCount: userData.projects?.length || 0,
-          platformCount: userData.profiles?.length || 0,
-          certificateCount: userData.certificates?.length || 0,
-          starCount: userData.stars || 0
-        };
-
-        
-        if (tab === "users" && userFilters) {
-          if (userFilters.hasProfileImage && !user.profileImage) return null;
-          if (userFilters.isVerified && !user.isverified) return null;
-          if (userFilters.minStars && baseUser.starCount < userFilters.minStars) return null;
-          if (userFilters.minProjects && baseUser.projectCount < userFilters.minProjects) return null;
-          if (userFilters.minSkills && baseUser.skillCount < userFilters.minSkills) return null;
-          if (userFilters.minPlatforms && baseUser.platformCount < userFilters.minPlatforms) return null;
-          if (userFilters.minCertificates && baseUser.certificateCount < userFilters.minCertificates) return null;
-        }
-
-        
-        switch (tab) {
-          case "skills":
-            
-            const userSkills = userData.skills || [];
-            if (!userSkills.length) return null;
-
-            
-            const skillEntries = userSkills.map(skill => {
-              let skillsData: string[] = [];
-              try {
-                const parsedData = JSON.parse(skill.skillsData);
-                skillsData = Object.keys(parsedData.skills || {});
-              } catch (e) {
-                skillsData = [];
-              }
-
-              return {
-                ...baseUser,
-                email: user.email,
-                isMarked,
-                skillCategory: skill.category,
-                skills: skillsData
-              };
-            });
-
-            return skillEntries;
-
-          case "projects":
-            
-            const userProjects = userData.projects || [];
-            if (!userProjects.length) return null;
-
-            
-            const projectEntries = await Promise.all(userProjects.map(async project => {
-              let projectImageUrl;
-              if (project.projectImage) {
-                projectImageUrl = await ctx.storage.getUrl(project.projectImage);
-              }
-              
-              return {
-                ...baseUser,
-                email: user.email,
-                isMarked,
-                projectId: project._id,
-                projectTitle: project.projectName,
-                projectDescription: project.projectDescription,
-                projectLink: project.projectLink,
-                deployLink: project.deployLink,
-                techStack: project.techStack,
-                projectImageUrl
-              };
-            }));
-
-            return projectEntries;
-
-          case "certificates":
-            
-            const userCerts = userData.certificates || [];
-            if (!userCerts.length) return null;
-
-            
-            const certEntries = await Promise.all(userCerts.map(async cert => {
-              let certificateImageUrl;
-              if (cert.certificateImage) {
-                certificateImageUrl = await ctx.storage.getUrl(cert.certificateImage);
-              }
-              
-              return {
-                ...baseUser,
-                email: user.email,
-                isMarked,
-                certificateId: cert._id,
-                certificateTitle: cert.certificateTitle,
-                certificateCategory: cert.category,
-                certificateDescription: cert.description,
-                certificateImageUrl
-              };
-            }));
-
-            return certEntries;
-
-          case "platforms":
-            const profile = userData.profiles?.[0];
-            if (!profile) return baseUser;
-
-            
-            const platformUserSkills = userData.skills || [];
-
-            
-            let platformData = null;
-            try {
-              platformData = formatPlatformData(profile.platformName.toLowerCase(), profile, []);
-            } catch (e) {
-              console.error('Error parsing platform data:', e);
-              return null;
-            }
-
-            
-            let normalizedRank = 0;
-            try {
-              const platform = profile.platformName.toLowerCase();
-              
-              
-              let stats: Record<string, any> = {};
-              try {
-                if (profile.statsData) {
-                  stats = JSON.parse(profile.statsData);
-                }
-              } catch (e) {
-                console.error('Error parsing statsData for rank calculation:', e);
-                return null;
-              }
-              
-              switch (platform) {
-                case 'leetcode':
-                  
-                  normalizedRank = stats.ranking || Infinity;
-                  platformData = {
-                    ...platformData,
-                    normalizedRank,
-                    displayMetric: `Rank: ${normalizedRank}`
-                  };
-                  break;
-                case 'codechef':
-                  
-                  normalizedRank = -(stats.currentRating || 0);
-                  platformData = {
-                    ...platformData,
-                    normalizedRank,
-                    displayMetric: `Rating: ${-normalizedRank}`
-                  };
-                  break;
-                case 'codeforces':
-                  
-                  normalizedRank = -(stats.rating || 0);
-                  platformData = {
-                    ...platformData,
-                    normalizedRank,
-                    displayMetric: `Rating: ${-normalizedRank}`
-                  };
-                  break;
-                case 'geeksforgeeks':
-                  
-                  normalizedRank = -(stats.codingScore || 0);
-                  platformData = {
-                    ...platformData,
-                    normalizedRank,
-                    displayMetric: `Score: ${-normalizedRank}`
-                  };
-                  break;
-              }
-            } catch (e) {
-              console.error('Error calculating normalized rank:', e);
-              return null;
-            }
-
-            
-            if (platformFilters) {
-              const platform = profile.platformName.toLowerCase();
-              
-              
-              const { leetcode, codechef, codeforces, geeksforgeeks } = platformFilters;
-              const shouldShow = (
-                (!leetcode && !codechef && !codeforces && !geeksforgeeks) || 
-                (leetcode && platform === "leetcode") ||
-                (codechef && platform === "codechef") ||
-                (codeforces && platform === "codeforces") ||
-                (geeksforgeeks && platform === "geeksforgeeks")
-              );
-              
-              if (!shouldShow) return null;
-            }
-
-            
-            if (query) {
-              const searchLower = query.toLowerCase();
-              const matchesUsername = profile.platformUsername.toLowerCase().includes(searchLower);
-              const matchesPlatform = profile.platformName.toLowerCase().includes(searchLower);
-
-              if (!matchesUsername && !matchesPlatform) return null;
-            }
-
-            return {
-              _id: profile._id,
-              _creationTime: profile._creationTime,
-              platform: profile.platformName,
-              platformUsername: profile.platformUsername,
-              platformData: {
-                ...platformData,
-                normalizedRank
-              },
-              userId: profile.userId,
-              username: user.username,
-              email: user.email,
-              isMarked,
-            };
-
-          default:
-            return baseUser;
-        }
-      })
-    );
-
-    
-    const filteredUsers = usersWithData.filter((user): user is UserWithData => user !== null);
-    let sortedUsers = [...filteredUsers];
-
-    
-    switch (sortBy) {
-      case "stars":
-        sortedUsers.sort((a, b) => (b.starCount || 0) - (a.starCount || 0));
-        break;
-      case "projects":
-        sortedUsers.sort((a, b) => (b.projectCount || 0) - (a.projectCount || 0));
-        break;
-      case "skills":
-        sortedUsers.sort((a, b) => (b.skillCount || 0) - (a.skillCount || 0));
-        break;
-      case "platforms":
-        sortedUsers.sort((a, b) => (b.platformCount || 0) - (a.platformCount || 0));
-        break;
-      case "certificates":
-        sortedUsers.sort((a, b) => (b.certificateCount || 0) - (a.certificateCount || 0));
-        break;
-      case "recent":
-      default:
-        sortedUsers.sort((a, b) => {
-          const dateA = new Date(a._creationTime || 0);
-          const dateB = new Date(b._creationTime || 0);
-          return dateB.getTime() - dateA.getTime();
-        });
-    }
-
-    
+    // Optimize for specific tabs with their own data models
     if (tab === "skills") {
-      
+      // Get skills with pagination
       const allSkills = await ctx.db
         .query("skills")
+        .order("desc")
         .collect();
-
       
-      const results = await Promise.all(allSkills.map(async skill => {
-        
+      // Apply category filter if applicable
+      let filteredSkills = allSkills;
+      if (skillFilters && skillFilters.categories && skillFilters.categories.length > 0) {
+        filteredSkills = allSkills.filter(skill => 
+          skillFilters.categories!.includes(skill.category)
+        );
+      }
+      
+      // Apply pagination
+      const totalCount = filteredSkills.length;
+      const paginatedSkills = filteredSkills.slice(
+        (page - 1) * pageSize,
+        page * pageSize
+      );
+
+      // Get user data for these skills
+      const results = await Promise.all(paginatedSkills.map(async skill => {
         const user = await ctx.db.get(skill.userId);
         if (!user || (verified && !user.isverified)) return null;
-
         
         const isMarked = markedEmails.includes(user.email);
-
+        
         let skillsData: string[] = [];
         try {
           const parsedData = JSON.parse(skill.skillsData);
@@ -698,39 +429,63 @@ export const searchUsers = query({
         };
       }));
 
-      
-      let filteredResults = results.filter((result): result is NonNullable<typeof result> => result !== null);
-
-      
-      filteredResults.sort((a, b) => b._creationTime - a._creationTime);
-
-      
-      const paginatedResults = filteredResults.slice(
-        (page - 1) * pageSize,
-        page * pageSize
-      );
+      const filteredResults = results.filter((result): result is NonNullable<typeof result> => result !== null);
 
       return {
-        users: paginatedResults,
-        total: filteredResults.length
+        users: filteredResults,
+        total: totalCount
       };
     }
 
     if (tab === "projects") {
-      
+      // Get projects
       const allProjects = await ctx.db
         .query("projects")
+        .order("desc")
         .collect();
-
       
-      const results = await Promise.all(allProjects.map(async project => {
-        
+      // Apply filters
+      let filteredProjects = allProjects;
+      
+      if (projectFilters) {
+        filteredProjects = allProjects.filter(project => {
+          // Filter by deployment link if requested
+          if (projectFilters.hasDeployment && (!project.deployLink || project.deployLink === "")) {
+            return false;
+          }
+          
+          // Filter by tech stack if requested
+          if (projectFilters.techStack && projectFilters.techStack.length > 0) {
+            const techStackMatches = projectFilters.techStack.some(tech => 
+              project.techStack.includes(tech)
+            );
+            if (!techStackMatches) return false;
+          }
+          
+          // Filter by project name if requested
+          if (projectFilters.projectNameSearch && 
+              !project.projectName.toLowerCase().includes(projectFilters.projectNameSearch.toLowerCase())) {
+            return false;
+          }
+          
+          return true;
+        });
+      }
+      
+      // Apply pagination
+      const totalCount = filteredProjects.length;
+      const paginatedProjects = filteredProjects.slice(
+        (page - 1) * pageSize,
+        page * pageSize
+      );
+
+      // Get user data for these projects
+      const results = await Promise.all(paginatedProjects.map(async project => {
         const user = await ctx.db.get(project.userId);
         if (!user || (verified && !user.isverified)) return null;
-
         
         const isMarked = markedEmails.includes(user.email);
-
+        
         let projectImageUrl;
         if (project.projectImage) {
           projectImageUrl = await ctx.storage.getUrl(project.projectImage);
@@ -752,39 +507,129 @@ export const searchUsers = query({
         };
       }));
 
-      
-      let filteredResults = results.filter((result): result is NonNullable<typeof result> => result !== null);
+      const filteredResults = results.filter((result): result is NonNullable<typeof result> => result !== null);
 
-      
-      filteredResults.sort((a, b) => b._creationTime - a._creationTime);
+      return {
+        users: filteredResults,
+        total: totalCount
+      };
+    }
 
+    if (tab === "platforms") {
+      // Get all platform profiles
+      const allProfiles = await ctx.db
+        .query("profiles")
+        .order("desc")
+        .collect();
       
-      const paginatedResults = filteredResults.slice(
+      // Apply filters
+      let filteredProfiles = allProfiles;
+      
+      // Apply platform type filter if specified
+      if (platformFilters && (platformFilters.leetcode || platformFilters.codechef || 
+                             platformFilters.codeforces || platformFilters.geeksforgeeks)) {
+        const platforms: string[] = [];
+        if (platformFilters.leetcode) platforms.push("leetcode");
+        if (platformFilters.codechef) platforms.push("codechef");
+        if (platformFilters.codeforces) platforms.push("codeforces");
+        if (platformFilters.geeksforgeeks) platforms.push("geeksforgeeks");
+        
+        filteredProfiles = allProfiles.filter(profile => 
+          platforms.includes(profile.platformName.toLowerCase())
+        );
+      }
+      
+      // Apply search query if specified
+      if (query) {
+        const searchLower = query.toLowerCase();
+        filteredProfiles = filteredProfiles.filter(profile => 
+          profile.platformUsername.toLowerCase().includes(searchLower) ||
+          profile.platformName.toLowerCase().includes(searchLower)
+        );
+      }
+      
+      // Apply pagination
+      const totalCount = filteredProfiles.length;
+      const paginatedProfiles = filteredProfiles.slice(
         (page - 1) * pageSize,
         page * pageSize
       );
 
-      return {
-        users: paginatedResults,
-        total: filteredResults.length
-      };
-    }
-
-    if (tab === "certificates") {
-      
-      const allCertificates = await ctx.db
-        .query("certificates")
-        .collect();
-
-      
-      const results = await Promise.all(allCertificates.map(async cert => {
-        
-        const user = await ctx.db.get(cert.userId);
+      // Get user data for these profiles
+      const results = await Promise.all(paginatedProfiles.map(async profile => {
+        const user = await ctx.db.get(profile.userId);
         if (!user || (verified && !user.isverified)) return null;
-
         
         const isMarked = markedEmails.includes(user.email);
+        
+        let platformData = null;
+        try {
+          platformData = formatPlatformData(profile.platformName.toLowerCase(), profile, []);
+        } catch (e) {
+          return null;
+        }
 
+        return {
+          _id: profile._id,
+          _creationTime: profile._creationTime,
+          platform: profile.platformName,
+          platformUsername: profile.platformUsername,
+          platformData,
+          userId: profile.userId,
+          username: user.username,
+          email: user.email,
+          isMarked
+        };
+      }));
+
+      const filteredResults = results.filter((result): result is NonNullable<typeof result> => result !== null);
+
+      return {
+        users: filteredResults,
+        total: totalCount
+      };
+    }
+    
+    if (tab === "certificates") {
+      // Get all certificates
+      const allCertificates = await ctx.db
+        .query("certificates")
+        .order("desc")
+        .collect();
+      
+      // Apply filters
+      let filteredCertificates = allCertificates;
+      
+      if (certificateFilters) {
+        // Apply category filter if specified
+        if (certificateFilters.categories && certificateFilters.categories.length > 0) {
+          filteredCertificates = filteredCertificates.filter(cert => 
+            certificateFilters.categories!.includes(cert.category)
+          );
+        }
+        
+        // Apply search query if specified
+        if (certificateFilters.certificateSearch) {
+          filteredCertificates = filteredCertificates.filter(cert => 
+            cert.certificateTitle.toLowerCase().includes(certificateFilters.certificateSearch!.toLowerCase())
+          );
+        }
+      }
+      
+      // Apply pagination
+      const totalCount = filteredCertificates.length;
+      const paginatedCertificates = filteredCertificates.slice(
+        (page - 1) * pageSize,
+        page * pageSize
+      );
+
+      // Get user data for these certificates
+      const results = await Promise.all(paginatedCertificates.map(async cert => {
+        const user = await ctx.db.get(cert.userId);
+        if (!user || (verified && !user.isverified)) return null;
+        
+        const isMarked = markedEmails.includes(user.email);
+        
         let certificateImageUrl;
         if (cert.certificateImage) {
           certificateImageUrl = await ctx.storage.getUrl(cert.certificateImage);
@@ -804,109 +649,117 @@ export const searchUsers = query({
         };
       }));
 
-      
-      let filteredResults = results.filter((result): result is NonNullable<typeof result> => result !== null);
-
-      
-      filteredResults.sort((a, b) => b._creationTime - a._creationTime);
-
-      
-      const paginatedResults = filteredResults.slice(
-        (page - 1) * pageSize,
-        page * pageSize
-      );
+      const filteredResults = results.filter((result): result is NonNullable<typeof result> => result !== null);
 
       return {
-        users: paginatedResults,
-        total: filteredResults.length
+        users: filteredResults,
+        total: totalCount
       };
     }
 
+    // Default tab (users)
+    // Get all users first with basic filtering
+    let allUsers = await ctx.db
+      .query("users")
+      .collect();
     
-    if (tab === "platforms") {
-      
-      const platformProfiles = await ctx.db
-        .query("profiles")
-        .collect();
-
-      
-      const results = await Promise.all(platformProfiles.map(async profile => {
+    // Apply filters in memory
+    let filteredUsers = allUsers;
+    
+    // Apply verified filter
+    if (verified) {
+      filteredUsers = filteredUsers.filter(user => user.isverified);
+    }
+    
+    // Apply profile image filter
+    if (userFilters?.hasProfileImage) {
+      filteredUsers = filteredUsers.filter(user => user.profileImage != null);
+    }
+    
+    // Apply search query
+    if (query) {
+      const searchLower = query.toLowerCase();
+      filteredUsers = filteredUsers.filter(user => {
+        const username = user.username.toLowerCase();
+        const firstName = (user.firstName || "").toLowerCase();
+        const lastName = (user.lastName || "").toLowerCase();
         
-        const user = await ctx.db.get(profile.userId);
-        if (!user || (verified && !user.isverified)) return null;
+        return username.includes(searchLower) || 
+               firstName.includes(searchLower) || 
+               lastName.includes(searchLower);
+      });
+    }
+    
+    // Get total count before pagination
+    const totalUsers = filteredUsers.length;
+    
+    // Apply pagination - get more than needed to account for filters
+    const paginatedUsers = filteredUsers.slice(
+      (page - 1) * pageSize,
+      (page - 1) * pageSize + pageSize * 2
+    );
 
+    // Now enrich only the necessary users with their data
+    const usersWithData = await Promise.all(
+      paginatedUsers.map(async user => {
+        const userData = await getAllUserData(ctx, user.username);
+        if (!userData) return null;
         
         const isMarked = markedEmails.includes(user.email);
-
         
-        let platformData = null;
-        try {
-          platformData = formatPlatformData(profile.platformName.toLowerCase(), profile, []);
-        } catch (e) {
-          return null;
+        // Apply additional user filters if specified
+        if (userFilters) {
+          if (userFilters.minStars && (userData.stars || 0) < userFilters.minStars) return null;
+          if (userFilters.minProjects && (userData.projects?.length || 0) < userFilters.minProjects) return null;
+          if (userFilters.minSkills && (userData.skills?.length || 0) < userFilters.minSkills) return null;
+          if (userFilters.minPlatforms && (userData.profiles?.length || 0) < userFilters.minPlatforms) return null;
+          if (userFilters.minCertificates && (userData.certificates?.length || 0) < userFilters.minCertificates) return null;
         }
-
         
-        if (platformFilters) {
-          const platform = profile.platformName.toLowerCase();
-          
-          
-          const { leetcode, codechef, codeforces, geeksforgeeks } = platformFilters;
-          const shouldShow = (
-            (!leetcode && !codechef && !codeforces && !geeksforgeeks) || 
-            (leetcode && platform === "leetcode") ||
-            (codechef && platform === "codechef") ||
-            (codeforces && platform === "codeforces") ||
-            (geeksforgeeks && platform === "geeksforgeeks")
-          );
-          
-          if (!shouldShow) return null;
-        }
-
-        
-        if (query) {
-          const searchLower = query.toLowerCase();
-          const matchesUsername = profile.platformUsername.toLowerCase().includes(searchLower);
-          const matchesPlatform = profile.platformName.toLowerCase().includes(searchLower);
-
-          if (!matchesUsername && !matchesPlatform) return null;
-        }
-
         return {
-          _id: profile._id,
-          _creationTime: profile._creationTime,
-          platform: profile.platformName,
-          platformUsername: profile.platformUsername,
-          platformData,
-          userId: profile.userId,
-          username: user.username,
-          email: user.email,
-          isMarked
+          ...user,
+          isMarked,
+          skillCount: userData.skills?.length || 0,
+          projectCount: userData.projects?.length || 0,
+          platformCount: userData.profiles?.length || 0,
+          certificateCount: userData.certificates?.length || 0,
+          starCount: userData.stars || 0
         };
-      }));
-
-      
-      let filteredResults = results.filter((result): result is NonNullable<typeof result> => result !== null);
-
-      
-      filteredResults.sort((a, b) => b._creationTime - a._creationTime);
-
-      
-      const paginatedResults = filteredResults.slice(
-        (page - 1) * pageSize,
-        page * pageSize
-      );
-
-      return {
-        users: paginatedResults,
-        total: filteredResults.length
-      };
+      })
+    );
+    
+    // Filter out null values and sort
+    const validUsers = usersWithData.filter((user): user is UserWithData => user !== null);
+    let sortedUsers = [...validUsers];
+    
+    // Sort users according to the specified criteria
+    switch (sortBy) {
+      case "stars":
+        sortedUsers.sort((a, b) => (b.starCount || 0) - (a.starCount || 0));
+        break;
+      case "projects":
+        sortedUsers.sort((a, b) => (b.projectCount || 0) - (a.projectCount || 0));
+        break;
+      case "skills":
+        sortedUsers.sort((a, b) => (b.skillCount || 0) - (a.skillCount || 0));
+        break;
+      case "platforms":
+        sortedUsers.sort((a, b) => (b.platformCount || 0) - (a.platformCount || 0));
+        break;
+      case "certificates":
+        sortedUsers.sort((a, b) => (b.certificateCount || 0) - (a.certificateCount || 0));
+        break;
+      case "recent":
+      default:
+        sortedUsers.sort((a, b) => b._creationTime - a._creationTime);
     }
-
+    
+    // Take only pageSize items
+    const finalUsers = sortedUsers.slice(0, pageSize);
     
     return {
-      users: sortedUsers.slice((page - 1) * pageSize, page * pageSize),
-      total: sortedUsers.length
+      users: finalUsers,
+      total: totalUsers
     };
   }
 });
