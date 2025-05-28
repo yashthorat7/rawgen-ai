@@ -6,7 +6,7 @@ export function Footer() {
       <div className="w-[90%] mx-auto py-2">
         <div className="flex items-center justify-between text-sm text-gray-800">
           <div>
-            Made by Group 2
+            Made by Group 15
           </div>
           <div className="flex items-center gap-4">
             <a 
