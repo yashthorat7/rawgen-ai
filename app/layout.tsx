@@ -12,7 +12,7 @@ const quicksand = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "CodeX",
+  title: "RawGen.AI",
   description: "Your Competitive Programming Portfolio",
 };
 

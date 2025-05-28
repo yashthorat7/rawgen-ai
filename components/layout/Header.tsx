@@ -75,7 +75,7 @@ export function Header() {
             />
           </div>
           <span className="text-2xl font-Raleway text-gray-900 font-[900]" style={{ fontFamily: 'Raleway' }}>
-            CODEX
+            RAWGEN.AI
           </span>
         </Link>
         <div className="flex items-center gap-4" ref={dropdownRef}>

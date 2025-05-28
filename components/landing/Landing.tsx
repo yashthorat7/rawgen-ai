@@ -593,13 +593,13 @@ export function Landing() {
                   {
                     name: "Baburao Apte",
                     role: "Final year student",
-                    text: "Codex revolutionized how I present my competitive programming achievements to recruiters. The AI-powered insights helped me identify areas for improvement, and I landed my dream job!",
+                    text: "RawGen AI revolutionized how I present my competitive programming achievements to recruiters. The AI-powered insights helped me identify areas for improvement, and I landed my dream job!",
                     image: "/users/pic1.png"
                   },
                   {
                     name: "Raju",
                     role: "Tech Lead @ Microsoft",
-                    text: "As a recruiter, Codex has been invaluable for finding talented developers. The platform's comprehensive profiles and AI matching make it easy to identify candidates with the right skills.",
+                    text: "As a recruiter, RawGen AI has been invaluable for finding talented developers. The platform's comprehensive profiles and AI matching make it easy to identify candidates with the right skills.",
                     image: "/users/pic2.png"
                   },
                   {
@@ -611,13 +611,13 @@ export function Landing() {
                   {
                     name: "Rajpal Yadav",
                     role: "Final year student",
-                    text: "Codex revolutionized how I present my competitive programming achievements to recruiters. The AI-powered insights helped me identify areas for improvement, and I landed my dream job!",
+                    text: "RawGen AI revolutionized how I present my competitive programming achievements to recruiters. The AI-powered insights helped me identify areas for improvement, and I landed my dream job!",
                     image: "/users/pic4.png"
                   },
                   {
                     name: "Totla Seth",
                     role: "Tech Lead @ Amazon",
-                    text: "As a recruiter, Codex has been invaluable for finding talented developers. The platform's comprehensive profiles and AI matching make it easy to identify candidates with the right skills.",
+                    text: "As a recruiter, RawGen AI has been invaluable for finding talented developers. The platform's comprehensive profiles and AI matching make it easy to identify candidates with the right skills.",
                     image: "/users/pic5.png"
                   },
                   {
@@ -629,13 +629,13 @@ export function Landing() {
                   {
                     name: "Baburao Apte",
                     role: "Final year student",
-                    text: "Codex revolutionized how I present my competitive programming achievements to recruiters. The AI-powered insights helped me identify areas for improvement, and I landed my dream job!",
+                    text: "RawGen AI revolutionized how I present my competitive programming achievements to recruiters. The AI-powered insights helped me identify areas for improvement, and I landed my dream job!",
                     image: "/users/pic1.png"
                   },
                   {
                     name: "Raju",
                     role: "Tech Lead @ Microsoft",
-                    text: "As a recruiter, Codex has been invaluable for finding talented developers. The platform's comprehensive profiles and AI matching make it easy to identify candidates with the right skills.",
+                    text: "As a recruiter, RawGen AI has been invaluable for finding talented developers. The platform's comprehensive profiles and AI matching make it easy to identify candidates with the right skills.",
                     image: "/users/pic2.png"
                   },
                   {
@@ -647,13 +647,13 @@ export function Landing() {
                   {
                     name: "Rajpal Yadav",
                     role: "Final year student",
-                    text: "Codex revolutionized how I present my competitive programming achievements to recruiters. The AI-powered insights helped me identify areas for improvement, and I landed my dream job!",
+                    text: "RawGen AI revolutionized how I present my competitive programming achievements to recruiters. The AI-powered insights helped me identify areas for improvement, and I landed my dream job!",
                     image: "/users/pic4.png"
                   },
                   {
                     name: "Totla Seth",
                     role: "Tech Lead @ Amazon",
-                    text: "As a recruiter, Codex has been invaluable for finding talented developers. The platform's comprehensive profiles and AI matching make it easy to identify candidates with the right skills.",
+                    text: "As a recruiter, RawGen AI has been invaluable for finding talented developers. The platform's comprehensive profiles and AI matching make it easy to identify candidates with the right skills.",
                     image: "/users/pic5.png"
                   },
                   {

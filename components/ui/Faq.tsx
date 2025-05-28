@@ -12,16 +12,16 @@ interface FaqItem {
 
 const faqItems: FaqItem[] = [
   {
-    question: "What is Codex?",
-    answer: "Codex is a platform that helps you showcase your competitive programming achievements across multiple platforms. It automatically fetches and analyzes your data, providing beautiful visualizations and AI-powered insights to help you improve your skills and connect with recruiters."
+    question: "What is RawGen AI?",
+    answer: "RawGen AI is a platform that helps you showcase your competitive programming achievements across multiple platforms. It automatically fetches and analyzes your data, providing beautiful visualizations and AI-powered insights to help you improve your skills and connect with recruiters."
   },
   {
-    question: "How does Codex work?",
-    answer: "Codex connects to your competitive programming platform profiles (LeetCode, CodeChef, etc.) and automatically fetches your data. It then analyzes your performance, creates beautiful visualizations, and provides AI-powered insights to help you improve. You can also build a professional portfolio to showcase your skills to recruiters."
+    question: "How does RawGen AI work?",
+    answer: "RawGen AI connects to your competitive programming platform profiles (LeetCode, CodeChef, etc.) and automatically fetches your data. It then analyzes your performance, creates beautiful visualizations, and provides AI-powered insights to help you improve. You can also build a professional portfolio to showcase your skills to recruiters."
   },
   {
-    question: "Which platforms does Codex support?",
-    answer: "Codex currently supports LeetCode, CodeChef, GeeksForGeeks, and Codeforces. We're constantly working to add support for more platforms to help you showcase your achievements from all your competitive programming activities."
+    question: "Which platforms does RawGen AI support?",
+    answer: "RawGen AI currently supports LeetCode, CodeChef, GeeksForGeeks, and Codeforces. We're constantly working to add support for more platforms to help you showcase your achievements from all your competitive programming activities."
   },
   {
     question: "Is my data secure?",
@@ -32,8 +32,8 @@ const faqItems: FaqItem[] = [
     answer: "Our AI analyzes your problem-solving patterns, identifies your strengths and areas for improvement, and provides personalized recommendations. It looks at factors like problem difficulty, topics, and your solving speed to give you actionable insights to improve your skills."
   },
   {
-    question: "Can recruiters find me on Codex?",
-    answer: "Yes! Recruiters can search for candidates based on their skills, experience, and achievements. You can control your profile visibility and choose what information to share. Many top companies use Codex to find talented competitive programmers."
+    question: "Can recruiters find me on RawGen AI?",
+    answer: "Yes! Recruiters can search for candidates based on their skills, experience, and achievements. You can control your profile visibility and choose what information to share. Many top companies use RawGen AI to find talented competitive programmers."
   }
 ];
 

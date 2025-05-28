@@ -122,7 +122,8 @@ export function Intro({ username, isPublicView = false }: IntroProps) {
           )}
 
           {!isPublicView && (
-            <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 rounded-full transition-all duration-200 flex items-center justify-center">
+            <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 rounded-full transition-all
+            duration-200 flex items-center justify-center">
               <span className="text-white opacity-0 text-2xl group-hover:opacity-100 text-m text-center flex flex-row">
                 Edit
                 <br />
