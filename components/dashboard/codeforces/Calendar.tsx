@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo } from "react";
 import type { CodeforcesData } from "@/lib/types";
-import HeatMap from 'react-calendar-heatmap';
-import { Trophy } from 'lucide-react';
+import HeatMap from "react-calendar-heatmap";
+import { Trophy } from "lucide-react";
 
 interface CalendarProps {
   data: CodeforcesData;
@@ -15,18 +15,21 @@ export function Calendar({ data }: CalendarProps) {
 
   const heatmapData = useMemo(() => {
     return data.ratingHistory
-      .map(contest => ({
+      .map((contest) => ({
         date: new Date(contest.timestamp * 1000),
         count: 1,
         rank: contest.rank,
         rating: contest.newRating,
-        name: contest.contestName
+        name: contest.contestName,
       }))
-      .filter(item => item.date.getFullYear() === selectedYear);
+      .filter((item) => item.date.getFullYear() === selectedYear);
   }, [data.ratingHistory, selectedYear]);
 
-  const bestRank = Math.min(...data.ratingHistory.map(c => c.rank));
-  const averageRank = Math.round(data.ratingHistory.reduce((acc, c) => acc + c.rank, 0) / data.ratingHistory.length);
+  const bestRank = Math.min(...data.ratingHistory.map((c) => c.rank));
+  const averageRank = Math.round(
+    data.ratingHistory.reduce((acc, c) => acc + c.rank, 0) /
+      data.ratingHistory.length,
+  );
 
   const startDate = new Date(selectedYear, 0, 1);
   const endDate = new Date(selectedYear, 11, 31);
@@ -38,7 +41,10 @@ export function Calendar({ data }: CalendarProps) {
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2 text-sm">
             <Trophy className="w-4 h-4 text-yellow-500" />
-            <span className="justify-center"><span className="hidden sm:inline">Best: </span>{bestRank}</span>
+            <span className="justify-center">
+              <span className="hidden sm:inline">Best: </span>
+              {bestRank}
+            </span>
           </div>
           <select
             value={selectedYear}
@@ -63,18 +69,30 @@ export function Calendar({ data }: CalendarProps) {
               endDate={endDate}
               classForValue={(value) => {
                 if (!value) return "color-empty";
-                return value.rank <= averageRank ? "color-scale-4" : "color-scale-2";
+                return value.rank <= averageRank
+                  ? "color-scale-4"
+                  : "color-scale-2";
               }}
               titleForValue={(value) => {
-                if (!value) return 'No contests';
+                if (!value) return "No contests";
                 return `${value.name}\nRank: #${value.rank}\nRating: ${value.rating}`;
               }}
               gutterSize={3}
               showWeekdayLabels={false}
               showMonthLabels
               monthLabels={[
-                "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-                "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+                "Jan",
+                "Feb",
+                "Mar",
+                "Apr",
+                "May",
+                "Jun",
+                "Jul",
+                "Aug",
+                "Sep",
+                "Oct",
+                "Nov",
+                "Dec",
               ]}
             />
           </div>
@@ -85,15 +103,15 @@ export function Calendar({ data }: CalendarProps) {
         .react-calendar-heatmap {
           font-size: 10px;
         }
-        
+
         .react-calendar-heatmap .color-empty {
           fill: #ebedf0;
         }
-        
+
         .react-calendar-heatmap .color-scale-2 {
           fill: #87e09e;
         }
-        
+
         .react-calendar-heatmap .color-scale-4 {
           fill: #40c463;
         }
@@ -111,4 +129,4 @@ export function Calendar({ data }: CalendarProps) {
       `}</style>
     </div>
   );
-} 
+}

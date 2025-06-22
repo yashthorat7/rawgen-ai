@@ -1,10 +1,10 @@
 "use client";
 
-import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
-import { Code2, CheckCircle2, Trophy } from 'lucide-react';
-import 'react-circular-progressbar/dist/styles.css';
+import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
+import { Code2, CheckCircle2, Trophy } from "lucide-react";
+import "react-circular-progressbar/dist/styles.css";
 import type { GeeksForGeeksData } from "@/lib/types";
-import { useState } from 'react';
+import { useState } from "react";
 
 interface QuestionsSolvedProps {
   data: GeeksForGeeksData;
@@ -29,7 +29,7 @@ export function QuestionsSolved({ data }: QuestionsSolvedProps) {
     basic: (data.basicProblems / data.totalProblems) * 100,
     easy: (data.easyProblems / data.totalProblems) * 100,
     medium: (data.mediumProblems / data.totalProblems) * 100,
-    hard: (data.hardProblems / data.totalProblems) * 100
+    hard: (data.hardProblems / data.totalProblems) * 100,
   };
 
   return (
@@ -144,12 +144,20 @@ export function QuestionsSolved({ data }: QuestionsSolvedProps) {
                     <span className="text-[#ff375f]">Hard</span>
                   </div>
                   <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 text-xs sm:text-sm font-medium opacity-0 hover:none sm:group-hover:opacity-100 transition-all duration-300">
-                    <span className="text-[#00b8a3]">{totalProgress.easy.toFixed(1)}%</span>
-                    <span className="text-[#ffc01e]">{totalProgress.medium.toFixed(1)}%</span>
-                    <span className="text-[#ff375f]">{totalProgress.hard.toFixed(1)}%</span>
+                    <span className="text-[#00b8a3]">
+                      {totalProgress.easy.toFixed(1)}%
+                    </span>
+                    <span className="text-[#ffc01e]">
+                      {totalProgress.medium.toFixed(1)}%
+                    </span>
+                    <span className="text-[#ff375f]">
+                      {totalProgress.hard.toFixed(1)}%
+                    </span>
                   </div>
                 </div>
-                <span className="mt-3 text-base font-medium text-gray-700">Summary</span>
+                <span className="mt-3 text-base font-medium text-gray-700">
+                  Summary
+                </span>
               </div>
             </div>
           </div>
@@ -203,7 +211,7 @@ function ProgressCircle({ title, value, total, color }: ProgressCircleProps) {
   const percentage = (value / total) * 100;
 
   return (
-    <div 
+    <div
       className="flex flex-col items-center"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -215,16 +223,13 @@ function ProgressCircle({ title, value, total, color }: ProgressCircleProps) {
           styles={buildStyles({
             pathColor: color,
             textColor: color,
-            trailColor: '#E5E7EB',
-            textSize: '16px',
+            trailColor: "#E5E7EB",
+            textSize: "16px",
             pathTransitionDuration: 0.5,
           })}
         />
       </div>
-      <span 
-        className="mt-3 text-base font-medium"
-        style={{ color }}
-      >
+      <span className="mt-3 text-base font-medium" style={{ color }}>
         {title}
       </span>
     </div>

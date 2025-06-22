@@ -26,14 +26,18 @@ export function SkillGrid({ username, isPublicView = false }: SkillGridProps) {
 
   const privateUserData = useQuery(
     api.users.getUser,
-    !isPublicView && email ? { email } : "skip"
+    !isPublicView && email ? { email } : "skip",
   );
 
   const skills = useQuery(
     api.skills.getUserSkills,
-    isPublicView 
-      ? username ? { username } : "skip"
-      : privateUserData?.username ? { username: privateUserData.username } : "skip"
+    isPublicView
+      ? username
+        ? { username }
+        : "skip"
+      : privateUserData?.username
+        ? { username: privateUserData.username }
+        : "skip",
   );
 
   const sortedSkills = useMemo(() => {
@@ -42,7 +46,11 @@ export function SkillGrid({ username, isPublicView = false }: SkillGridProps) {
   }, [skills]);
 
   const deleteSkillCategory = useMutation(api.skills.deleteSkillCategory);
-  if ((!isLoaded && !isPublicView) || (!isPublicView && !privateUserData) || !sortedSkills) {
+  if (
+    (!isLoaded && !isPublicView) ||
+    (!isPublicView && !privateUserData) ||
+    !sortedSkills
+  ) {
     return (
       <>
         <Title title="Skills" />
@@ -93,15 +101,22 @@ export function SkillGrid({ username, isPublicView = false }: SkillGridProps) {
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 mt-2 gap-4 sm:gap-5">
         {sortedSkills.map((categorySkills, index) => (
           <SkillCard
-            key={categorySkills._id || `skill-${categorySkills.category}-${index}`}
+            key={
+              categorySkills._id || `skill-${categorySkills.category}-${index}`
+            }
             category={categorySkills.category}
             skills={categorySkills.skills}
             index={index}
             onReorder={!isPublicView ? handleReorder : undefined}
-            onDelete={!isPublicView && privateUserData?.username ? () => deleteSkillCategory({
-              username: privateUserData.username,
-              category: categorySkills.category
-            }) : undefined}
+            onDelete={
+              !isPublicView && privateUserData?.username
+                ? () =>
+                    deleteSkillCategory({
+                      username: privateUserData.username,
+                      category: categorySkills.category,
+                    })
+                : undefined
+            }
             isPublicView={isPublicView}
           />
         ))}
@@ -109,4 +124,4 @@ export function SkillGrid({ username, isPublicView = false }: SkillGridProps) {
       </div>
     </>
   );
-} 
+}

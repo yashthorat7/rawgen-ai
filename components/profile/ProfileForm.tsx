@@ -7,15 +7,15 @@ import { api } from "@/convex/_generated/api";
 import { useQuery } from "convex/react";
 
 export const platforms = [
-  { value: 'leetcode', label: 'LeetCode' },
-  { value: 'codechef', label: 'CodeChef' },
-  { value: 'geeksforgeeks', label: 'GeeksForGeeks' },
-  { value: 'codeforces', label: 'Codeforces' }
+  { value: "leetcode", label: "LeetCode" },
+  { value: "codechef", label: "CodeChef" },
+  { value: "geeksforgeeks", label: "GeeksForGeeks" },
+  { value: "codeforces", label: "Codeforces" },
 ];
 
 interface PlatformFormProps {
   isOpen: boolean;
-  selectedPlatform: typeof platforms[0] | null;
+  selectedPlatform: (typeof platforms)[0] | null;
   username: string;
   platformError: string;
   usernameError: string;
@@ -23,7 +23,7 @@ interface PlatformFormProps {
   isValidated: boolean;
   isValidating: boolean;
   isLoading: boolean;
-  onPlatformChange: (option: typeof platforms[0] | null) => void;
+  onPlatformChange: (option: (typeof platforms)[0] | null) => void;
   onUsernameChange: (username: string) => void;
   onClose: () => void;
   onSubmit: () => Promise<void>;
@@ -51,41 +51,49 @@ export function PlatformForm({
 
   const existingProfile = useQuery(
     api.users.checkProfileExists,
-    selectedPlatform && username ? {
-      platformName: selectedPlatform.value,
-      platformUsername: username
-    } : "skip"
+    selectedPlatform && username
+      ? {
+          platformName: selectedPlatform.value,
+          platformUsername: username,
+        }
+      : "skip",
   );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    
+
     if (!selectedPlatform || !username || !isValidated) return;
 
     try {
       const existingInSamePlatform = existingPlatforms?.find(
-        p => p.platform === selectedPlatform.value && p.username === username
+        (p) => p.platform === selectedPlatform.value && p.username === username,
       );
 
       if (existingInSamePlatform) {
-        setError(`Username ${username} already exists for ${selectedPlatform.value}`);
+        setError(
+          `Username ${username} already exists for ${selectedPlatform.value}`,
+        );
         return;
       }
 
       if (existingProfile?.exists) {
-        setError(`${username} on ${selectedPlatform.label} already in use by ${existingProfile.username}`);
+        setError(
+          `${username} on ${selectedPlatform.label} already in use by ${existingProfile.username}`,
+        );
         return;
       }
 
       await onAdd();
     } catch (error) {
-      setError(error instanceof Error ? error.message : 'Failed to add platform');
+      setError(
+        error instanceof Error ? error.message : "Failed to add platform",
+      );
     }
   };
 
   const handleUsernameKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       e.preventDefault();
       if (selectedPlatform && username && !isValidating && !isValidated) {
         onSubmit();
@@ -96,20 +104,20 @@ export function PlatformForm({
   const selectStyles = {
     control: (base: any, state: { isFocused: boolean }) => ({
       ...base,
-      backgroundColor: 'white',
-      borderColor: state.isFocused ? '#6366f1' : '#d1d5db',
-      borderWidth: '2px',
-      borderRadius: '0.375rem',
-      boxShadow: 'none',
-      '&:hover': {
-        borderColor: state.isFocused ? '#6366f1' : '#d1d5db'
-      }
+      backgroundColor: "white",
+      borderColor: state.isFocused ? "#6366f1" : "#d1d5db",
+      borderWidth: "2px",
+      borderRadius: "0.375rem",
+      boxShadow: "none",
+      "&:hover": {
+        borderColor: state.isFocused ? "#6366f1" : "#d1d5db",
+      },
     }),
     menuPortal: (base: any) => ({
       ...base,
-      zIndex: 9999
-    })
-  }
+      zIndex: 9999,
+    }),
+  };
 
   return (
     <>
@@ -118,7 +126,9 @@ export function PlatformForm({
           <div className="dialog-backdrop z-[9999]" onClick={onClose} />
           <div className="dialog-content z-50">
             <div className="bg-white rounded-lg p-6 shadow-xl w-[400px] max-w-[90vw]">
-              <h2 className="text-2xl font-bold text-primary-600 mb-4">Add Platform</h2>
+              <h2 className="text-2xl font-bold text-primary-600 mb-4">
+                Add Platform
+              </h2>
               <form onSubmit={handleSubmit} className="space-y-2">
                 <div>
                   <label className="block text-sm font-medium mb-1">
@@ -138,7 +148,9 @@ export function PlatformForm({
                     />
                   </div>
                   <div className="overflow-visible">
-                    {platformError && <p className="text-red-500 text-sm">{platformError}</p>}
+                    {platformError && (
+                      <p className="text-red-500 text-sm">{platformError}</p>
+                    )}
                   </div>
                 </div>
 
@@ -161,7 +173,9 @@ export function PlatformForm({
                     <p className="mt-1 text-xs text-red-500">{usernameError}</p>
                   )}
                   {validationMessage && (
-                    <p className={`mt-1 text-xs ${isValidated ? 'text-green-600' : 'text-red-500'}`}>
+                    <p
+                      className={`mt-1 text-xs ${isValidated ? "text-green-600" : "text-red-500"}`}
+                    >
                       {validationMessage}
                     </p>
                   )}
@@ -185,7 +199,7 @@ export function PlatformForm({
                       disabled={!selectedPlatform || !username || isValidating}
                       className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
                     >
-                      {isValidating ? 'Validating...' : 'Validate'}
+                      {isValidating ? "Validating..." : "Validate"}
                     </button>
                   ) : (
                     <button
@@ -194,7 +208,7 @@ export function PlatformForm({
                       disabled={isLoading}
                       className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
                     >
-                      {isLoading ? 'Adding...' : 'Add'}
+                      {isLoading ? "Adding..." : "Add"}
                     </button>
                   )}
                 </div>
@@ -205,4 +219,4 @@ export function PlatformForm({
       )}
     </>
   );
-} 
+}

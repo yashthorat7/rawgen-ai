@@ -17,7 +17,11 @@ interface ProfileGridProps {
   platformData?: any;
 }
 
-export function ProfileGrid({ username, isPublicView = false, platformData }: ProfileGridProps) {
+export function ProfileGrid({
+  username,
+  isPublicView = false,
+  platformData,
+}: ProfileGridProps) {
   const { user, isLoaded } = useUser();
   const email = user?.primaryEmailAddress?.emailAddress;
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -25,40 +29,52 @@ export function ProfileGrid({ username, isPublicView = false, platformData }: Pr
 
   const publicUserData = useQuery(
     api.users.getUserByUsername,
-    username ? { username } : "skip"
+    username ? { username } : "skip",
   );
 
   const platformContext = isPublicView ? null : usePlatforms();
-  const { platforms, platformData: privatePlatformData, forceRefreshAllPlatforms } = platformContext || {};
+  const {
+    platforms,
+    platformData: privatePlatformData,
+    forceRefreshAllPlatforms,
+  } = platformContext || {};
 
   const privateUserData = useQuery(
     api.users.getUser,
-    !isPublicView && email ? { email } : "skip"
+    !isPublicView && email ? { email } : "skip",
   );
 
   const userData = isPublicView ? publicUserData : privateUserData;
-  const userPlatforms = isPublicView 
-    ? publicUserData?.profiles?.map(p => ({
-        platform: p.platformName,
-        username: p.platformUsername,
-        order: p.order
-      })).sort((a, b) => (a.order ?? 0) - (b.order ?? 0)) as Platform[]
+  const userPlatforms = isPublicView
+    ? (publicUserData?.profiles
+        ?.map((p) => ({
+          platform: p.platformName,
+          username: p.platformUsername,
+          order: p.order,
+        }))
+        .sort((a, b) => (a.order ?? 0) - (b.order ?? 0)) as Platform[])
     : platforms;
 
   useEffect(() => {
     const refreshOnce = async () => {
-      if (hasRefreshedRef.current || isRefreshing || isPublicView || 
-          !forceRefreshAllPlatforms || !userPlatforms || userPlatforms.length === 0) {
+      if (
+        hasRefreshedRef.current ||
+        isRefreshing ||
+        isPublicView ||
+        !forceRefreshAllPlatforms ||
+        !userPlatforms ||
+        userPlatforms.length === 0
+      ) {
         return;
       }
 
       hasRefreshedRef.current = true;
       setIsRefreshing(true);
-      
+
       try {
         await forceRefreshAllPlatforms();
       } catch (error) {
-        console.error('[UI] Error in automatic refresh:', error);
+        console.error("[UI] Error in automatic refresh:", error);
       } finally {
         setIsRefreshing(false);
       }
@@ -69,7 +85,11 @@ export function ProfileGrid({ username, isPublicView = false, platformData }: Pr
     }
   }, [userPlatforms, isPublicView, forceRefreshAllPlatforms, isRefreshing]);
 
-  if ((!isLoaded && !isPublicView) || !userData || userPlatforms === undefined) {
+  if (
+    (!isLoaded && !isPublicView) ||
+    !userData ||
+    userPlatforms === undefined
+  ) {
     return (
       <>
         <Title title="Coding Profiles" />

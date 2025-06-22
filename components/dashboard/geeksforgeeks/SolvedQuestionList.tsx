@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from 'react';
-import { ArrowUpRight } from 'lucide-react';
+import { useState } from "react";
+import { ArrowUpRight } from "lucide-react";
 import type { GeeksForGeeksData } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -9,20 +9,27 @@ interface SolvedQuestionListProps {
   data: GeeksForGeeksData;
 }
 
-type Difficulty = 'school' | 'basic' | 'easy' | 'medium' | 'hard';
+type Difficulty = "school" | "basic" | "easy" | "medium" | "hard";
 
 const DIFFICULTY_COLORS = {
-  school: 'text-purple-600 bg-purple-100',
-  basic: 'text-blue-600 bg-blue-100',
-  easy: 'text-green-600 bg-green-100',
-  medium: 'text-yellow-600 bg-yellow-100',
-  hard: 'text-red-600 bg-red-100'
+  school: "text-purple-600 bg-purple-100",
+  basic: "text-blue-600 bg-blue-100",
+  easy: "text-green-600 bg-green-100",
+  medium: "text-yellow-600 bg-yellow-100",
+  hard: "text-red-600 bg-red-100",
 } as const;
 
 export function SolvedQuestionList({ data }: SolvedQuestionListProps) {
-  const [selectedDifficulty, setSelectedDifficulty] = useState<Difficulty>('medium');
+  const [selectedDifficulty, setSelectedDifficulty] =
+    useState<Difficulty>("medium");
 
-  const difficulties: Difficulty[] = ['school', 'basic', 'easy', 'medium', 'hard'];
+  const difficulties: Difficulty[] = [
+    "school",
+    "basic",
+    "easy",
+    "medium",
+    "hard",
+  ];
   const currentProblems = data.problems[selectedDifficulty] || [];
 
   return (
@@ -39,7 +46,7 @@ export function SolvedQuestionList({ data }: SolvedQuestionListProps) {
                 "px-3 py-1.5 rounded-lg text-sm font-medium capitalize transition-all duration-200",
                 selectedDifficulty === difficulty
                   ? DIFFICULTY_COLORS[difficulty]
-                  : "text-gray-600 bg-gray-100 hover:bg-gray-200"
+                  : "text-gray-600 bg-gray-100 hover:bg-gray-200",
               )}
             >
               {difficulty}
@@ -78,4 +85,4 @@ export function SolvedQuestionList({ data }: SolvedQuestionListProps) {
       </div>
     </div>
   );
-} 
+}

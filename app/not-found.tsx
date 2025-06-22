@@ -9,7 +9,7 @@ export default function NotFound() {
   return (
     <div className="min-h-screen flex flex-col relative">
       <div className="fixed inset-0 bg-gradient-to-b from-transparent to-primary-100/50 pointer-events-none" />
-      
+
       {/* Content */}
       <Header />
       <main className="flex-1 relative dotted-background flex items-center justify-center p-4">
@@ -29,7 +29,7 @@ export default function NotFound() {
             <p className="text-gray-600 mb-8 max-w-md mx-auto">
               Oops! The page you're looking for doesn't exist or has been moved.
             </p>
-            <Link 
+            <Link
               href="/"
               className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-gradient-to-r from-primary-600 via-purple-600 to-purple-600 hover:from-primary-700 hover:via-purple-700 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg"
             >
@@ -41,4 +41,4 @@ export default function NotFound() {
       <Footer />
     </div>
   );
-} 
+}

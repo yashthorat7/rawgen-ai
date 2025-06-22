@@ -2,8 +2,8 @@
 
 import type { CodeChefData } from "@/lib/types";
 import { cn } from "@/lib/utils";
-import { useState, useEffect } from 'react';
-import { ChevronDown, ChevronUp, Medal } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { ChevronDown, ChevronUp, Medal } from "lucide-react";
 
 interface BadgesProps {
   data: CodeChefData;
@@ -28,19 +28,23 @@ export function Badges({ data }: BadgesProps) {
       setIsMobile(window.innerWidth < 640);
     };
     checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
   return (
-    <div className={cn(
-      "bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-all duration-500 overflow-hidden select-none h-full sm:h-[400px]"
-    )}>
+    <div
+      className={cn(
+        "bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-all duration-500 overflow-hidden select-none h-full sm:h-[400px]",
+      )}
+    >
       <div className="grid grid-cols-3 items-center mb-2">
         <h3 className="text-lg font-semibold">Badges</h3>
         <div className="flex items-center gap-2 justify-center">
           <Medal className="w-6 h-6 text-yellow-500" />
-          <span className="text-base font-medium text-gray-700">{data.badges.length} earned</span>
+          <span className="text-base font-medium text-gray-700">
+            {data.badges.length} earned
+          </span>
         </div>
         <div className="flex justify-end">
           {data.badges.length > MINIMUM_BADGES_FOR_VIEW_ALL && (
@@ -48,8 +52,12 @@ export function Badges({ data }: BadgesProps) {
               onClick={() => setShowAll(!showAll)}
               className="text-sm text-primary-600 hover:text-primary-700 font-medium flex items-center gap-1 transition-colors duration-200"
             >
-              {showAll ? 'Show Less' : 'View All'}
-              {showAll ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+              {showAll ? "Show Less" : "View All"}
+              {showAll ? (
+                <ChevronUp className="w-4 h-4" />
+              ) : (
+                <ChevronDown className="w-4 h-4" />
+              )}
             </button>
           )}
         </div>
@@ -57,10 +65,7 @@ export function Badges({ data }: BadgesProps) {
 
       {/* Grid of badges */}
       <div className="transition-all duration-500 overflow-y-auto sm:h-[320px] pr-2 scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent">
-        <div className={cn(
-          "flex flex-wrap gap-4",
-          showAll ? "" : ""
-        )}>
+        <div className={cn("flex flex-wrap gap-4", showAll ? "" : "")}>
           {visibleBadges.map((badge, index) => (
             <div key={index} className="w-[calc(50%-8px)] flex justify-center">
               <BadgeCard badge={badge} />
@@ -73,8 +78,8 @@ export function Badges({ data }: BadgesProps) {
 }
 
 function BadgeCard({ badge }: BadgeCardProps) {
-  const shortTitle = badge.title.split('-')[0].trim();
-  
+  const shortTitle = badge.title.split("-")[0].trim();
+
   return (
     <div className="relative group w-full max-w-[140px]">
       <div className="aspect-square relative rounded-lg overflow-hidden bg-white">

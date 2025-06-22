@@ -22,14 +22,12 @@ export default function DashboardPage() {
   const email = user?.primaryEmailAddress?.emailAddress;
   const [showFeatures, setShowFeatures] = useState(false);
   const pathname = usePathname();
-  
-  const userData = useQuery(api.users.getUser, 
-    email ? { email } : "skip"
-  );
+
+  const userData = useQuery(api.users.getUser, email ? { email } : "skip");
 
   useEffect(() => {
     if (!isLoaded || !email || userData === undefined) return;
-    
+
     const isOwnDashboard = pathname === "/dashboard";
     if (!isOwnDashboard) return;
 
@@ -49,7 +47,7 @@ export default function DashboardPage() {
     <PlatformProvider>
       <div className="min-h-screen flex flex-col relative">
         <div className="fixed inset-0 bg-gradient-to-b from-transparent to-primary-100/50 pointer-events-none" />
-        
+
         {/* Content */}
         <Header />
         <main className="flex-1 relative dotted-background">
@@ -67,12 +65,12 @@ export default function DashboardPage() {
 
         {/* Features Dialog */}
         {showFeatures && email && (
-          <FeaturesDialog 
-            onClose={() => setShowFeatures(false)} 
-            userEmail={email} 
+          <FeaturesDialog
+            onClose={() => setShowFeatures(false)}
+            userEmail={email}
           />
         )}
       </div>
     </PlatformProvider>
   );
-} 
+}

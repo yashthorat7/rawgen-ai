@@ -22,20 +22,25 @@ export default async function ProfilePage({ params }: PageProps) {
   try {
     const resolvedParams = await params;
     const decodedUsername = decodeURIComponent(resolvedParams.username);
-    
-    const user = await convex.query(api.users.getUserByUsername, { username: decodedUsername });
-    
+
+    const user = await convex.query(api.users.getUserByUsername, {
+      username: decodedUsername,
+    });
+
     if (!user) {
       notFound();
     }
-  
-    const platformData = await convex.query(api.users.getFullPlatformDataByUsername, { username: decodedUsername });
-  
+
+    const platformData = await convex.query(
+      api.users.getFullPlatformDataByUsername,
+      { username: decodedUsername },
+    );
+
     return (
       <PlatformProvider platformData={platformData || undefined}>
         <div className="min-h-screen flex flex-col relative">
           <div className="fixed inset-0 bg-gradient-to-b from-transparent to-primary-100/50 pointer-events-none" />
-          
+
           {/* Content */}
           <Header />
           <main className="flex-1 relative dotted-background">
@@ -43,9 +48,9 @@ export default async function ProfilePage({ params }: PageProps) {
               <Intro username={decodedUsername} isPublicView={true} />
               <AiIntro username={decodedUsername} isPublicView={true} />
               <TagStrip username={decodedUsername} isPublicView={true} />
-              <ProfileGrid 
-                username={decodedUsername} 
-                isPublicView={true} 
+              <ProfileGrid
+                username={decodedUsername}
+                isPublicView={true}
                 platformData={platformData}
               />
               <SkillGrid username={decodedUsername} isPublicView={true} />
@@ -60,4 +65,4 @@ export default async function ProfilePage({ params }: PageProps) {
   } catch (error) {
     notFound();
   }
-} 
+}

@@ -124,7 +124,7 @@ export const get = query({
             image: imageUrl,
             order: project.order,
           };
-        })
+        }),
     );
 
     return projectsWithUrls;
@@ -153,7 +153,7 @@ export const add = mutation({
       .query("projects")
       .withIndex("by_user", (q) => q.eq("userId", user._id))
       .collect();
-    
+
     const order = projects.length;
 
     const projectId = await ctx.db.insert("projects", {
@@ -208,10 +208,12 @@ export const remove = mutation({
 export const reorder = mutation({
   args: {
     email: v.string(),
-    updates: v.array(v.object({
-      projectId: v.id("projects"),
-      order: v.number(),
-    })),
+    updates: v.array(
+      v.object({
+        projectId: v.id("projects"),
+        order: v.number(),
+      }),
+    ),
   },
   handler: async (ctx, args) => {
     const user = await ctx.db
@@ -224,11 +226,11 @@ export const reorder = mutation({
     }
 
     await Promise.all(
-      args.updates.map(update => 
-        ctx.db.patch(update.projectId, { order: update.order })
-      )
+      args.updates.map((update) =>
+        ctx.db.patch(update.projectId, { order: update.order }),
+      ),
     );
 
     return { success: true };
   },
-}); 
+});

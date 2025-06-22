@@ -6,7 +6,12 @@ import Groq from "groq-sdk";
 import { ConvexHttpClient } from "convex/browser";
 import { api } from "@/convex/_generated/api";
 import { useUser } from "@clerk/nextjs";
-import { LeetCodeData, CodeChefData, GeeksForGeeksData, CodeforcesData } from "@/lib/types";
+import {
+  LeetCodeData,
+  CodeChefData,
+  GeeksForGeeksData,
+  CodeforcesData,
+} from "@/lib/types";
 
 const groq = new Groq({
   apiKey: process.env.NEXT_PUBLIC_GROQ_API_KEY!,
@@ -38,7 +43,7 @@ export function AiIntro({ username, isPublicView = false }: AiIntroProps) {
     leetcode: {},
     codechef: {},
     geeksforgeeks: {},
-    codeforces: {}
+    codeforces: {},
   });
   const generateRequestInProgress = useRef(false);
 
@@ -47,21 +52,29 @@ export function AiIntro({ username, isPublicView = false }: AiIntroProps) {
   }, [platforms.length]);
 
   useEffect(() => {
-    if (hasFetchedAdvice || (isPublicView && Object.keys(platformData || {}).length > 0)) {
+    if (
+      hasFetchedAdvice ||
+      (isPublicView && Object.keys(platformData || {}).length > 0)
+    ) {
       return;
     }
 
     const fetchDirectData = async () => {
       if (isFetchingData) return;
       setIsFetchingData(true);
-      
+
       try {
         const email = user?.primaryEmailAddress?.emailAddress;
         if (!email && !isPublicView) return;
-        
-        const data = isPublicView && username 
-          ? await convexHttp.query(api.users.getFullPlatformDataByUsername, { username })
-          : await convexHttp.query(api.users.getPlatformDataByEmail, { email: email || '' });
+
+        const data =
+          isPublicView && username
+            ? await convexHttp.query(api.users.getFullPlatformDataByUsername, {
+                username,
+              })
+            : await convexHttp.query(api.users.getPlatformDataByEmail, {
+                email: email || "",
+              });
 
         if (!data || !Array.isArray(data) || data.length === 0) {
           setIsFetchingData(false);
@@ -72,41 +85,56 @@ export function AiIntro({ username, isPublicView = false }: AiIntroProps) {
           leetcode: {},
           codechef: {},
           geeksforgeeks: {},
-          codeforces: {}
+          codeforces: {},
         };
 
         for (const item of data) {
           try {
             const parsedData = JSON.parse(item.fullData);
-            const profilesResult = isPublicView && username
-              ? await convexHttp.query(api.users.getUserByUsername, { username })
-              : await convexHttp.query(api.users.getProfiles, { email: email || '' });
-            
+            const profilesResult =
+              isPublicView && username
+                ? await convexHttp.query(api.users.getUserByUsername, {
+                    username,
+                  })
+                : await convexHttp.query(api.users.getProfiles, {
+                    email: email || "",
+                  });
+
             let profilesList: any[] = [];
             if (isPublicView && username && profilesResult) {
-              if (profilesResult && typeof profilesResult === 'object' && 'profiles' in profilesResult) {
+              if (
+                profilesResult &&
+                typeof profilesResult === "object" &&
+                "profiles" in profilesResult
+              ) {
                 profilesList = profilesResult.profiles;
               }
             } else if (Array.isArray(profilesResult)) {
               profilesList = profilesResult;
             }
-            
-            const profile = profilesList.find((p: { _id: string }) => p._id === item.profileId);
+
+            const profile = profilesList.find(
+              (p: { _id: string }) => p._id === item.profileId,
+            );
 
             if (!profile) continue;
 
             switch (profile.platformName) {
-              case 'leetcode':
-                newData.leetcode[profile.platformUsername] = parsedData as LeetCodeData;
+              case "leetcode":
+                newData.leetcode[profile.platformUsername] =
+                  parsedData as LeetCodeData;
                 break;
-              case 'codechef':
-                newData.codechef[profile.platformUsername] = parsedData as CodeChefData;
+              case "codechef":
+                newData.codechef[profile.platformUsername] =
+                  parsedData as CodeChefData;
                 break;
-              case 'geeksforgeeks':
-                newData.geeksforgeeks[profile.platformUsername] = parsedData as GeeksForGeeksData;
+              case "geeksforgeeks":
+                newData.geeksforgeeks[profile.platformUsername] =
+                  parsedData as GeeksForGeeksData;
                 break;
-              case 'codeforces':
-                newData.codeforces[profile.platformUsername] = parsedData as CodeforcesData;
+              case "codeforces":
+                newData.codeforces[profile.platformUsername] =
+                  parsedData as CodeforcesData;
                 break;
             }
           } catch (error) {
@@ -123,28 +151,42 @@ export function AiIntro({ username, isPublicView = false }: AiIntroProps) {
     };
 
     fetchDirectData();
-  }, [user?.primaryEmailAddress?.emailAddress, username, isPublicView, platformData, hasFetchedAdvice, isFetchingData]);
+  }, [
+    user?.primaryEmailAddress?.emailAddress,
+    username,
+    isPublicView,
+    platformData,
+    hasFetchedAdvice,
+    isFetchingData,
+  ]);
 
   const generateAdvice = useCallback(async () => {
     if (hasFetchedAdvice || generateRequestInProgress.current) return;
     generateRequestInProgress.current = true;
     setIsLoading(true);
-    
+
     try {
       const mergedData = {
         leetcode: { ...platformData?.leetcode, ...directData.leetcode },
         codechef: { ...platformData?.codechef, ...directData.codechef },
-        geeksforgeeks: { ...platformData?.geeksforgeeks, ...directData.geeksforgeeks },
-        codeforces: { ...platformData?.codeforces, ...directData.codeforces }
+        geeksforgeeks: {
+          ...platformData?.geeksforgeeks,
+          ...directData.geeksforgeeks,
+        },
+        codeforces: { ...platformData?.codeforces, ...directData.codeforces },
       };
-      
+
       const leetcodeUsers = Object.values(mergedData.leetcode || {});
       const codechefUsers = Object.values(mergedData.codechef || {});
       const gfgUsers = Object.values(mergedData.geeksforgeeks || {});
       const codeforcesUsers = Object.values(mergedData.codeforces || {});
 
-      if (leetcodeUsers.length === 0 && codechefUsers.length === 0 &&
-          gfgUsers.length === 0 && codeforcesUsers.length === 0) {
+      if (
+        leetcodeUsers.length === 0 &&
+        codechefUsers.length === 0 &&
+        gfgUsers.length === 0 &&
+        codeforcesUsers.length === 0
+      ) {
         setAdvice("Nothing has been added yet!");
         setIsLoading(false);
         setHasFetchedAdvice(true);
@@ -157,21 +199,36 @@ export function AiIntro({ username, isPublicView = false }: AiIntroProps) {
           {
             role: "user",
             content: `Based on the following coding profiles data:
-            ${leetcodeUsers.map(user => user ? `
+            ${leetcodeUsers
+              .map((user) =>
+                user
+                  ? `
               LeetCode:
               - Problems Solved: ${user.totalSolved}/${user.totalQuestions}
               - Easy: ${user.easySolved}, Medium: ${user.mediumSolved}, Hard: ${user.hardSolved}
               - Ranking: ${user.ranking}
-            ` : '').join('\n')}
+            `
+                  : "",
+              )
+              .join("\n")}
             
-            ${codechefUsers.map(user => user ? `
+            ${codechefUsers
+              .map((user) =>
+                user
+                  ? `
               CodeChef:
               - Rating: ${user.currentRating} (${user.stars})
               - Global Rank: ${user.globalRank}
               - Contests Participated: ${user.totalContests}
-            ` : '').join('\n')}
+            `
+                  : "",
+              )
+              .join("\n")}
             
-            ${gfgUsers.map(user => user ? `
+            ${gfgUsers
+              .map((user) =>
+                user
+                  ? `
               GeeksForGeeks:
               - Problems Solved: ${user.problemsSolved}
               - Score: ${user.codingScore}
@@ -179,16 +236,25 @@ export function AiIntro({ username, isPublicView = false }: AiIntroProps) {
               - Easy: ${user.easyProblems}, Medium: ${user.mediumProblems}
               - Hard: ${user.hardProblems}
               - Current Streak: ${user.currentStreak}
-            ` : '').join('\n')}
+            `
+                  : "",
+              )
+              .join("\n")}
 
-            ${codeforcesUsers.map(user => user ? `
+            ${codeforcesUsers
+              .map((user) =>
+                user
+                  ? `
               Codeforces:
               - Current Rating: ${user.rating} (Max: ${user.maxRating})
               - Current Rank: ${user.rank} (Max: ${user.maxRank})
               - Contest Count: ${user.contestCount}
               - Recent Performance: Avg Rank #${user.recentPerformance.averageRank}
               - Contribution: ${user.contribution}
-            ` : '').join('\n')}
+            `
+                  : "",
+              )
+              .join("\n")}
             
             Act like this is your profile and provide a brief (35 to 45 words) personalized coding summary. Focus on areas of improvement and maintain an encouraging tone. Speak directly to the recruiter and be specific. Do not add quotation marks, greetings, or fluff. Be concise yet detailed. If Codeforces data is available, emphasize competitive programming achievements and contest performance. Just give the summary.`,
           },
@@ -196,11 +262,16 @@ export function AiIntro({ username, isPublicView = false }: AiIntroProps) {
         model: "llama3-8b-8192",
       });
 
-      setAdvice(response.choices[0]?.message?.content || "No advice available at the moment.");
+      setAdvice(
+        response.choices[0]?.message?.content ||
+          "No advice available at the moment.",
+      );
       setHasFetchedAdvice(true);
     } catch (error) {
-      console.error('AI summary error:', error);
-      setAdvice("I couldn't generate summary at this moment. Please try again later.");
+      console.error("AI summary error:", error);
+      setAdvice(
+        "I couldn't generate summary at this moment. Please try again later.",
+      );
     } finally {
       setIsLoading(false);
       generateRequestInProgress.current = false;
@@ -208,21 +279,36 @@ export function AiIntro({ username, isPublicView = false }: AiIntroProps) {
   }, [platformData, directData, hasFetchedAdvice]);
 
   useEffect(() => {
-    if ((!isInitialLoading && !isFetchingData) && 
-        (Object.values(directData).some(platform => Object.keys(platform).length > 0) || 
-        Object.values(platformData || {}).some(platform => Object.keys(platform || {}).length > 0))) {
+    if (
+      !isInitialLoading &&
+      !isFetchingData &&
+      (Object.values(directData).some(
+        (platform) => Object.keys(platform).length > 0,
+      ) ||
+        Object.values(platformData || {}).some(
+          (platform) => Object.keys(platform || {}).length > 0,
+        ))
+    ) {
       generateAdvice();
     }
-  }, [generateAdvice, directData, platformData, isInitialLoading, isFetchingData]);
+  }, [
+    generateAdvice,
+    directData,
+    platformData,
+    isInitialLoading,
+    isFetchingData,
+  ]);
 
   return (
     <div className="mt-5 mb-4">
-      <div className="block w-full px-4 py-3 relative rounded-lg text-[15px] sm:text-base text-gray-500 font-medium overflow-hidden z-0 select-none
+      <div
+        className="block w-full px-4 py-3 relative rounded-lg text-[15px] sm:text-base text-gray-500 font-medium overflow-hidden z-0 select-none
                      before:absolute before:inset-0 before:rounded-lg before:content-[''] before:z-[1]
                      before:bg-[linear-gradient(var(--gradient-angle,0deg),#12c2e9,#c471ed,#f64f59)]
                      before:animate-[gradient_4s_linear_infinite]
                      after:absolute after:inset-[2px] after:rounded-lg after:bg-[#f7f7fd] sm:after:bg-[#f8f8fc] after:z-[2]"
-           style={{ "--gradient-angle": "0deg" } as React.CSSProperties}>
+        style={{ "--gradient-angle": "0deg" } as React.CSSProperties}
+      >
         {isInitialLoading || isLoading || isFetchingData ? (
           <div className="relative z-[3] w-full">
             <div className="h-4 bg-gray-200 rounded animate-pulse mb-2"></div>
@@ -236,4 +322,4 @@ export function AiIntro({ username, isPublicView = false }: AiIntroProps) {
       </div>
     </div>
   );
-} 
+}

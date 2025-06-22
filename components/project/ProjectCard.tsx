@@ -21,18 +21,18 @@ interface ProjectCardProps {
   isPublicView?: boolean;
 }
 
-export function ProjectCard({ 
+export function ProjectCard({
   id,
-  title, 
-  description, 
-  projectLink, 
+  title,
+  description,
+  projectLink,
   deployLink,
   techStack,
   image,
   onDelete,
   index,
   onReorder,
-  isPublicView = false
+  isPublicView = false,
 }: ProjectCardProps) {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
@@ -40,12 +40,12 @@ export function ProjectCard({
 
   const truncateDescription = (text: string) => {
     const sentence = text.split(/[.!?]/)[0];
-    return sentence + (text.length > sentence.length ? '...' : '');
+    return sentence + (text.length > sentence.length ? "..." : "");
   };
 
   const handleDragStart = (e: React.DragEvent) => {
     setIsDragging(true);
-    e.dataTransfer.setData('text/plain', index.toString());
+    e.dataTransfer.setData("text/plain", index.toString());
   };
 
   const handleDragEnd = () => {
@@ -54,18 +54,30 @@ export function ProjectCard({
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
-    e.currentTarget.classList.add('border-2', 'border-primary-500', 'border-dashed');
+    e.currentTarget.classList.add(
+      "border-2",
+      "border-primary-500",
+      "border-dashed",
+    );
   };
 
   const handleDragLeave = (e: React.DragEvent) => {
-    e.currentTarget.classList.remove('border-2', 'border-primary-500', 'border-dashed');
+    e.currentTarget.classList.remove(
+      "border-2",
+      "border-primary-500",
+      "border-dashed",
+    );
   };
 
   const handleDrop = async (e: React.DragEvent) => {
     e.preventDefault();
-    e.currentTarget.classList.remove('border-2', 'border-primary-500', 'border-dashed');
+    e.currentTarget.classList.remove(
+      "border-2",
+      "border-primary-500",
+      "border-dashed",
+    );
 
-    const fromIndex = parseInt(e.dataTransfer.getData('text/plain'));
+    const fromIndex = parseInt(e.dataTransfer.getData("text/plain"));
     if (fromIndex === index) return;
 
     await onReorder?.(fromIndex, index);
@@ -73,12 +85,12 @@ export function ProjectCard({
 
   return (
     <>
-      <div 
+      <div
         className={`group relative bg-white 
                   w-full overflow-hidden select-none
                   shadow-[0_4px_8px_rgba(0,0,100,0.08)] transition-all duration-200 ease-in-out 
                   hover:shadow-[0_8px_12px_rgba(0,0,100,0.1)] hover:scale-[1.01] rounded-lg
-                  cursor-pointer ${isDragging ? 'opacity-50' : ''}`}
+                  cursor-pointer ${isDragging ? "opacity-50" : ""}`}
         onClick={() => setShowInfo(true)}
         draggable={!isPublicView}
         onDragStart={!isPublicView ? handleDragStart : undefined}
@@ -89,19 +101,17 @@ export function ProjectCard({
       >
         {image && (
           <div className="aspect-video overflow-hidden p-4 pb-1">
-            <img 
-              src={image} 
+            <img
+              src={image}
               alt={title}
               className="w-full h-full object-cover rounded-lg border border-gray-100"
             />
           </div>
         )}
-        
+
         <div className="p-4 pt-0">
           <div className="mb-2">
-            <h3 className="font-bold text-xl text-gray-900">
-              {title}
-            </h3>
+            <h3 className="font-bold text-xl text-gray-900">{title}</h3>
           </div>
 
           <p className="text-gray-600 text-sm mb-2 truncate whitespace-nowrap overflow-hidden">
@@ -110,7 +120,7 @@ export function ProjectCard({
 
           <div className="flex flex-wrap gap-2">
             {techStack.map((tech, index) => (
-              <span 
+              <span
                 key={index}
                 className="px-2 py-1 bg-primary-100 text-primary-600 rounded text-xs font-medium"
               >
@@ -151,10 +161,10 @@ export function ProjectCard({
           projectLink: projectLink || "",
           deployLink,
           techStack,
-          image
+          image,
         }}
         mode="edit"
       />
     </>
   );
-} 
+}

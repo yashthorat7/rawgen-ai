@@ -19,15 +19,23 @@ interface SearchFiltersProps {
 }
 
 const updatePlatforms = (
-  currentPlatforms: Partial<FilterState['platforms']> | undefined,
+  currentPlatforms: Partial<FilterState["platforms"]> | undefined,
   platform: string,
-  checked: boolean
-): FilterState['platforms'] => {
+  checked: boolean,
+): FilterState["platforms"] => {
   return {
-    leetcode: platform === 'leetcode' ? checked : currentPlatforms?.leetcode || false,
-    codechef: platform === 'codechef' ? checked : currentPlatforms?.codechef || false,
-    codeforces: platform === 'codeforces' ? checked : currentPlatforms?.codeforces || false,
-    geeksforgeeks: platform === 'geeksforgeeks' ? checked : currentPlatforms?.geeksforgeeks || false,
+    leetcode:
+      platform === "leetcode" ? checked : currentPlatforms?.leetcode || false,
+    codechef:
+      platform === "codechef" ? checked : currentPlatforms?.codechef || false,
+    codeforces:
+      platform === "codeforces"
+        ? checked
+        : currentPlatforms?.codeforces || false,
+    geeksforgeeks:
+      platform === "geeksforgeeks"
+        ? checked
+        : currentPlatforms?.geeksforgeeks || false,
   };
 };
 
@@ -36,14 +44,14 @@ export function SearchFilters({
   filters,
   onFilterChange,
   searchQuery,
-  onSearchChange
+  onSearchChange,
 }: SearchFiltersProps) {
   const [localSearchTerms, setLocalSearchTerms] = useState<string[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [projectNameSearch, setProjectNameSearch] = useState("");
 
   const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && inputValue.trim()) {
+    if (e.key === "Enter" && inputValue.trim()) {
       const newTerm = inputValue.trim();
       if (!localSearchTerms.includes(newTerm)) {
         const updatedTerms = [...localSearchTerms, newTerm];
@@ -59,7 +67,7 @@ export function SearchFilters({
   };
 
   const removeSearchTerm = (term: string) => {
-    const updatedTerms = localSearchTerms.filter(t => t !== term);
+    const updatedTerms = localSearchTerms.filter((t) => t !== term);
     setLocalSearchTerms(updatedTerms);
     if (tab === "skills") {
       onFilterChange({ ...filters, searchTerms: updatedTerms });
@@ -87,8 +95,19 @@ export function SearchFilters({
                 className="w-full pl-4 pr-10 py-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm"
               />
               <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  />
                 </svg>
               </div>
             </div>
@@ -111,7 +130,9 @@ export function SearchFilters({
           <div className="relative">
             <Input
               type="text"
-              placeholder={tab === "platforms" ? "Search usernames..." : `Search ${tab}...`}
+              placeholder={
+                tab === "platforms" ? "Search usernames..." : `Search ${tab}...`
+              }
               value={showTagInput ? inputValue : searchQuery}
               onChange={(e) => {
                 if (showTagInput) {
@@ -127,8 +148,19 @@ export function SearchFilters({
               {showTagInput ? (
                 <span className="text-xs">Press Enter to add</span>
               ) : (
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  />
                 </svg>
               )}
             </div>
@@ -163,7 +195,9 @@ export function SearchFilters({
               <Checkbox
                 id="verified-users"
                 checked={filters.verified}
-                onCheckedChange={(checked) => onFilterChange({ ...filters, verified: !!checked })}
+                onCheckedChange={(checked) =>
+                  onFilterChange({ ...filters, verified: !!checked })
+                }
               />
               <label htmlFor="verified-users" className="text-sm font-medium">
                 Verified Users
@@ -175,23 +209,36 @@ export function SearchFilters({
         {/* Platforms Tab Filters */}
         {tab === "platforms" && (
           <div className="col-span-full grid grid-cols-2 sm:grid-cols-4 gap-4">
-            {["leetcode", "codechef", "codeforces", "geeksforgeeks"].map((platform) => (
-              <div key={platform} className="flex items-center space-x-2">
-                <Checkbox
-                  id={`platform-${platform}`}
-                  checked={filters.platforms?.[platform as keyof typeof filters.platforms] || false}
-                  onCheckedChange={(checked) => {
-                    onFilterChange({
-                      ...filters,
-                      platforms: updatePlatforms(filters.platforms, platform, !!checked)
-                    });
-                  }}
-                />
-                <label htmlFor={`platform-${platform}`} className="text-sm font-medium capitalize">
-                  {platform}
-                </label>
-              </div>
-            ))}
+            {["leetcode", "codechef", "codeforces", "geeksforgeeks"].map(
+              (platform) => (
+                <div key={platform} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={`platform-${platform}`}
+                    checked={
+                      filters.platforms?.[
+                        platform as keyof typeof filters.platforms
+                      ] || false
+                    }
+                    onCheckedChange={(checked) => {
+                      onFilterChange({
+                        ...filters,
+                        platforms: updatePlatforms(
+                          filters.platforms,
+                          platform,
+                          !!checked,
+                        ),
+                      });
+                    }}
+                  />
+                  <label
+                    htmlFor={`platform-${platform}`}
+                    className="text-sm font-medium capitalize"
+                  >
+                    {platform}
+                  </label>
+                </div>
+              ),
+            )}
           </div>
         )}
 
@@ -213,4 +260,4 @@ export function SearchFilters({
       </div>
     </div>
   );
-} 
+}

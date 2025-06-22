@@ -14,7 +14,7 @@ export function AddCard() {
     try {
       await addPlatform(platform, username);
     } catch (error) {
-      console.error('AddCard: Database error while adding platform:', error);
+      console.error("AddCard: Database error while adding platform:", error);
       throw error;
     } finally {
       setIsLoading(false);
@@ -32,7 +32,12 @@ export function AddCard() {
           Add Platform
         </span>
       </div>
-      <AddPlatformDialog open={open} onOpenChange={setOpen} onSubmit={handleSubmit} isLoading={isLoading} />
+      <AddPlatformDialog
+        open={open}
+        onOpenChange={setOpen}
+        onSubmit={handleSubmit}
+        isLoading={isLoading}
+      />
     </>
   );
-} 
+}

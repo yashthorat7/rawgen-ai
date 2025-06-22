@@ -7,4 +7,4 @@ export function LoadingStrip() {
       </div>
     </div>
   );
-} 
+}

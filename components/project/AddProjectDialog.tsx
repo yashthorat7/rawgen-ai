@@ -20,21 +20,34 @@ interface AddProjectDialogProps {
     techStack: string[];
     image?: string;
   };
-  mode?: 'add' | 'edit';
+  mode?: "add" | "edit";
 }
 
 const MAX_PROJECT_IMAGE_SIZE = 500 * 1024; // 500KB
 
-export function AddProjectDialog({ isOpen, onClose, initialData, mode = 'add' }: AddProjectDialogProps) {
+export function AddProjectDialog({
+  isOpen,
+  onClose,
+  initialData,
+  mode = "add",
+}: AddProjectDialogProps) {
   useScrollLock(isOpen);
   const { user } = useUser();
   const [title, setTitle] = useState(initialData?.title || "");
-  const [description, setDescription] = useState(initialData?.description || "");
-  const [projectLink, setProjectLink] = useState(initialData?.projectLink || "");
+  const [description, setDescription] = useState(
+    initialData?.description || "",
+  );
+  const [projectLink, setProjectLink] = useState(
+    initialData?.projectLink || "",
+  );
   const [deployLink, setDeployLink] = useState(initialData?.deployLink || "");
   const [image, setImage] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(initialData?.image || null);
-  const [techStack, setTechStack] = useState<Set<string>>(new Set(initialData?.techStack || []));
+  const [previewUrl, setPreviewUrl] = useState<string | null>(
+    initialData?.image || null,
+  );
+  const [techStack, setTechStack] = useState<Set<string>>(
+    new Set(initialData?.techStack || []),
+  );
   const [techInput, setTechInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
@@ -110,7 +123,7 @@ export function AddProjectDialog({ isOpen, onClose, initialData, mode = 'add' }:
     e.preventDefault();
     setIsDragging(false);
     const file = e.dataTransfer.files[0];
-    if (file && file.type.startsWith('image/')) {
+    if (file && file.type.startsWith("image/")) {
       if (file.size > MAX_PROJECT_IMAGE_SIZE) {
         alert(`File size must be less than ${MAX_PROJECT_IMAGE_SIZE / 1024}KB`);
         return;
@@ -122,16 +135,16 @@ export function AddProjectDialog({ isOpen, onClose, initialData, mode = 'add' }:
   const handleAddTech = () => {
     if (!techInput.trim() || techStack.size >= 12) return;
     const formattedTech = techInput.trim().toLowerCase();
-    setTechStack(prev => new Set([...prev, formattedTech]));
+    setTechStack((prev) => new Set([...prev, formattedTech]));
     setTechInput("");
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (techStack.size >= 12) {
-      if (e.key === 'Enter' || e.key === ',') e.preventDefault();
+      if (e.key === "Enter" || e.key === ",") e.preventDefault();
       return;
     }
-    if (e.key === 'Enter' || e.key === ',') {
+    if (e.key === "Enter" || e.key === ",") {
       e.preventDefault();
       handleAddTech();
     }
@@ -154,13 +167,13 @@ export function AddProjectDialog({ isOpen, onClose, initialData, mode = 'add' }:
 
       if (image) {
         const uploadUrl = await generateUploadUrl();
-        
+
         const result = await fetch(uploadUrl, {
           method: "POST",
           headers: { "Content-Type": image.type },
           body: image,
         });
-        
+
         if (!result.ok) {
           throw new Error(`Upload failed: ${result.statusText}`);
         }
@@ -169,11 +182,11 @@ export function AddProjectDialog({ isOpen, onClose, initialData, mode = 'add' }:
         imageId = storageId;
 
         await saveImage({
-          storageId: imageId
+          storageId: imageId,
         });
       }
 
-      if (mode === 'edit' && initialData?.id) {
+      if (mode === "edit" && initialData?.id) {
         await updateProject({
           projectId: initialData.id,
           email,
@@ -182,7 +195,7 @@ export function AddProjectDialog({ isOpen, onClose, initialData, mode = 'add' }:
           projectLink,
           deployLink: deployLink || undefined,
           techStack: JSON.stringify(Array.from(techStack)),
-          projectImage: image ? imageId : undefined, 
+          projectImage: image ? imageId : undefined,
         });
       } else {
         await addProject({
@@ -206,12 +219,12 @@ export function AddProjectDialog({ isOpen, onClose, initialData, mode = 'add' }:
   if (!isOpen) return null;
 
   const techStackArray = Array.from(techStack);
-  const isFormValid = 
-    title.trim() !== "" && 
-    description.trim() !== "" && 
-    projectLink.trim() !== "" && 
+  const isFormValid =
+    title.trim() !== "" &&
+    description.trim() !== "" &&
+    projectLink.trim() !== "" &&
     (image !== null || (initialData && previewUrl)) &&
-    techStack.size >= 1 && 
+    techStack.size >= 1 &&
     techStack.size <= 12;
 
   return (
@@ -224,34 +237,42 @@ export function AddProjectDialog({ isOpen, onClose, initialData, mode = 'add' }:
         <div className="bg-white rounded-lg shadow-xl w-full max-w-[500px] max-h-[90vh] flex flex-col">
           <div className="p-6 border-b">
             <h2 className="text-2xl font-bold text-primary-600">
-              {mode === 'edit' ? 'Edit Project' : 'Add New Project'}
+              {mode === "edit" ? "Edit Project" : "Add New Project"}
             </h2>
           </div>
 
           <div className="p-6 overflow-y-auto">
-            <form id="project-form" onSubmit={handleSubmit} className="space-y-4">
+            <form
+              id="project-form"
+              onSubmit={handleSubmit}
+              className="space-y-4"
+            >
               <div className="flex justify-center">
-                <div 
+                <div
                   className={`relative w-full aspect-video rounded-lg border-2 ${
-                    isDragging 
-                      ? 'border-primary-500 bg-primary-50' 
-                      : 'border-dashed border-gray-300 hover:border-gray-400'
+                    isDragging
+                      ? "border-primary-500 bg-primary-50"
+                      : "border-dashed border-gray-300 hover:border-gray-400"
                   } transition-colors cursor-pointer overflow-hidden`}
                   onDragOver={handleDragOver}
                   onDragLeave={handleDragLeave}
                   onDrop={handleDrop}
-                  onClick={() => document.getElementById('project-image')?.click()}
+                  onClick={() =>
+                    document.getElementById("project-image")?.click()
+                  }
                 >
                   {previewUrl ? (
-                    <img 
-                      src={previewUrl} 
-                      alt="Project preview" 
+                    <img
+                      src={previewUrl}
+                      alt="Project preview"
                       className="w-full h-full object-cover"
                     />
                   ) : (
                     <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-400">
                       <Upload className="w-8 h-8 mb-2" />
-                      <p className="text-sm font-medium">Drop image here or click to upload</p>
+                      <p className="text-sm font-medium">
+                        Drop image here or click to upload
+                      </p>
                       <p className="text-xs mt-1">Supports JPG, PNG, GIF</p>
                     </div>
                   )}
@@ -260,13 +281,17 @@ export function AddProjectDialog({ isOpen, onClose, initialData, mode = 'add' }:
                     id="project-image"
                     accept="image/*"
                     className="hidden"
-                    onChange={(e) => handleImageChange(e.target.files?.[0] || null)}
+                    onChange={(e) =>
+                      handleImageChange(e.target.files?.[0] || null)
+                    }
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">Project Name</label>
+                <label className="block text-sm font-medium mb-1">
+                  Project Name
+                </label>
                 <input
                   type="text"
                   value={title}
@@ -278,7 +303,10 @@ export function AddProjectDialog({ isOpen, onClose, initialData, mode = 'add' }:
 
               <div>
                 <label className="block text-sm font-medium mb-1">
-                  Description <span className="text-gray-500">({description.length}/700)</span>
+                  Description{" "}
+                  <span className="text-gray-500">
+                    ({description.length}/700)
+                  </span>
                 </label>
                 <textarea
                   value={description}
@@ -290,7 +318,8 @@ export function AddProjectDialog({ isOpen, onClose, initialData, mode = 'add' }:
 
               <div>
                 <label className="block text-sm font-medium mb-1">
-                  Tech Stack <span className="text-gray-500">({techStack.size}/12)</span>
+                  Tech Stack{" "}
+                  <span className="text-gray-500">({techStack.size}/12)</span>
                 </label>
                 <div className="space-y-2">
                   <div className="flex gap-2">
@@ -301,7 +330,11 @@ export function AddProjectDialog({ isOpen, onClose, initialData, mode = 'add' }:
                       onKeyDown={handleKeyDown}
                       disabled={techStack.size >= 12}
                       className="flex-1 px-3 py-2 border-2 rounded-md focus:outline-none focus:border-primary-600 disabled:bg-gray-100"
-                      placeholder={techStack.size >= 12 ? "Max tech stack reached" : "React, Node.js, etc."}
+                      placeholder={
+                        techStack.size >= 12
+                          ? "Max tech stack reached"
+                          : "React, Node.js, etc."
+                      }
                     />
                     <button
                       type="button"
@@ -309,14 +342,14 @@ export function AddProjectDialog({ isOpen, onClose, initialData, mode = 'add' }:
                       disabled={!techInput.trim() || techStack.size >= 12}
                       className={`px-4 py-2 rounded-md text-white ${
                         !techInput.trim() || techStack.size >= 12
-                          ? 'bg-primary-400 cursor-not-allowed'
-                          : 'bg-primary-600 hover:bg-primary-700'
+                          ? "bg-primary-400 cursor-not-allowed"
+                          : "bg-primary-600 hover:bg-primary-700"
                       }`}
                     >
                       <Plus className="w-5 h-5" />
                     </button>
                   </div>
-                  
+
                   {techStackArray.length > 0 && (
                     <div className="flex flex-wrap gap-2">
                       {techStackArray.map((tech, index) => (
@@ -340,7 +373,9 @@ export function AddProjectDialog({ isOpen, onClose, initialData, mode = 'add' }:
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">Project Link</label>
+                <label className="block text-sm font-medium mb-1">
+                  Project Link
+                </label>
                 <input
                   type="url"
                   value={projectLink}
@@ -351,7 +386,9 @@ export function AddProjectDialog({ isOpen, onClose, initialData, mode = 'add' }:
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">Deploy Link</label>
+                <label className="block text-sm font-medium mb-1">
+                  Deploy Link
+                </label>
                 <input
                   type="url"
                   value={deployLink}
@@ -377,13 +414,17 @@ export function AddProjectDialog({ isOpen, onClose, initialData, mode = 'add' }:
                 disabled={isLoading || !isFormValid}
                 className={`px-4 py-2 rounded-md text-white ${
                   isLoading || !isFormValid
-                    ? 'bg-primary-400 cursor-not-allowed'
-                    : 'bg-primary-600 hover:bg-primary-700'
+                    ? "bg-primary-400 cursor-not-allowed"
+                    : "bg-primary-600 hover:bg-primary-700"
                 }`}
               >
-                {isLoading 
-                  ? (mode === 'edit' ? 'Updating...' : 'Adding...') 
-                  : (mode === 'edit' ? 'Update Project' : 'Add Project')}
+                {isLoading
+                  ? mode === "edit"
+                    ? "Updating..."
+                    : "Adding..."
+                  : mode === "edit"
+                    ? "Update Project"
+                    : "Add Project"}
               </button>
             </div>
           </div>
@@ -391,4 +432,4 @@ export function AddProjectDialog({ isOpen, onClose, initialData, mode = 'add' }:
       </div>
     </>
   );
-} 
+}

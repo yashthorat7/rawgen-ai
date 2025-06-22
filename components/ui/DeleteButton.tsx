@@ -13,18 +13,21 @@ export function DeleteButton({ onDelete }: DeleteButtonProps) {
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (confirmRef.current && !confirmRef.current.contains(event.target as Node)) {
+      if (
+        confirmRef.current &&
+        !confirmRef.current.contains(event.target as Node)
+      ) {
         setShowConfirm(false);
       }
     }
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   return (
     <div className="relative">
-      <button 
+      <button
         className="p-1.5 rounded-full hover:bg-red-50 group transition-colors"
         onClick={(e) => {
           e.stopPropagation();
@@ -35,13 +38,15 @@ export function DeleteButton({ onDelete }: DeleteButtonProps) {
       </button>
 
       {showConfirm && (
-        <div 
+        <div
           ref={confirmRef}
           className="absolute bottom-full right-0 mb-3 bg-white rounded-lg 
                     shadow-[0_4px_20px_rgba(0,0,0,0.15)] border border-gray-100 
                     p-4 w-56 text-sm z-50 animate-in fade-in slide-in-from-top-2"
         >
-          <p className="text-gray-700 font-medium mb-3">Are you sure you want to delete this card?</p>
+          <p className="text-gray-700 font-medium mb-3">
+            Are you sure you want to delete this card?
+          </p>
           <div className="flex justify-end gap-2">
             <button
               className="px-3 py-1.5 text-gray-600 hover:text-gray-800 
@@ -69,4 +74,4 @@ export function DeleteButton({ onDelete }: DeleteButtonProps) {
       )}
     </div>
   );
-} 
+}

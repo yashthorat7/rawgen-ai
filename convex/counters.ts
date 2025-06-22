@@ -7,7 +7,7 @@ export const get = query({
   handler: async (ctx, args) => {
     return await ctx.db
       .query("counters")
-      .withIndex("by_user", q => q.eq("userId", args.userId))
+      .withIndex("by_user", (q) => q.eq("userId", args.userId))
       .first();
   },
 });
@@ -19,7 +19,7 @@ export const initializeCounters = mutation({
   handler: async (ctx, args) => {
     const existing = await ctx.db
       .query("counters")
-      .withIndex("by_user", q => q.eq("userId", args.userId))
+      .withIndex("by_user", (q) => q.eq("userId", args.userId))
       .first();
 
     if (!existing) {
@@ -41,10 +41,10 @@ export const update = mutation({
   },
   handler: async (ctx, args) => {
     const { userId, ...updates } = args;
-    
+
     const existing = await ctx.db
       .query("counters")
-      .withIndex("by_user", q => q.eq("userId", userId))
+      .withIndex("by_user", (q) => q.eq("userId", userId))
       .first();
 
     if (existing) {
@@ -54,31 +54,31 @@ export const update = mutation({
         userId,
         ...updates,
         profileViews: updates.profileViews ?? 0,
-        gotStars: updates.gotStars ?? []
+        gotStars: updates.gotStars ?? [],
       });
     }
   },
 });
 
 export const incrementViews = mutation({
-  args: { 
-    userId: v.id("users")
+  args: {
+    userId: v.id("users"),
   },
   handler: async (ctx, args) => {
     const counter = await ctx.db
       .query("counters")
-      .withIndex("by_user", q => q.eq("userId", args.userId))
+      .withIndex("by_user", (q) => q.eq("userId", args.userId))
       .first();
 
     if (counter) {
       await ctx.db.patch(counter._id, {
-        profileViews: (counter.profileViews || 0) + 1
+        profileViews: (counter.profileViews || 0) + 1,
       });
     } else {
       await ctx.db.insert("counters", {
         userId: args.userId,
         profileViews: 1,
-        gotStars: []
+        gotStars: [],
       });
     }
 
@@ -89,7 +89,7 @@ export const incrementViews = mutation({
 export const toggleStar = mutation({
   args: {
     targetUsername: v.string(),
-    starrerUserId: v.id("users")
+    starrerUserId: v.id("users"),
   },
   handler: async (ctx, args) => {
     const targetUser = await ctx.db
@@ -97,28 +97,33 @@ export const toggleStar = mutation({
       .withIndex("by_username", (q) => q.eq("username", args.targetUsername))
       .first();
     const starrerUser = await ctx.db.get(args.starrerUserId);
-    
+
     if (!targetUser || !starrerUser) {
       return { success: false, reason: "User not found" };
     }
 
-    if (targetUser._id === args.starrerUserId || targetUser.email === starrerUser.email) {
+    if (
+      targetUser._id === args.starrerUserId ||
+      targetUser.email === starrerUser.email
+    ) {
       return { success: false, reason: "Cannot star your own profile" };
     }
 
     const targetCounter = await ctx.db
       .query("counters")
-      .withIndex("by_user", q => q.eq("userId", targetUser._id))
+      .withIndex("by_user", (q) => q.eq("userId", targetUser._id))
       .first();
 
     if (!targetCounter) {
       await ctx.db.insert("counters", {
         userId: targetUser._id,
         profileViews: 0,
-        gotStars: [starrerUser.email]
+        gotStars: [starrerUser.email],
       });
       await ctx.db.patch(args.starrerUserId, {
-        madeStars: Array.from(new Set([...(starrerUser.madeStars || []), targetUser.email]))
+        madeStars: Array.from(
+          new Set([...(starrerUser.madeStars || []), targetUser.email]),
+        ),
       });
       return { success: true, action: "starred" };
     }
@@ -130,26 +135,28 @@ export const toggleStar = mutation({
 
     if (isStarred) {
       await ctx.db.patch(targetCounter._id, {
-        gotStars: targetGotStars.filter(email => email !== starrerUser.email)
+        gotStars: targetGotStars.filter((email) => email !== starrerUser.email),
       });
 
       await ctx.db.patch(args.starrerUserId, {
-        madeStars: starrerMadeStars.filter(email => email !== targetUser.email)
+        madeStars: starrerMadeStars.filter(
+          (email) => email !== targetUser.email,
+        ),
       });
 
       return { success: true, action: "unstarred" };
     } else {
       await ctx.db.patch(targetCounter._id, {
-        gotStars: Array.from(new Set([...targetGotStars, starrerUser.email]))
+        gotStars: Array.from(new Set([...targetGotStars, starrerUser.email])),
       });
 
       await ctx.db.patch(args.starrerUserId, {
-        madeStars: Array.from(new Set([...starrerMadeStars, targetUser.email]))
+        madeStars: Array.from(new Set([...starrerMadeStars, targetUser.email])),
       });
 
       return { success: true, action: "starred" };
     }
-  }
+  },
 });
 
 export const getUserByUsername = query({
@@ -159,7 +166,7 @@ export const getUserByUsername = query({
       .query("users")
       .withIndex("by_username", (q) => q.eq("username", args.username))
       .first();
-    
+
     return user;
   },
-}); 
+});

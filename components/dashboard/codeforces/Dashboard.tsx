@@ -14,7 +14,11 @@ interface CodeforcesDashboardProps {
   isLoading?: boolean;
 }
 
-export function CodeforcesDashboard({ data, onClose, isLoading }: CodeforcesDashboardProps) {
+export function CodeforcesDashboard({
+  data,
+  onClose,
+  isLoading,
+}: CodeforcesDashboardProps) {
   useScrollLock(true);
 
   if (isLoading) {
@@ -22,7 +26,9 @@ export function CodeforcesDashboard({ data, onClose, isLoading }: CodeforcesDash
       <div className="fixed inset-0 bg-gradient-to-br from-white/30 to-white/10 backdrop-blur-xl overflow-hidden flex items-center justify-center">
         <div className="flex flex-col items-center gap-4 px-5 text-center">
           <Loader2 className="w-8 h-8 text-primary-600 animate-spin" />
-          <p className="text-gray-600 font-medium">Loading Codeforces profile...</p>
+          <p className="text-gray-600 font-medium">
+            Loading Codeforces profile...
+          </p>
         </div>
       </div>
     );

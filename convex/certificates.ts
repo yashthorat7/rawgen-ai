@@ -50,7 +50,7 @@ export const get = query({
             image: imageUrl,
             order: certificate.order,
           };
-        })
+        }),
     );
 
     return certificatesWithUrls;
@@ -77,7 +77,7 @@ export const add = mutation({
       .query("certificates")
       .withIndex("by_user", (q) => q.eq("userId", user._id))
       .collect();
-    
+
     const order = existingCertificates.length;
 
     const certificateId = await ctx.db.insert("certificates", {
@@ -129,9 +129,11 @@ export const update = mutation({
       throw new Error("Unauthorized to update this certificate");
     }
 
-    if (args.certificateImage && 
-        existingCertificate.certificateImage && 
-        args.certificateImage !== existingCertificate.certificateImage) {
+    if (
+      args.certificateImage &&
+      existingCertificate.certificateImage &&
+      args.certificateImage !== existingCertificate.certificateImage
+    ) {
       await ctx.storage.delete(existingCertificate.certificateImage);
     }
 
@@ -139,11 +141,13 @@ export const update = mutation({
       certificateTitle: args.title,
       category: args.category,
       description: args.description,
-      certificateImage: args.certificateImage ?? existingCertificate.certificateImage,
+      certificateImage:
+        args.certificateImage ?? existingCertificate.certificateImage,
     });
 
     let imageUrl = null;
-    const imageId = args.certificateImage ?? existingCertificate.certificateImage;
+    const imageId =
+      args.certificateImage ?? existingCertificate.certificateImage;
     if (imageId) {
       imageUrl = await ctx.storage.getUrl(imageId);
     }
@@ -186,7 +190,7 @@ export const reorder = mutation({
       v.object({
         certificateId: v.id("certificates"),
         order: v.number(),
-      })
+      }),
     ),
   },
   handler: async (ctx, args) => {
@@ -198,9 +202,9 @@ export const reorder = mutation({
     if (!user) throw new Error("User not found");
 
     await Promise.all(
-      args.updates.map(update => 
-        ctx.db.patch(update.certificateId, { order: update.order })
-      )
+      args.updates.map((update) =>
+        ctx.db.patch(update.certificateId, { order: update.order }),
+      ),
     );
 
     return { success: true };

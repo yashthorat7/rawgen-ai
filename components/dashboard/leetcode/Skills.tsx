@@ -21,21 +21,21 @@ interface TagSection {
 
 export function Skills({ data, hasBadges }: SkillsProps) {
   const sections: TagSection[] = [
-    { 
-      title: 'Advanced', 
+    {
+      title: "Advanced",
       tags: data.topicStats.advanced,
-      color: 'bg-indigo-600 hover:bg-indigo-700'
+      color: "bg-indigo-600 hover:bg-indigo-700",
     },
-    { 
-      title: 'Intermediate', 
+    {
+      title: "Intermediate",
       tags: data.topicStats.intermediate,
-      color: 'bg-blue-600 hover:bg-blue-700'
+      color: "bg-blue-600 hover:bg-blue-700",
     },
-    { 
-      title: 'Fundamental', 
+    {
+      title: "Fundamental",
       tags: data.topicStats.fundamental,
-      color: 'bg-sky-600 hover:bg-sky-700'
-    }
+      color: "bg-sky-600 hover:bg-sky-700",
+    },
   ];
 
   return (
@@ -45,22 +45,26 @@ export function Skills({ data, hasBadges }: SkillsProps) {
         <div className="space-y-6 pr-2">
           {sections.map((section) => {
             const sortedTags = section.tags.sort((a, b) => b.solved - a.solved);
-            
+
             return (
               <div key={section.title}>
-                <h4 className="text-base font-bold text-gray-700 text-center mb-3">{section.title}</h4>
-                <div className={cn(
-                  "grid gap-2",
-                  hasBadges 
-                    ? "grid-cols-2"
-                    : "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
-                )}>
+                <h4 className="text-base font-bold text-gray-700 text-center mb-3">
+                  {section.title}
+                </h4>
+                <div
+                  className={cn(
+                    "grid gap-2",
+                    hasBadges
+                      ? "grid-cols-2"
+                      : "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5",
+                  )}
+                >
                   {sortedTags.map((tag) => (
-                    <div 
+                    <div
                       key={tag.slug}
                       className={cn(
                         "flex items-center gap-2 p-2 rounded-lg transition-colors duration-200",
-                        section.color
+                        section.color,
                       )}
                     >
                       <span className="text-sm font-medium text-white flex-1 truncate">

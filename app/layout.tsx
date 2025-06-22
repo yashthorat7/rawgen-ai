@@ -6,9 +6,9 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { ConvexClientProvider } from "@/components/layout/ConvexClientProvider";
 
 const quicksand = localFont({
-  src: '../public/fonts/Quicksand-VariableFont_wght.ttf',
-  display: 'swap',
-  variable: '--font-quicksand',
+  src: "../public/fonts/Quicksand-VariableFont_wght.ttf",
+  display: "swap",
+  variable: "--font-quicksand",
 });
 
 export const metadata: Metadata = {
@@ -25,9 +25,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={quicksand.className} suppressHydrationWarning>
         <ClerkProvider>
-          <ConvexClientProvider>
-            {children}
-          </ConvexClientProvider>
+          <ConvexClientProvider>{children}</ConvexClientProvider>
         </ClerkProvider>
       </body>
     </html>

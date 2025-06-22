@@ -1,6 +1,6 @@
 "use client";
 
-import { MapPin, Trophy, Award, Target, Users } from 'lucide-react';
+import { MapPin, Trophy, Award, Target, Users } from "lucide-react";
 import type { CodeforcesData } from "@/lib/types";
 
 interface SummaryProps {
@@ -9,7 +9,9 @@ interface SummaryProps {
 
 export function Summary({ data }: SummaryProps) {
   const codeforcesProfileUrl = `https://codeforces.com/profile/${data.username}`;
-  const lastOnlineDate = data.lastOnline ? new Date(data.lastOnline * 1000).toLocaleDateString() : null;
+  const lastOnlineDate = data.lastOnline
+    ? new Date(data.lastOnline * 1000).toLocaleDateString()
+    : null;
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-4">
@@ -18,15 +20,15 @@ export function Summary({ data }: SummaryProps) {
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
           {/* Avatar Section */}
           <div className="relative flex-shrink-0">
-            <a 
+            <a
               href={codeforcesProfileUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="block relative w-24 sm:w-32 h-24 sm:h-32 rounded-2xl overflow-hidden border-4 border-primary-100 shadow-lg hover:shadow-xl transition-all duration-300 group"
             >
               {data.titlePhoto ? (
-                <img 
-                  src={data.titlePhoto} 
+                <img
+                  src={data.titlePhoto}
                   alt={data.username}
                   className="w-full h-full object-cover"
                 />
@@ -46,7 +48,7 @@ export function Summary({ data }: SummaryProps) {
             <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 sm:gap-3">
               <div className="flex flex-col items-center sm:items-start">
                 <div className="flex items-center gap-2">
-                  <a 
+                  <a
                     href={codeforcesProfileUrl}
                     target="_blank"
                     rel="noopener noreferrer"

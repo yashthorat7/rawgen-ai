@@ -7,8 +7,10 @@ interface GeeksForGeeksStatsProps {
   isLoading?: boolean;
 }
 
-export function GeeksForGeeksStats({ data, isLoading }: GeeksForGeeksStatsProps) {
-
+export function GeeksForGeeksStats({
+  data,
+  isLoading,
+}: GeeksForGeeksStatsProps) {
   if (isLoading) return <LoadingSkeleton />;
   if (!data) return null;
 
@@ -23,11 +25,13 @@ export function GeeksForGeeksStats({ data, isLoading }: GeeksForGeeksStatsProps)
         <div>
           <div className="flex justify-between items-center text-xs text-gray-600 mb-1">
             <span className="font-medium">Easy</span>
-            <span className="font-medium text-green-600">{data.easyProblems}/{EASY_TOTAL}</span>
+            <span className="font-medium text-green-600">
+              {data.easyProblems}/{EASY_TOTAL}
+            </span>
           </div>
-          <ProgressBar 
-            solved={data.easyProblems} 
-            total={EASY_TOTAL} 
+          <ProgressBar
+            solved={data.easyProblems}
+            total={EASY_TOTAL}
             color="green"
           />
         </div>
@@ -35,11 +39,13 @@ export function GeeksForGeeksStats({ data, isLoading }: GeeksForGeeksStatsProps)
         <div>
           <div className="flex justify-between items-center text-xs text-gray-600 mb-1">
             <span className="font-medium">Medium</span>
-            <span className="font-medium text-yellow-600">{data.mediumProblems}/{MEDIUM_TOTAL}</span>
+            <span className="font-medium text-yellow-600">
+              {data.mediumProblems}/{MEDIUM_TOTAL}
+            </span>
           </div>
-          <ProgressBar 
-            solved={data.mediumProblems} 
-            total={MEDIUM_TOTAL} 
+          <ProgressBar
+            solved={data.mediumProblems}
+            total={MEDIUM_TOTAL}
             color="yellow"
           />
         </div>
@@ -47,11 +53,13 @@ export function GeeksForGeeksStats({ data, isLoading }: GeeksForGeeksStatsProps)
         <div>
           <div className="flex justify-between items-center text-xs text-gray-600 mb-1">
             <span className="font-medium">Hard</span>
-            <span className="font-medium text-red-600">{data.hardProblems}/{HARD_TOTAL}</span>
+            <span className="font-medium text-red-600">
+              {data.hardProblems}/{HARD_TOTAL}
+            </span>
           </div>
-          <ProgressBar 
-            solved={data.hardProblems} 
-            total={HARD_TOTAL} 
+          <ProgressBar
+            solved={data.hardProblems}
+            total={HARD_TOTAL}
             color="red"
           />
         </div>
@@ -60,9 +68,11 @@ export function GeeksForGeeksStats({ data, isLoading }: GeeksForGeeksStatsProps)
       {/* Score and streak at bottom */}
       <div className="mt-auto mb-1">
         <div className="text-[14px] text-gray-500">
-          Score: <span className="font-mono font-medium">{data.codingScore}</span>
+          Score:{" "}
+          <span className="font-mono font-medium">{data.codingScore}</span>
           <span className="mx-2">|</span>
-          Streak: <span className="font-mono font-medium">{data.currentStreak}</span>
+          Streak:{" "}
+          <span className="font-mono font-medium">{data.currentStreak}</span>
         </div>
       </div>
     </div>

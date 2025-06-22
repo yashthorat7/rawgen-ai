@@ -33,5 +33,3 @@ export function Languages({ data }: LanguagesProps) {
     </div>
   );
 }
-
-

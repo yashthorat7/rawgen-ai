@@ -1,6 +1,13 @@
 "use client";
 
-import { Github, Linkedin, PenOff, Globe, Mail, LucideIcon } from "lucide-react";
+import {
+  Github,
+  Linkedin,
+  PenOff,
+  Globe,
+  Mail,
+  LucideIcon,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface SocialMediaProps {
@@ -22,22 +29,22 @@ interface SocialLink {
   hoverColor: string;
 }
 
-export function SocialMedia({ 
-  github, 
-  linkedin, 
+export function SocialMedia({
+  github,
+  linkedin,
   twitter,
   website,
   email,
   iconSize = 24,
   className,
   iconClassName,
-  isLoading = false
+  isLoading = false,
 }: SocialMediaProps) {
   if (isLoading) {
     return (
       <div className={cn("flex items-center mt-0 sm:mt-4 gap-8", className)}>
         {[1, 2, 3, 4].map((i) => (
-          <div 
+          <div
             key={i}
             className="w-5 h-5 rounded-full bg-gray-200 animate-pulse"
           />
@@ -51,42 +58,48 @@ export function SocialMedia({
       url: `https://github.com/${github}`,
       icon: Github,
       label: "GitHub",
-      hoverColor: "hover:text-gray-900"
+      hoverColor: "hover:text-gray-900",
     },
     linkedin && {
       url: `https://linkedin.com/in/${linkedin}`,
       icon: Linkedin,
       label: "LinkedIn",
-      hoverColor: "hover:text-blue-600"
+      hoverColor: "hover:text-blue-600",
     },
     twitter && {
       url: `https://twitter.com/${twitter}`,
       icon: PenOff,
       label: "Twitter",
-      hoverColor: "hover:text-violet-600"
+      hoverColor: "hover:text-violet-600",
     },
     website && {
       url: website,
       icon: Globe,
       label: "Website",
-      hoverColor: "hover:text-green-600"
-    }
+      hoverColor: "hover:text-green-600",
+    },
   ].filter((link): link is SocialLink => Boolean(link));
 
   const socialLinks = [
     ...baseLinks,
-    baseLinks.length > 0 && email && {
-      url: `mailto:${email}`,
-      icon: Mail,
-      label: "Email",
-      hoverColor: "hover:text-red-500"
-    }
+    baseLinks.length > 0 &&
+      email && {
+        url: `mailto:${email}`,
+        icon: Mail,
+        label: "Email",
+        hoverColor: "hover:text-red-500",
+      },
   ].filter((link): link is SocialLink => Boolean(link));
 
   if (socialLinks.length === 0) return null;
 
   return (
-    <div className={cn("flex items-center mt-0 sm:mt-4 gap-8 sm:gap-12 animate-in fade-in-50", className)}>
+    <div
+      className={cn(
+        "flex items-center mt-0 sm:mt-4 gap-8 sm:gap-12 animate-in fade-in-50",
+        className,
+      )}
+    >
       {socialLinks.map(({ url, icon: Icon, label, hoverColor }) => (
         <a
           key={label}
@@ -94,24 +107,16 @@ export function SocialMedia({
           target={label === "Email" ? "_self" : "_blank"}
           rel="noopener noreferrer"
           className={cn(
-            "transition-colors", 
+            "transition-colors",
             hoverColor,
-            iconClassName ?? "text-gray-600"
+            iconClassName ?? "text-gray-600",
           )}
           title={label}
         >
-          <Icon 
-            className="hidden sm:block" 
-            size={25} 
-            strokeWidth={1.5} 
-          />
-          <Icon 
-            className="sm:hidden" 
-            size={20} 
-            strokeWidth={1.5} 
-          />
+          <Icon className="hidden sm:block" size={25} strokeWidth={1.5} />
+          <Icon className="sm:hidden" size={20} strokeWidth={1.5} />
         </a>
       ))}
     </div>
   );
-} 
+}

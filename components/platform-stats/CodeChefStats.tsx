@@ -15,7 +15,10 @@ export function CodeChefStats({ data, isLoading }: CodeChefStatsProps) {
   const getRecentActivity = () => {
     if (!data?.submissionStats?.length) return 0;
     const last3Months = data.submissionStats.slice(-3);
-    return last3Months.reduce((sum: number, item: { submissions: number }) => sum + item.submissions, 0);
+    return last3Months.reduce(
+      (sum: number, item: { submissions: number }) => sum + item.submissions,
+      0,
+    );
   };
 
   return (
@@ -38,23 +41,21 @@ export function CodeChefStats({ data, isLoading }: CodeChefStatsProps) {
           <div>
             <div className="flex justify-between items-center text-xs text-gray-600 mb-1">
               <span className="font-medium">Contests</span>
-              <span className="font-medium text-purple-600">{data.totalContests}</span>
+              <span className="font-medium text-purple-600">
+                {data.totalContests}
+              </span>
             </div>
-            <ProgressBar 
-              solved={data.totalContests}
-              color="purple"
-            />
+            <ProgressBar solved={data.totalContests} color="purple" />
           </div>
 
           <div>
             <div className="flex justify-between items-center text-xs text-gray-600 mb-1">
               <span className="font-medium">Recent Activity</span>
-              <span className="font-medium text-green-600">{getRecentActivity()}</span>
+              <span className="font-medium text-green-600">
+                {getRecentActivity()}
+              </span>
             </div>
-            <ProgressBar 
-              solved={getRecentActivity()}
-              color="green"
-            />
+            <ProgressBar solved={getRecentActivity()} color="green" />
           </div>
         </div>
       </div>
@@ -62,9 +63,11 @@ export function CodeChefStats({ data, isLoading }: CodeChefStatsProps) {
       {/* Ranks at bottom */}
       <div className="mt-auto mb-1">
         <div className="text-[14px] text-gray-500">
-          Global: <span className="font-mono font-medium">#{data.globalRank}</span>
+          Global:{" "}
+          <span className="font-mono font-medium">#{data.globalRank}</span>
           <span className="mx-2">|</span>
-          {data.countryName}: <span className="font-mono font-medium">#{data.countryRank}</span>
+          {data.countryName}:{" "}
+          <span className="font-mono font-medium">#{data.countryRank}</span>
         </div>
       </div>
     </div>

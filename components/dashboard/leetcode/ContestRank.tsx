@@ -1,10 +1,17 @@
 "use client";
 
-import { useMemo } from 'react';
+import { useMemo } from "react";
 import type { LeetCodeData } from "@/lib/types";
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
-import { Trophy, Target, TrendingUp, TrendingDown } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
+import { Trophy, Target, TrendingUp, TrendingDown } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface ContestRankProps {
   data: LeetCodeData;
@@ -20,26 +27,29 @@ export function ContestRank({ data }: ContestRankProps) {
   const chartData = useMemo(() => {
     return [...data.contests]
       .sort((a, b) => (a.startTime || 0) - (b.startTime || 0))
-      .map(contest => ({
+      .map((contest) => ({
         name: contest.title,
         rating: contest.rating,
         rank: contest.ranking,
-        date: contest.startTime 
-          ? new Date(contest.startTime * 1000).toLocaleDateString('en-US', {
-              month: 'short',
-              year: 'numeric'
+        date: contest.startTime
+          ? new Date(contest.startTime * 1000).toLocaleDateString("en-US", {
+              month: "short",
+              year: "numeric",
             })
-          : 'Unknown',
+          : "Unknown",
         trendDirection: contest.trendDirection,
         problemsSolved: contest.problemsSolved,
         totalProblems: contest.totalProblems,
-        finishTimeInSeconds: contest.finishTimeInSeconds
+        finishTimeInSeconds: contest.finishTimeInSeconds,
       }));
   }, [data.contests]);
 
-  const minRating = Math.min(...chartData.map(item => item.rating));
-  const maxRating = Math.max(...chartData.map(item => item.rating));
-  const domain = [Math.floor(minRating / 100) * 100, Math.ceil(maxRating / 100) * 100];
+  const minRating = Math.min(...chartData.map((item) => item.rating));
+  const maxRating = Math.max(...chartData.map((item) => item.rating));
+  const domain = [
+    Math.floor(minRating / 100) * 100,
+    Math.ceil(maxRating / 100) * 100,
+  ];
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 h-[400px]">
@@ -48,7 +58,7 @@ export function ContestRank({ data }: ContestRankProps) {
         <div className="flex items-center gap-2 justify-center">
           <Target className="w-6 h-6 text-red-500" />
           <span className="text-base font-medium text-gray-700">
-            {data.contestStats?.attendedContestsCount || data.contests.length} 
+            {data.contestStats?.attendedContestsCount || data.contests.length}
             <span className="hidden sm:inline"> contests</span>
           </span>
         </div>
@@ -75,13 +85,13 @@ export function ContestRank({ data }: ContestRankProps) {
           >
             <XAxis
               dataKey="date"
-              tick={{ fontSize: 12, fill: '#6B7280' }}
+              tick={{ fontSize: 12, fill: "#6B7280" }}
               tickLine={false}
               axisLine={false}
             />
             <YAxis
               domain={domain}
-              tick={{ fontSize: 12, fill: '#6B7280' }}
+              tick={{ fontSize: 12, fill: "#6B7280" }}
               tickLine={false}
               axisLine={false}
               width={40}
@@ -92,8 +102,8 @@ export function ContestRank({ data }: ContestRankProps) {
               dataKey="rating"
               stroke="#6366F1"
               strokeWidth={2}
-              dot={{ r: 4, fill: '#6366F1' }}
-              activeDot={{ r: 6, fill: '#4F46E5' }}
+              dot={{ r: 4, fill: "#6366F1" }}
+              activeDot={{ r: 6, fill: "#4F46E5" }}
             />
           </LineChart>
         </ResponsiveContainer>
@@ -116,21 +126,24 @@ function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
           <p className="text-primary-600 font-medium">
             Rating: {data.rating.toFixed(1)}
           </p>
-          <p className="text-gray-600">
-            Rank: #{data.rank}
-          </p>
+          <p className="text-gray-600">Rank: #{data.rank}</p>
         </div>
         {data.problemsSolved !== undefined && (
           <div className="flex items-center gap-2 text-xs text-gray-600">
-            <span>Solved: {data.problemsSolved}/{data.totalProblems}</span>
+            <span>
+              Solved: {data.problemsSolved}/{data.totalProblems}
+            </span>
             {data.finishTimeInSeconds && (
-              <span>Time: {Math.floor(data.finishTimeInSeconds / 60)}:{(data.finishTimeInSeconds % 60).toString().padStart(2, '0')}</span>
+              <span>
+                Time: {Math.floor(data.finishTimeInSeconds / 60)}:
+                {(data.finishTimeInSeconds % 60).toString().padStart(2, "0")}
+              </span>
             )}
           </div>
         )}
         {data.trendDirection && (
           <div className="flex items-center gap-1 text-xs">
-            {data.trendDirection === 'UP' ? (
+            {data.trendDirection === "UP" ? (
               <>
                 <TrendingUp className="w-3 h-3 text-green-500" />
                 <span className="text-green-600">Improved</span>
@@ -146,4 +159,4 @@ function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
       </div>
     </div>
   );
-} 
+}

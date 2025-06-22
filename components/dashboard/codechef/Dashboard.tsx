@@ -15,7 +15,11 @@ interface CodeChefDashboardProps {
   isLoading?: boolean;
 }
 
-export function CodeChefDashboard({ data, onClose, isLoading }: CodeChefDashboardProps) {
+export function CodeChefDashboard({
+  data,
+  onClose,
+  isLoading,
+}: CodeChefDashboardProps) {
   useScrollLock(true);
 
   if (isLoading) {
@@ -23,7 +27,9 @@ export function CodeChefDashboard({ data, onClose, isLoading }: CodeChefDashboar
       <div className="fixed inset-0 bg-gradient-to-br from-white/30 to-white/10 backdrop-blur-xl overflow-hidden flex items-center justify-center">
         <div className="flex flex-col items-center gap-4 px-5 text-center">
           <Loader2 className="w-8 h-8 text-primary-600 animate-spin" />
-          <p className="text-gray-600 font-medium">Loading CodeChef profile...</p>
+          <p className="text-gray-600 font-medium">
+            Loading CodeChef profile...
+          </p>
         </div>
       </div>
     );

@@ -69,7 +69,7 @@ export interface LeetCodeData {
     rating: number;
     ranking: number;
     globalRanking: number;
-    trendDirection?: 'UP' | 'DOWN';
+    trendDirection?: "UP" | "DOWN";
     problemsSolved?: number;
     totalProblems?: number;
     finishTimeInSeconds?: number;
@@ -151,7 +151,7 @@ export type CodeChefData = {
   stars: number;
   institution: string | null;
   countryName: string | null;
-  
+
   // Ratings
   currentRating: number;
   highestRating: number;
@@ -208,19 +208,19 @@ export interface GeeksForGeeksData {
   stars: string;
   institution: string;
   organization: string;
-  
+
   // Stats
   codingScore: number;
   problemsSolved: number;
   contestRating: number;
-  
+
   // Streaks
   currentStreak: number;
   totalStreak: number;
-  
+
   // Rankings
   institutionRank: number;
-  
+
   // Problem Counts
   totalProblems: number;
   schoolProblems: number;
@@ -233,11 +233,11 @@ export interface GeeksForGeeksData {
   languages: string[];
 
   problems: {
-    school: Array<{ title: string; url: string; }>;
-    basic: Array<{ title: string; url: string; }>;
-    easy: Array<{ title: string; url: string; }>;
-    medium: Array<{ title: string; url: string; }>;
-    hard: Array<{ title: string; url: string; }>;
+    school: Array<{ title: string; url: string }>;
+    basic: Array<{ title: string; url: string }>;
+    easy: Array<{ title: string; url: string }>;
+    medium: Array<{ title: string; url: string }>;
+    hard: Array<{ title: string; url: string }>;
   };
 }
 
@@ -308,4 +308,4 @@ export type SocialLinks = {
   twitter?: string;
   websites?: string[];
   [key: string]: string | string[] | undefined;
-}; 
+};

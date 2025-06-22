@@ -20,16 +20,12 @@ interface AddCertificateDialogProps {
     image?: string;
     certificateImage?: Id<"_storage">;
   };
-  mode?: 'add' | 'edit';
+  mode?: "add" | "edit";
 }
 
 const MAX_FILE_SIZE = 1 * 1024 * 1024; // 10MB
 const MAX_CERTIFICATE_IMAGE_SIZE = 500 * 1024; // 500KB
-const CERTIFICATE_CATEGORIES = [
-  "Internship",
-  "Competition",
-  "Course",
-] as const;
+const CERTIFICATE_CATEGORIES = ["Internship", "Competition", "Course"] as const;
 
 type CategoryOption = {
   value: string;
@@ -40,22 +36,26 @@ const categoryOptions: CategoryOption[] = [
   { value: "internship", label: "Internship" },
   { value: "competition", label: "Competition" },
   { value: "courses", label: "Courses" },
-  { value: "achievement", label: "Achievement" }
+  { value: "achievement", label: "Achievement" },
 ];
 
-export function AddCertificateDialog({ 
-  isOpen, 
-  onClose, 
+export function AddCertificateDialog({
+  isOpen,
+  onClose,
   initialData,
-  mode = 'add' 
+  mode = "add",
 }: AddCertificateDialogProps) {
   useScrollLock(isOpen);
   const { user } = useUser();
   const [title, setTitle] = useState(initialData?.title || "");
   const [category, setCategory] = useState(initialData?.category || "");
-  const [description, setDescription] = useState(initialData?.description || "");
+  const [description, setDescription] = useState(
+    initialData?.description || "",
+  );
   const [image, setImage] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(initialData?.image || null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(
+    initialData?.image || null,
+  );
   const [isLoading, setIsLoading] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
 
@@ -110,7 +110,9 @@ export function AddCertificateDialog({
   const handleImageChange = (file: File | null) => {
     if (file) {
       if (file.size > MAX_CERTIFICATE_IMAGE_SIZE) {
-        alert(`File size must be less than ${MAX_CERTIFICATE_IMAGE_SIZE / 1024}KB`);
+        alert(
+          `File size must be less than ${MAX_CERTIFICATE_IMAGE_SIZE / 1024}KB`,
+        );
         return;
       }
 
@@ -134,19 +136,21 @@ export function AddCertificateDialog({
     e.preventDefault();
     setIsDragging(false);
     const file = e.dataTransfer.files[0];
-    if (file && file.type.startsWith('image/')) {
+    if (file && file.type.startsWith("image/")) {
       if (file.size > MAX_CERTIFICATE_IMAGE_SIZE) {
-        alert(`File size must be less than ${MAX_CERTIFICATE_IMAGE_SIZE / 1024}KB`);
+        alert(
+          `File size must be less than ${MAX_CERTIFICATE_IMAGE_SIZE / 1024}KB`,
+        );
         return;
       }
       handleImageChange(file);
     }
   };
 
-  const isFormValid = 
-    title.trim() !== "" && 
-    category.trim() !== "" && 
-    description.trim() !== "" && 
+  const isFormValid =
+    title.trim() !== "" &&
+    category.trim() !== "" &&
+    description.trim() !== "" &&
     (image !== null || (initialData && previewUrl));
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -160,13 +164,13 @@ export function AddCertificateDialog({
 
       if (image) {
         const uploadUrl = await generateUploadUrl();
-        
+
         const result = await fetch(uploadUrl, {
           method: "POST",
           headers: { "Content-Type": image.type },
           body: image,
         });
-        
+
         if (!result.ok) {
           throw new Error(`Upload failed: ${result.statusText}`);
         }
@@ -175,11 +179,11 @@ export function AddCertificateDialog({
         imageId = storageId;
 
         await saveImage({
-          storageId: imageId
+          storageId: imageId,
         });
       }
 
-      if (mode === 'edit' && initialData?.id) {
+      if (mode === "edit" && initialData?.id) {
         await updateCertificate({
           certificateId: initialData.id,
           email,
@@ -208,38 +212,49 @@ export function AddCertificateDialog({
 
   return (
     <>
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9998]" onClick={handleClose} />
+      <div
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9998]"
+        onClick={handleClose}
+      />
       <div className="fixed inset-0 flex items-center justify-center z-[9999] p-4 overflow-auto">
         <div className="bg-white rounded-lg shadow-xl w-[500px]">
           <div className="p-6">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">
-              {mode === 'edit' ? 'Edit Certificate' : 'Add Certificate'}
+              {mode === "edit" ? "Edit Certificate" : "Add Certificate"}
             </h2>
-            
-            <form id="certificate-form" onSubmit={handleSubmit} className="space-y-4">
+
+            <form
+              id="certificate-form"
+              onSubmit={handleSubmit}
+              className="space-y-4"
+            >
               {/* Image Upload */}
               <div className="flex justify-center">
-                <div 
+                <div
                   className={`relative w-full aspect-video rounded-lg border-2 ${
-                    isDragging 
-                      ? 'border-primary-500 bg-primary-50' 
-                      : 'border-dashed border-gray-300 hover:border-gray-400'
+                    isDragging
+                      ? "border-primary-500 bg-primary-50"
+                      : "border-dashed border-gray-300 hover:border-gray-400"
                   } transition-colors cursor-pointer overflow-hidden`}
                   onDragOver={handleDragOver}
                   onDragLeave={handleDragLeave}
                   onDrop={handleDrop}
-                  onClick={() => document.getElementById('certificate-image')?.click()}
+                  onClick={() =>
+                    document.getElementById("certificate-image")?.click()
+                  }
                 >
                   {previewUrl ? (
-                    <img 
-                      src={previewUrl} 
-                      alt="Certificate preview" 
+                    <img
+                      src={previewUrl}
+                      alt="Certificate preview"
                       className="w-full h-full object-cover"
                     />
                   ) : (
                     <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-400">
                       <Upload className="w-8 h-8 mb-2" />
-                      <p className="text-sm font-medium">Drop image here or click to upload</p>
+                      <p className="text-sm font-medium">
+                        Drop image here or click to upload
+                      </p>
                       <p className="text-xs mt-1">Supports JPG, PNG, GIF</p>
                     </div>
                   )}
@@ -248,14 +263,19 @@ export function AddCertificateDialog({
                     id="certificate-image"
                     accept="image/*"
                     className="hidden"
-                    onChange={(e) => handleImageChange(e.target.files?.[0] || null)}
+                    onChange={(e) =>
+                      handleImageChange(e.target.files?.[0] || null)
+                    }
                   />
                 </div>
               </div>
 
               {/* Title Input */}
               <div>
-                <label htmlFor="title" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="title"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Title
                 </label>
                 <input
@@ -270,23 +290,26 @@ export function AddCertificateDialog({
 
               {/* Category Dropdown */}
               <div>
-                <label htmlFor="category" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="category"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Category
                 </label>
                 <Select
                   id="category"
-                  value={categoryOptions.find(opt => opt.value === category)}
+                  value={categoryOptions.find((opt) => opt.value === category)}
                   onChange={(newValue) => setCategory(newValue?.value || "")}
                   options={categoryOptions}
                   className="mt-1"
                   placeholder="Select a category"
                   isClearable
                   classNames={{
-                    control: (state) => 
+                    control: (state) =>
                       `border rounded-md ${
-                        state.isFocused 
-                          ? 'border-primary-500 ring-1 ring-primary-500' 
-                          : 'border-gray-300'
+                        state.isFocused
+                          ? "border-primary-500 ring-1 ring-primary-500"
+                          : "border-gray-300"
                       }`,
                   }}
                 />
@@ -294,8 +317,14 @@ export function AddCertificateDialog({
 
               {/* Description Input */}
               <div>
-                <label htmlFor="description" className="block text-sm font-medium text-gray-700">
-                  Description <span className="text-gray-500">({description.length}/500)</span>
+                <label
+                  htmlFor="description"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Description{" "}
+                  <span className="text-gray-500">
+                    ({description.length}/500)
+                  </span>
                 </label>
                 <textarea
                   id="description"
@@ -323,13 +352,17 @@ export function AddCertificateDialog({
                 disabled={isLoading || !isFormValid}
                 className={`px-4 py-2 rounded-md text-white ${
                   isLoading || !isFormValid
-                    ? 'bg-primary-400 cursor-not-allowed'
-                    : 'bg-primary-600 hover:bg-primary-700'
+                    ? "bg-primary-400 cursor-not-allowed"
+                    : "bg-primary-600 hover:bg-primary-700"
                 }`}
               >
-                {isLoading 
-                  ? (mode === 'edit' ? 'Updating...' : 'Adding...') 
-                  : (mode === 'edit' ? 'Update' : 'Add')}
+                {isLoading
+                  ? mode === "edit"
+                    ? "Updating..."
+                    : "Adding..."
+                  : mode === "edit"
+                    ? "Update"
+                    : "Add"}
               </button>
             </div>
           </div>
@@ -337,4 +370,4 @@ export function AddCertificateDialog({
       </div>
     </>
   );
-} 
+}

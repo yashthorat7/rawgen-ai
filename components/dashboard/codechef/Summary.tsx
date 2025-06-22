@@ -1,6 +1,6 @@
 "use client";
 
-import { MapPin, Star, Trophy, Award, Target, BookOpen } from 'lucide-react';
+import { MapPin, Star, Trophy, Award, Target, BookOpen } from "lucide-react";
 import type { CodeChefData } from "@/lib/types";
 
 interface SummaryProps {
@@ -16,7 +16,7 @@ export function Summary({ data }: SummaryProps) {
       <div className="bg-white p-4 rounded-lg shadow-sm select-none">
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 sm:gap-4">
           <div className="relative flex-shrink-0">
-            <a 
+            <a
               href={codechefProfileUrl}
               target="_blank"
               rel="noopener noreferrer"
@@ -36,7 +36,7 @@ export function Summary({ data }: SummaryProps) {
             {/* Name and Location */}
             <div className="flex flex-wrap items-center sm:items-start justify-center sm:justify-start gap-3 mb-1">
               <div className="flex flex-col">
-                <a 
+                <a
                   href={codechefProfileUrl}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -44,7 +44,9 @@ export function Summary({ data }: SummaryProps) {
                 >
                   {data.name || data.username}
                 </a>
-                <span className="text-xs hidden sm:block sm:text-sm text-gray-500">@{data.username}</span>
+                <span className="text-xs hidden sm:block sm:text-sm text-gray-500">
+                  @{data.username}
+                </span>
               </div>
               {data.countryName && (
                 <span className="inline-flex items-center rounded-md bg-gray-100 px-2 sm:px-2.5 py-0.5 text-xs sm:text-sm font-medium">
@@ -58,7 +60,10 @@ export function Summary({ data }: SummaryProps) {
             <div className="flex items-center justify-center sm:justify-start gap-2 mb-2">
               <div className="flex items-center gap-1 text-yellow-500">
                 {Array.from({ length: data.stars }).map((_, i) => (
-                  <Star key={i} className="w-5 h-5 sm:w-6 sm:h-6 fill-current" />
+                  <Star
+                    key={i}
+                    className="w-5 h-5 sm:w-6 sm:h-6 fill-current"
+                  />
                 ))}
               </div>
             </div>

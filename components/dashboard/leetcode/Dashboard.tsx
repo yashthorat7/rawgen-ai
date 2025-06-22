@@ -19,7 +19,11 @@ interface LeetCodeDashboardProps {
   isLoading?: boolean;
 }
 
-export function LeetCodeDashboard({ data, onClose, isLoading }: LeetCodeDashboardProps) {
+export function LeetCodeDashboard({
+  data,
+  onClose,
+  isLoading,
+}: LeetCodeDashboardProps) {
   useScrollLock(true);
 
   if (isLoading) {
@@ -27,7 +31,9 @@ export function LeetCodeDashboard({ data, onClose, isLoading }: LeetCodeDashboar
       <div className="fixed inset-0 bg-gradient-to-br from-white/30 to-white/10 backdrop-blur-xl overflow-hidden flex items-center justify-center">
         <div className="flex flex-col items-center gap-4 px-5 text-center">
           <Loader2 className="w-8 h-8 text-primary-600 animate-spin" />
-          <p className="text-gray-600 font-medium">Loading LeetCode profile...</p>
+          <p className="text-gray-600 font-medium">
+            Loading LeetCode profile...
+          </p>
         </div>
       </div>
     );
@@ -52,7 +58,7 @@ export function LeetCodeDashboard({ data, onClose, isLoading }: LeetCodeDashboar
             <div className="transform transition-all duration-200 hover:scale-[1.01]">
               <Summary data={data} />
             </div>
-            
+
             {/* Questions Solved and Stats */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               <div className="h-full">
@@ -91,15 +97,19 @@ export function LeetCodeDashboard({ data, onClose, isLoading }: LeetCodeDashboar
                   <Badges data={data} />
                 </div>
               ) : null}
-              
+
               {data.topicStats && (
-                <div className={cn(
-                  "transform transition-all duration-200 hover:scale-[1.01]",
-                  data.badges && data.badges.length > 0 ? "lg:col-span-2" : "lg:col-span-5"
-                )}>
-                  <Skills 
-                    data={data} 
-                    hasBadges={Boolean(data.badges && data.badges.length > 0)} 
+                <div
+                  className={cn(
+                    "transform transition-all duration-200 hover:scale-[1.01]",
+                    data.badges && data.badges.length > 0
+                      ? "lg:col-span-2"
+                      : "lg:col-span-5",
+                  )}
+                >
+                  <Skills
+                    data={data}
+                    hasBadges={Boolean(data.badges && data.badges.length > 0)}
                   />
                 </div>
               )}

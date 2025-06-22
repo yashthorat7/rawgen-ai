@@ -14,7 +14,11 @@ interface GeeksForGeeksDashboardProps {
   isLoading?: boolean;
 }
 
-export function GeeksForGeeksDashboard({ data, onClose, isLoading }: GeeksForGeeksDashboardProps) {
+export function GeeksForGeeksDashboard({
+  data,
+  onClose,
+  isLoading,
+}: GeeksForGeeksDashboardProps) {
   useScrollLock(true);
 
   if (isLoading) {
@@ -22,7 +26,9 @@ export function GeeksForGeeksDashboard({ data, onClose, isLoading }: GeeksForGee
       <div className="fixed inset-0 bg-gradient-to-br from-white/30 to-white/10 backdrop-blur-xl overflow-hidden flex items-center justify-center">
         <div className="flex flex-col items-center gap-4 px-5 text-center">
           <Loader2 className="w-8 h-8 text-primary-600 animate-spin" />
-          <p className="text-gray-600 font-medium">Loading GeeksForGeeks profile...</p>
+          <p className="text-gray-600 font-medium">
+            Loading GeeksForGeeks profile...
+          </p>
         </div>
       </div>
     );
@@ -47,7 +53,7 @@ export function GeeksForGeeksDashboard({ data, onClose, isLoading }: GeeksForGee
             <div className="transform transition-all duration-200 hover:scale-[1.01]">
               <Summary data={data} />
             </div>
-            
+
             {/* Questions and Languages */}
             <div className="flex flex-col lg:flex-row gap-4">
               <div className="lg:w-2/6 transform transition-all duration-200 hover:scale-[1.01]">

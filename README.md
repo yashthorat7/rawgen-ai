@@ -5,12 +5,14 @@ Raw Gen is a modern web application that helps developers showcase their coding 
 ## Features
 
 - **Multi-Platform Integration**: Seamlessly connect and display your profiles from:
+
   - LeetCode
   - CodeChef
   - GeeksForGeeks
   - Codeforces
 
 - **Profile Management**:
+
   - Customizable profile with first name, last name, and username
   - CGPA tracking
   - Profile image upload
@@ -18,6 +20,7 @@ Raw Gen is a modern web application that helps developers showcase their coding 
   - Social links integration (GitHub, LinkedIn, Twitter, Personal Website)
 
 - **Platform Data**:
+
   - Automatic data fetching and caching from connected platforms
   - Real-time profile statistics
   - Drag-and-drop reordering of platforms
@@ -32,6 +35,7 @@ Raw Gen is a modern web application that helps developers showcase their coding 
 ## Tech Stack
 
 - **Frontend**:
+
   - Next.js 13+ with App Router
   - React 18
   - TypeScript
@@ -45,18 +49,21 @@ Raw Gen is a modern web application that helps developers showcase their coding 
 ## Getting Started
 
 1. Clone the repository:
+
    ```bash
    git clone https://github.com/yourusername/raw-gen.git
    cd raw-gen
    ```
 
 2. Install dependencies:
+
    ```bash
    npm install
    ```
 
 3. Set up environment variables:
    Create a `.env.local` file with the following:
+
    ```
    NEXT_PUBLIC_CONVEX_URL=your_convex_url
    NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
@@ -64,6 +71,7 @@ Raw Gen is a modern web application that helps developers showcase their coding 
    ```
 
 4. Start the development server:
+
    ```bash
    npm run dev
    ```

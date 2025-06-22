@@ -1,6 +1,18 @@
 "use client";
 
-import { Building, MapPin, Link2, Star, Trophy, Github, Linkedin, Twitter, Globe, Calendar, Flame } from 'lucide-react';
+import {
+  Building,
+  MapPin,
+  Link2,
+  Star,
+  Trophy,
+  Github,
+  Linkedin,
+  Twitter,
+  Globe,
+  Calendar,
+  Flame,
+} from "lucide-react";
 import type { LeetCodeData } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -17,14 +29,14 @@ export function Summary({ data }: SummaryProps) {
       <div className="bg-white p-4 rounded-lg shadow-sm select-none">
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 sm:gap-4">
           <div className="relative flex-shrink-0">
-            <a 
+            <a
               href={leetcodeProfileUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="block relative w-28 sm:w-32 h-28 sm:h-32 rounded-2xl overflow-hidden border-4 border-primary-100 shadow-lg hover:shadow-xl transition-all duration-300 group"
             >
-              <img 
-                src={data.avatar} 
+              <img
+                src={data.avatar}
                 alt={data.username}
                 className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
               />
@@ -32,7 +44,9 @@ export function Summary({ data }: SummaryProps) {
             </a>
             <div className="absolute -bottom-3 -right-3 bg-yellow-500 text-white px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg flex items-center gap-1.5 shadow-lg">
               <Star className="w-4 h-4 sm:w-5 sm:h-5 fill-current" />
-              <span className="text-base sm:text-lg font-bold">{data.starRating}</span>
+              <span className="text-base sm:text-lg font-bold">
+                {data.starRating}
+              </span>
             </div>
           </div>
 
@@ -40,7 +54,7 @@ export function Summary({ data }: SummaryProps) {
           <div className="flex-1 min-w-0 text-center sm:text-left">
             <div className="flex flex-wrap items-center sm:items-start justify-center sm:justify-start gap-3 mb-1">
               <div className="flex flex-col">
-                <a 
+                <a
                   href={leetcodeProfileUrl}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -48,7 +62,9 @@ export function Summary({ data }: SummaryProps) {
                 >
                   {data.realName || data.username}
                 </a>
-                <span className="text-xs hidden sm:block sm:text-sm text-gray-500">@{data.username}</span>
+                <span className="text-xs hidden sm:block sm:text-sm text-gray-500">
+                  @{data.username}
+                </span>
               </div>
               {data.countryName && (
                 <span className="inline-flex items-center rounded-md bg-gray-100 px-2 sm:px-2.5 py-0.5 text-xs sm:text-sm font-medium">
@@ -63,7 +79,9 @@ export function Summary({ data }: SummaryProps) {
               <div className="w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center">
                 <Trophy className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-500 fill-yellow-500 drop-shadow" />
               </div>
-              <span className="text-lg sm:text-xl font-bold text-primary-600">Rank #{data.ranking}</span>
+              <span className="text-lg sm:text-xl font-bold text-primary-600">
+                Rank #{data.ranking}
+              </span>
             </div>
 
             {/* Work Info */}
@@ -89,7 +107,9 @@ export function Summary({ data }: SummaryProps) {
 
             {/* About */}
             {data.about && (
-              <p className="text-gray-600 italic mb-2 line-clamp-2 text-center sm:text-left">{data.about}</p>
+              <p className="text-gray-600 italic mb-2 line-clamp-2 text-center sm:text-left">
+                {data.about}
+              </p>
             )}
 
             {/* Social Links */}

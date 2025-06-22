@@ -9,22 +9,26 @@ interface LanguagesProps {
 }
 
 export function Languages({ data }: LanguagesProps) {
-  const sortedLanguages = [...data.languageStats].sort((a, b) => b.solved - a.solved);
+  const sortedLanguages = [...data.languageStats].sort(
+    (a, b) => b.solved - a.solved,
+  );
   const ITEM_HEIGHT = 40;
   const VISIBLE_ITEMS = 3;
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 select-none">
       <h3 className="text-lg font-semibold mb-4">Languages</h3>
-      
+
       <ScrollArea className="max-h-[180px] sm:h-[180px]">
         <div className="space-y-2 pr-2">
           {sortedLanguages.map((language, index) => (
-            <div 
+            <div
               key={language.name}
               className={cn(
                 "flex items-center justify-between py-1.5 px-2 rounded-md transition-colors",
-                index % 2 === 0 ? "bg-gray-50/80 hover:bg-gray-50" : "bg-gray-100/80 hover:bg-gray-100"
+                index % 2 === 0
+                  ? "bg-gray-50/80 hover:bg-gray-50"
+                  : "bg-gray-100/80 hover:bg-gray-100",
               )}
             >
               <span className="font-medium text-gray-900">{language.name}</span>
@@ -38,5 +42,3 @@ export function Languages({ data }: LanguagesProps) {
     </div>
   );
 }
-
-

@@ -12,11 +12,11 @@ interface BookmarkButtonProps {
   onMarkChange?: (isMarked: boolean) => void;
 }
 
-export default function BookmarkButton({ 
-  recruiterEmail, 
-  userEmail, 
+export default function BookmarkButton({
+  recruiterEmail,
+  userEmail,
   isMarked: initialIsMarked,
-  onMarkChange 
+  onMarkChange,
 }: BookmarkButtonProps) {
   const [isMarked, setIsMarked] = useState(initialIsMarked);
   const toggleMarkstar = useMutation(api.recruiters.toggleMarkstar);
@@ -28,13 +28,13 @@ export default function BookmarkButton({
   const handleMarkClick = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     if (!recruiterEmail || !userEmail) return;
 
     try {
       const result = await toggleMarkstar({
         recruiterEmail,
-        userEmail
+        userEmail,
       });
 
       if (result.success) {
@@ -42,8 +42,7 @@ export default function BookmarkButton({
         setIsMarked(newState);
         onMarkChange?.(newState);
       }
-    } catch (error) {
-    }
+    } catch (error) {}
   };
 
   return (
@@ -56,11 +55,11 @@ export default function BookmarkButton({
                flex items-center justify-center group"
       title={isMarked ? "Remove from bookmarks" : "Add to bookmarks"}
     >
-      <Bookmark 
-        className={`w-5 h-5 ${isMarked ? 'text-green-600 fill-green-600' : 'text-indigo-600'} 
+      <Bookmark
+        className={`w-5 h-5 ${isMarked ? "text-green-600 fill-green-600" : "text-indigo-600"} 
                  transition-all duration-300 group-hover:scale-110`}
         aria-label={isMarked ? "Bookmarked" : "Not bookmarked"}
       />
     </button>
   );
-} 
+}

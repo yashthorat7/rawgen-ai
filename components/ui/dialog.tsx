@@ -28,7 +28,10 @@ export function Dialog({ open, onClose, children }: DialogProps) {
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-black/30 backdrop-blur-sm" aria-hidden="true" />
+          <div
+            className="fixed inset-0 bg-black/30 backdrop-blur-sm"
+            aria-hidden="true"
+          />
         </DialogPrimitive.Transition.Child>
 
         {/* Dialog position wrapper */}
@@ -46,7 +49,7 @@ export function Dialog({ open, onClose, children }: DialogProps) {
               className={cn(
                 "relative bg-white rounded-lg shadow-xl",
                 "w-[90vw] max-w-4xl max-h-[85vh] overflow-y-auto",
-                "transform transition-all"
+                "transform transition-all",
               )}
             >
               {children}
@@ -56,4 +59,4 @@ export function Dialog({ open, onClose, children }: DialogProps) {
       </DialogPrimitive.Dialog>
     </DialogPrimitive.Transition>
   );
-} 
+}

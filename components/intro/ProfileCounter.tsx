@@ -1,8 +1,8 @@
 "use client";
 
-import CountUp from 'react-countup';
-import { motion } from 'framer-motion';
-import { useState, useEffect } from 'react';
+import CountUp from "react-countup";
+import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useUser } from "@clerk/nextjs";
@@ -12,51 +12,57 @@ interface PlatformCounterProps {
   isPublicView?: boolean;
 }
 
-export function PlatformCounter({ username, isPublicView = false }: PlatformCounterProps) {
+export function PlatformCounter({
+  username,
+  isPublicView = false,
+}: PlatformCounterProps) {
   const { user } = useUser();
   const [shouldAnimate, setShouldAnimate] = useState(false);
   const [hasStarred, setHasStarred] = useState(false);
 
   const formatIndianNumber = (num: number): string => {
     if (num < 1000) return num.toString();
-    
-    if (num >= 10000000) { // 1 Crore
-      return (num / 10000000).toFixed(1) + 'C';
+
+    if (num >= 10000000) {
+      // 1 Crore
+      return (num / 10000000).toFixed(1) + "C";
     }
-    if (num >= 100000) { // 1 Lakh
-      return (num / 100000).toFixed(1) + 'L';
+    if (num >= 100000) {
+      // 1 Lakh
+      return (num / 100000).toFixed(1) + "L";
     }
-    if (num >= 1000) { // 1 Thousand
-      return (num / 1000).toFixed(1) + 'K';
+    if (num >= 1000) {
+      // 1 Thousand
+      return (num / 1000).toFixed(1) + "K";
     }
-    
+
     return num.toString();
   };
 
   const publicUserData = useQuery(
     api.users.getUserByUsername,
-    username ? { username } : "skip"
+    username ? { username } : "skip",
   );
 
   const privateUserData = useQuery(
     api.users.getUser,
     !isPublicView && user?.primaryEmailAddress?.emailAddress
       ? { email: user.primaryEmailAddress.emailAddress }
-      : "skip"
+      : "skip",
   );
 
   const userInfo = isPublicView ? publicUserData : privateUserData;
 
   const counters = useQuery(
     api.counters.get,
-    userInfo?._id ? { userId: userInfo._id } : "skip"
+    userInfo?._id ? { userId: userInfo._id } : "skip",
   );
 
   const loggedInUserData = useQuery(
     api.users.getUser,
     user?.primaryEmailAddress?.emailAddress
       ? { email: user.primaryEmailAddress.emailAddress }
-      : "skip"
+      : "skip",
   );
 
   const toggleStar = useMutation(api.counters.toggleStar);
@@ -78,10 +84,10 @@ export function PlatformCounter({ username, isPublicView = false }: PlatformCoun
       if (shouldIncrement) {
         try {
           await incrementViews({
-            userId: userInfo._id
+            userId: userInfo._id,
           });
         } catch (error) {
-          console.error('Error incrementing views:', error);
+          console.error("Error incrementing views:", error);
         }
       }
     };
@@ -98,18 +104,17 @@ export function PlatformCounter({ username, isPublicView = false }: PlatformCoun
   const handleStarClick = async () => {
     if (!userInfo?._id || !loggedInUserData?._id) return;
 
-
     try {
       const result = await toggleStar({
         targetUsername: userInfo.username,
-        starrerUserId: loggedInUserData._id
+        starrerUserId: loggedInUserData._id,
       });
 
       if (result.success) {
         setHasStarred(result.action === "starred");
       }
     } catch (error) {
-      console.error('Error toggling star:', error);
+      console.error("Error toggling star:", error);
     }
   };
 
@@ -124,7 +129,7 @@ export function PlatformCounter({ username, isPublicView = false }: PlatformCoun
 
   return (
     <div className="flex flex-wrap gap-2 sm:gap-3 mt-3 sm:mt-2">
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
@@ -133,9 +138,9 @@ export function PlatformCounter({ username, isPublicView = false }: PlatformCoun
         Views
         <span className="bg-white text-primary-700 px-1.5 sm:px-2 py-0.2 rounded-sm font-semibold min-w-[2rem] sm:min-w-[2.5rem] text-center">
           {shouldAnimate ? (
-            <CountUp 
-              start={0} 
-              end={counters?.profileViews || 0} 
+            <CountUp
+              start={0}
+              end={counters?.profileViews || 0}
               {...countUpProps}
               formattingFn={(value) => formatIndianNumber(value)}
             />
@@ -144,20 +149,28 @@ export function PlatformCounter({ username, isPublicView = false }: PlatformCoun
           )}
         </span>
       </motion.div>
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className={`px-0.5 sm:px-1 pl-1.5 sm:pl-2 py-0.5 sm:py-1 bg-pink-600 rounded text-[13px] sm:text-[15px] font-medium text-white flex items-center gap-1.5 sm:gap-2 ${canStar ? 'cursor-pointer hover:bg-pink-700 transition-colors' : ''}`}
+        className={`px-0.5 sm:px-1 pl-1.5 sm:pl-2 py-0.5 sm:py-1 bg-pink-600 rounded text-[13px] sm:text-[15px] font-medium text-white flex items-center gap-1.5 sm:gap-2 ${canStar ? "cursor-pointer hover:bg-pink-700 transition-colors" : ""}`}
         onClick={canStar ? handleStarClick : undefined}
-        title={!user?.id ? "Login to star this profile" : userInfo.username === user?.username ? "You cannot star your own profile" : hasStarred ? "Click to unstar" : "Click to star"}
+        title={
+          !user?.id
+            ? "Login to star this profile"
+            : userInfo.username === user?.username
+              ? "You cannot star your own profile"
+              : hasStarred
+                ? "Click to unstar"
+                : "Click to star"
+        }
       >
         Stars {hasStarred ? "⭐" : "★"}
         <span className="bg-white text-pink-700 px-1.5 sm:px-2 py-0.2 rounded-sm font-semibold min-w-[2rem] sm:min-w-[2.5rem] text-center">
           {shouldAnimate ? (
-            <CountUp 
-              start={0} 
-              end={counters?.gotStars?.length || 0} 
+            <CountUp
+              start={0}
+              end={counters?.gotStars?.length || 0}
               {...countUpProps}
               formattingFn={(value) => formatIndianNumber(value)}
             />
@@ -167,7 +180,7 @@ export function PlatformCounter({ username, isPublicView = false }: PlatformCoun
         </span>
       </motion.div>
       {userInfo?.cgpa && (
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
@@ -176,9 +189,9 @@ export function PlatformCounter({ username, isPublicView = false }: PlatformCoun
           CGPA
           <span className="bg-white text-orange-700 px-1.5 sm:px-2 py-0.2 rounded-sm font-semibold min-w-[2rem] sm:min-w-[2.5rem] text-center">
             {shouldAnimate ? (
-              <CountUp 
-                start={0} 
-                end={userInfo.cgpa} 
+              <CountUp
+                start={0}
+                end={userInfo.cgpa}
                 decimals={1}
                 duration={2}
               />

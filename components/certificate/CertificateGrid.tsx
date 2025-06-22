@@ -24,20 +24,27 @@ interface CertificateGridProps {
   isPublicView?: boolean;
 }
 
-export function CertificateGrid({ username, isPublicView = false }: CertificateGridProps) {
+export function CertificateGrid({
+  username,
+  isPublicView = false,
+}: CertificateGridProps) {
   const { user, isLoaded } = useUser();
   const email = user?.primaryEmailAddress?.emailAddress;
 
   const privateUserData = useQuery(
     api.users.getUser,
-    !isPublicView && email ? { email } : "skip"
+    !isPublicView && email ? { email } : "skip",
   );
 
   const certificates = useQuery(
     api.certificates.get,
-    isPublicView 
-      ? username ? { username } : "skip"
-      : privateUserData?.username ? { username: privateUserData.username } : "skip"
+    isPublicView
+      ? username
+        ? { username }
+        : "skip"
+      : privateUserData?.username
+        ? { username: privateUserData.username }
+        : "skip",
   );
 
   // Ensure certificates are sorted by order
@@ -75,10 +82,14 @@ export function CertificateGrid({ username, isPublicView = false }: CertificateG
     });
   };
 
-  if ((!isLoaded && !isPublicView) || (!isPublicView && !privateUserData) || !sortedCertificates) {
+  if (
+    (!isLoaded && !isPublicView) ||
+    (!isPublicView && !privateUserData) ||
+    !sortedCertificates
+  ) {
     return (
       <>
-      <Title title="Certificates" />
+        <Title title="Certificates" />
         <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5 mt-2">
           {[...Array(4)].map((_, i) => (
             <CertificateCardSkeleton key={i} />
@@ -91,7 +102,7 @@ export function CertificateGrid({ username, isPublicView = false }: CertificateG
   if (!isPublicView && !email) {
     return (
       <>
-      <Title title="Certificates" />
+        <Title title="Certificates" />
         <div className="text-center text-gray-500 mt-2">
           Please log in to view certificates
         </div>
@@ -105,7 +116,7 @@ export function CertificateGrid({ username, isPublicView = false }: CertificateG
     }
     return (
       <>
-      <Title title="Certificates" />
+        <Title title="Certificates" />
         <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5 mt-2">
           <AddCertificateCard />
         </div>
@@ -115,7 +126,7 @@ export function CertificateGrid({ username, isPublicView = false }: CertificateG
 
   return (
     <>
-    <Title title="Certificates" />
+      <Title title="Certificates" />
       <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5 mt-2">
         {sortedCertificates.map((certificate: Certificate, index) => (
           <CertificateCard
@@ -127,7 +138,9 @@ export function CertificateGrid({ username, isPublicView = false }: CertificateG
             image={certificate.image}
             index={index}
             onReorder={!isPublicView ? handleReorder : undefined}
-            onDelete={!isPublicView ? () => handleDelete(certificate.id) : undefined}
+            onDelete={
+              !isPublicView ? () => handleDelete(certificate.id) : undefined
+            }
             isPublicView={isPublicView}
           />
         ))}
@@ -135,4 +148,4 @@ export function CertificateGrid({ username, isPublicView = false }: CertificateG
       </div>
     </>
   );
-} 
+}

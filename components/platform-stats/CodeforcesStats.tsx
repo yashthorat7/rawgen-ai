@@ -18,7 +18,7 @@ export function CodeforcesStats({ data, isLoading }: CodeforcesStatsProps) {
       <div className="flex-1 flex flex-col justify-center mb-3">
         <div className="text-sm font-bold text-gray-600 mb-3 capitalize flex items-center gap-1">
           <Star size={14} className="text-yellow-500" fill="currentColor" />
-          {data.rank || 'Unrated'}
+          {data.rank || "Unrated"}
         </div>
 
         {/* Progress bars */}
@@ -26,7 +26,9 @@ export function CodeforcesStats({ data, isLoading }: CodeforcesStatsProps) {
           <div>
             <div className="flex justify-between items-center text-xs text-gray-600 mb-1">
               <span className="font-medium">Contribution</span>
-              <span className="font-medium text-blue-600">{data.contribution}</span>
+              <span className="font-medium text-blue-600">
+                {data.contribution}
+              </span>
             </div>
             <ProgressBar solved={data.contribution} color="blue" />
           </div>
@@ -34,7 +36,9 @@ export function CodeforcesStats({ data, isLoading }: CodeforcesStatsProps) {
           <div>
             <div className="flex justify-between items-center text-xs text-gray-600 mb-1">
               <span className="font-medium">Friend of</span>
-              <span className="font-medium text-purple-600">{data.friendOfCount}</span>
+              <span className="font-medium text-purple-600">
+                {data.friendOfCount}
+              </span>
             </div>
             <ProgressBar solved={data.friendOfCount} color="purple" />
           </div>
@@ -44,9 +48,10 @@ export function CodeforcesStats({ data, isLoading }: CodeforcesStatsProps) {
       {/* Max Rating at bottom */}
       <div className="mt-auto mb-1">
         <div className="text-[14px] text-gray-500">
-          Max Rating: <span className="font-mono font-medium">{data.maxRating}</span>
+          Max Rating:{" "}
+          <span className="font-mono font-medium">{data.maxRating}</span>
         </div>
       </div>
     </div>
   );
-} 
+}

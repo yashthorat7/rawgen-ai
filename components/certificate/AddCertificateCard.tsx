@@ -9,7 +9,7 @@ export function AddCertificateCard() {
   return (
     <>
       <div className="flex justify-center">
-        <button 
+        <button
           onClick={() => setIsOpen(true)}
           className="flex w-full h-full min-h-[120px] sm:h-full sm:min-h-[225px] items-center justify-center gap-2 border-2 border-dashed border-gray-300 rounded-lg hover:border-primary-500 hover:text-primary-500 transition-colors bg-transparent group"
         >
@@ -19,10 +19,7 @@ export function AddCertificateCard() {
         </button>
       </div>
 
-      <AddCertificateDialog 
-        isOpen={isOpen} 
-        onClose={() => setIsOpen(false)} 
-      />
+      <AddCertificateDialog isOpen={isOpen} onClose={() => setIsOpen(false)} />
     </>
   );
-} 
+}

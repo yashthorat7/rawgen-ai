@@ -14,4 +14,4 @@ export function Title({ title }: TitleProps) {
       <div className="h-[2px] flex-1 bg-gradient-to-l from-transparent to-gray-300 group-hover:to-pink-500 transition-all duration-300" />
     </div>
   );
-} 
+}

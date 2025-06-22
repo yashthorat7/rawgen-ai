@@ -18,11 +18,13 @@ export function LeetCodeStats({ data, isLoading }: LeetCodeStatsProps) {
         <div>
           <div className="flex justify-between items-center text-xs text-gray-600 mb-1">
             <span className="font-medium">Easy</span>
-            <span className="font-medium text-green-600">{data.easySolved}/{data.totalEasy}</span>
+            <span className="font-medium text-green-600">
+              {data.easySolved}/{data.totalEasy}
+            </span>
           </div>
-          <ProgressBar 
-            solved={data.easySolved} 
-            total={data.totalEasy} 
+          <ProgressBar
+            solved={data.easySolved}
+            total={data.totalEasy}
             color="green"
           />
         </div>
@@ -30,11 +32,13 @@ export function LeetCodeStats({ data, isLoading }: LeetCodeStatsProps) {
         <div>
           <div className="flex justify-between items-center text-xs text-gray-600 mb-1">
             <span className="font-medium">Medium</span>
-            <span className="font-medium text-yellow-600">{data.mediumSolved}/{data.totalMedium}</span>
+            <span className="font-medium text-yellow-600">
+              {data.mediumSolved}/{data.totalMedium}
+            </span>
           </div>
-          <ProgressBar 
-            solved={data.mediumSolved} 
-            total={data.totalMedium} 
+          <ProgressBar
+            solved={data.mediumSolved}
+            total={data.totalMedium}
             color="yellow"
           />
         </div>
@@ -42,11 +46,13 @@ export function LeetCodeStats({ data, isLoading }: LeetCodeStatsProps) {
         <div>
           <div className="flex justify-between items-center text-xs text-gray-600 mb-1">
             <span className="font-medium">Hard</span>
-            <span className="font-medium text-red-600">{data.hardSolved}/{data.totalHard}</span>
+            <span className="font-medium text-red-600">
+              {data.hardSolved}/{data.totalHard}
+            </span>
           </div>
-          <ProgressBar 
-            solved={data.hardSolved} 
-            total={data.totalHard} 
+          <ProgressBar
+            solved={data.hardSolved}
+            total={data.totalHard}
             color="red"
           />
         </div>

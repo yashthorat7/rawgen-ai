@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from 'react';
-import ReactCalendarHeatmap from 'react-calendar-heatmap';
-import 'react-calendar-heatmap/dist/styles.css';
+import { useState } from "react";
+import ReactCalendarHeatmap from "react-calendar-heatmap";
+import "react-calendar-heatmap/dist/styles.css";
 import type { CodeChefData } from "@/lib/types";
-import HeatMap from 'react-calendar-heatmap';
+import HeatMap from "react-calendar-heatmap";
 
 interface CalendarProps {
   data: CodeChefData;
@@ -20,11 +20,11 @@ export function Calendar({ data }: CalendarProps) {
   const [selectedYear, setSelectedYear] = useState(currentYear);
 
   const heatmapData = data.submissionStats
-    .map(stat => ({
+    .map((stat) => ({
       date: new Date(stat.date),
-      count: stat.submissions
+      count: stat.submissions,
     }))
-    .filter(item => item.date.getFullYear() === selectedYear);
+    .filter((item) => item.date.getFullYear() === selectedYear);
 
   const startDate = new Date(selectedYear, 0, 1);
   const endDate = new Date(selectedYear, 11, 31);
@@ -62,20 +62,30 @@ export function Calendar({ data }: CalendarProps) {
                 return "color-scale-1";
               }}
               titleForValue={(value) => {
-                if (!value || !value.count) return 'No submissions';
-                const date = value.date.toLocaleDateString('en-US', {
-                  weekday: 'long',
-                  month: 'long',
-                  day: 'numeric'
+                if (!value || !value.count) return "No submissions";
+                const date = value.date.toLocaleDateString("en-US", {
+                  weekday: "long",
+                  month: "long",
+                  day: "numeric",
                 });
-                return `${value.count} submission${value.count === 1 ? '' : 's'}\n${date}`;
+                return `${value.count} submission${value.count === 1 ? "" : "s"}\n${date}`;
               }}
               gutterSize={3}
               showWeekdayLabels={false}
               showMonthLabels
               monthLabels={[
-                "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-                "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+                "Jan",
+                "Feb",
+                "Mar",
+                "Apr",
+                "May",
+                "Jun",
+                "Jul",
+                "Aug",
+                "Sep",
+                "Oct",
+                "Nov",
+                "Dec",
               ]}
             />
           </div>
@@ -109,23 +119,23 @@ export function Calendar({ data }: CalendarProps) {
         .react-calendar-heatmap {
           font-size: 10px;
         }
-        
+
         .react-calendar-heatmap .color-empty {
           fill: #ebedf0;
         }
-        
+
         .react-calendar-heatmap .color-scale-1 {
           fill: #9be9a8;
         }
-        
+
         .react-calendar-heatmap .color-scale-2 {
           fill: #40c463;
         }
-        
+
         .react-calendar-heatmap .color-scale-3 {
           fill: #30a14e;
         }
-        
+
         .react-calendar-heatmap .color-scale-4 {
           fill: #216e39;
         }
@@ -143,4 +153,4 @@ export function Calendar({ data }: CalendarProps) {
       `}</style>
     </div>
   );
-} 
+}

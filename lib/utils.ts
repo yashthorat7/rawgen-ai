@@ -1,33 +1,33 @@
-import { clsx, type ClassValue } from "clsx"
-import { twMerge } from "tailwind-merge"
-import { useEffect } from 'react';
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
+import { useEffect } from "react";
 import { Id } from "../convex/_generated/dataModel";
 import { extractEssentialPlatformData } from "./extractors";
 
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
+  return twMerge(clsx(inputs));
 }
 
 export function useScrollLock(lock: boolean) {
   useEffect(() => {
     if (lock) {
-      document.body.style.overflow = 'hidden';
-      document.body.style.paddingRight = 'var(--scrollbar-width)';
+      document.body.style.overflow = "hidden";
+      document.body.style.paddingRight = "var(--scrollbar-width)";
     } else {
-      document.body.style.overflow = '';
-      document.body.style.paddingRight = '';
+      document.body.style.overflow = "";
+      document.body.style.paddingRight = "";
     }
 
     return () => {
-      document.body.style.overflow = '';
-      document.body.style.paddingRight = '';
+      document.body.style.overflow = "";
+      document.body.style.paddingRight = "";
     };
   }, [lock]);
 }
 
 export function debounce<T extends (...args: any[]) => void>(
   func: T,
-  wait: number
+  wait: number,
 ): (...args: Parameters<T>) => void {
   let timeout: NodeJS.Timeout;
 
@@ -40,36 +40,41 @@ export function debounce<T extends (...args: any[]) => void>(
     clearTimeout(timeout);
     timeout = setTimeout(later, wait);
   };
-};
+}
 
 export async function preparePlatformProfileData(
-  platform: string, 
-  username: string
+  platform: string,
+  username: string,
 ): Promise<{ statsData: string }> {
   try {
-    const essentialData = await extractEssentialPlatformData(platform, username);
-    
+    const essentialData = await extractEssentialPlatformData(
+      platform,
+      username,
+    );
+
     if (!essentialData) {
-      console.error(`Failed to extract essential ${platform} data for ${username}`);
+      console.error(
+        `Failed to extract essential ${platform} data for ${username}`,
+      );
       return {
-        statsData: JSON.stringify({})
+        statsData: JSON.stringify({}),
       };
     }
-    
+
     return {
-      statsData: JSON.stringify(essentialData)
+      statsData: JSON.stringify(essentialData),
     };
   } catch (error) {
     console.error(`Error preparing ${platform} profile data:`, error);
     return {
-      statsData: JSON.stringify({})
+      statsData: JSON.stringify({}),
     };
   }
 }
 
 export function getDefaultStatsData(platformName: string): string {
   switch (platformName.toLowerCase()) {
-    case 'leetcode':
+    case "leetcode":
       return JSON.stringify({
         ranking: 0,
         totalSolved: 0,
@@ -78,19 +83,19 @@ export function getDefaultStatsData(platformName: string): string {
         hardSolved: 0,
         totalEasy: 0,
         totalMedium: 0,
-        totalHard: 0
+        totalHard: 0,
       });
-    case 'codechef':
+    case "codechef":
       return JSON.stringify({
         stars: 0,
         currentRating: 0,
         highestRating: 0,
         globalRank: 0,
         countryRank: 0,
-        countryName: '',
-        totalContests: 0
+        countryName: "",
+        totalContests: 0,
       });
-    case 'geeksforgeeks':
+    case "geeksforgeeks":
       return JSON.stringify({
         codingScore: 0,
         problemsSolved: 0,
@@ -98,16 +103,16 @@ export function getDefaultStatsData(platformName: string): string {
         mediumProblems: 0,
         hardProblems: 0,
         currentStreak: 0,
-        rank: 0
+        rank: 0,
       });
-    case 'codeforces':
+    case "codeforces":
       return JSON.stringify({
-        rank: '',
+        rank: "",
         rating: 0,
         maxRating: 0,
-        maxRank: '',
+        maxRank: "",
         contribution: 0,
-        friendOfCount: 0
+        friendOfCount: 0,
       });
     default:
       return JSON.stringify({});

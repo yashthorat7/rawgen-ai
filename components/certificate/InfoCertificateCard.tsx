@@ -16,7 +16,7 @@ export function InfoCertificateCard({
   category,
   description,
   image,
-  onClose
+  onClose,
 }: InfoCertificateCardProps) {
   useScrollLock(true);
   return (
@@ -28,7 +28,9 @@ export function InfoCertificateCard({
       <div className="fixed inset-0 flex items-center justify-center z-[9999] p-4 overflow-auto">
         <div className="bg-white rounded-lg shadow-xl w-full max-w-full md:max-w-[800px] lg:max-w-[1000px] max-h-[90vh] flex flex-col">
           <div className="p-4 sm:p-6 border-b flex justify-between items-center">
-            <h2 className="text-xl sm:text-2xl font-bold text-primary-600">{title}</h2>
+            <h2 className="text-xl sm:text-2xl font-bold text-primary-600">
+              {title}
+            </h2>
             <button
               onClick={onClose}
               className="p-2 hover:bg-gray-100 rounded-md transition-colors"
@@ -63,4 +65,4 @@ export function InfoCertificateCard({
       </div>
     </>
   );
-} 
+}

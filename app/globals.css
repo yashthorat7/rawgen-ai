@@ -89,7 +89,6 @@
   }
 }
 
-
 @layer base {
   * {
     @apply border-border;
@@ -148,11 +147,21 @@
   inherits: false;
 }
 
-.react-calendar-heatmap .color-empty { fill: #ebedf0; }
-.react-calendar-heatmap .color-scale-1 { fill: #9be9a8; }
-.react-calendar-heatmap .color-scale-2 { fill: #40c463; }
-.react-calendar-heatmap .color-scale-3 { fill: #30a14e; }
-.react-calendar-heatmap .color-scale-4 { fill: #216e39; }
+.react-calendar-heatmap .color-empty {
+  fill: #ebedf0;
+}
+.react-calendar-heatmap .color-scale-1 {
+  fill: #9be9a8;
+}
+.react-calendar-heatmap .color-scale-2 {
+  fill: #40c463;
+}
+.react-calendar-heatmap .color-scale-3 {
+  fill: #30a14e;
+}
+.react-calendar-heatmap .color-scale-4 {
+  fill: #216e39;
+}
 
 /* Responsive container */
 @media (min-width: 1024px) {
@@ -213,7 +222,7 @@
 }
 
 [data-tip]:hover:before {
-  content: '';
+  content: "";
   position: absolute;
   bottom: 100%;
   left: 50%;

@@ -3,7 +3,7 @@ import { v } from "convex/values";
 
 export const getProfiles = query({
   args: {
-    email: v.string()
+    email: v.string(),
   },
   handler: async (ctx, args) => {
     const user = await ctx.db
@@ -29,12 +29,12 @@ export const generateUploadUrl = mutation(async (ctx) => {
 export const saveProfileImage = mutation({
   args: {
     email: v.string(),
-    storageId: v.id("_storage")
+    storageId: v.id("_storage"),
   },
   handler: async (ctx, { email, storageId }) => {
     const existingUser = await ctx.db
       .query("users")
-      .withIndex("by_email", q => q.eq("email", email))
+      .withIndex("by_email", (q) => q.eq("email", email))
       .first();
 
     if (existingUser) {
@@ -44,7 +44,7 @@ export const saveProfileImage = mutation({
       await ctx.db.patch(existingUser._id, { profileImage: storageId });
     }
     return storageId;
-  }
+  },
 });
 
 export const addPlatform = mutation({
@@ -72,13 +72,15 @@ export const addPlatform = mutation({
           q.and(
             q.eq(q.field("userId"), user._id),
             q.eq(q.field("platformName"), args.platformName),
-            q.eq(q.field("platformUsername"), args.platformUsername)
-          )
+            q.eq(q.field("platformUsername"), args.platformUsername),
+          ),
         )
         .first();
 
       if (existingPlatform) {
-        throw new Error(`Platform ${args.platformName} with username ${args.platformUsername} already exists for user ${args.email}`);
+        throw new Error(
+          `Platform ${args.platformName} with username ${args.platformUsername} already exists for user ${args.email}`,
+        );
       }
 
       const platformsCount = await ctx.db
@@ -147,8 +149,8 @@ export const deletePlatform = mutation({
         q.and(
           q.eq(q.field("userId"), user._id),
           q.eq(q.field("platformName"), args.platformName),
-          q.eq(q.field("platformUsername"), args.platformUsername)
-        )
+          q.eq(q.field("platformUsername"), args.platformUsername),
+        ),
       )
       .first();
 
@@ -157,11 +159,11 @@ export const deletePlatform = mutation({
         .query("platformdata")
         .withIndex("by_profile", (q) => q.eq("profileId", profile._id))
         .first();
-      
+
       if (platformData) {
         await ctx.db.delete(platformData._id);
       }
-      
+
       await ctx.db.delete(profile._id);
     }
   },
@@ -172,7 +174,7 @@ export const getUserProfileImage = query({
   handler: async (ctx, { email }) => {
     const user = await ctx.db
       .query("users")
-      .withIndex("by_email", q => q.eq("email", email))
+      .withIndex("by_email", (q) => q.eq("email", email))
       .first();
 
     if (user?.profileImage) {
@@ -180,7 +182,7 @@ export const getUserProfileImage = query({
       return url;
     }
     return null;
-  }
+  },
 });
 
 export const checkProfileExists = query({
@@ -192,8 +194,9 @@ export const checkProfileExists = query({
     const profile = await ctx.db
       .query("profiles")
       .withIndex("by_platform", (q) =>
-        q.eq("platformName", args.platformName)
-          .eq("platformUsername", args.platformUsername)
+        q
+          .eq("platformName", args.platformName)
+          .eq("platformUsername", args.platformUsername),
       )
       .first();
 
@@ -235,8 +238,8 @@ export const updateProfileData = mutation({
         q.and(
           q.eq(q.field("userId"), user._id),
           q.eq(q.field("platformName"), args.platformName),
-          q.eq(q.field("platformUsername"), args.platformUsername)
-        )
+          q.eq(q.field("platformUsername"), args.platformUsername),
+        ),
       )
       .first();
 
@@ -276,11 +279,11 @@ export const getUser = query({
   handler: async (ctx, { email }) => {
     const user = await ctx.db
       .query("users")
-      .withIndex("by_email", q => q.eq("email", email))
+      .withIndex("by_email", (q) => q.eq("email", email))
       .first();
 
     return user;
-  }
+  },
 });
 
 export const checkUsernameAvailable = query({
@@ -288,7 +291,7 @@ export const checkUsernameAvailable = query({
   handler: async (ctx, { username }) => {
     const existingUser = await ctx.db
       .query("users")
-      .withIndex("by_username", q => q.eq("username", username))
+      .withIndex("by_username", (q) => q.eq("username", username))
       .first();
 
     return !existingUser;
@@ -309,7 +312,7 @@ export const saveMarksheetImage = mutation({
   handler: async (ctx, args) => {
     const user = await ctx.db
       .query("users")
-      .withIndex("by_email", q => q.eq("email", args.email))
+      .withIndex("by_email", (q) => q.eq("email", args.email))
       .first();
 
     if (user) {
@@ -318,7 +321,7 @@ export const saveMarksheetImage = mutation({
       }
       await ctx.db.patch(user._id, {
         marksheetImage: args.storageId,
-        isverified: false
+        isverified: false,
       });
     }
   },
@@ -329,7 +332,7 @@ export const getMarksheetImage = query({
   handler: async (ctx, { email }) => {
     const user = await ctx.db
       .query("users")
-      .withIndex("by_email", q => q.eq("email", email))
+      .withIndex("by_email", (q) => q.eq("email", email))
       .first();
 
     if (user?.marksheetImage) {
@@ -337,7 +340,7 @@ export const getMarksheetImage = query({
       return url;
     }
     return null;
-  }
+  },
 });
 
 export const updateUser = mutation({
@@ -353,7 +356,7 @@ export const updateUser = mutation({
     const { email, username, ...updates } = args;
     const existingUser = await ctx.db
       .query("users")
-      .withIndex("by_email", q => q.eq("email", email))
+      .withIndex("by_email", (q) => q.eq("email", email))
       .first();
 
     if (existingUser) {
@@ -363,22 +366,22 @@ export const updateUser = mutation({
         isverified: undefined,
         cgpa: undefined,
         ...Object.fromEntries(
-          Object.entries(updates).filter(([_, value]) => value !== undefined)
+          Object.entries(updates).filter(([_, value]) => value !== undefined),
         ),
-        username
+        username,
       };
 
       await ctx.db.patch(existingUser._id, completeUpdate);
       return existingUser._id;
     } else {
       const validFields = Object.fromEntries(
-        Object.entries(updates).filter(([_, value]) => value !== undefined)
+        Object.entries(updates).filter(([_, value]) => value !== undefined),
       );
 
       const id = await ctx.db.insert("users", {
         email,
         username,
-        ...validFields
+        ...validFields,
       });
       return id;
     }
@@ -388,11 +391,13 @@ export const updateUser = mutation({
 export const updateOrder = mutation({
   args: {
     email: v.string(),
-    updates: v.array(v.object({
-      platformName: v.string(),
-      platformUsername: v.string(),
-      order: v.number(),
-    })),
+    updates: v.array(
+      v.object({
+        platformName: v.string(),
+        platformUsername: v.string(),
+        order: v.number(),
+      }),
+    ),
   },
   handler: async (ctx, args) => {
     const user = await ctx.db
@@ -411,8 +416,8 @@ export const updateOrder = mutation({
           q.and(
             q.eq(q.field("userId"), user._id),
             q.eq(q.field("platformName"), update.platformName),
-            q.eq(q.field("platformUsername"), update.platformUsername)
-          )
+            q.eq(q.field("platformUsername"), update.platformUsername),
+          ),
         )
         .first();
 
@@ -447,7 +452,7 @@ export const createUser = mutation({
   handler: async (ctx, args) => {
     const existingUser = await ctx.db
       .query("users")
-      .withIndex("by_email", q => q.eq("email", args.email))
+      .withIndex("by_email", (q) => q.eq("email", args.email))
       .first();
 
     if (existingUser) {
@@ -459,11 +464,11 @@ export const createUser = mutation({
       username: args.username,
       firstName: args.firstName,
       lastName: args.lastName,
-      isverified: false
+      isverified: false,
     });
 
     return userId;
-  }
+  },
 });
 
 export const getUserByUsername = query({
@@ -471,7 +476,7 @@ export const getUserByUsername = query({
   handler: async (ctx, { username }) => {
     const user = await ctx.db
       .query("users")
-      .withIndex("by_username", q => q.eq("username", username))
+      .withIndex("by_username", (q) => q.eq("username", username))
       .first();
 
     if (!user) {
@@ -485,9 +490,9 @@ export const getUserByUsername = query({
 
     return {
       ...user,
-      profiles
+      profiles,
     };
-  }
+  },
 });
 
 export const checkUsernameExists = query({
@@ -495,9 +500,9 @@ export const checkUsernameExists = query({
   handler: async (ctx, args) => {
     const user = await ctx.db
       .query("users")
-      .withIndex("by_username", q => q.eq("username", args.username))
+      .withIndex("by_username", (q) => q.eq("username", args.username))
       .first();
-    
+
     return Boolean(user);
   },
 });
@@ -523,16 +528,16 @@ export const getUsernamesFromEmails = query({
           .withIndex("by_email", (q) => q.eq("email", email))
           .first();
         return { email, username: user?.username };
-      })
+      }),
     );
-    return Object.fromEntries(users.map(u => [u.email, u.username]));
+    return Object.fromEntries(users.map((u) => [u.email, u.username]));
   },
 });
 
 export const searchUsers = query({
-  args: { 
+  args: {
     query: v.string(),
-    limit: v.optional(v.number())
+    limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
     const searchQuery = args.query.toLowerCase();
@@ -542,21 +547,17 @@ export const searchUsers = query({
       return [];
     }
 
-    const users = await ctx.db
-      .query("users")
-      .collect();
+    const users = await ctx.db.query("users").collect();
 
-    const filteredUsers = users.filter(user => {
+    const filteredUsers = users.filter((user) => {
       const searchFields = [
         user.email?.toLowerCase(),
         user.username?.toLowerCase(),
         user.firstName?.toLowerCase(),
-        user.lastName?.toLowerCase()
+        user.lastName?.toLowerCase(),
       ];
 
-      return searchFields.some(field => 
-        field && field.includes(searchQuery)
-      );
+      return searchFields.some((field) => field && field.includes(searchQuery));
     });
 
     return filteredUsers.slice(0, limit);
@@ -572,27 +573,27 @@ export const getMultipleByEmail = query({
           .query("users")
           .filter((q) => q.eq(q.field("email"), email))
           .first();
-        
+
         if (!user) return null;
 
         const skills = await ctx.db
           .query("skills")
-          .filter(q => q.eq(q.field("userId"), user._id))
+          .filter((q) => q.eq(q.field("userId"), user._id))
           .collect();
 
         const projects = await ctx.db
           .query("projects")
-          .filter(q => q.eq(q.field("userId"), user._id))
+          .filter((q) => q.eq(q.field("userId"), user._id))
           .collect();
 
         const platforms = await ctx.db
           .query("profiles")
-          .filter(q => q.eq(q.field("userId"), user._id))
+          .filter((q) => q.eq(q.field("userId"), user._id))
           .collect();
 
         const certificates = await ctx.db
           .query("certificates")
-          .filter(q => q.eq(q.field("userId"), user._id))
+          .filter((q) => q.eq(q.field("userId"), user._id))
           .collect();
 
         return {
@@ -600,12 +601,14 @@ export const getMultipleByEmail = query({
           skills,
           projects,
           platforms,
-          certificates
+          certificates,
         };
-      })
+      }),
     );
 
-    return users.filter((user): user is NonNullable<typeof user> => user !== null);
+    return users.filter(
+      (user): user is NonNullable<typeof user> => user !== null,
+    );
   },
 });
 
@@ -616,7 +619,7 @@ export const updateHasLearned = mutation({
   handler: async (ctx, { email }) => {
     const user = await ctx.db
       .query("users")
-      .withIndex("by_email", q => q.eq("email", email))
+      .withIndex("by_email", (q) => q.eq("email", email))
       .first();
 
     if (!user) {
@@ -624,9 +627,9 @@ export const updateHasLearned = mutation({
     }
 
     await ctx.db.patch(user._id, { haslearned: true });
-    
+
     return true;
-  }
+  },
 });
 
 export const getFullPlatformDataByUsername = query({
@@ -634,16 +637,16 @@ export const getFullPlatformDataByUsername = query({
   handler: async (ctx, args) => {
     const user = await ctx.db
       .query("users")
-      .withIndex("by_username", q => q.eq("username", args.username))
+      .withIndex("by_username", (q) => q.eq("username", args.username))
       .first();
-    
+
     if (!user) {
       return null;
     }
 
     const profiles = await ctx.db
       .query("profiles")
-      .withIndex("by_user", q => q.eq("userId", user._id))
+      .withIndex("by_user", (q) => q.eq("userId", user._id))
       .collect();
 
     if (profiles.length === 0) {
@@ -651,10 +654,10 @@ export const getFullPlatformDataByUsername = query({
     }
 
     const fullDataArray = await Promise.all(
-      profiles.map(async profile => {
+      profiles.map(async (profile) => {
         const platformData = await ctx.db
           .query("platformdata")
-          .withIndex("by_profile", q => q.eq("profileId", profile._id))
+          .withIndex("by_profile", (q) => q.eq("profileId", profile._id))
           .first();
 
         if (!platformData) {
@@ -666,7 +669,7 @@ export const getFullPlatformDataByUsername = query({
           platformUsername: profile.platformUsername,
           fullData: platformData.fullData,
         };
-      })
+      }),
     );
 
     const result: {
@@ -683,31 +686,34 @@ export const getFullPlatformDataByUsername = query({
 
     for (const item of fullDataArray) {
       if (item === null) continue;
-      
+
       try {
         const data = JSON.parse(item.fullData);
-        
+
         switch (item.platformName) {
-          case 'leetcode':
+          case "leetcode":
             result.leetcode[item.platformUsername] = data;
             break;
-          case 'codechef':
+          case "codechef":
             result.codechef[item.platformUsername] = data;
             break;
-          case 'geeksforgeeks':
+          case "geeksforgeeks":
             result.geeksforgeeks[item.platformUsername] = data;
             break;
-          case 'codeforces':
+          case "codeforces":
             result.codeforces[item.platformUsername] = data;
             break;
         }
       } catch (error) {
-        console.error(`Error parsing fullData for ${item.platformName}/${item.platformUsername}:`, error);
+        console.error(
+          `Error parsing fullData for ${item.platformName}/${item.platformUsername}:`,
+          error,
+        );
       }
     }
 
     return result;
-  }
+  },
 });
 
 export const getAllPlatformData = query({
@@ -736,17 +742,17 @@ export const getAllPlatformData = query({
         .query("platformdata")
         .withIndex("by_profile", (q) => q.eq("profileId", profile._id))
         .first();
-      
+
       if (!platformData) {
         return null;
       }
-      
+
       return platformData;
     });
 
     const allPlatformData = await Promise.all(platformDataPromises);
-    return allPlatformData.filter(data => data !== null);
-  }
+    return allPlatformData.filter((data) => data !== null);
+  },
 });
 
 export const getPlatformDataByUserId = query({

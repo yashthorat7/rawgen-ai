@@ -20,7 +20,7 @@ export function InfoProjectCard({
   deployLink,
   techStack,
   image,
-  onClose
+  onClose,
 }: InfoProjectCardProps) {
   useScrollLock(true);
   return (
@@ -32,7 +32,9 @@ export function InfoProjectCard({
       <div className="fixed inset-0 flex items-center justify-center z-[9999] p-4 overflow-auto">
         <div className="bg-white rounded-lg shadow-xl w-full max-w-full md:max-w-[800px] lg:max-w-[1000px] max-h-[90vh] flex flex-col">
           <div className="p-4 sm:p-6 border-b flex justify-between items-center">
-            <h2 className="text-xl sm:text-2xl font-bold text-primary-600">{title}</h2>
+            <h2 className="text-xl sm:text-2xl font-bold text-primary-600">
+              {title}
+            </h2>
             <button
               onClick={onClose}
               className="p-2 hover:bg-gray-100 rounded-md transition-colors"
@@ -74,24 +76,26 @@ export function InfoProjectCard({
               target="_blank"
               rel="noopener noreferrer"
               className={`flex items-center justify-center gap-2 px-4 py-2 rounded-md border border-gray-200 flex-1
-                ${projectLink 
-                  ? 'hover:bg-gray-50 cursor-pointer' 
-                  : 'opacity-50 cursor-not-allowed'
+                ${
+                  projectLink
+                    ? "hover:bg-gray-50 cursor-pointer"
+                    : "opacity-50 cursor-not-allowed"
                 }`}
               onClick={(e) => !projectLink && e.preventDefault()}
             >
               <Github className="w-5 h-5" />
               <span>View Source</span>
             </a>
-            
+
             <a
               href={deployLink}
               target="_blank"
               rel="noopener noreferrer"
               className={`flex items-center justify-center gap-2 px-4 py-2 rounded-md bg-primary-600 text-white flex-1
-                ${deployLink 
-                  ? 'hover:bg-primary-700 cursor-pointer' 
-                  : 'opacity-50 cursor-not-allowed'
+                ${
+                  deployLink
+                    ? "hover:bg-primary-700 cursor-pointer"
+                    : "opacity-50 cursor-not-allowed"
                 }`}
               onClick={(e) => !deployLink && e.preventDefault()}
             >
@@ -103,4 +107,4 @@ export function InfoProjectCard({
       </div>
     </>
   );
-} 
+}

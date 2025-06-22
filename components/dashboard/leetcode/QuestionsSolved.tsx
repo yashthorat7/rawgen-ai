@@ -1,8 +1,8 @@
 "use client";
 
-import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
-import { Send, CheckCircle2, Code2, Sigma } from 'lucide-react';
-import 'react-circular-progressbar/dist/styles.css';
+import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
+import { Send, CheckCircle2, Code2, Sigma } from "lucide-react";
+import "react-circular-progressbar/dist/styles.css";
 import type { LeetCodeData } from "@/lib/types";
 
 interface QuestionsSolvedProps {
@@ -19,19 +19,49 @@ interface ProgressCircleProps {
 }
 
 export function QuestionsSolved({ data }: QuestionsSolvedProps) {
-  const easySubmissions = data.submitStats?.totalSubmissionNum?.find(s => s.difficulty === 'Easy')?.submissions || data.totalSubmissions || 0;
-  const mediumSubmissions = data.submitStats?.totalSubmissionNum?.find(s => s.difficulty === 'Medium')?.submissions || data.totalSubmissions || 0;
-  const hardSubmissions = data.submitStats?.totalSubmissionNum?.find(s => s.difficulty === 'Hard')?.submissions || data.totalSubmissions || 0;
+  const easySubmissions =
+    data.submitStats?.totalSubmissionNum?.find((s) => s.difficulty === "Easy")
+      ?.submissions ||
+    data.totalSubmissions ||
+    0;
+  const mediumSubmissions =
+    data.submitStats?.totalSubmissionNum?.find((s) => s.difficulty === "Medium")
+      ?.submissions ||
+    data.totalSubmissions ||
+    0;
+  const hardSubmissions =
+    data.submitStats?.totalSubmissionNum?.find((s) => s.difficulty === "Hard")
+      ?.submissions ||
+    data.totalSubmissions ||
+    0;
 
-  const easyAcceptance = ((data.easySolved / (easySubmissions || 1)) * 100).toFixed(1);
-  const mediumAcceptance = ((data.mediumSolved / (mediumSubmissions || 1)) * 100).toFixed(1);
-  const hardAcceptance = ((data.hardSolved / (hardSubmissions || 1)) * 100).toFixed(1);
-  const totalAcceptance = parseFloat(data.acceptanceRate || '0');
+  const easyAcceptance = (
+    (data.easySolved / (easySubmissions || 1)) *
+    100
+  ).toFixed(1);
+  const mediumAcceptance = (
+    (data.mediumSolved / (mediumSubmissions || 1)) *
+    100
+  ).toFixed(1);
+  const hardAcceptance = (
+    (data.hardSolved / (hardSubmissions || 1)) *
+    100
+  ).toFixed(1);
+  const totalAcceptance = parseFloat(data.acceptanceRate || "0");
 
   const totalProgress = {
-    easy: (data.easySolved / (data.easySolved + data.mediumSolved + data.hardSolved)) * 100,
-    medium: (data.mediumSolved / (data.easySolved + data.mediumSolved + data.hardSolved)) * 100,
-    hard: (data.hardSolved / (data.easySolved + data.mediumSolved + data.hardSolved)) * 100
+    easy:
+      (data.easySolved /
+        (data.easySolved + data.mediumSolved + data.hardSolved)) *
+      100,
+    medium:
+      (data.mediumSolved /
+        (data.easySolved + data.mediumSolved + data.hardSolved)) *
+      100,
+    hard:
+      (data.hardSolved /
+        (data.easySolved + data.mediumSolved + data.hardSolved)) *
+      100,
   };
 
   return (
@@ -126,12 +156,20 @@ export function QuestionsSolved({ data }: QuestionsSolvedProps) {
                     <span className="text-[#ff375f]">Hard</span>
                   </div>
                   <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 text-xs sm:text-sm font-medium opacity-0 group-hover:opacity-100 transition-all duration-300">
-                    <span className="text-[#00b8a3]">{totalProgress.easy.toFixed(1)}%</span>
-                    <span className="text-[#ffc01e]">{totalProgress.medium.toFixed(1)}%</span>
-                    <span className="text-[#ff375f]">{totalProgress.hard.toFixed(1)}%</span>
+                    <span className="text-[#00b8a3]">
+                      {totalProgress.easy.toFixed(1)}%
+                    </span>
+                    <span className="text-[#ffc01e]">
+                      {totalProgress.medium.toFixed(1)}%
+                    </span>
+                    <span className="text-[#ff375f]">
+                      {totalProgress.hard.toFixed(1)}%
+                    </span>
                   </div>
                 </div>
-                <span className="mt-3 text-base font-medium text-gray-700">Summary</span>
+                <span className="mt-3 text-base font-medium text-gray-700">
+                  Summary
+                </span>
               </div>
             </div>
           </div>
@@ -169,7 +207,14 @@ export function QuestionsSolved({ data }: QuestionsSolvedProps) {
   );
 }
 
-function ProgressCircle({ title, value, total, color, submissions, acceptanceRate }: ProgressCircleProps) {
+function ProgressCircle({
+  title,
+  value,
+  total,
+  color,
+  submissions,
+  acceptanceRate,
+}: ProgressCircleProps) {
   const percentage = (value / total) * 100;
 
   return (
@@ -182,12 +227,12 @@ function ProgressCircle({ title, value, total, color, submissions, acceptanceRat
           styles={buildStyles({
             pathColor: color,
             textColor: color,
-            trailColor: '#E5E7EB',
-            textSize: '20px',
+            trailColor: "#E5E7EB",
+            textSize: "20px",
             pathTransitionDuration: 0.5,
           })}
         />
-        
+
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
           <div className="text-base text-gray-600 mt-12 group-hover:hidden transition-all duration-300">
             {value}/{total}
@@ -201,10 +246,7 @@ function ProgressCircle({ title, value, total, color, submissions, acceptanceRat
           <div className="text-sm text-gray-600">acceptance</div>
         </div>
       </div>
-      <span 
-        className="mt-3 text-base font-medium"
-        style={{ color }}
-      >
+      <span className="mt-3 text-base font-medium" style={{ color }}>
         {title}
       </span>
     </div>

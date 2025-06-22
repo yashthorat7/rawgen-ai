@@ -9,17 +9,17 @@ import { api } from "@/convex/_generated/api";
 
 const features = [
   {
-    image: "/features/page1.png"
+    image: "/features/page1.png",
   },
   {
-    image: "/features/page2.png"
+    image: "/features/page2.png",
   },
   {
-    image: "/features/page3.png"
+    image: "/features/page3.png",
   },
   {
-    image: "/features/page4.png"
-  }
+    image: "/features/page4.png",
+  },
 ];
 
 interface FeaturesDialogProps {
@@ -33,7 +33,7 @@ export function FeaturesDialog({ onClose, userEmail }: FeaturesDialogProps) {
 
   const handleNext = () => {
     if (currentIndex < features.length - 1) {
-      setCurrentIndex(prev => prev + 1);
+      setCurrentIndex((prev) => prev + 1);
     } else {
       handleCompleteDialog();
     }
@@ -41,7 +41,7 @@ export function FeaturesDialog({ onClose, userEmail }: FeaturesDialogProps) {
 
   const handlePrevious = () => {
     if (currentIndex > 0) {
-      setCurrentIndex(prev => prev - 1);
+      setCurrentIndex((prev) => prev - 1);
     }
   };
 
@@ -53,7 +53,7 @@ export function FeaturesDialog({ onClose, userEmail }: FeaturesDialogProps) {
         console.error("Failed to update haslearned status:", error);
       }
     }
-  
+
     onClose();
   };
 
@@ -104,7 +104,7 @@ export function FeaturesDialog({ onClose, userEmail }: FeaturesDialogProps) {
             <ChevronLeft className="h-4 w-4" />
             Previous
           </Button>
-          
+
           <Button
             onClick={handleNext}
             variant="default"
@@ -117,4 +117,4 @@ export function FeaturesDialog({ onClose, userEmail }: FeaturesDialogProps) {
       </div>
     </div>
   );
-} 
+}

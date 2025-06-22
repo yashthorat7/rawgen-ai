@@ -1,14 +1,14 @@
-"use client"
+"use client";
 
-import { useState, useRef } from "react"
-import { usePlatforms } from "@/lib/PlatformContext"
-import { validateProfile } from "@/lib/profileValidator"
+import { useState, useRef } from "react";
+import { usePlatforms } from "@/lib/PlatformContext";
+import { validateProfile } from "@/lib/profileValidator";
 import Select from "react-select";
 import { api } from "@/convex/_generated/api";
 import { useQuery } from "convex/react";
 import { useScrollLock } from "@/lib/utils";
 
-type Platform = 'leetcode' | 'codechef' | 'geeksforgeeks' | 'codeforces';
+type Platform = "leetcode" | "codechef" | "geeksforgeeks" | "codeforces";
 
 interface PlatformOption {
   value: Platform;
@@ -16,10 +16,10 @@ interface PlatformOption {
 }
 
 export const platforms: PlatformOption[] = [
-  { value: 'leetcode' as Platform, label: 'LeetCode' },
-  { value: 'codechef' as Platform, label: 'CodeChef' },
-  { value: 'geeksforgeeks' as Platform, label: 'GeeksForGeeks' },
-  { value: 'codeforces' as Platform, label: 'Codeforces' }
+  { value: "leetcode" as Platform, label: "LeetCode" },
+  { value: "codechef" as Platform, label: "CodeChef" },
+  { value: "geeksforgeeks" as Platform, label: "GeeksForGeeks" },
+  { value: "codeforces" as Platform, label: "Codeforces" },
 ];
 
 interface AddPlatformDialogProps {
@@ -33,74 +33,82 @@ export function AddPlatformDialog({
   open,
   onOpenChange,
   onSubmit,
-  isLoading
+  isLoading,
 }: AddPlatformDialogProps) {
   useScrollLock(open);
-  const { platforms: existingPlatforms } = usePlatforms()
-  const [selectedPlatform, setSelectedPlatform] = useState<PlatformOption | null>(null)
-  const [username, setUsername] = useState("")
-  const [platformError, setPlatformError] = useState("")
-  const [usernameError, setUsernameError] = useState("")
-  const [validationMessage, setValidationMessage] = useState("")
-  const [successMessage, setSuccessMessage] = useState("")
-  const [isValidated, setIsValidated] = useState(false)
-  const [isValidating, setIsValidating] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const abortControllerRef = useRef<AbortController | null>(null)
+  const { platforms: existingPlatforms } = usePlatforms();
+  const [selectedPlatform, setSelectedPlatform] =
+    useState<PlatformOption | null>(null);
+  const [username, setUsername] = useState("");
+  const [platformError, setPlatformError] = useState("");
+  const [usernameError, setUsernameError] = useState("");
+  const [validationMessage, setValidationMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+  const [isValidated, setIsValidated] = useState(false);
+  const [isValidating, setIsValidating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   const existingProfile = useQuery(
     api.users.checkProfileExists,
-    selectedPlatform && username ? {
-      platformName: selectedPlatform.value,
-      platformUsername: username
-    } : "skip"
+    selectedPlatform && username
+      ? {
+          platformName: selectedPlatform.value,
+          platformUsername: username,
+        }
+      : "skip",
   );
 
   const checkIfUsernameExists = (platform: string, username: string) => {
-    return existingPlatforms.some(p =>
-      p.platform === platform &&
-      p.username.toLowerCase() === username.toLowerCase()
+    return existingPlatforms.some(
+      (p) =>
+        p.platform === platform &&
+        p.username.toLowerCase() === username.toLowerCase(),
     );
   };
 
   const resetForm = () => {
     if (abortControllerRef.current) {
-      abortControllerRef.current.abort()
-      abortControllerRef.current = null
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
     }
-    setSelectedPlatform(null)
-    setUsername("")
-    setPlatformError("")
-    setUsernameError("")
-    setValidationMessage("")
-    setSuccessMessage("")
-    setIsValidated(false)
-    setIsValidating(false)
-    setError(null)
-  }
+    setSelectedPlatform(null);
+    setUsername("");
+    setPlatformError("");
+    setUsernameError("");
+    setValidationMessage("");
+    setSuccessMessage("");
+    setIsValidated(false);
+    setIsValidating(false);
+    setError(null);
+  };
 
   const handleClose = () => {
-    resetForm()
-    onOpenChange(false)
-  }
+    resetForm();
+    onOpenChange(false);
+  };
 
   const validateUserProfile = async () => {
     if (!selectedPlatform || !username.trim()) return;
 
     if (checkIfUsernameExists(selectedPlatform.value, username)) {
-      setValidationMessage(`${username} is already added for ${selectedPlatform.label}`);
+      setValidationMessage(
+        `${username} is already added for ${selectedPlatform.label}`,
+      );
       setIsValidated(false);
       return;
     }
 
     if (existingProfile?.exists) {
-      setValidationMessage(`${username} on ${selectedPlatform.label} already in use by ${existingProfile.username}`);
+      setValidationMessage(
+        `${username} on ${selectedPlatform.label} already in use by ${existingProfile.username}`,
+      );
       setIsValidated(false);
       return;
     }
 
-    abortControllerRef.current = new AbortController()
-    const signal = abortControllerRef.current.signal
+    abortControllerRef.current = new AbortController();
+    const signal = abortControllerRef.current.signal;
 
     setIsValidating(true);
     setValidationMessage("");
@@ -114,7 +122,7 @@ export function AddPlatformDialog({
         setValidationMessage(
           exists
             ? `${username} exists on ${selectedPlatform.label}`
-            : `${username} not found on ${selectedPlatform.label}`
+            : `${username} not found on ${selectedPlatform.label}`,
         );
         setIsValidated(exists);
       }
@@ -128,36 +136,42 @@ export function AddPlatformDialog({
         setIsValidating(false);
       }
     }
-  }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    
+
     if (!selectedPlatform || !username || !isValidated) return;
 
     try {
       const existingInSamePlatform = existingPlatforms?.find(
-        p => p.platform === selectedPlatform.value && p.username === username
+        (p) => p.platform === selectedPlatform.value && p.username === username,
       );
 
       if (existingInSamePlatform) {
-        setError(`Username ${username} already exists for ${selectedPlatform.value}`);
+        setError(
+          `Username ${username} already exists for ${selectedPlatform.value}`,
+        );
         return;
       }
 
       await onSubmit(selectedPlatform.value, username);
-      setSuccessMessage(`Successfully added ${username} to ${selectedPlatform.label}`);
+      setSuccessMessage(
+        `Successfully added ${username} to ${selectedPlatform.label}`,
+      );
       setTimeout(() => {
         handleClose();
       }, 1500);
     } catch (error) {
-      setError(error instanceof Error ? error.message : "Failed to add platform");
+      setError(
+        error instanceof Error ? error.message : "Failed to add platform",
+      );
     }
   };
 
   const handleUsernameKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       e.preventDefault();
       if (selectedPlatform && username && !isValidating && !isValidated) {
         validateUserProfile();
@@ -176,7 +190,9 @@ export function AddPlatformDialog({
       <div className="fixed inset-0 flex items-center justify-center z-[9999] p-4 overflow-auto">
         <div className="bg-white rounded-lg shadow-xl w-full max-w-[400px] max-h-[90vh] flex flex-col">
           <div className="p-6 border-b">
-            <h2 className="text-2xl font-bold text-primary-600">Add Platform</h2>
+            <h2 className="text-2xl font-bold text-primary-600">
+              Add Platform
+            </h2>
           </div>
 
           <div className="p-6 overflow-y-auto">
@@ -198,19 +214,21 @@ export function AddPlatformDialog({
                     styles={{
                       control: (base) => ({
                         ...base,
-                        backgroundColor: 'white',
-                        borderColor: '#d1d5db',
-                        borderRadius: '0.375rem',
+                        backgroundColor: "white",
+                        borderColor: "#d1d5db",
+                        borderRadius: "0.375rem",
                       }),
                       menuPortal: (base) => ({
                         ...base,
-                        zIndex: 9999
-                      })
+                        zIndex: 9999,
+                      }),
                     }}
                   />
                 </div>
                 <div className="overflow-visible">
-                  {platformError && <p className="text-red-500 text-sm">{platformError}</p>}
+                  {platformError && (
+                    <p className="text-red-500 text-sm">{platformError}</p>
+                  )}
                 </div>
               </div>
 
@@ -233,15 +251,17 @@ export function AddPlatformDialog({
                   <p className="mt-1 text-xs text-red-500">{usernameError}</p>
                 )}
                 {validationMessage && (
-                  <p className={`mt-1 text-xs ${isValidated ? 'text-green-600' : 'text-red-500'}`}>
+                  <p
+                    className={`mt-1 text-xs ${isValidated ? "text-green-600" : "text-red-500"}`}
+                  >
                     {validationMessage}
                   </p>
                 )}
-                {error && (
-                  <p className="mt-1 text-xs text-red-500">{error}</p>
-                )}
+                {error && <p className="mt-1 text-xs text-red-500">{error}</p>}
                 {successMessage && (
-                  <p className="mt-1 text-xs text-green-600">{successMessage}</p>
+                  <p className="mt-1 text-xs text-green-600">
+                    {successMessage}
+                  </p>
                 )}
               </div>
             </form>
@@ -263,7 +283,7 @@ export function AddPlatformDialog({
                   disabled={!selectedPlatform || !username || isValidating}
                   className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
                 >
-                  {isValidating ? 'Validating...' : 'Validate'}
+                  {isValidating ? "Validating..." : "Validate"}
                 </button>
               ) : (
                 <button
@@ -272,7 +292,7 @@ export function AddPlatformDialog({
                   disabled={isLoading}
                   className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
                 >
-                  {isLoading ? 'Adding...' : 'Add'}
+                  {isLoading ? "Adding..." : "Add"}
                 </button>
               )}
             </div>

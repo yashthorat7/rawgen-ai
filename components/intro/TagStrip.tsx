@@ -6,11 +6,18 @@ import Groq from "groq-sdk";
 import { ConvexHttpClient } from "convex/browser";
 import { api } from "@/convex/_generated/api";
 import { useUser } from "@clerk/nextjs";
-import { LeetCodeData, CodeChefData, GeeksForGeeksData, CodeforcesData } from "@/lib/types";
-const groq = process.env.NEXT_PUBLIC_GROQ_API_KEY ? new Groq({
-  apiKey: process.env.NEXT_PUBLIC_GROQ_API_KEY,
-  dangerouslyAllowBrowser: true,
-}) : null;
+import {
+  LeetCodeData,
+  CodeChefData,
+  GeeksForGeeksData,
+  CodeforcesData,
+} from "@/lib/types";
+const groq = process.env.NEXT_PUBLIC_GROQ_API_KEY
+  ? new Groq({
+      apiKey: process.env.NEXT_PUBLIC_GROQ_API_KEY,
+      dangerouslyAllowBrowser: true,
+    })
+  : null;
 
 const convexHttp = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 
@@ -42,7 +49,7 @@ export function TagStrip({ username, isPublicView = false }: TagStripProps) {
     leetcode: {},
     codechef: {},
     geeksforgeeks: {},
-    codeforces: {}
+    codeforces: {},
   });
   const generateRequestInProgress = useRef(false);
 
@@ -51,21 +58,29 @@ export function TagStrip({ username, isPublicView = false }: TagStripProps) {
   }, [platforms.length]);
 
   useEffect(() => {
-    if (hasFetchedTags || (isPublicView && Object.keys(platformData || {}).length > 0)) {
+    if (
+      hasFetchedTags ||
+      (isPublicView && Object.keys(platformData || {}).length > 0)
+    ) {
       return;
     }
 
     const fetchDirectData = async () => {
       if (isFetchingData) return;
       setIsFetchingData(true);
-      
+
       try {
         const email = user?.primaryEmailAddress?.emailAddress;
         if (!email && !isPublicView) return;
-        
-        const data = isPublicView && username 
-          ? await convexHttp.query(api.users.getFullPlatformDataByUsername, { username })
-          : await convexHttp.query(api.users.getPlatformDataByEmail, { email: email || '' });
+
+        const data =
+          isPublicView && username
+            ? await convexHttp.query(api.users.getFullPlatformDataByUsername, {
+                username,
+              })
+            : await convexHttp.query(api.users.getPlatformDataByEmail, {
+                email: email || "",
+              });
 
         if (!data || !Array.isArray(data) || data.length === 0) {
           setIsFetchingData(false);
@@ -76,41 +91,56 @@ export function TagStrip({ username, isPublicView = false }: TagStripProps) {
           leetcode: {},
           codechef: {},
           geeksforgeeks: {},
-          codeforces: {}
+          codeforces: {},
         };
 
         for (const item of data) {
           try {
             const parsedData = JSON.parse(item.fullData);
-            const profilesResult = isPublicView && username
-              ? await convexHttp.query(api.users.getUserByUsername, { username })
-              : await convexHttp.query(api.users.getProfiles, { email: email || '' });
-            
+            const profilesResult =
+              isPublicView && username
+                ? await convexHttp.query(api.users.getUserByUsername, {
+                    username,
+                  })
+                : await convexHttp.query(api.users.getProfiles, {
+                    email: email || "",
+                  });
+
             let profilesList: any[] = [];
             if (isPublicView && username && profilesResult) {
-              if (profilesResult && typeof profilesResult === 'object' && 'profiles' in profilesResult) {
+              if (
+                profilesResult &&
+                typeof profilesResult === "object" &&
+                "profiles" in profilesResult
+              ) {
                 profilesList = profilesResult.profiles;
               }
             } else if (Array.isArray(profilesResult)) {
               profilesList = profilesResult;
             }
-            
-            const profile = profilesList.find((p: { _id: string }) => p._id === item.profileId);
+
+            const profile = profilesList.find(
+              (p: { _id: string }) => p._id === item.profileId,
+            );
 
             if (!profile) continue;
 
             switch (profile.platformName) {
-              case 'leetcode':
-                newData.leetcode[profile.platformUsername] = parsedData as LeetCodeData;
+              case "leetcode":
+                newData.leetcode[profile.platformUsername] =
+                  parsedData as LeetCodeData;
                 break;
-              case 'codechef':
-                newData.codechef[profile.platformUsername] = parsedData as CodeChefData;
+              case "codechef":
+                newData.codechef[profile.platformUsername] =
+                  parsedData as CodeChefData;
                 break;
-              case 'geeksforgeeks':
-                newData.geeksforgeeks[profile.platformUsername] = parsedData as GeeksForGeeksData;
+              case "geeksforgeeks":
+                newData.geeksforgeeks[profile.platformUsername] =
+                  parsedData as GeeksForGeeksData;
                 break;
-              case 'codeforces':
-                newData.codeforces[profile.platformUsername] = parsedData as CodeforcesData;
+              case "codeforces":
+                newData.codeforces[profile.platformUsername] =
+                  parsedData as CodeforcesData;
                 break;
             }
           } catch (error) {
@@ -127,7 +157,14 @@ export function TagStrip({ username, isPublicView = false }: TagStripProps) {
     };
 
     fetchDirectData();
-  }, [user?.primaryEmailAddress?.emailAddress, username, isPublicView, platformData, hasFetchedTags, isFetchingData]);
+  }, [
+    user?.primaryEmailAddress?.emailAddress,
+    username,
+    isPublicView,
+    platformData,
+    hasFetchedTags,
+    isFetchingData,
+  ]);
 
   const generateTags = useCallback(async () => {
     if (hasFetchedTags || !groq || generateRequestInProgress.current) return;
@@ -137,17 +174,24 @@ export function TagStrip({ username, isPublicView = false }: TagStripProps) {
       const mergedData = {
         leetcode: { ...platformData?.leetcode, ...directData.leetcode },
         codechef: { ...platformData?.codechef, ...directData.codechef },
-        geeksforgeeks: { ...platformData?.geeksforgeeks, ...directData.geeksforgeeks },
-        codeforces: { ...platformData?.codeforces, ...directData.codeforces }
+        geeksforgeeks: {
+          ...platformData?.geeksforgeeks,
+          ...directData.geeksforgeeks,
+        },
+        codeforces: { ...platformData?.codeforces, ...directData.codeforces },
       };
-      
+
       const leetcodeUsers = Object.values(mergedData.leetcode || {});
       const codechefUsers = Object.values(mergedData.codechef || {});
       const gfgUsers = Object.values(mergedData.geeksforgeeks || {});
       const codeforcesUsers = Object.values(mergedData.codeforces || {});
 
-      if (leetcodeUsers.length === 0 && codechefUsers.length === 0 &&
-        gfgUsers.length === 0 && codeforcesUsers.length === 0) {
+      if (
+        leetcodeUsers.length === 0 &&
+        codechefUsers.length === 0 &&
+        gfgUsers.length === 0 &&
+        codeforcesUsers.length === 0
+      ) {
         setTags([]);
         setHasFetchedTags(true);
         generateRequestInProgress.current = false;
@@ -159,40 +203,64 @@ export function TagStrip({ username, isPublicView = false }: TagStripProps) {
           {
             role: "user",
             content: `Based on the following coding profiles data:
-            ${leetcodeUsers.map(user => user ? `
+            ${leetcodeUsers
+              .map((user) =>
+                user
+                  ? `
               LeetCode:
               - Problems Solved: ${user.totalSolved}/${user.totalQuestions}
               - Easy: ${user.easySolved}, Medium: ${user.mediumSolved}, Hard: ${user.hardSolved}
               - Ranking: ${user.ranking}
-              - Contest Rating: ${user.contestStats?.rating || 'N/A'}
-              - Contest Rank: Top ${user.contestStats?.topPercentage || 'N/A'}%
+              - Contest Rating: ${user.contestStats?.rating || "N/A"}
+              - Contest Rank: Top ${user.contestStats?.topPercentage || "N/A"}%
               - Contests Participated: ${user.contestStats?.attendedContestsCount || user.contests?.length || 0}
-            ` : '').join('\n')}
+            `
+                  : "",
+              )
+              .join("\n")}
             
-            ${codechefUsers.map(user => user ? `
+            ${codechefUsers
+              .map((user) =>
+                user
+                  ? `
               CodeChef:
               - Rating: ${user.currentRating} (${user.stars})
               - Global Rank: ${user.globalRank}
               - Contests Participated: ${user.totalContests}
-            ` : '').join('\n')}
+            `
+                  : "",
+              )
+              .join("\n")}
             
-            ${gfgUsers.map(user => user ? `
+            ${gfgUsers
+              .map((user) =>
+                user
+                  ? `
               GeeksForGeeks:
               - Problems Solved: ${user.problemsSolved}
               - School: ${user.schoolProblems}, Basic: ${user.basicProblems}
               - Easy: ${user.easyProblems}, Medium: ${user.mediumProblems}
               - Hard: ${user.hardProblems}
               - Score: ${user.codingScore}
-            ` : '').join('\n')}
+            `
+                  : "",
+              )
+              .join("\n")}
 
-            ${codeforcesUsers.map(user => user ? `
+            ${codeforcesUsers
+              .map((user) =>
+                user
+                  ? `
               Codeforces:
               - Rating: ${user.rating} (Max: ${user.maxRating})
               - Rank: ${user.rank}
               - Contest Count: ${user.contestCount}
               - Recent Performance: Avg Rank #${user.recentPerformance.averageRank}
               - Contribution: ${user.contribution}
-            ` : '').join('\n')}
+            `
+                  : "",
+              )
+              .join("\n")}
             
             Generate a detailed list of 15 to 40 succinct tags that encapsulate the user's coding activity and achievements based on data from coding platforms. Each tag should consist of one to three words and highlight key elements such as platform performance (e.g., “LeetCode Expert” or “CodeChef 5-Star”), problem-solving metrics (e.g., “1000 Easy Solved” or “50 Hard Problems”), contest performance (e.g., “1500 Contest Rating” or “Top 5% Rank”), coding patterns (e.g., “Dynamic Programming,” “Backtracking,” or “Divide and Conquer”), data structures (e.g., “Graph Algorithms,” “Binary Trees,” or “HashMap Solutions”), achievements and scores (e.g., “Top Coder” or “95% Accuracy”), and skill specializations (e.g., “Bit Manipulation Expert” or “Algorithmic Thinking”). Avoid tags with values of 0, “None,” or any irrelevant/unhelpful data. Ensure that the tags are descriptive, unique, and offer a diverse yet compact overview of the user's coding strengths and progress. Present the final output strictly as an array of strings, with each tag separated by commas and formatted with proper spacing between words.`,
           },
@@ -203,27 +271,32 @@ export function TagStrip({ username, isPublicView = false }: TagStripProps) {
       });
 
       let tagList: string[] = [];
-      const content = response.choices[0]?.message?.content || '';
+      const content = response.choices[0]?.message?.content || "";
       try {
         tagList = JSON.parse(content.replace(/'/g, '"'));
       } catch {
         tagList = content
-          .replace(/[\[\]"']/g, '')
-          .split(',')
-          .map(tag => tag.trim())
-          .filter(tag => tag && !tag.toLowerCase().includes('here') && !tag.toLowerCase().includes('tags'));
+          .replace(/[\[\]"']/g, "")
+          .split(",")
+          .map((tag) => tag.trim())
+          .filter(
+            (tag) =>
+              tag &&
+              !tag.toLowerCase().includes("here") &&
+              !tag.toLowerCase().includes("tags"),
+          );
       }
 
       const formattedTags = tagList
-        .filter(tag => tag.length > 0)
+        .filter((tag) => tag.length > 0)
         .map((tag, index) => ({ text: tag.trim(), id: index }));
 
       setTags(formattedTags);
       setHasFetchedTags(true);
       setError(null);
     } catch (error) {
-      console.error('Tag generation error:', error);
-      setError('Failed to generate tags');
+      console.error("Tag generation error:", error);
+      setError("Failed to generate tags");
       setTags([]);
     } finally {
       generateRequestInProgress.current = false;
@@ -231,15 +304,21 @@ export function TagStrip({ username, isPublicView = false }: TagStripProps) {
   }, [platformData, directData, hasFetchedTags]);
 
   useEffect(() => {
-    if (!isFetchingData && 
-        (Object.values(directData).some(platform => Object.keys(platform).length > 0) || 
-        Object.values(platformData || {}).some(platform => Object.keys(platform || {}).length > 0))) {
+    if (
+      !isFetchingData &&
+      (Object.values(directData).some(
+        (platform) => Object.keys(platform).length > 0,
+      ) ||
+        Object.values(platformData || {}).some(
+          (platform) => Object.keys(platform || {}).length > 0,
+        ))
+    ) {
       generateTags();
     }
   }, [generateTags, directData, platformData, isFetchingData]);
 
   if (!groq) {
-    console.warn('NEXT_PUBLIC_GROQ_API_KEY is not configured');
+    console.warn("NEXT_PUBLIC_GROQ_API_KEY is not configured");
     return null;
   }
 

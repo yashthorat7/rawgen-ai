@@ -19,13 +19,13 @@ export default function RecruiterDashboard() {
 
   const recruiter = useQuery(
     api.recruiters.getByEmail,
-    recruiterEmail ? { email: recruiterEmail } : "skip"
+    recruiterEmail ? { email: recruiterEmail } : "skip",
   );
 
   useEffect(() => {
-    const email = window.localStorage.getItem('recruiterEmail');
+    const email = window.localStorage.getItem("recruiterEmail");
     if (!email) {
-      router.push('/recruiter');
+      router.push("/recruiter");
       return;
     }
     setRecruiterEmail(email);
@@ -53,15 +53,18 @@ export default function RecruiterDashboard() {
             <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-red-100 flex items-center justify-center">
               <ShieldAlert className="w-8 h-8 text-red-600" />
             </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Access Restricted</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              Access Restricted
+            </h2>
             <p className="text-gray-600 mb-6">
-              Your recruiter account has not been approved yet. Please contact the administrator for access.
+              Your recruiter account has not been approved yet. Please contact
+              the administrator for access.
             </p>
             <Button
               variant="outline"
               onClick={() => {
-                window.localStorage.removeItem('recruiterEmail');
-                router.push('/recruiter');
+                window.localStorage.removeItem("recruiterEmail");
+                router.push("/recruiter");
               }}
             >
               Back to Login
@@ -84,10 +87,10 @@ export default function RecruiterDashboard() {
   return (
     <div className="min-h-screen flex flex-col">
       <div className="fixed inset-0 bg-gradient-to-b from-transparent to-primary-100/50 pointer-events-none" />
-      
+
       {/* Dotted Background */}
       <div className="fixed inset-0 dotted-background pointer-events-none" />
-      
+
       <Header />
       <main className="flex-1 relative">
         <div className="mx-auto px-4 w-full sm:w-[90%]">
@@ -98,7 +101,9 @@ export default function RecruiterDashboard() {
                 Find Top Tech Talent
               </h1>
               <p className="text-lg text-gray-600">
-                Explore our pool of talented students and discover skilled, job-ready candidates. Simplify your hiring process and find the perfect addition to your team with ease and confidence.
+                Explore our pool of talented students and discover skilled,
+                job-ready candidates. Simplify your hiring process and find the
+                perfect addition to your team with ease and confidence.
               </p>
             </div>
 
@@ -112,4 +117,4 @@ export default function RecruiterDashboard() {
       <Footer />
     </div>
   );
-} 
+}

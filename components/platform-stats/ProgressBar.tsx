@@ -18,7 +18,7 @@ export function ProgressBar({ solved, total, color }: ProgressBarProps) {
       progress = Math.pow(solved / total, 0.6) * 100;
     } else {
       let effectiveTotal: number;
-      
+
       if (solved <= 100) {
         effectiveTotal = 100;
       } else if (solved <= 200) {
@@ -37,15 +37,15 @@ export function ProgressBar({ solved, total, color }: ProgressBarProps) {
     yellow: "bg-yellow-500",
     red: "bg-red-500",
     blue: "bg-blue-500",
-    purple: "bg-purple-500"
+    purple: "bg-purple-500",
   };
 
   return (
     <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
-      <div 
+      <div
         className={`h-full ${colorClasses[color]} rounded-full transition-all duration-700 ease-out`}
         style={{ width: `${Math.min(width, 100)}%` }}
       />
     </div>
   );
-} 
+}

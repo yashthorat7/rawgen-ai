@@ -26,7 +26,10 @@ interface ProjectGridProps {
   isPublicView?: boolean;
 }
 
-export function ProjectGrid({ username, isPublicView = false }: ProjectGridProps) {
+export function ProjectGrid({
+  username,
+  isPublicView = false,
+}: ProjectGridProps) {
   const { user, isLoaded } = useUser();
   const email = user?.primaryEmailAddress?.emailAddress;
   const removeProject = useMutation(api.projects.remove);
@@ -34,14 +37,18 @@ export function ProjectGrid({ username, isPublicView = false }: ProjectGridProps
 
   const privateUserData = useQuery(
     api.users.getUser,
-    !isPublicView && email ? { email } : "skip"
+    !isPublicView && email ? { email } : "skip",
   );
 
   const projects = useQuery(
     api.projects.get,
-    isPublicView 
-      ? username ? { username } : "skip"
-      : privateUserData?.username ? { username: privateUserData.username } : "skip"
+    isPublicView
+      ? username
+        ? { username }
+        : "skip"
+      : privateUserData?.username
+        ? { username: privateUserData.username }
+        : "skip",
   );
 
   // Ensure projects are sorted by order
@@ -77,7 +84,11 @@ export function ProjectGrid({ username, isPublicView = false }: ProjectGridProps
     });
   };
 
-  if ((!isLoaded && !isPublicView) || (!isPublicView && !privateUserData) || !sortedProjects) {
+  if (
+    (!isLoaded && !isPublicView) ||
+    (!isPublicView && !privateUserData) ||
+    !sortedProjects
+  ) {
     return (
       <>
         <Title title="Projects" />
@@ -131,7 +142,9 @@ export function ProjectGrid({ username, isPublicView = false }: ProjectGridProps
             image={project.image || undefined}
             index={index}
             onReorder={!isPublicView ? handleReorder : undefined}
-            onDelete={!isPublicView ? () => handleDelete(project.id) : undefined}
+            onDelete={
+              !isPublicView ? () => handleDelete(project.id) : undefined
+            }
             isPublicView={isPublicView}
           />
         ))}

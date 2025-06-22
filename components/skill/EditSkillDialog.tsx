@@ -1,11 +1,11 @@
-"use client"
+"use client";
 
-import { useState, KeyboardEvent, useEffect } from "react"
-import { useUser } from "@clerk/nextjs"
-import { useMutation, useQuery } from "convex/react"
-import { api } from "@/convex/_generated/api"
-import { X, Plus } from "lucide-react"
-import { cn, useScrollLock } from "@/lib/utils"
+import { useState, KeyboardEvent, useEffect } from "react";
+import { useUser } from "@clerk/nextjs";
+import { useMutation, useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { X, Plus } from "lucide-react";
+import { cn, useScrollLock } from "@/lib/utils";
 
 interface EditSkillDialogProps {
   isOpen: boolean;
@@ -15,46 +15,59 @@ interface EditSkillDialogProps {
   onUpdate?: () => void;
 }
 
-export function EditSkillDialog({ isOpen, onClose, category, initialSkills, onUpdate }: EditSkillDialogProps) {
+export function EditSkillDialog({
+  isOpen,
+  onClose,
+  category,
+  initialSkills,
+  onUpdate,
+}: EditSkillDialogProps) {
   useScrollLock(isOpen);
-  const { user, isLoaded: isUserLoaded } = useUser()
-  const [skillInput, setSkillInput] = useState("")
-  const [selectedSkills, setSelectedSkills] = useState<Set<string>>(new Set(initialSkills))
-  const [isLoading, setIsLoading] = useState(false)
-  const [categoryName, setCategoryName] = useState(category)
+  const { user, isLoaded: isUserLoaded } = useUser();
+  const [skillInput, setSkillInput] = useState("");
+  const [selectedSkills, setSelectedSkills] = useState<Set<string>>(
+    new Set(initialSkills),
+  );
+  const [isLoading, setIsLoading] = useState(false);
+  const [categoryName, setCategoryName] = useState(category);
 
-  const userEmail = user?.primaryEmailAddress?.emailAddress
-  const userData = useQuery(api.users.getUser, userEmail ? { email: userEmail } : "skip")
-  const username = userData?.username
+  const userEmail = user?.primaryEmailAddress?.emailAddress;
+  const userData = useQuery(
+    api.users.getUser,
+    userEmail ? { email: userEmail } : "skip",
+  );
+  const username = userData?.username;
 
   useEffect(() => {
     if (isOpen) {
-      setSelectedSkills(new Set(initialSkills.map(s => s.toLowerCase().trim())));
+      setSelectedSkills(
+        new Set(initialSkills.map((s) => s.toLowerCase().trim())),
+      );
       setSkillInput("");
       setIsLoading(false);
       setCategoryName(category);
     }
   }, [isOpen, initialSkills, category]);
 
-  const updateSkills = useMutation(api.skills.update)
-  const deleteCategory = useMutation(api.skills.deleteSkillCategory)
+  const updateSkills = useMutation(api.skills.update);
+  const deleteCategory = useMutation(api.skills.deleteSkillCategory);
 
   const handleAddSkill = () => {
     if (!skillInput.trim() || selectedSkills.size >= 16) return;
-    
+
     const formattedSkill = skillInput.trim().toLowerCase();
-    
-    setSelectedSkills(prev => new Set([...prev, formattedSkill]));
-    setSkillInput('');
+
+    setSelectedSkills((prev) => new Set([...prev, formattedSkill]));
+    setSkillInput("");
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (selectedSkills.size >= 16) {
-      if (e.key === 'Enter' || e.key === ',') e.preventDefault();
+      if (e.key === "Enter" || e.key === ",") e.preventDefault();
       return;
     }
 
-    if (e.key === 'Enter' || e.key === ',') {
+    if (e.key === "Enter" || e.key === ",") {
       e.preventDefault();
       handleAddSkill();
     }
@@ -74,28 +87,28 @@ export function EditSkillDialog({ isOpen, onClose, category, initialSkills, onUp
     setIsLoading(true);
     try {
       const skillsArray = Array.from(selectedSkills).sort();
-      
+
       if (skillsArray.length === 0) {
         await deleteCategory({
           username,
-          category: categoryName
+          category: categoryName,
         });
       } else {
         await updateSkills({
           email: userEmail,
           oldCategory: category,
           newCategory: categoryName.trim(),
-          skills: skillsArray
+          skills: skillsArray,
         });
       }
-      
+
       onUpdate?.();
       onClose();
     } catch (error) {
       setIsLoading(false);
       return;
     }
-    
+
     setIsLoading(false);
   };
 
@@ -108,7 +121,7 @@ export function EditSkillDialog({ isOpen, onClose, category, initialSkills, onUp
     try {
       await deleteCategory({
         username,
-        category: categoryName
+        category: categoryName,
       });
       onUpdate?.();
       onClose();
@@ -143,15 +156,22 @@ export function EditSkillDialog({ isOpen, onClose, category, initialSkills, onUp
         onClick={handleClose}
       />
       <div className="fixed inset-0 flex items-center justify-center z-[9999] p-4 overflow-auto">
-        <div className="bg-white rounded-lg shadow-xl w-full max-w-[500px] max-h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
+        <div
+          className="bg-white rounded-lg shadow-xl w-full max-w-[500px] max-h-[90vh] flex flex-col"
+          onClick={(e) => e.stopPropagation()}
+        >
           <div className="p-6 border-b">
-            <h2 className="text-2xl font-bold text-primary-600">Edit Skills - {categoryName}</h2>
+            <h2 className="text-2xl font-bold text-primary-600">
+              Edit Skills - {categoryName}
+            </h2>
           </div>
 
           <div className="p-6 pt-4 overflow-y-auto">
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-1">Category Name</label>
+                <label className="block text-sm font-medium mb-1">
+                  Category Name
+                </label>
                 <input
                   type="text"
                   value={categoryName}
@@ -163,7 +183,10 @@ export function EditSkillDialog({ isOpen, onClose, category, initialSkills, onUp
 
               <div>
                 <label className="block text-sm font-medium mb-1">
-                  Skills <span className="text-gray-500">({selectedSkills.size}/16)</span>
+                  Skills{" "}
+                  <span className="text-gray-500">
+                    ({selectedSkills.size}/16)
+                  </span>
                 </label>
                 <div className="space-y-2">
                   <div className="flex gap-2">
@@ -174,21 +197,31 @@ export function EditSkillDialog({ isOpen, onClose, category, initialSkills, onUp
                       onKeyDown={handleKeyDown}
                       disabled={selectedSkills.size >= 16 || isDisabled}
                       className="flex-1 px-3 py-2 border-2 rounded-md focus:outline-none focus:border-primary-600 disabled:bg-gray-100 disabled:cursor-not-allowed"
-                      placeholder={selectedSkills.size >= 16 ? "Max skills reached" : "Press enter or comma to add"}
+                      placeholder={
+                        selectedSkills.size >= 16
+                          ? "Max skills reached"
+                          : "Press enter or comma to add"
+                      }
                     />
                     <button
                       onClick={handleAddSkill}
-                      disabled={!skillInput.trim() || selectedSkills.size >= 16 || isDisabled}
+                      disabled={
+                        !skillInput.trim() ||
+                        selectedSkills.size >= 16 ||
+                        isDisabled
+                      }
                       className={`px-4 py-2 rounded-md text-white ${
-                        !skillInput.trim() || selectedSkills.size >= 16 || isDisabled
-                          ? 'bg-primary-400 cursor-not-allowed'
-                          : 'bg-primary-600 hover:bg-primary-700'
+                        !skillInput.trim() ||
+                        selectedSkills.size >= 16 ||
+                        isDisabled
+                          ? "bg-primary-400 cursor-not-allowed"
+                          : "bg-primary-600 hover:bg-primary-700"
                       }`}
                     >
                       <Plus className="w-5 h-5" />
                     </button>
                   </div>
-                  
+
                   {skillsArray.length > 0 && (
                     <div className="flex flex-wrap gap-2">
                       {skillsArray.map((skill, index) => (
@@ -221,14 +254,22 @@ export function EditSkillDialog({ isOpen, onClose, category, initialSkills, onUp
                 </button>
                 <button
                   onClick={handleSubmit}
-                  disabled={isDisabled || !categoryName.trim() || selectedSkills.size === 0 || selectedSkills.size > 16}
+                  disabled={
+                    isDisabled ||
+                    !categoryName.trim() ||
+                    selectedSkills.size === 0 ||
+                    selectedSkills.size > 16
+                  }
                   className={`px-4 py-2 rounded-md text-white ${
-                    isDisabled || !categoryName.trim() || selectedSkills.size === 0 || selectedSkills.size > 16
-                      ? 'bg-primary-400 cursor-not-allowed'
-                      : 'bg-primary-600 hover:bg-primary-700'
+                    isDisabled ||
+                    !categoryName.trim() ||
+                    selectedSkills.size === 0 ||
+                    selectedSkills.size > 16
+                      ? "bg-primary-400 cursor-not-allowed"
+                      : "bg-primary-600 hover:bg-primary-700"
                   }`}
                 >
-                  {isLoading ? 'Updating...' : 'Update'}
+                  {isLoading ? "Updating..." : "Update"}
                 </button>
               </div>
             </div>
@@ -237,4 +278,4 @@ export function EditSkillDialog({ isOpen, onClose, category, initialSkills, onUp
       </div>
     </>
   );
-} 
+}

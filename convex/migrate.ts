@@ -14,30 +14,33 @@ export const migrateProfilesToStatsData = mutation({
 
         const essentialData = await extractEssentialPlatformData(
           profile.platformName,
-          profile.platformUsername
+          profile.platformUsername,
         );
 
         if (essentialData) {
           await ctx.db.patch(profile._id, {
-            statsData: JSON.stringify(essentialData)
+            statsData: JSON.stringify(essentialData),
           });
           migrated++;
         } else {
           await ctx.db.patch(profile._id, {
-            statsData: getDefaultStatsData(profile.platformName)
+            statsData: getDefaultStatsData(profile.platformName),
           });
           failed++;
         }
       } catch (error) {
         console.error(`Error migrating profile ${profile._id}:`, error);
         failed++;
-        
+
         try {
           await ctx.db.patch(profile._id, {
-            statsData: getDefaultStatsData(profile.platformName)
+            statsData: getDefaultStatsData(profile.platformName),
           });
         } catch (e) {
-          console.error(`Failed to update profile ${profile._id} with default data:`, e);
+          console.error(
+            `Failed to update profile ${profile._id} with default data:`,
+            e,
+          );
         }
       }
     }
@@ -45,41 +48,41 @@ export const migrateProfilesToStatsData = mutation({
     return {
       total: profiles.length,
       migrated,
-      failed
+      failed,
     };
-  }
+  },
 });
 
 export const checkMigrationStatus = query({
   handler: async (ctx) => {
     const profiles = await ctx.db.query("profiles").collect();
-    const withStatsData = profiles.filter(p => p.statsData).length;
-    
+    const withStatsData = profiles.filter((p) => p.statsData).length;
+
     return {
       total: profiles.length,
       withStatsData,
-      needsMigration: profiles.length - withStatsData
+      needsMigration: profiles.length - withStatsData,
     };
-  }
+  },
 });
 
 export const updatePlatformDataWithUserId = mutation({
   handler: async (ctx) => {
     const platformDataEntries = await ctx.db.query("platformdata").collect();
-    
+
     for (const entry of platformDataEntries) {
       const profile = await ctx.db.get(entry.profileId);
-      
+
       if (profile) {
         await ctx.db.patch(entry._id, {
           userId: profile.userId,
-          lastUpdated: entry.lastUpdated || Date.now()
+          lastUpdated: entry.lastUpdated || Date.now(),
         });
       }
     }
-    
+
     return {
-      entriesUpdated: platformDataEntries.length
+      entriesUpdated: platformDataEntries.length,
     };
-  }
+  },
 });

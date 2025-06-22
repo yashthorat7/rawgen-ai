@@ -16,15 +16,19 @@ interface BookmarkListProps {
 export function BookmarkList({ recruiterEmail, onClose }: BookmarkListProps) {
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
 
-  const recruiter = useQuery(api.recruiters.getByEmail, { email: recruiterEmail });
+  const recruiter = useQuery(api.recruiters.getByEmail, {
+    email: recruiterEmail,
+  });
   const markedEmails = recruiter?.markstar || [];
 
-  const bookmarkedUsers = useQuery(api.users.getMultipleByEmail, { emails: markedEmails });
+  const bookmarkedUsers = useQuery(api.users.getMultipleByEmail, {
+    emails: markedEmails,
+  });
 
   const handleSelectUser = (email: string) => {
-    setSelectedUsers(prev => {
+    setSelectedUsers((prev) => {
       if (prev.includes(email)) {
-        return prev.filter(e => e !== email);
+        return prev.filter((e) => e !== email);
       } else {
         return [...prev, email];
       }
@@ -43,19 +47,23 @@ export function BookmarkList({ recruiterEmail, onClose }: BookmarkListProps) {
     if (!bookmarkedUsers || selectedUsers.length === 0) return;
 
     const exportData = bookmarkedUsers
-      .filter(user => selectedUsers.includes(user.email))
-      .map(user => ({
+      .filter((user) => selectedUsers.includes(user.email))
+      .map((user) => ({
         username: user.username,
         email: user.email,
         firstName: user.firstName || "",
-        lastName: user.lastName || ""
+        lastName: user.lastName || "",
       }));
 
-    const csvContent = "data:text/csv;charset=utf-8," + 
+    const csvContent =
+      "data:text/csv;charset=utf-8," +
       "Username,Email,First Name,Last Name\n" +
-      exportData.map(user => 
-        `${user.username},${user.email},${user.firstName},${user.lastName}`
-      ).join("\n");
+      exportData
+        .map(
+          (user) =>
+            `${user.username},${user.email},${user.firstName},${user.lastName}`,
+        )
+        .join("\n");
 
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
@@ -70,7 +78,9 @@ export function BookmarkList({ recruiterEmail, onClose }: BookmarkListProps) {
     return (
       <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
         <div className="bg-white w-full h-screen overflow-y-auto">
-          <div className="animate-pulse text-gray-500 p-6">Loading bookmarks...</div>
+          <div className="animate-pulse text-gray-500 p-6">
+            Loading bookmarks...
+          </div>
         </div>
       </div>
     );
@@ -83,7 +93,9 @@ export function BookmarkList({ recruiterEmail, onClose }: BookmarkListProps) {
         <div className="sticky top-0 bg-white border-b z-10">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-semibold text-gray-900">Bookmarked Profiles</h2>
+              <h2 className="text-2xl font-semibold text-gray-900">
+                Bookmarked Profiles
+              </h2>
               <button
                 onClick={onClose}
                 className="p-2 hover:bg-gray-100 rounded-full transition-colors"
@@ -141,7 +153,7 @@ export function BookmarkList({ recruiterEmail, onClose }: BookmarkListProps) {
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
                         <h3 className="text-lg font-semibold text-gray-900 group-hover:text-primary-600">
-                          {user.firstName && user.lastName 
+                          {user.firstName && user.lastName
                             ? `${user.firstName} ${user.lastName}`
                             : user.username}
                         </h3>
@@ -150,7 +162,9 @@ export function BookmarkList({ recruiterEmail, onClose }: BookmarkListProps) {
                         )}
                       </div>
                       <div className="flex items-center gap-4 mt-1">
-                        <p className="text-sm text-gray-500">@{user.username}</p>
+                        <p className="text-sm text-gray-500">
+                          @{user.username}
+                        </p>
                         <span className="text-sm text-gray-400">•</span>
                         <p className="text-sm text-gray-500">{user.email}</p>
                       </div>
@@ -164,4 +178,4 @@ export function BookmarkList({ recruiterEmail, onClose }: BookmarkListProps) {
       </div>
     </div>
   );
-} 
+}

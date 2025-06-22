@@ -34,24 +34,26 @@ export const addSkills = mutation({
       .query("skills")
       .withIndex("by_user", (q) => q.eq("userId", user._id))
       .collect();
-    
+
     const order = existingSkills.length;
 
     const skillsObject = {
-      skills: args.skills.reduce((acc, skill) => {
-        acc[skill.trim()] = true;
-        return acc;
-      }, {} as Record<string, boolean>),
-      updatedAt: Date.now()
+      skills: args.skills.reduce(
+        (acc, skill) => {
+          acc[skill.trim()] = true;
+          return acc;
+        },
+        {} as Record<string, boolean>,
+      ),
+      updatedAt: Date.now(),
     };
 
     const skillsData = JSON.stringify(skillsObject);
 
     const existingCategory = await ctx.db
       .query("skills")
-      .withIndex("by_user_category", (q) => 
-        q.eq("userId", user._id)
-         .eq("category", args.category)
+      .withIndex("by_user_category", (q) =>
+        q.eq("userId", user._id).eq("category", args.category),
       )
       .first();
 
@@ -63,7 +65,7 @@ export const addSkills = mutation({
             .query("skills")
             .withIndex("by_user", (q) => q.eq("userId", user._id))
             .collect();
-          
+
           for (let i = 0; i < remainingSkills.length; i++) {
             await ctx.db.patch(remainingSkills[i]._id, { order: i });
           }
@@ -80,7 +82,7 @@ export const addSkills = mutation({
           userId: user._id,
           category: args.category,
           skillsData,
-          order
+          order,
         });
         return { success: true, created: true };
       }
@@ -93,10 +95,12 @@ export const addSkills = mutation({
 export const reorderSkills = mutation({
   args: {
     email: v.string(),
-    updates: v.array(v.object({
-      category: v.string(),
-      order: v.number(),
-    })),
+    updates: v.array(
+      v.object({
+        category: v.string(),
+        order: v.number(),
+      }),
+    ),
   },
   handler: async (ctx, args) => {
     const user = await ctx.db
@@ -111,9 +115,8 @@ export const reorderSkills = mutation({
     for (const update of args.updates) {
       const skill = await ctx.db
         .query("skills")
-        .withIndex("by_user_category", (q) => 
-          q.eq("userId", user._id)
-           .eq("category", update.category)
+        .withIndex("by_user_category", (q) =>
+          q.eq("userId", user._id).eq("category", update.category),
         )
         .first();
 
@@ -145,17 +148,19 @@ export const getUserSkills = query({
 
     return categories
       .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
-      .map(category => {
+      .map((category) => {
         if (!category._id) {
-          console.error('Category missing _id:', category);
+          console.error("Category missing _id:", category);
         }
-        const skillsData = category.skillsData ? JSON.parse(category.skillsData) : null;
-        
+        const skillsData = category.skillsData
+          ? JSON.parse(category.skillsData)
+          : null;
+
         return {
           _id: category._id,
           category: category.category,
           skills: skillsData?.skills ? Object.keys(skillsData.skills) : [],
-          order: category.order
+          order: category.order,
         };
       });
   },
@@ -182,9 +187,8 @@ export const deleteSkillCategory = mutation({
 
     const existingCategory = await ctx.db
       .query("skills")
-      .withIndex("by_user_category", (q) => 
-        q.eq("userId", user._id)
-         .eq("category", args.category)
+      .withIndex("by_user_category", (q) =>
+        q.eq("userId", user._id).eq("category", args.category),
       )
       .first();
 
@@ -198,7 +202,7 @@ export const deleteSkillCategory = mutation({
       .query("skills")
       .withIndex("by_user", (q) => q.eq("userId", user._id))
       .collect();
-    
+
     for (let i = 0; i < remainingSkills.length; i++) {
       await ctx.db.patch(remainingSkills[i]._id, { order: i });
     }
@@ -226,8 +230,8 @@ export const update = mutation({
 
     const existingSkill = await ctx.db
       .query("skills")
-      .withIndex("by_user_category", (q) => 
-        q.eq("userId", user._id).eq("category", args.oldCategory)
+      .withIndex("by_user_category", (q) =>
+        q.eq("userId", user._id).eq("category", args.oldCategory),
       )
       .first();
 
@@ -236,18 +240,21 @@ export const update = mutation({
     }
 
     const skillsObject = {
-      skills: args.skills.reduce((acc, skill) => {
-        acc[skill.trim()] = true;
-        return acc;
-      }, {} as Record<string, boolean>),
-      updatedAt: Date.now()
+      skills: args.skills.reduce(
+        (acc, skill) => {
+          acc[skill.trim()] = true;
+          return acc;
+        },
+        {} as Record<string, boolean>,
+      ),
+      updatedAt: Date.now(),
     };
 
     const skillsData = JSON.stringify(skillsObject);
 
     await ctx.db.patch(existingSkill._id, {
       category: args.newCategory,
-      skillsData
+      skillsData,
     });
 
     return {
@@ -262,21 +269,18 @@ export const update = mutation({
 export const getAllSkills = query({
   args: {},
   handler: async (ctx) => {
-    const skillCategories = await ctx.db
-      .query("skills")
-      .collect();
+    const skillCategories = await ctx.db.query("skills").collect();
 
     const uniqueSkills = new Set<string>();
-    skillCategories.forEach(category => {
+    skillCategories.forEach((category) => {
       try {
         const skills = JSON.parse(category.skillsData);
         if (Array.isArray(skills)) {
-          skills.forEach(skill => uniqueSkills.add(skill));
+          skills.forEach((skill) => uniqueSkills.add(skill));
         }
-      } catch {
-      }
+      } catch {}
     });
 
     return Array.from(uniqueSkills).sort();
-  }
+  },
 });

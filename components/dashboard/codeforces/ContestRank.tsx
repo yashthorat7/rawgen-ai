@@ -1,9 +1,24 @@
 "use client";
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState } from "react";
 import type { CodeforcesData } from "@/lib/types";
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
-import { Trophy, Target, ChevronLeft, ChevronRight, ZoomIn, ZoomOut } from 'lucide-react';
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  ReferenceLine,
+} from "recharts";
+import {
+  Trophy,
+  Target,
+  ChevronLeft,
+  ChevronRight,
+  ZoomIn,
+  ZoomOut,
+} from "lucide-react";
 
 interface ContestRankProps {
   data: CodeforcesData;
@@ -22,30 +37,33 @@ export function ContestRank({ data }: ContestRankProps) {
   const allChartData = useMemo(() => {
     return [...data.ratingHistory]
       .sort((a, b) => a.timestamp - b.timestamp)
-      .map(contest => ({
+      .map((contest) => ({
         contestId: contest.contestId,
         name: contest.contestName,
         rating: contest.newRating,
         oldRating: contest.oldRating,
         ratingChange: contest.newRating - contest.oldRating,
         rank: contest.rank,
-        date: new Date(contest.timestamp * 1000).toLocaleDateString('en-US', {
-          month: 'short',
-          year: 'numeric'
+        date: new Date(contest.timestamp * 1000).toLocaleDateString("en-US", {
+          month: "short",
+          year: "numeric",
         }),
-        timestamp: contest.timestamp
+        timestamp: contest.timestamp,
       }));
   }, [data.ratingHistory]);
 
   const chartData = useMemo(() => {
     const now = Date.now() / 1000;
-    const monthsAgo = now - (timeRange * 30 * 24 * 60 * 60);
-    return allChartData.filter(item => item.timestamp >= monthsAgo);
+    const monthsAgo = now - timeRange * 30 * 24 * 60 * 60;
+    return allChartData.filter((item) => item.timestamp >= monthsAgo);
   }, [allChartData, timeRange]);
 
-  const minRating = Math.min(...chartData.map(item => item.rating));
-  const maxRating = Math.max(...chartData.map(item => item.rating));
-  const domain = [Math.floor(minRating / 100) * 100, Math.ceil(maxRating / 100) * 100];
+  const minRating = Math.min(...chartData.map((item) => item.rating));
+  const maxRating = Math.max(...chartData.map((item) => item.rating));
+  const domain = [
+    Math.floor(minRating / 100) * 100,
+    Math.ceil(maxRating / 100) * 100,
+  ];
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 h-[400px]">
@@ -54,12 +72,12 @@ export function ContestRank({ data }: ContestRankProps) {
         <div className="flex items-center gap-2 justify-center">
           <Target className="w-6 h-6 text-red-500" />
           <span className="text-base font-medium text-gray-700">
-            {data.contestCount} <span className="hidden sm:inline">contests</span>
+            {data.contestCount}{" "}
+            <span className="hidden sm:inline">contests</span>
           </span>
         </div>
         <div className="flex justify-end items-center gap-4">
-        <div className="flex items-center gap-2">
-          </div>
+          <div className="flex items-center gap-2"></div>
           <div className="flex items-center gap-2">
             <select
               value={timeRange}
@@ -84,26 +102,30 @@ export function ContestRank({ data }: ContestRankProps) {
           >
             <XAxis
               dataKey="date"
-              tick={{ fontSize: 12, fill: '#6B7280' }}
+              tick={{ fontSize: 12, fill: "#6B7280" }}
               tickLine={false}
               axisLine={false}
             />
             <YAxis
               domain={domain}
-              tick={{ fontSize: 12, fill: '#6B7280' }}
+              tick={{ fontSize: 12, fill: "#6B7280" }}
               tickLine={false}
               axisLine={false}
               width={40}
             />
             <Tooltip content={<CustomTooltip />} />
-            <ReferenceLine y={data.maxRating} stroke="#EAB308" strokeDasharray="3 3" />
+            <ReferenceLine
+              y={data.maxRating}
+              stroke="#EAB308"
+              strokeDasharray="3 3"
+            />
             <Line
               type="monotone"
               dataKey="rating"
               stroke="#6366F1"
               strokeWidth={2}
-              dot={{ r: 4, fill: '#6366F1' }}
-              activeDot={{ r: 6, fill: '#4F46E5' }}
+              dot={{ r: 4, fill: "#6366F1" }}
+              activeDot={{ r: 6, fill: "#4F46E5" }}
             />
           </LineChart>
         </ResponsiveContainer>
@@ -117,23 +139,20 @@ function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
 
   const data = payload[0].payload;
   const ratingChange = data.rating - data.oldRating;
-  const changeColor = ratingChange >= 0 ? 'text-green-600' : 'text-red-600';
+  const changeColor = ratingChange >= 0 ? "text-green-600" : "text-red-600";
 
   return (
     <div className="bg-white/95 backdrop-blur-sm shadow-lg rounded-lg p-3 border border-gray-100">
       <p className="font-medium text-sm text-gray-900 mb-1">{data.name}</p>
       <p className="text-xs text-gray-600 mb-1">{data.date}</p>
       <div className="flex items-center gap-3 text-sm">
-        <p className="text-primary-600 font-medium">
-          Rating: {data.rating}
-        </p>
+        <p className="text-primary-600 font-medium">Rating: {data.rating}</p>
         <p className={`font-medium ${changeColor}`}>
-          {ratingChange > 0 ? '+' : ''}{ratingChange}
+          {ratingChange > 0 ? "+" : ""}
+          {ratingChange}
         </p>
-        <p className="text-gray-600">
-          Rank: #{data.rank}
-        </p>
+        <p className="text-gray-600">Rank: #{data.rank}</p>
       </div>
     </div>
   );
-} 
+}

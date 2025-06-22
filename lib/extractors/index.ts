@@ -1,7 +1,19 @@
-import { extractCodeChefData, extractEssentialCodeChefData } from './codechefExtractor';
-import { extractCodeforcesData, extractEssentialCodeforcesData } from './codeforcesExtractor';
-import { extractGeeksForGeeksData, extractEssentialGeeksForGeeksData } from './geeksforgeeksExtractor';
-import { extractLeetCodeData, extractEssentialLeetCodeData } from './leetcodeExtractor';
+import {
+  extractCodeChefData,
+  extractEssentialCodeChefData,
+} from "./codechefExtractor";
+import {
+  extractCodeforcesData,
+  extractEssentialCodeforcesData,
+} from "./codeforcesExtractor";
+import {
+  extractGeeksForGeeksData,
+  extractEssentialGeeksForGeeksData,
+} from "./geeksforgeeksExtractor";
+import {
+  extractLeetCodeData,
+  extractEssentialLeetCodeData,
+} from "./leetcodeExtractor";
 
 export {
   extractCodeChefData,
@@ -16,34 +28,37 @@ export {
 
 export function getEssentialDataExtractor(platformName: string) {
   switch (platformName.toLowerCase()) {
-    case 'leetcode':
+    case "leetcode":
       return extractEssentialLeetCodeData;
-    case 'codechef':
+    case "codechef":
       return extractEssentialCodeChefData;
-    case 'geeksforgeeks':
+    case "geeksforgeeks":
       return extractEssentialGeeksForGeeksData;
-    case 'codeforces':
+    case "codeforces":
       return extractEssentialCodeforcesData;
     default:
       return null;
   }
 }
 
-export async function extractEssentialPlatformData(platform: string, username: string) {
+export async function extractEssentialPlatformData(
+  platform: string,
+  username: string,
+) {
   try {
     let data = null;
-    
+
     switch (platform.toLowerCase()) {
-      case 'leetcode':
+      case "leetcode":
         data = await extractLeetCodeData(username);
         return data ? extractEssentialLeetCodeData(data) : null;
-      case 'codechef':
+      case "codechef":
         data = await extractCodeChefData(username);
         return data ? extractEssentialCodeChefData(data) : null;
-      case 'geeksforgeeks':
+      case "geeksforgeeks":
         data = await extractGeeksForGeeksData(username);
         return data ? extractEssentialGeeksForGeeksData(data) : null;
-      case 'codeforces':
+      case "codeforces":
         data = await extractCodeforcesData(username);
         return data ? extractEssentialCodeforcesData(data) : null;
       default:
@@ -53,4 +68,4 @@ export async function extractEssentialPlatformData(platform: string, username: s
     console.error(`Error extracting essential ${platform} data:`, error);
     return null;
   }
-} 
+}

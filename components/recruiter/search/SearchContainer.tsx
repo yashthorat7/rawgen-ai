@@ -4,7 +4,12 @@ import { useState, useMemo } from "react";
 import SearchResults from "./SearchResults";
 import type { FilterState } from "./SearchResults";
 import { SearchTabs, TabType } from "./SearchTabs";
-import { ChevronLeft, ChevronRight, MoreHorizontal, Bookmark } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  MoreHorizontal,
+  Bookmark,
+} from "lucide-react";
 import { BookmarkList } from "../BookmarkList";
 import { Button } from "@/components/ui/button";
 import { SearchFilters } from "./SearchFilters";
@@ -15,7 +20,9 @@ interface SearchContainerProps {
 
 const ITEMS_PER_PAGE = 6;
 
-export default function SearchContainer({ recruiterEmail }: SearchContainerProps) {
+export default function SearchContainer({
+  recruiterEmail,
+}: SearchContainerProps) {
   const [activeTab, setActiveTab] = useState<TabType>("users");
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -28,8 +35,8 @@ export default function SearchContainer({ recruiterEmail }: SearchContainerProps
       leetcode: false,
       codechef: false,
       codeforces: false,
-      geeksforgeeks: false
-    }
+      geeksforgeeks: false,
+    },
   });
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
@@ -42,31 +49,37 @@ export default function SearchContainer({ recruiterEmail }: SearchContainerProps
   };
 
   const pageNumbers = useMemo(() => {
-    const pages: (number | 'ellipsis')[] = [];
-    
+    const pages: (number | "ellipsis")[] = [];
+
     if (totalPages <= 7) {
       for (let i = 1; i <= totalPages; i++) {
         pages.push(i);
       }
     } else {
       pages.push(1);
-      
+
       if (currentPage <= 3) {
-        pages.push(2, 3, 4, 'ellipsis', totalPages - 1, totalPages);
+        pages.push(2, 3, 4, "ellipsis", totalPages - 1, totalPages);
       } else if (currentPage >= totalPages - 2) {
-        pages.push('ellipsis', totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
+        pages.push(
+          "ellipsis",
+          totalPages - 3,
+          totalPages - 2,
+          totalPages - 1,
+          totalPages,
+        );
       } else {
         pages.push(
-          'ellipsis',
+          "ellipsis",
           currentPage - 1,
           currentPage,
           currentPage + 1,
-          'ellipsis',
-          totalPages
+          "ellipsis",
+          totalPages,
         );
       }
     }
-    
+
     return pages;
   }, [currentPage, totalPages]);
 
@@ -83,8 +96,8 @@ export default function SearchContainer({ recruiterEmail }: SearchContainerProps
         </Button>
       </div>
 
-      <SearchTabs 
-        activeTab={activeTab} 
+      <SearchTabs
+        activeTab={activeTab}
         onTabChange={(tab) => {
           setActiveTab(tab);
           setCurrentPage(1);
@@ -102,7 +115,7 @@ export default function SearchContainer({ recruiterEmail }: SearchContainerProps
         }}
       />
 
-      <SearchResults 
+      <SearchResults
         tab={activeTab}
         searchQuery={searchQuery}
         filters={filters}
@@ -121,8 +134,8 @@ export default function SearchContainer({ recruiterEmail }: SearchContainerProps
             disabled={currentPage === 1}
             className={`p-2 rounded-lg transition-all duration-200 ${
               currentPage === 1
-                ? 'text-gray-400 cursor-not-allowed'
-                : 'text-gray-700 hover:bg-gray-100'
+                ? "text-gray-400 cursor-not-allowed"
+                : "text-gray-700 hover:bg-gray-100"
             }`}
             aria-label="Previous page"
           >
@@ -131,10 +144,10 @@ export default function SearchContainer({ recruiterEmail }: SearchContainerProps
 
           <div className="flex items-center gap-1">
             {pageNumbers.map((pageNumber, idx) => {
-              if (pageNumber === 'ellipsis') {
+              if (pageNumber === "ellipsis") {
                 return (
-                  <div 
-                    key={`ellipsis-${idx}`} 
+                  <div
+                    key={`ellipsis-${idx}`}
                     className="w-8 h-8 flex items-center justify-center text-gray-400"
                   >
                     <MoreHorizontal className="w-5 h-5" />
@@ -148,8 +161,8 @@ export default function SearchContainer({ recruiterEmail }: SearchContainerProps
                   onClick={() => handlePageChange(pageNumber)}
                   className={`w-8 h-8 rounded-lg transition-all duration-200 ${
                     currentPage === pageNumber
-                      ? 'bg-primary-100 text-primary-700 font-medium'
-                      : 'text-gray-600 hover:bg-gray-100'
+                      ? "bg-primary-100 text-primary-700 font-medium"
+                      : "text-gray-600 hover:bg-gray-100"
                   }`}
                 >
                   {pageNumber}
@@ -163,8 +176,8 @@ export default function SearchContainer({ recruiterEmail }: SearchContainerProps
             disabled={currentPage === totalPages}
             className={`p-2 rounded-lg transition-all duration-200 ${
               currentPage === totalPages
-                ? 'text-gray-400 cursor-not-allowed'
-                : 'text-gray-700 hover:bg-gray-100'
+                ? "text-gray-400 cursor-not-allowed"
+                : "text-gray-700 hover:bg-gray-100"
             }`}
             aria-label="Next page"
           >
@@ -182,4 +195,4 @@ export default function SearchContainer({ recruiterEmail }: SearchContainerProps
       )}
     </div>
   );
-} 
+}
