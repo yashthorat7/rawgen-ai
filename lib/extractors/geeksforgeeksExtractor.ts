@@ -10,7 +10,7 @@ export async function extractGeeksForGeeksData(
 ): Promise<GeeksForGeeksData | null> {
   try {
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_CODEFETCH_API_URL}/geeksforgeeks/${username}`,
+      `/api/geeksforgeeks/${username}`,
       {
         headers: {
           Accept: "application/json",

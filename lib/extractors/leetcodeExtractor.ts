@@ -5,7 +5,7 @@ export async function extractLeetCodeData(
 ): Promise<LeetCodeData | null> {
   try {
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_CODEFETCH_API_URL}/leetcode/${username}`,
+      `/api/leetcode/${username}`,
       {
         headers: {
           Accept: "application/json",

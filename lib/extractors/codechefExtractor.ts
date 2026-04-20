@@ -5,7 +5,7 @@ export async function extractCodeChefData(
 ): Promise<CodeChefData | null> {
   try {
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_CODEFETCH_API_URL}/codechef/${username}`,
+      `/api/codechef/${username}`,
       {
         headers: {
           Accept: "application/json",

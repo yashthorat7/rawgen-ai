@@ -14,7 +14,7 @@ export const validateProfile = async (
 
   try {
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_CODEFETCH_API_URL}/check/${platform}/${username}`,
+      `/api/check/${platform}/${username}`,
       { signal },
     );
 

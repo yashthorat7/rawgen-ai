@@ -1,5 +1,4 @@
 export interface LeetCodeData {
-  // Basic Info
   username: string;
   realName: string | null;
   avatar: string;
@@ -11,7 +10,6 @@ export interface LeetCodeData {
   websites: string[];
   skills: string[];
 
-  // Stats
   ranking: number;
   starRating: number;
   reputation: number;
@@ -32,7 +30,6 @@ export interface LeetCodeData {
     diff: number;
   };
 
-  // Submission Stats
   totalSolved: number;
   totalQuestions: number;
   easySolved: number;
@@ -56,14 +53,12 @@ export interface LeetCodeData {
     }>;
   };
 
-  // Calendar & Streak
   calendar: {
     streak: number;
     totalActiveDays: number;
     submissionCalendar: Record<string, number>;
   };
 
-  // Contests
   contests: Array<{
     title: string;
     rating: number;
@@ -84,7 +79,6 @@ export interface LeetCodeData {
     badge: any;
   };
 
-  // Recent Submissions
   recentlySolved: Array<{
     id: string;
     title: string;
@@ -94,7 +88,6 @@ export interface LeetCodeData {
     difficulty: string;
   }>;
 
-  // Badges
   badges: Array<{
     id: string;
     name: string;
@@ -110,13 +103,11 @@ export interface LeetCodeData {
   activeBadge: any;
   upcomingBadges: any[];
 
-  // Language Stats
   languageStats: Array<{
     name: string;
     solved: number;
   }>;
 
-  // Topic Stats
   topicStats: {
     advanced: Array<{
       name: string;
@@ -135,7 +126,6 @@ export interface LeetCodeData {
     }>;
   };
 
-  // Social Links
   social: {
     github: string | null;
     linkedin: string | null;
@@ -145,33 +135,28 @@ export interface LeetCodeData {
 }
 
 export type CodeChefData = {
-  // Basic Info
   username: string;
   name: string;
   stars: number;
   institution: string | null;
   countryName: string | null;
 
-  // Ratings
   currentRating: number;
   highestRating: number;
   globalRank: number;
   countryRank: number;
 
-  // Badges
   badges: Array<{
     title: string;
     description: string;
     image: string;
   }>;
 
-  // Stats
   totalContests: number;
   totalProblemsSolved: string;
   practiceProblems: number;
   learningProblems: number;
 
-  // Rating History
   ratingHistory: Array<{
     name: string;
     code: string;
@@ -182,19 +167,16 @@ export type CodeChefData = {
     endDate: string;
   }>;
 
-  // Submission Activity
   submissionStats: Array<{
     date: string;
     submissions: number;
   }>;
 
-  // Contest Details
   contests: Array<{
     name: string;
     problemCount: number;
   }>;
 
-  // Contest Details with Problems
   contestDetails: Array<{
     name: string;
     problems: string[];
@@ -202,26 +184,21 @@ export type CodeChefData = {
 };
 
 export interface GeeksForGeeksData {
-  // Basic Info
   username: string;
   profileImage: string;
   stars: string;
   institution: string;
   organization: string;
 
-  // Stats
   codingScore: number;
   problemsSolved: number;
   contestRating: number;
 
-  // Streaks
   currentStreak: number;
   totalStreak: number;
 
-  // Rankings
   institutionRank: number;
 
-  // Problem Counts
   totalProblems: number;
   schoolProblems: number;
   basicProblems: number;
@@ -229,7 +206,6 @@ export interface GeeksForGeeksData {
   mediumProblems: number;
   hardProblems: number;
 
-  // Languages
   languages: string[];
 
   problems: {
@@ -242,7 +218,6 @@ export interface GeeksForGeeksData {
 }
 
 export interface CodeforcesData {
-  // Basic Info
   username: string;
   rank: string;
   rating: number;
@@ -256,7 +231,6 @@ export interface CodeforcesData {
   lastOnline?: number;
   registrationTime?: number;
 
-  // Rating History
   ratingHistory: Array<{
     contestId: number;
     contestName: string;
@@ -267,7 +241,6 @@ export interface CodeforcesData {
     timestamp: number;
   }>;
 
-  // Stats
   contestCount: number;
   recentPerformance: {
     averageRank: number;
@@ -283,7 +256,9 @@ export type PlatformData = {
   codechef: Record<string, CodeChefData | null>;
   geeksforgeeks: Record<string, GeeksForGeeksData | null>;
   codeforces: Record<string, CodeforcesData | null>;
+  [key: string]: Record<string, any>;
 };
+
 
 export type Platform = {
   platform: string;

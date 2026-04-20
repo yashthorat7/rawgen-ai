@@ -15,7 +15,7 @@ export async function extractCodeforcesData(
 ): Promise<CodeforcesData | null> {
   try {
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_CODEFETCH_API_URL}/codeforces/${username}`,
+      `/api/codeforces/${username}`,
       {
         headers: {
           Accept: "application/json",
