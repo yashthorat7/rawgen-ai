@@ -14,6 +14,9 @@ const quicksand = localFont({
 export const metadata: Metadata = {
   title: "RawGen.AI",
   description: "Your Competitive Programming Portfolio",
+  icons: {
+    icon: "/favicon.png",
+  },
 };
 
 export default function RootLayout({
