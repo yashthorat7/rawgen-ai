@@ -4,7 +4,7 @@
 
 **RawGen AI** is a premium, high-performance analytics platform designed to consolidate a developer's algorithmic prowess and engineering projects into a single, unified ecosystem. It bridges the gap between competitive programming excellence and real-world project portfolios, offering recruiters and developers a "raw" look at verified skill data. Built with the "Vibe-Hand" architecture, it combines state-of-the-art aesthetics with custom, handwritten data extraction logic.
 
-[![Next.js](https://img.shields.io/badge/Next.js-15-black?logo=next.js)](https://nextjs.org/) [![React](https://img.shields.io/badge/React-19-blue?logo=react)](https://reactjs.org/) [![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3.4-38B2AC?logo=tailwind-css)](https://tailwindcss.com/) [![Convex](https://img.shields.io/badge/Database-Convex-ff69b4?logo=convex)](https://convex.dev/) [![Clerk](https://img.shields.io/badge/Auth-Clerk-6C47FF?logo=clerk)](https://clerk.com/) [![AI](https://img.shields.io/badge/AI-Groq_Llama_3.1-orange)](https://groq.com/)
+[![Next.js](https://img.shields.io/badge/Next.js-16.2-black?logo=next.js)](https://nextjs.org/) [![React](https://img.shields.io/badge/React-19-blue?logo=react)](https://reactjs.org/) [![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3.4-38B2AC?logo=tailwind-css)](https://tailwindcss.com/) [![Convex](https://img.shields.io/badge/Database-Convex-ff69b4?logo=convex)](https://convex.dev/) [![Clerk](https://img.shields.io/badge/Auth-Clerk-6C47FF?logo=clerk)](https://clerk.com/) [![AI](https://img.shields.io/badge/AI-Groq_Llama_3.1-orange)](https://groq.com/)
 
 ---
 
@@ -50,7 +50,7 @@
 
 ### Frontend
 
-- **Framework**: Next.js 15 (App Router & Server Actions)
+- **Framework**: Next.js 16 (App Router & Server Actions)
 - **UI Context**: React 19 (Concurrent rendering)
 - **Styling**: Tailwind CSS v3.4 (Design system utilities)
 - **Icons**: Lucide React + Tech Stack Icons
